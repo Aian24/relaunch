@@ -98,7 +98,7 @@ export default function PageVideoHero({
           <img
             src={posterSrc}
             alt="Hero Atmosphere"
-            className="absolute inset-0 w-full h-full object-cover opacity-30"
+            className="absolute inset-0 w-full h-full object-cover opacity-40"
           />
         )}
 
@@ -112,12 +112,12 @@ export default function PageVideoHero({
           muted
           playsInline
           preload="auto"
-          className="w-full h-full object-cover opacity-55 transition-opacity duration-500"
+          className="w-full h-full object-cover opacity-70 transition-opacity duration-500"
         />
 
-        {/* Atmospheric Vignette & Gradients for Clean Typography Contrast */}
-        <div className="absolute inset-0 bg-gradient-to-t from-[#07090E] via-[#07090E]/60 to-[#07090E]/80" />
-        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-transparent via-[#07090E]/45 to-[#07090E]" />
+        {/* Atmospheric Vignette & Gradients for Clean Typography Contrast & Rich Video Visibility */}
+        <div className="absolute inset-0 bg-gradient-to-t from-[#07090E] via-[#07090E]/35 to-[#07090E]/50" />
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-transparent via-[#07090E]/20 to-[#07090E]/85" />
 
         {/* Subtle Warm Brand Ambient Glow */}
         <div className="absolute -top-32 left-1/2 -translate-x-1/2 w-[600px] sm:w-[900px] h-[500px] bg-[#C0622A]/15 rounded-full blur-[140px] pointer-events-none" />

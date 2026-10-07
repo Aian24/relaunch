@@ -58,7 +58,7 @@ export default function Hero() {
         <img
           src="/hero_frames/frame_000.webp"
           alt="Hero Background Atmosphere"
-          className="absolute inset-0 w-full h-full object-cover opacity-35"
+          className="absolute inset-0 w-full h-full object-cover opacity-40"
         />
 
         {/* Instant Looping High-Definition Background Video */}
@@ -70,12 +70,12 @@ export default function Hero() {
           muted
           playsInline
           preload="auto"
-          className="w-full h-full object-cover opacity-60 transition-opacity duration-500"
+          className="w-full h-full object-cover opacity-70 transition-opacity duration-500"
         />
 
-        {/* Atmospheric Vignette & Color Gradients for High Readability */}
-        <div className="absolute inset-0 bg-gradient-to-t from-[#07090E] via-[#07090E]/60 to-[#07090E]/75" />
-        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-transparent via-[#07090E]/40 to-[#07090E]" />
+        {/* Atmospheric Vignette & Color Gradients for High Readability & Rich Video Visibility */}
+        <div className="absolute inset-0 bg-gradient-to-t from-[#07090E] via-[#07090E]/35 to-[#07090E]/50" />
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-transparent via-[#07090E]/20 to-[#07090E]/85" />
         
         {/* Subtle Warm Brand Ambient Glow */}
         <div className="absolute -top-32 left-1/2 -translate-x-1/2 w-[600px] sm:w-[900px] h-[500px] bg-[#C0622A]/15 rounded-full blur-[140px] pointer-events-none" />

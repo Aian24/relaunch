@@ -3,7 +3,7 @@
 import { useState, useEffect, useRef } from "react";
 
 export default function Preloader() {
-  const [isMounted, setIsMounted] = useState(true);
+  const [isMounted, setIsMounted] = useState(false);
   const [isDismissing, setIsDismissing] = useState(false);
   const [progress, setProgress] = useState(0);
   const videoRef = useRef<HTMLVideoElement>(null);
@@ -12,6 +12,12 @@ export default function Preloader() {
   const dismissLoader = () => {
     if (dismissedRef.current) return;
     dismissedRef.current = true;
+
+    try {
+      sessionStorage.setItem("relaunch_preloader_seen", "true");
+    } catch {
+      // Storage access exception fallback
+    }
 
     // Freeze video on final completed frame to prevent clearing or glitching
     if (videoRef.current) {
@@ -24,10 +30,24 @@ export default function Preloader() {
     // Cleanly unmount from DOM only after the smooth CSS fade completes
     setTimeout(() => {
       setIsMounted(false);
-    }, 600);
+    }, 550);
   };
 
   useEffect(() => {
+    // Check if preloader has already been completed in this session
+    try {
+      const alreadySeen = sessionStorage.getItem("relaunch_preloader_seen");
+      if (alreadySeen === "true") {
+        setIsMounted(false);
+        return;
+      }
+    } catch {
+      // Storage access exception fallback
+    }
+
+    // Only mount if not seen yet
+    setIsMounted(true);
+
     // Play video at faster 2.5x speed for a brisk, seamless intro
     if (videoRef.current) {
       videoRef.current.playbackRate = 2.5;
@@ -39,7 +59,7 @@ export default function Preloader() {
     // Safety fallback: only if video is completely blocked/hung
     const safetyTimer = setTimeout(() => {
       dismissLoader();
-    }, 5000);
+    }, 4500);
 
     return () => clearTimeout(safetyTimer);
   }, []);
