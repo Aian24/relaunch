@@ -275,14 +275,14 @@ export default function CaseStudiesSection() {
             onTouchMove={(e) => e.stopPropagation()}
             className="fixed inset-0 z-[998] flex items-center justify-center p-3 sm:p-4 md:p-6 overflow-y-auto overscroll-contain"
           >
-            {/* Frosted Glass Backdrop */}
+            {/* Soft Frosted Backdrop */}
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               transition={{ duration: 0.25, ease: "easeOut" }}
               onClick={() => setActiveStudy(null)}
-              className="fixed inset-0 bg-[#090D16]/80 backdrop-blur-md transition-opacity cursor-pointer"
+              className="fixed inset-0 bg-slate-900/40 backdrop-blur-sm transition-opacity cursor-pointer"
             />
 
             {/* Modal Dialog Container with Spring Physics */}
@@ -298,13 +298,13 @@ export default function CaseStudiesSection() {
               className="relative w-full max-w-4xl bg-white rounded-2xl sm:rounded-3xl shadow-2xl border border-slate-200 overflow-hidden z-10 max-h-[85vh] sm:max-h-[88vh] flex flex-col my-auto"
             >
               {/* Header (Fixed shrink-0) */}
-              <div className="shrink-0 bg-[#090D16] text-white p-5 sm:p-6 flex items-start justify-between border-b border-slate-800">
+              <div className="shrink-0 bg-white text-slate-900 p-5 sm:p-6 flex items-start justify-between border-b border-slate-100">
                 <div>
                   <motion.div
                     initial={{ opacity: 0, y: -8 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.3, delay: 0.05 }}
-                    className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-slate-900 border border-slate-800 text-[#C0622A] text-[10px] font-mono font-bold uppercase tracking-widest mb-2"
+                    className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-orange-50 border border-orange-200/80 text-[#C0622A] text-[10px] font-mono font-bold uppercase tracking-widest mb-2"
                   >
                     <span className="w-1.5 h-1.5 rounded-full bg-[#C0622A]" />
                     <span>Case Study Showcase</span>
@@ -313,7 +313,7 @@ export default function CaseStudiesSection() {
                     initial={{ opacity: 0, y: 8 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.35, delay: 0.1 }}
-                    className="font-heading font-black text-2xl sm:text-3xl text-white tracking-tight"
+                    className="font-heading font-black text-2xl sm:text-3xl text-slate-950 tracking-tight"
                   >
                     {activeStudy.title}
                   </motion.h3>
@@ -321,13 +321,13 @@ export default function CaseStudiesSection() {
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
                     transition={{ duration: 0.3, delay: 0.14 }}
-                    className="flex flex-wrap items-center gap-3 mt-1.5 text-xs text-slate-300"
+                    className="flex flex-wrap items-center gap-3 mt-1.5 text-xs text-slate-600"
                   >
                     <span className="font-semibold text-[#2E8B7A]">
                       {activeStudy.category}
                     </span>
                     <span>·</span>
-                    <span className="font-mono text-slate-400">
+                    <span className="font-mono text-slate-500">
                       https://{activeStudy.displayUrl}
                     </span>
                   </motion.div>
@@ -337,7 +337,7 @@ export default function CaseStudiesSection() {
                   whileHover={{ rotate: 90, scale: 1.1 }}
                   whileTap={{ scale: 0.9 }}
                   onClick={() => setActiveStudy(null)}
-                  className="p-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white transition-colors shrink-0 cursor-pointer"
+                  className="p-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-500 hover:text-slate-900 transition-colors shrink-0 cursor-pointer"
                   aria-label="Close modal"
                 >
                   <X className="w-5 h-5" />

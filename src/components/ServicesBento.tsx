@@ -298,14 +298,14 @@ export default function ServicesBento() {
             onTouchMove={(e) => e.stopPropagation()}
             className="fixed inset-0 z-[998] flex items-center justify-center p-3 sm:p-4 md:p-6 overflow-y-auto overscroll-contain"
           >
-            {/* Frosted Glass Backdrop */}
+            {/* Soft Frosted Backdrop */}
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               transition={{ duration: 0.25, ease: "easeOut" }}
               onClick={() => setSelectedService(null)}
-              className="fixed inset-0 bg-[#090D16]/80 backdrop-blur-md transition-opacity cursor-pointer"
+              className="fixed inset-0 bg-slate-900/40 backdrop-blur-sm transition-opacity cursor-pointer"
             />
 
             {/* Modal Dialog with Apple-Style Fluid Spring Physics */}
@@ -321,7 +321,7 @@ export default function ServicesBento() {
               className="relative w-full max-w-2xl bg-white rounded-3xl shadow-2xl border border-slate-200 overflow-hidden z-10 my-auto flex flex-col max-h-[85vh] sm:max-h-[88vh]"
             >
               {/* Modal Top Header (Fixed shrink-0) */}
-              <div className="shrink-0 bg-[#090D16] text-white p-5 sm:p-7 flex items-start justify-between border-b border-slate-800 gap-4">
+              <div className="shrink-0 bg-white text-slate-900 p-5 sm:p-7 flex items-start justify-between border-b border-slate-100 gap-4">
                 <div className="flex items-start gap-4">
                   {(() => {
                     const ModalIcon = iconMap[selectedService.iconName] || Code2;
@@ -330,7 +330,7 @@ export default function ServicesBento() {
                         initial={{ scale: 0.7, opacity: 0, rotate: -15 }}
                         animate={{ scale: 1, opacity: 1, rotate: 0 }}
                         transition={{ type: "spring", stiffness: 400, damping: 22, delay: 0.08 }}
-                        className="w-12 h-12 rounded-2xl bg-slate-900 border border-slate-800 text-[#C0622A] flex items-center justify-center shrink-0 shadow-xs"
+                        className="w-12 h-12 rounded-2xl bg-orange-50 border border-orange-200/80 text-[#C0622A] flex items-center justify-center shrink-0 shadow-xs"
                       >
                         <ModalIcon className="w-6 h-6 shrink-0" />
                       </motion.div>
@@ -343,14 +343,14 @@ export default function ServicesBento() {
                       transition={{ duration: 0.3, delay: 0.05 }}
                       className="flex items-center gap-2 mb-1.5 flex-wrap"
                     >
-                      <span className="px-2.5 py-0.5 rounded-full bg-slate-900 border border-slate-800 text-[#2E8B7A] text-[10px] font-mono font-bold uppercase tracking-wider whitespace-nowrap">
+                      <span className="px-2.5 py-0.5 rounded-full bg-teal-50 border border-teal-200/80 text-[#2E8B7A] text-[10px] font-mono font-bold uppercase tracking-wider whitespace-nowrap">
                         {selectedService.category}
                       </span>
                       <span className="font-mono text-xs font-bold text-slate-400 whitespace-nowrap">
                         Service {selectedService.num}
                       </span>
                       {selectedService.badge && (
-                        <span className="px-2 py-0.5 rounded-full bg-[#C0622A]/20 text-[#E88C52] text-[9px] font-mono font-bold uppercase whitespace-nowrap">
+                        <span className="px-2 py-0.5 rounded-full bg-orange-100/70 text-[#C0622A] text-[9px] font-mono font-bold uppercase whitespace-nowrap">
                           {selectedService.badge}
                         </span>
                       )}
@@ -359,7 +359,7 @@ export default function ServicesBento() {
                       initial={{ opacity: 0, y: 8 }}
                       animate={{ opacity: 1, y: 0 }}
                       transition={{ duration: 0.35, delay: 0.1 }}
-                      className="font-heading font-black text-2xl sm:text-3xl text-white tracking-tight leading-tight"
+                      className="font-heading font-black text-2xl sm:text-3xl text-slate-950 tracking-tight leading-tight"
                     >
                       {selectedService.title}
                     </motion.h3>
@@ -370,7 +370,7 @@ export default function ServicesBento() {
                   whileHover={{ rotate: 90, scale: 1.1 }}
                   whileTap={{ scale: 0.9 }}
                   onClick={() => setSelectedService(null)}
-                  className="p-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white transition-colors shrink-0 cursor-pointer"
+                  className="p-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-500 hover:text-slate-900 transition-colors shrink-0 cursor-pointer"
                   aria-label="Close modal"
                 >
                   <X className="w-5 h-5 shrink-0" />

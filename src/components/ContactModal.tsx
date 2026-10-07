@@ -188,14 +188,14 @@ export default function ContactModal() {
           onTouchMove={(e) => e.stopPropagation()}
           className="fixed inset-0 z-[999] flex items-center justify-center p-2 sm:p-4 overflow-y-auto overscroll-contain"
         >
-          {/* Frosted Glass Backdrop */}
+          {/* Soft Frosted Backdrop */}
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             transition={{ duration: 0.25, ease: "easeOut" }}
             onClick={closeContactModal}
-            className="fixed inset-0 bg-[#090D16]/80 backdrop-blur-md transition-opacity cursor-pointer"
+            className="fixed inset-0 bg-slate-900/40 backdrop-blur-sm transition-opacity cursor-pointer"
           />
 
           {/* Modal Dialog Container with Apple-Style Spring Physics */}
@@ -211,9 +211,9 @@ export default function ContactModal() {
             className="relative w-full max-w-3xl bg-white rounded-2xl sm:rounded-3xl shadow-2xl border border-slate-200 overflow-hidden z-10 max-h-[88vh] flex flex-col my-auto"
           >
         {/* Modal Header */}
-        <div className="shrink-0 bg-[#090D16] text-white p-4 sm:p-5 flex items-start justify-between border-b border-slate-800">
+        <div className="shrink-0 bg-white text-slate-900 p-5 sm:p-6 flex items-start justify-between border-b border-slate-100">
           <div>
-            <div className="inline-flex items-center gap-2 px-2.5 py-0.5 rounded-full bg-slate-900 border border-slate-800 text-[#C0622A] text-[9.5px] font-mono font-bold uppercase tracking-widest mb-1.5">
+            <div className="inline-flex items-center gap-2 px-2.5 py-0.5 rounded-full bg-orange-50 border border-orange-200/80 text-[#C0622A] text-[9.5px] font-mono font-bold uppercase tracking-widest mb-1.5">
               <span className="w-1.5 h-1.5 rounded-full bg-[#C0622A]" />
               <span>
                 {activeTab === "calendar"
@@ -221,14 +221,14 @@ export default function ContactModal() {
                   : "LET'S BUILD YOUR MISSION"}
               </span>
             </div>
-            <h3 className="font-heading font-black text-lg sm:text-2xl text-white tracking-tight leading-tight">
+            <h3 className="font-heading font-black text-lg sm:text-2xl text-slate-950 tracking-tight leading-tight">
               {activeTab === "calendar"
                 ? "Grab a time that works."
                 : activeTab === "ai-audit"
                 ? "Request Your AI Readiness Audit"
                 : "Tell Us About Your Business"}
             </h3>
-            <p className="text-slate-300 text-[11px] sm:text-xs mt-0.5 max-w-lg font-normal">
+            <p className="text-slate-500 text-[11px] sm:text-xs mt-0.5 max-w-lg font-normal">
               {activeTab === "calendar"
                 ? "Pick a slot below — you'll get an instant Google Calendar confirmation."
                 : "No pressure, no fluff. Just a clear roadmap tailored to your growth goals."}
@@ -237,7 +237,7 @@ export default function ContactModal() {
 
           <button
             onClick={closeContactModal}
-            className="p-1.5 sm:p-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white transition-colors shrink-0 cursor-pointer"
+            className="p-1.5 sm:p-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-500 hover:text-slate-900 transition-colors shrink-0 cursor-pointer"
             aria-label="Close modal"
           >
             <X className="w-4 h-4 sm:w-5 sm:h-5" />
