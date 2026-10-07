@@ -1,7 +1,3 @@
-"use client";
-
-import React from "react";
-import Image from "next/image";
 import Link from "next/link";
 import { motion } from "framer-motion";
 import Navbar from "@/components/Navbar";
@@ -14,11 +10,6 @@ import {
   Compass,
   ArrowUpRight,
   ArrowRight,
-  ShieldCheck,
-  CheckCircle2,
-  Workflow,
-  Sparkles,
-  Layers,
 } from "lucide-react";
 
 export default function MethodPage() {
@@ -140,10 +131,8 @@ export default function MethodPage() {
         </div>
       </section>
 
-      {/* 2. 4-Layer Selling Framework Section */}
-      <section className="py-8">
-        <SellingMethodSection />
-      </section>
+      {/* 2. 4-Layer Selling Framework Section (Pure White) */}
+      <SellingMethodSection />
 
       {/* 3. Bottom CTA */}
       <CtaBanner />

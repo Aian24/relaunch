@@ -209,12 +209,12 @@ export default function NisGraderSection() {
                 })}
               </div>
 
-              <div className="p-8 bg-[#090D16] text-white rounded-2xl flex flex-col sm:flex-row sm:items-center justify-between gap-6 shadow-xl">
+              <div className="p-8 bg-slate-50 text-slate-900 border border-slate-200 rounded-2xl flex flex-col sm:flex-row sm:items-center justify-between gap-6 shadow-sm">
                 <div>
-                  <h5 className="font-heading font-black text-xl text-white">
+                  <h5 className="font-heading font-black text-xl text-slate-950">
                     Want our team to fix these gaps for you?
                   </h5>
-                  <p className="text-xs text-slate-300 mt-1">
+                  <p className="text-xs text-slate-600 mt-1">
                     Book a free 15-minute diagnostic strategy walkthrough.
                   </p>
                 </div>
@@ -225,7 +225,7 @@ export default function NisGraderSection() {
                       setIsSubmitted(false);
                       setSelectedAnswers({});
                     }}
-                    className="p-3.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-bold transition-all"
+                    className="p-3.5 rounded-xl bg-white border border-slate-200 hover:bg-slate-100 text-slate-600 text-xs font-bold transition-all cursor-pointer"
                     title="Retake Grader"
                   >
                     <RotateCcw className="w-4 h-4" />

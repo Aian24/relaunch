@@ -75,16 +75,16 @@ export default function SellingMethodSection() {
         {/* Ironclad Standard Box */}
         <MotionWrapper direction="left" distance={40} delay={0.15} className="w-full mb-8 sm:mb-10">
           <SpotlightCard
-            spotlightColor="rgba(192, 98, 42, 0.2)"
-            className="p-6 sm:p-8 bg-[#090D16] text-white rounded-2xl sm:rounded-3xl text-center shadow-xl border border-slate-800 max-w-5xl mx-auto"
+            spotlightColor="rgba(192, 98, 42, 0.12)"
+            className="p-6 sm:p-8 bg-orange-50/50 text-slate-900 rounded-2xl sm:rounded-3xl text-center shadow-md border border-orange-200/80 max-w-5xl mx-auto"
           >
             <span className="text-xs font-mono uppercase tracking-widest text-[#C0622A] font-bold mb-2 block">
               OUR IRONCLAD PRODUCTION STANDARD
             </span>
-            <blockquote className="font-heading font-black text-xl sm:text-2xl lg:text-3xl text-white leading-snug mb-3">
+            <blockquote className="font-heading font-black text-xl sm:text-2xl lg:text-3xl text-slate-950 leading-snug mb-3">
               &ldquo;Standard for every deliverable: it must name the customer&apos;s problem, present the client as the answer, and ask for an action. Anything that doesn&apos;t sell doesn&apos;t ship.&rdquo;
             </blockquote>
-            <p className="text-xs text-slate-400 font-medium">
+            <p className="text-xs text-slate-500 font-medium">
               — ReLaunch Operating Principle since 2004 · Phoenix, Arizona
             </p>
           </SpotlightCard>
@@ -111,10 +111,10 @@ export default function SellingMethodSection() {
               >
                 <SpotlightCard
                   spotlightColor="rgba(46, 139, 122, 0.12)"
-                  className="bg-slate-50 p-5 sm:p-6 rounded-2xl border border-slate-200 relative flex flex-col justify-between h-full"
+                  className="bg-slate-50 p-5 sm:p-6 rounded-2xl border border-slate-200 relative flex flex-col justify-between h-full hover:shadow-md transition-shadow"
                 >
                   <div>
-                    <div className="w-8 h-8 rounded-full bg-[#090D16] text-white flex items-center justify-center font-heading font-black text-xs mb-3 shadow-xs">
+                    <div className="w-8 h-8 rounded-full bg-orange-50 border border-orange-200 text-[#C0622A] flex items-center justify-center font-heading font-black text-xs mb-3 shadow-xs">
                       {step.stepNumber}
                     </div>
 

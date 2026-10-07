@@ -16,9 +16,7 @@ import {
   ArrowRight,
   ChevronDown,
   Sparkles,
-  MessageSquare,
   Phone,
-  ShieldCheck,
 } from "lucide-react";
 
 export default function FaqPage() {
@@ -160,7 +158,7 @@ export default function FaqPage() {
         </div>
       </section>
 
-      {/* 2. Interactive FAQ Category Filter & Accordion List */}
+      {/* 2. Interactive FAQ Category Filter & Accordion List (Pure White) */}
       <section className="py-20 sm:py-28 px-4 sm:px-6 lg:px-8 max-w-5xl mx-auto w-full">
         {/* Category Pills */}
         <MotionWrapper direction="up" distance={25} className="flex flex-wrap items-center justify-center gap-2 sm:gap-3 mb-12">

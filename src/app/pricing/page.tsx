@@ -7,17 +7,13 @@ import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import ScrollToTop from "@/components/ScrollToTop";
 import BundleCalculator from "@/components/BundleCalculator";
-import FaqSection from "@/components/FaqSection";
 import CtaBanner from "@/components/CtaBanner";
 import { useContactModal } from "@/context/ContactModalContext";
 import {
   Sparkles,
-  ArrowUpRight,
   ShieldCheck,
-  CheckCircle2,
   Lock,
   RotateCcw,
-  Zap,
 } from "lucide-react";
 
 export default function PricingPage() {
@@ -134,7 +130,7 @@ export default function PricingPage() {
 
                 <div className="mt-6 pt-4 border-t border-white/[0.08] text-center">
                   <a
-                    href="#bundle-calculator"
+                    href="#bundle-builder"
                     className="inline-flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-[#E88C52] hover:text-white transition-colors"
                   >
                     <span>Configure Your Custom Bundle Below ↓</span>
@@ -147,20 +143,16 @@ export default function PricingPage() {
         </div>
       </section>
 
-      {/* 2. Interactive Bundle Builder Component */}
-      <section id="bundle-calculator" className="py-12 sm:py-16">
-        <BundleCalculator />
-      </section>
+      {/* 2. Interactive Bundle Builder Component (Pure White) */}
+      <BundleCalculator />
 
-      {/* 3. Frequently Asked Questions */}
-      <FaqSection />
-
-      {/* 4. Bottom CTA */}
+      {/* 3. Bottom CTA */}
       <CtaBanner />
 
-      {/* 5. Footer */}
+      {/* 4. Footer */}
       <Footer />
       <ScrollToTop />
     </main>
   );
 }
+
