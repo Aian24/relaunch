@@ -28,9 +28,9 @@ export default function SellingMethodSection() {
           {sellingFrameworkLayers.map((layer, idx) => (
             <MotionWrapper
               key={layer.layer}
-              direction="left"
-              delay={idx * 0.1}
-              distance={50}
+              direction="up"
+              delay={idx * 0.09}
+              distance={35}
             >
               <SpotlightCard
                 spotlightColor="rgba(192, 98, 42, 0.12)"

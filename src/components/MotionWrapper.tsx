@@ -16,9 +16,9 @@ interface MotionWrapperProps extends HTMLMotionProps<"div"> {
 export default function MotionWrapper({
   children,
   delay = 0,
-  duration = 0.65,
+  duration = 0.75,
   direction = "up",
-  distance = 24,
+  distance = 32,
   className = "",
   withBlur = true,
   ...props
@@ -45,8 +45,8 @@ export default function MotionWrapper({
     <motion.div
       initial={{
         opacity: 0,
-        scale: 0.96,
-        filter: withBlur ? "blur(4px)" : "none",
+        scale: 0.97,
+        filter: withBlur ? "blur(6px)" : "none",
         ...initialOffset,
       }}
       whileInView={{
@@ -56,7 +56,7 @@ export default function MotionWrapper({
         x: 0,
         y: 0,
       }}
-      viewport={{ once: false, margin: "-40px" }}
+      viewport={{ once: true, margin: "-60px" }}
       transition={{
         duration,
         delay,
@@ -69,5 +69,3 @@ export default function MotionWrapper({
     </motion.div>
   );
 }
-
-

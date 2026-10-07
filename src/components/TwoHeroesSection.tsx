@@ -24,10 +24,10 @@ export default function TwoHeroesSection() {
   const activeHero = twoHeroesData.find((h) => h.id === activeTab)!;
 
   return (
-    <section id="two-doors" className="py-14 sm:py-16 bg-[#F8F9FA] border-b border-slate-200 select-none scroll-mt-20 overflow-hidden">
+    <section id="two-doors" className="py-16 sm:py-20 bg-white border-b border-slate-200/80 select-none scroll-mt-20 overflow-hidden">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Header with Scroll Reveal */}
-        <MotionWrapper direction="up" distance={20} className="text-center max-w-3xl mx-auto mb-6 sm:mb-8">
+        <MotionWrapper direction="up" distance={20} className="text-center max-w-3xl mx-auto mb-8 sm:mb-10">
           <span className="text-xs font-mono uppercase tracking-widest text-[#C0622A] font-bold block mb-2">
             STRATEGIC POSITIONING · TWO DOORS
           </span>
@@ -41,18 +41,18 @@ export default function TwoHeroesSection() {
         </MotionWrapper>
 
         {/* Tab Switcher with Scroll Animation */}
-        <MotionWrapper direction="up" delay={0.1} className="flex justify-center mb-6 w-full">
-          <div className="w-full sm:w-auto grid grid-cols-2 sm:inline-flex p-1 bg-slate-200 rounded-xl sm:rounded-2xl border border-slate-300 gap-1">
+        <MotionWrapper direction="up" delay={0.1} className="flex justify-center mb-8 w-full">
+          <div className="w-full sm:w-auto grid grid-cols-2 sm:inline-flex p-1.5 bg-slate-100 rounded-xl sm:rounded-2xl border border-slate-200 gap-1.5 shadow-xs">
             {twoHeroesData.map((hero) => {
               const isSelected = activeTab === hero.id;
               return (
                 <button
                   key={hero.id}
                   onClick={() => setActiveTab(hero.id as any)}
-                  className={`flex items-center justify-center gap-1.5 sm:gap-2.5 px-3 sm:px-8 py-2.5 rounded-lg sm:rounded-xl font-heading font-bold text-[11px] sm:text-xs md:text-sm uppercase tracking-wider transition-all duration-200 cursor-pointer sm:whitespace-nowrap ${
+                  className={`flex items-center justify-center gap-1.5 sm:gap-2.5 px-4 sm:px-8 py-2.5 rounded-lg sm:rounded-xl font-heading font-bold text-[11px] sm:text-xs md:text-sm uppercase tracking-wider transition-all duration-200 cursor-pointer sm:whitespace-nowrap ${
                     isSelected
-                      ? "bg-[#090D16] text-white shadow-sm"
-                      : "text-slate-600 hover:text-slate-900"
+                      ? "bg-[#C0622A] text-white shadow-sm"
+                      : "text-slate-600 hover:text-slate-900 hover:bg-slate-200/60"
                   }`}
                 >
                   {hero.id === "local-business" ? (
@@ -68,7 +68,7 @@ export default function TwoHeroesSection() {
         </MotionWrapper>
 
         {/* Comparison Card with Scroll Reveal & Animated Tab Switch */}
-        <MotionWrapper direction="up" delay={0.2} className="bg-white rounded-2xl sm:rounded-3xl border border-slate-200 shadow-xl overflow-hidden w-full">
+        <MotionWrapper direction="up" delay={0.2} className="bg-white rounded-2xl sm:rounded-3xl border border-slate-200/80 shadow-[0_4px_25px_rgba(0,0,0,0.03)] overflow-hidden w-full">
           <AnimatePresence mode="wait">
             <motion.div
               key={activeHero.id}
@@ -77,15 +77,15 @@ export default function TwoHeroesSection() {
               exit={{ opacity: 0, y: -10 }}
               transition={{ duration: 0.25, ease: "easeInOut" }}
             >
-              <div className="bg-[#090D16] text-white p-6 sm:p-7 flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-800">
+              <div className="bg-slate-50 p-6 sm:p-7 flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-200/80">
                 <div>
                   <span className="text-[10px] font-bold uppercase tracking-widest px-2.5 py-0.5 rounded-full bg-[#C0622A] text-white shadow-xs">
                     {activeHero.badge}
                   </span>
-                  <h3 className="font-heading font-black text-2xl sm:text-3xl lg:text-4xl text-white mt-2">
+                  <h3 className="font-heading font-black text-2xl sm:text-3xl lg:text-4xl text-[#090D16] mt-2">
                     {activeHero.title}
                   </h3>
-                  <p className="text-xs text-slate-300 mt-0.5">
+                  <p className="text-xs text-slate-500 mt-0.5">
                     {activeHero.subtitle} · {activeHero.targetExamples}
                   </p>
                 </div>
@@ -94,22 +94,22 @@ export default function TwoHeroesSection() {
                   <span className="text-[10px] uppercase tracking-widest text-[#C0622A] font-bold block mb-0.5">
                     Primary Goal
                   </span>
-                  <span className="font-heading font-black text-base sm:text-xl text-white">
+                  <span className="font-heading font-black text-base sm:text-xl text-[#090D16]">
                     {activeHero.primaryDesire}
                   </span>
                 </div>
               </div>
 
-              <div className="p-5 sm:p-7 grid grid-cols-1 md:grid-cols-2 gap-5 sm:gap-6">
+              <div className="p-5 sm:p-7 grid grid-cols-1 md:grid-cols-2 gap-5 sm:gap-6 bg-white">
                 <div className="space-y-3">
                   <motion.div
-                    initial={{ opacity: 0, x: 30 }}
-                    animate={{ opacity: 1, x: 0 }}
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.45, delay: 0.05, ease: [0.16, 1, 0.3, 1] }}
                   >
                     <SpotlightCard
-                      spotlightColor="rgba(192, 98, 42, 0.1)"
-                      className="p-4 bg-slate-50 rounded-2xl border border-slate-200 hover:border-slate-300 transition-colors"
+                      spotlightColor="rgba(192, 98, 42, 0.08)"
+                      className="p-4 bg-white rounded-2xl border border-slate-200/80 hover:border-slate-300 transition-colors shadow-xs"
                     >
                       <div className="flex items-center gap-2 text-slate-900 font-heading font-bold text-xs uppercase tracking-wider mb-1">
                         <AlertCircle className="w-4 h-4 text-[#C0622A]" />
@@ -122,13 +122,13 @@ export default function TwoHeroesSection() {
                   </motion.div>
 
                   <motion.div
-                    initial={{ opacity: 0, x: 30 }}
-                    animate={{ opacity: 1, x: 0 }}
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.45, delay: 0.12, ease: [0.16, 1, 0.3, 1] }}
                   >
                     <SpotlightCard
-                      spotlightColor="rgba(192, 98, 42, 0.1)"
-                      className="p-4 bg-slate-50 rounded-2xl border border-slate-200 hover:border-slate-300 transition-colors"
+                      spotlightColor="rgba(192, 98, 42, 0.08)"
+                      className="p-4 bg-white rounded-2xl border border-slate-200/80 hover:border-slate-300 transition-colors shadow-xs"
                     >
                       <div className="flex items-center gap-2 text-slate-900 font-heading font-bold text-xs uppercase tracking-wider mb-1">
                         <AlertCircle className="w-4 h-4 text-[#C0622A]" />
@@ -141,13 +141,13 @@ export default function TwoHeroesSection() {
                   </motion.div>
 
                   <motion.div
-                    initial={{ opacity: 0, x: 30 }}
-                    animate={{ opacity: 1, x: 0 }}
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.45, delay: 0.19, ease: [0.16, 1, 0.3, 1] }}
                   >
                     <SpotlightCard
-                      spotlightColor="rgba(192, 98, 42, 0.1)"
-                      className="p-4 bg-slate-50 rounded-2xl border border-slate-200 hover:border-slate-300 transition-colors"
+                      spotlightColor="rgba(192, 98, 42, 0.08)"
+                      className="p-4 bg-white rounded-2xl border border-slate-200/80 hover:border-slate-300 transition-colors shadow-xs"
                     >
                       <div className="flex items-center gap-2 text-slate-900 font-heading font-bold text-xs uppercase tracking-wider mb-1">
                         <TrendingDown className="w-4 h-4 text-[#C0622A]" />
@@ -161,14 +161,14 @@ export default function TwoHeroesSection() {
                 </div>
 
                 <motion.div
-                  initial={{ opacity: 0, x: 40 }}
-                  animate={{ opacity: 1, x: 0 }}
+                  initial={{ opacity: 0, y: 24 }}
+                  animate={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.5, delay: 0.22, ease: [0.16, 1, 0.3, 1] }}
                   className="h-full"
                 >
                   <SpotlightCard
-                    spotlightColor="rgba(46, 139, 122, 0.15)"
-                    className="bg-slate-50 p-6 sm:p-7 rounded-2xl border border-slate-200 flex flex-col justify-between h-full"
+                    spotlightColor="rgba(192, 98, 42, 0.12)"
+                    className="bg-orange-50/40 p-6 sm:p-7 rounded-2xl border border-orange-200/60 flex flex-col justify-between h-full shadow-xs"
                   >
                     <div>
                       <div className="flex items-center gap-2 text-[#C0622A] font-heading font-bold text-xs uppercase tracking-wider mb-3">
@@ -194,7 +194,7 @@ export default function TwoHeroesSection() {
 
                     <Link
                       href={activeHero.ctaHref}
-                      className="w-full inline-flex items-center justify-center gap-2 py-3.5 px-6 bg-[#C0622A] hover:bg-[#a84f1d] text-white font-heading font-bold text-xs uppercase tracking-wider rounded-xl shadow-sm transition-all text-center active:translate-y-0.5 hover:scale-[1.02]"
+                      className="w-full inline-flex items-center justify-center gap-2 py-3.5 px-6 bg-[#C0622A] hover:bg-[#a84f1d] text-white font-heading font-bold text-xs uppercase tracking-wider rounded-xl shadow-[0_0_20px_rgba(192,98,42,0.3)] hover:shadow-[0_0_25px_rgba(192,98,42,0.45)] transition-all text-center active:translate-y-0.5 hover:scale-[1.01]"
                     >
                       <span>{activeHero.ctaText}</span>
                       <ArrowRight className="w-3.5 h-3.5" />

@@ -7,49 +7,49 @@ import { Star } from "lucide-react";
 
 export default function TestimonialsSection() {
   return (
-    <section id="testimonials" className="py-14 sm:py-16 bg-slate-50 border-b border-slate-200 select-none scroll-mt-20 overflow-hidden">
+    <section id="testimonials" className="py-20 sm:py-28 bg-white border-b border-slate-200/80 select-none scroll-mt-20 overflow-hidden">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        {/* Header */}
-        <MotionWrapper direction="up" distance={20} className="text-center max-w-3xl mx-auto mb-6 sm:mb-8">
+        {/* Header with Scroll Up Reveal */}
+        <MotionWrapper direction="up" distance={30} className="text-center max-w-3xl mx-auto mb-14 sm:mb-16">
           <span className="text-xs font-mono uppercase tracking-widest text-[#C0622A] font-bold block mb-2">
-            CLIENT STORIES
+            CLIENT VOICES · 22+ YEARS OF TRUST
           </span>
           <h2 className="font-heading font-black text-3xl sm:text-5xl lg:text-6xl text-[#090D16] tracking-tight leading-[1.05] mb-3">
-            Real businesses. <span className="text-[#C0622A]">Real results.</span>
+            Real businesses. <span className="text-[#C0622A] italic">Real outcomes.</span>
           </h2>
           <p className="text-slate-600 text-xs sm:text-sm leading-relaxed font-normal">
-            Hear directly from business owners and founders who rely on ReLaunch.
+            Hear directly from founders, directors, and operators who rely on ReLaunch as their growth partner.
           </p>
         </MotionWrapper>
 
-        {/* Testimonials Cards Grid with Staggered Scroll Reveal */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-6 w-full">
+        {/* Testimonials Cards Grid with Staggered Scroll Up Reveal */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 sm:gap-8 w-full">
           {testimonialsData.map((testi, idx) => (
             <MotionWrapper
               key={testi.id}
-              direction="left"
-              delay={idx * 0.12}
-              distance={50}
+              direction="up"
+              delay={idx * 0.1}
+              distance={35}
             >
               <SpotlightCard
                 spotlightColor="rgba(192, 98, 42, 0.12)"
-                className="bg-white p-5 sm:p-6 rounded-2xl border border-slate-200 shadow-xs flex flex-col justify-between relative hover:shadow-xl transition-all duration-300 h-full"
+                className="bg-white p-6 sm:p-8 rounded-3xl border border-slate-200/80 shadow-[0_4px_25px_rgba(0,0,0,0.03)] flex flex-col justify-between relative hover:shadow-[0_12px_40px_rgba(0,0,0,0.08)] transition-all duration-300 h-full"
               >
                 <div>
                   {/* 5 Stars */}
-                  <div className="flex items-center gap-1 text-[#C0622A] mb-3">
+                  <div className="flex items-center gap-1 text-[#C0622A] mb-4">
                     {[...Array(5)].map((_, i) => (
                       <Star key={i} className="w-3.5 h-3.5 fill-[#C0622A] stroke-[#C0622A]" />
                     ))}
                   </div>
 
-                  <blockquote className="text-xs sm:text-sm text-slate-700 leading-relaxed font-normal italic mb-4">
+                  <blockquote className="text-xs sm:text-sm text-slate-700 leading-relaxed font-normal italic mb-6">
                     &ldquo;{testi.quote}&rdquo;
                   </blockquote>
                 </div>
 
                 {/* Author Info */}
-                <div className="pt-3 border-t border-slate-100 flex items-center justify-between">
+                <div className="pt-4 border-t border-slate-100 flex items-center justify-between">
                   <div>
                     <div className="font-heading font-bold text-xs sm:text-sm text-[#090D16]">
                       {testi.name}
@@ -59,7 +59,7 @@ export default function TestimonialsSection() {
                     </div>
                   </div>
 
-                  <span className="text-[10px] font-semibold text-[#C0622A] bg-orange-50 px-2 py-0.5 rounded-full border border-[#C0622A]/20">
+                  <span className="text-[10px] font-semibold text-[#C0622A] bg-orange-50 px-2.5 py-1 rounded-full border border-[#C0622A]/20">
                     {testi.serviceUsed}
                   </span>
                 </div>
@@ -71,5 +71,3 @@ export default function TestimonialsSection() {
     </section>
   );
 }
-
-

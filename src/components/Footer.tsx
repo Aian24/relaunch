@@ -11,9 +11,9 @@ export default function Footer() {
   };
 
   return (
-    <footer className="bg-[#090D16] text-white pt-12 pb-8 select-none border-t border-slate-800 overflow-hidden">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-12 gap-8 pb-10 border-b border-slate-800">
+    <footer className="bg-[#090D16] text-white pt-16 pb-10 select-none border-t border-slate-800/80 overflow-hidden">
+      <div className="max-w-7xl mx-auto px-5 sm:px-6 lg:px-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-12 gap-8 pb-12 border-b border-slate-800">
           {/* Col 1: Brand & Logo */}
           <div className="lg:col-span-4 space-y-4">
             <Link
@@ -30,58 +30,58 @@ export default function Footer() {
             </Link>
 
             <p className="text-xs text-slate-400 leading-relaxed max-w-sm font-normal">
-              Marketing, AI &amp; digital services for businesses ready to grow. Subscription-based. No contracts. Real results.
+              Brand, digital platforms &amp; AI marketing infrastructure for ambitious companies. Subscription-based. Zero long-term contracts. 100% asset ownership.
             </p>
 
-            <div className="flex items-center gap-2 text-xs text-[#C0622A]">
+            <div className="flex items-center gap-2 text-xs text-[#C0622A] font-medium">
               <MapPin className="w-3.5 h-3.5" />
-              <span>Phoenix, AZ · Est. 2004</span>
+              <span>Phoenix, Arizona · Est. 2004</span>
             </div>
           </div>
 
-          {/* Col 2: Services */}
+          {/* Col 2: Capabilities */}
           <div className="lg:col-span-3 space-y-3">
             <h4 className="font-heading font-bold text-xs uppercase tracking-widest text-slate-400">
-              Services
+              Capabilities
             </h4>
             <ul className="space-y-2 text-xs text-slate-300">
               <li>
-                <a href="#services" className="hover:text-[#C0622A] transition-colors">
-                  Marketing &amp; Advertising
-                </a>
+                <Link href="/services#brand-strategy" className="hover:text-[#C0622A] transition-colors">
+                  Brand Strategy &amp; Identity
+                </Link>
               </li>
               <li>
-                <a href="#services" className="hover:text-[#C0622A] transition-colors">
-                  Brand &amp; Design
-                </a>
+                <Link href="/services#web-software" className="hover:text-[#C0622A] transition-colors">
+                  Web &amp; Custom Software
+                </Link>
               </li>
               <li>
-                <a href="#services" className="hover:text-[#C0622A] transition-colors">
-                  AI Services
-                </a>
+                <Link href="/services#performance-ads" className="hover:text-[#C0622A] transition-colors">
+                  Performance &amp; Paid Media
+                </Link>
               </li>
               <li>
-                <a href="#services" className="hover:text-[#C0622A] transition-colors">
-                  Web &amp; App Development
-                </a>
+                <Link href="/ai" className="hover:text-[#C0622A] transition-colors">
+                  AI Automation &amp; GEO
+                </Link>
               </li>
               <li>
-                <a href="#services" className="hover:text-[#C0622A] transition-colors">
-                  Video &amp; Content
-                </a>
+                <Link href="/services#content-video" className="hover:text-[#C0622A] transition-colors">
+                  Content &amp; Video Production
+                </Link>
               </li>
               <li>
-                <a href="#services" className="hover:text-[#C0622A] transition-colors">
-                  Email &amp; SMS Marketing
-                </a>
+                <Link href="/services#local-seo" className="hover:text-[#C0622A] transition-colors">
+                  Local SEO &amp; Authority
+                </Link>
               </li>
             </ul>
           </div>
 
-          {/* Col 3: Company */}
+          {/* Col 3: Navigation */}
           <div className="lg:col-span-2 space-y-3">
             <h4 className="font-heading font-bold text-xs uppercase tracking-widest text-slate-400">
-              Company
+              Navigation
             </h4>
             <ul className="space-y-2 text-xs text-slate-300">
               {navLinks.map((link) => (
@@ -104,10 +104,10 @@ export default function Footer() {
             </ul>
           </div>
 
-          {/* Col 4: Contact */}
+          {/* Col 4: Direct Contact */}
           <div className="lg:col-span-3 space-y-3">
             <h4 className="font-heading font-bold text-xs uppercase tracking-widest text-slate-400">
-              Contact
+              Direct Contact
             </h4>
 
             <div className="space-y-2.5 text-xs text-slate-300">
@@ -128,10 +128,10 @@ export default function Footer() {
               </a>
 
               <div className="pt-2">
-                <span className="text-[11px] text-slate-500 block">Bundle Builder</span>
-                <a href="#bundle-builder" className="text-xs text-[#C0622A] underline">
-                  relaunch.us/#bundle-builder
-                </a>
+                <span className="text-[11px] text-slate-500 block">Custom Subscription Pricing</span>
+                <Link href="/pricing" className="text-xs text-[#C0622A] underline hover:text-[#e88c52]">
+                  relaunch.us/pricing
+                </Link>
               </div>
             </div>
           </div>
@@ -147,7 +147,7 @@ export default function Footer() {
             <span>Built by ReLaunch</span>
             <button
               onClick={scrollToTop}
-              className="p-2.5 rounded-xl bg-slate-800 hover:bg-[#C0622A] text-white transition-colors"
+              className="p-2.5 rounded-xl bg-slate-800 hover:bg-[#C0622A] text-white transition-colors cursor-pointer"
               aria-label="Scroll to top"
             >
               <ArrowUp className="w-4 h-4" />
@@ -158,4 +158,3 @@ export default function Footer() {
     </footer>
   );
 }
-

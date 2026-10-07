@@ -5,13 +5,13 @@ export interface NavLink {
 }
 
 export const navLinks: NavLink[] = [
-  { label: "Services", href: "#services" },
-  { label: "AI", href: "#ai" },
-  { label: "Method", href: "#method" },
-  { label: "Bundles", href: "#bundle-builder" },
-  { label: "Social", href: "#social" },
-  { label: "Our Work", href: "#work" },
-  { label: "Grader", href: "#nis-grader" },
+  { label: "Overview", href: "/" },
+  { label: "Services", href: "/services" },
+  { label: "AI Solutions", href: "/ai" },
+  { label: "Our Work", href: "/work" },
+  { label: "Method", href: "/method" },
+  { label: "Pricing", href: "/pricing" },
+  { label: "FAQ", href: "/faq" },
 ];
 
 export const contactInfo = {

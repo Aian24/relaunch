@@ -129,10 +129,7 @@ export default function SmoothScrollProvider({
       "services",
       "ai",
       "method",
-      "bundle-builder",
-      "social",
       "work",
-      "nis-grader",
       "testimonials",
       "faq",
     ];
