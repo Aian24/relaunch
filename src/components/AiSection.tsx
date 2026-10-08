@@ -74,19 +74,21 @@ export default function AiSection() {
             <button
               type="button"
               onClick={() => openContactModal({ intent: "ai-audit" })}
-              className="inline-flex items-center justify-center gap-2 px-5 py-3 bg-[#C0622A] hover:bg-[#a84f1d] text-white font-heading font-bold text-xs uppercase tracking-wider rounded-xl transition-all shadow-sm whitespace-nowrap active:translate-y-0.5 cursor-pointer hover:scale-102"
+              className="inline-flex items-center justify-center gap-2 px-5 py-3 bg-orange-50/80 hover:bg-orange-100 border border-orange-200/90 hover:border-orange-300 text-[#C0622A] hover:text-[#a84f1d] font-heading font-bold text-xs uppercase tracking-wider rounded-xl transition-all shadow-xs whitespace-nowrap active:translate-y-0.5 cursor-pointer hover:scale-102"
             >
+              <Bot className="w-3.5 h-3.5 text-[#C0622A] shrink-0" />
               <span>Book an AI Audit</span>
-              <ArrowUpRight className="w-3.5 h-3.5" />
+              <ArrowUpRight className="w-3.5 h-3.5 text-[#C0622A]" />
             </button>
 
             <button
               type="button"
               onClick={() => openContactModal({ intent: "start-project" })}
-              className="inline-flex items-center justify-center gap-2 px-5 py-3 bg-[#090D16] hover:bg-slate-800 text-white font-heading font-bold text-xs uppercase tracking-wider rounded-xl transition-all shadow-sm whitespace-nowrap active:translate-y-0.5 cursor-pointer hover:scale-102"
+              className="inline-flex items-center justify-center gap-2 px-5 py-3 bg-orange-50/80 hover:bg-orange-100 border border-orange-200/90 hover:border-orange-300 text-[#C0622A] hover:text-[#a84f1d] font-heading font-bold text-xs uppercase tracking-wider rounded-xl transition-all shadow-xs whitespace-nowrap active:translate-y-0.5 cursor-pointer hover:scale-102"
             >
+              <Rocket className="w-3.5 h-3.5 text-[#C0622A] shrink-0" />
               <span>Start Your Project</span>
-              <ArrowRight className="w-3.5 h-3.5" />
+              <ArrowRight className="w-3.5 h-3.5 text-[#C0622A]" />
             </button>
           </div>
         </MotionWrapper>

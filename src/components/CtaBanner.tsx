@@ -4,7 +4,7 @@ import Link from "next/link";
 import { contactInfo } from "@/data/navigation";
 import { useContactModal } from "@/context/ContactModalContext";
 import MotionWrapper from "./MotionWrapper";
-import { Phone, Mail, ArrowUpRight, ArrowRight, Bot, Rocket } from "lucide-react";
+import { Phone, Mail, ArrowUpRight, ArrowRight, Bot, Rocket, Calendar, Sparkles } from "lucide-react";
 
 export default function CtaBanner() {
   const { openContactModal } = useContactModal();
@@ -37,30 +37,31 @@ export default function CtaBanner() {
             <button
               type="button"
               onClick={() => openContactModal({ intent: "strategy-session" })}
-              className="inline-flex items-center justify-center gap-2 px-6 py-3.5 bg-[#C0622A] hover:bg-[#a84f1d] text-white font-heading font-bold text-xs uppercase tracking-wider rounded-xl shadow-[0_0_25px_rgba(192,98,42,0.3)] hover:shadow-[0_0_35px_rgba(192,98,42,0.45)] transition-all active:translate-y-0.5 whitespace-nowrap cursor-pointer hover:scale-102"
+              className="inline-flex items-center justify-center gap-2 px-5 py-3.5 bg-orange-50/80 hover:bg-orange-100 border border-orange-200/90 hover:border-orange-300 text-[#C0622A] hover:text-[#a84f1d] font-heading font-bold text-xs uppercase tracking-wider rounded-xl shadow-xs transition-all active:translate-y-0.5 whitespace-nowrap cursor-pointer hover:scale-102"
             >
+              <Calendar className="w-4 h-4 text-[#C0622A] shrink-0" />
               <span>Book a Strategy Session</span>
-              <ArrowUpRight className="w-3.5 h-3.5" />
+              <ArrowUpRight className="w-3.5 h-3.5 text-[#C0622A]" />
             </button>
 
             <button
               type="button"
               onClick={() => openContactModal({ intent: "ai-audit" })}
-              className="inline-flex items-center justify-center gap-2 px-5 py-3.5 bg-slate-900 hover:bg-slate-800 text-white font-heading font-bold text-xs uppercase tracking-wider rounded-xl transition-all active:translate-y-0.5 whitespace-nowrap cursor-pointer hover:scale-102"
+              className="inline-flex items-center justify-center gap-2 px-5 py-3.5 bg-orange-50/80 hover:bg-orange-100 border border-orange-200/90 hover:border-orange-300 text-[#C0622A] hover:text-[#a84f1d] font-heading font-bold text-xs uppercase tracking-wider rounded-xl shadow-xs transition-all active:translate-y-0.5 whitespace-nowrap cursor-pointer hover:scale-102"
             >
-              <Bot className="w-3.5 h-3.5 text-emerald-400" />
+              <Bot className="w-4 h-4 text-[#C0622A] shrink-0" />
               <span>Book an AI Audit</span>
-              <ArrowUpRight className="w-3.5 h-3.5" />
+              <ArrowUpRight className="w-3.5 h-3.5 text-[#C0622A]" />
             </button>
 
             <button
               type="button"
               onClick={() => openContactModal({ intent: "start-project" })}
-              className="inline-flex items-center justify-center gap-2 px-5 py-3.5 bg-white hover:bg-slate-50 border border-slate-200 text-slate-800 font-heading font-bold text-xs uppercase tracking-wider rounded-xl transition-all active:translate-y-0.5 whitespace-nowrap cursor-pointer hover:scale-102 shadow-xs"
+              className="inline-flex items-center justify-center gap-2 px-5 py-3.5 bg-orange-50/80 hover:bg-orange-100 border border-orange-200/90 hover:border-orange-300 text-[#C0622A] hover:text-[#a84f1d] font-heading font-bold text-xs uppercase tracking-wider rounded-xl shadow-xs transition-all active:translate-y-0.5 whitespace-nowrap cursor-pointer hover:scale-102"
             >
-              <Rocket className="w-3.5 h-3.5 text-[#C0622A]" />
+              <Rocket className="w-4 h-4 text-[#C0622A] shrink-0" />
               <span>Start Your Project</span>
-              <ArrowRight className="w-3.5 h-3.5" />
+              <ArrowRight className="w-3.5 h-3.5 text-[#C0622A]" />
             </button>
           </div>
 

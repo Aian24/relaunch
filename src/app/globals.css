@@ -27,19 +27,26 @@ h1, h2, h3, h4, h5, h6 {
   letter-spacing: -0.02em;
 }
 
-/* Custom Scrollbar with Solid Palette */
+/* Custom Scrollbar with Phoenix Orange Theme */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: #C0622A #FFF7ED;
+}
+
 ::-webkit-scrollbar {
   width: 8px;
+  height: 8px;
 }
 ::-webkit-scrollbar-track {
-  background: #F1F5F9;
+  background: #FFF7ED;
 }
 ::-webkit-scrollbar-thumb {
-  background: #090D16;
-  border-radius: 4px;
+  background: #C0622A;
+  border-radius: 9999px;
+  border: 2px solid #FFF7ED;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: #C0622A;
+  background: #a84f1d;
 }
 
 /* Text Selection & Accent Theme */

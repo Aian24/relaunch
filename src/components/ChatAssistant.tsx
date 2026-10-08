@@ -36,12 +36,9 @@ const initialMessages: Message[] = [
 ];
 
 const quickPrompts = [
-  "How do bundle discounts work?",
-  "What is the NIS Marketing Grader?",
-  "Explain ReLaunch Social (Track A vs B)",
-  "Can you build custom software?",
-  "How much does it cost?",
-  "Book a strategy call",
+  "What services do you provide?",
+  "How does pricing work?",
+  "Book a strategy session",
 ];
 
 export default function ChatAssistant() {
@@ -67,58 +64,37 @@ export default function ChatAssistant() {
   const generateAnswer = (query: string): { text: string; action?: { label: string; href: string } } => {
     const q = query.toLowerCase();
 
-    if (q.includes("bundle") || q.includes("discount") || q.includes("save") || q.includes("package")) {
+    if (q.includes("service") || q.includes("offer") || q.includes("provide") || q.includes("what do you do") || q.includes("capabilities")) {
       return {
-        text: "With ReLaunch's **Subscription Bundles**, you save more as you add services:\n\n• **Starter (1 service)**: Standard rate\n• **Growth (2–3 services)**: **Save 10%**\n• **Scale (4–5 services)**: **Save 15%**\n• **Mission Control (6+ services)**: **Save 20%**\n\nNo long-term contracts. You can pause, swap, or cancel anytime.",
-        action: { label: "Open Interactive Bundle Builder", href: "#bundle-builder" },
+        text: "ReLaunch provides 4 core disciplines:\n\n• **Brand Strategy & Visual Identity**: Market positioning, logos, typography, and design systems.\n• **Web Architecture & Custom Software**: High-speed Next.js platforms, client portals, and SaaS tools.\n• **AI Engineering & Automation**: 24/7 intake agents, autonomous workflows, and CRM synchronization.\n• **Performance Media & Search**: High-ROI Google/Meta advertising and local map-pack dominance.",
+        action: { label: "Explore All Services", href: "#services" },
       };
     }
 
-    if (q.includes("nis") || q.includes("grade") || q.includes("audit") || q.includes("diagnos")) {
+    if (q.includes("cost") || q.includes("price") || q.includes("pricing") || q.includes("rate") || q.includes("fee") || q.includes("how much")) {
       return {
-        text: "Our **Free NIS Marketing Grader** is a 60-second diagnostic tool based on our 4-layer selling framework (StoryBrand SB7, Hero's Journey, Draper principles, Archetype consistency). It pinpoints where your marketing leaks revenue and scores your funnel from 0 to 100.",
-        action: { label: "Take Free NIS Grader", href: "#nis-grader" },
+        text: "Our pricing is modular and transparent with zero bloated agency retainers:\n\n• **Starter Services**: Starting from $297/mo\n• **Growth & Performance Retainers**: $790 – $1,200/mo\n• **Custom Software & AI Sprints**: Tailored to scope\n\nBundling multiple disciplines qualifies for 10% to 20% discounts with no long-term lock-in.",
+        action: { label: "View Pricing Details", href: "#pricing" },
       };
     }
 
-    if (q.includes("social") || q.includes("track a") || q.includes("track b") || q.includes("post") || q.includes("instagram") || q.includes("tiktok")) {
+    if (q.includes("book") || q.includes("call") || q.includes("strategy") || q.includes("contact") || q.includes("phone") || q.includes("email") || q.includes("talk") || q.includes("session")) {
       return {
-        text: "Under **ReLaunch Social**, we offer two tracks:\n\n• **Track A (You supply raw photos/videos)**: Launch ($297/mo), Presence ($497/mo), Velocity ($797/mo)\n• **Track B (100% Done-for-you content creation)**: Ignite ($597/mo), Amplify ($997/mo), Command ($1,497/mo)\n\nWe auto-publish across 5 major platforms (Instagram, Facebook, LinkedIn, TikTok, Google Business). You only spend 30 minutes a month approving!",
-        action: { label: "Explore ReLaunch Social Tiers", href: "#social-autopilot" },
-      };
-    }
-
-    if (q.includes("software") || q.includes("custom") || q.includes("portal") || q.includes("ehr") || q.includes("tech") || q.includes("app") || q.includes("ncci") || q.includes("golf")) {
-      return {
-        text: "Yes! We build bespoke web applications, customer portals, internal operational tools, and complex data migrations (using Base44, Next.js/React, and Python).\n\nProven builds include our **25,502-record medical EHR migration** with zero downtime and the **Golf Central Magazine** interactive publishing engine (185,000+ active readers).",
-        action: { label: "View Custom Tech Case Studies", href: "#work" },
-      };
-    }
-
-    if (q.includes("cost") || q.includes("price") || q.includes("pricing") || q.includes("rate") || q.includes("fee")) {
-      return {
-        text: "Pricing is transparent and modular:\n\n• **ReLaunch Social**: Starts at $297/mo\n• **Paid Ads & Local SEO**: $790/mo base\n• **Web Platform Care**: $890/mo base\n• **AI Automation Pipelines**: $690/mo base\n• **Custom Software Retainer**: $1,200/mo base\n\nBundling 2+ services automatically triggers 10% to 20% discounts!",
-        action: { label: "Calculate Your Custom Bundle", href: "#bundle-builder" },
-      };
-    }
-
-    if (q.includes("book") || q.includes("call") || q.includes("contact") || q.includes("phone") || q.includes("email") || q.includes("strategy") || q.includes("robert") || q.includes("talk")) {
-      return {
-        text: "We'd love to chat! You can book a free 15-minute diagnostic strategy session or reach us directly:\n\n📞 **Phone**: (480) 779-9875\n✉️ **Email**: care@relaunch.us\n📍 **Location**: Phoenix, Arizona (Operating since 2004)",
+        text: "We'd love to partner with you! You can book a complimentary 15-minute strategy consultation directly:\n\n📞 **Phone**: (480) 779-9875\n✉️ **Email**: care@relaunch.us\n📍 **Studio**: Phoenix, Arizona (Operating since 2004)",
         action: { label: "Book Strategy Session", href: "#contact" },
       };
     }
 
-    if (q.includes("method") || q.includes("storybrand") || q.includes("framework") || q.includes("draper")) {
+    if (q.includes("software") || q.includes("custom") || q.includes("portal") || q.includes("app")) {
       return {
-        text: "The **ReLaunch Method** is our 4-layer selling framework:\n\n1. **StoryBrand SB7 (35%)**: Customer is the hero, clear problem & direct CTA.\n2. **Hero's Journey (30%)**: Proves customer transformation.\n3. **Draper Principles (25%)**: Sells the emotional outcome.\n4. **Archetype Consistency (10%)**: Unified brand voice.\n\nOur rule: *Anything that doesn't sell doesn't ship.*",
-        action: { label: "See The ReLaunch Method", href: "#method" },
+        text: "Yes! We engineer bespoke web apps, secure client dashboards, and custom database integrations using modern Next.js, React, and TypeScript architecture.",
+        action: { label: "Browse Case Studies", href: "#work" },
       };
     }
 
     return {
-      text: "Thanks for asking! ReLaunch is a Phoenix marketing & technology agency (Est. 2004) specializing in high-converting websites, AI lead pipelines, multi-channel paid ads, and custom software. Would you like to build a custom bundle, take our free NIS marketing grader, or book a quick strategy call?",
-      action: { label: "Explore Available Services", href: "#services" },
+      text: "Thanks for reaching out! ReLaunch is a Phoenix-based digital evolution studio (Est. 2004) specializing in high-speed web architecture, AI systems, and performance marketing. How can we help your business lead?",
+      action: { label: "Book a Strategy Session", href: "#contact" },
     };
   };
 
@@ -185,15 +161,15 @@ export default function ChatAssistant() {
             <button
               onClick={() => setIsOpen(true)}
               aria-label="Open ReLaunch AI Assistant"
-              className="group relative flex items-center gap-2 sm:gap-2.5 px-4 py-2.5 sm:px-5 sm:py-3 bg-[#090D16] hover:bg-[#C0622A] text-white rounded-full shadow-2xl border border-slate-700/80 transition-all duration-300 hover:scale-105 active:scale-95 cursor-pointer"
+              className="group relative flex items-center gap-2 sm:gap-2.5 px-4 py-2.5 sm:px-5 sm:py-3 bg-white hover:bg-orange-50/80 text-slate-900 rounded-full shadow-xl hover:shadow-[0_4px_20px_rgba(192,98,42,0.2)] border border-slate-200/90 hover:border-orange-300 transition-all duration-300 hover:scale-105 active:scale-95 cursor-pointer"
             >
               {/* Clean Status Dot */}
               <span className="relative flex h-2 sm:h-2.5 w-2 sm:w-2.5 ml-0.5">
                 <span className="relative inline-flex rounded-full h-2 sm:h-2.5 w-2 sm:w-2.5 bg-[#C0622A]" />
               </span>
 
-              <Bot className="w-4 h-4 sm:w-5 sm:h-5 text-[#C0622A] group-hover:text-white transition-colors ml-0.5" />
-              <span className="font-heading font-bold text-[11px] sm:text-xs uppercase tracking-wider pr-0.5 sm:pr-1 ml-0.5">
+              <Bot className="w-4 h-4 sm:w-5 sm:h-5 text-[#C0622A] ml-0.5" />
+              <span className="font-heading font-black text-[11px] sm:text-xs uppercase tracking-wider pr-0.5 sm:pr-1 ml-0.5 text-slate-900">
                 ReLaunch AI
               </span>
 
