@@ -122,14 +122,14 @@ export default function PageVideoHero({
         <div className="absolute -top-32 left-1/4 w-[600px] sm:w-[800px] h-[500px] bg-[#C0622A]/15 rounded-full blur-[140px] pointer-events-none" />
       </div>
 
-      {/* 2. Main Hero Content - Centered on mobile, Left-Aligned on desktop */}
-      <div className="relative z-10 max-w-7xl mx-auto w-full text-center sm:text-left flex flex-col items-center sm:items-start pt-2 sm:pt-4 pb-6">
+      {/* 2. Main Hero Content - Centered on mobile (vertically & horizontally), Left-Aligned on desktop */}
+      <div className="relative z-10 max-w-7xl mx-auto w-full text-center sm:text-left flex flex-col items-center sm:items-start justify-center flex-1 my-auto py-6 sm:py-12">
         {/* Minimalist Kicker Badge */}
         <motion.div
           initial={{ opacity: 0, y: 16 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
-          className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white/[0.08] backdrop-blur-md border border-white/[0.12] text-[#F39C6B] text-[11px] sm:text-xs font-mono uppercase tracking-widest font-semibold mb-5 sm:mb-6 shadow-sm text-center"
+          className="inline-flex items-center justify-center gap-2 px-3 sm:px-3.5 py-1 sm:py-1.5 rounded-full bg-white/[0.08] backdrop-blur-md border border-white/[0.12] text-[#F39C6B] text-[10px] sm:text-xs font-mono uppercase tracking-widest font-semibold mb-4 sm:mb-6 shadow-sm text-center"
         >
           <span className="w-2 h-2 rounded-full bg-[#C0622A] animate-pulse shrink-0" />
           <span>{kicker}</span>
@@ -153,22 +153,22 @@ export default function PageVideoHero({
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.7, delay: 0.2, ease: [0.16, 1, 0.3, 1] }}
-          className="mt-5 sm:mt-7 text-slate-300 text-sm sm:text-base md:text-lg max-w-xl leading-relaxed font-normal text-center sm:text-left"
+          className="mt-4 sm:mt-7 text-slate-300 text-xs sm:text-base md:text-lg max-w-xl leading-relaxed font-normal text-center sm:text-left"
         >
           {description}
         </motion.p>
       </div>
 
-      {/* 3. Minimal Bottom Scroll Cue */}
+      {/* 3. Minimal Bottom Scroll Cue - Centered on mobile & elevated above floating chat button */}
       <motion.div
         initial={{ opacity: 0, y: 16 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.8, delay: 0.45, ease: [0.16, 1, 0.3, 1] }}
-        className="relative z-10 max-w-7xl mx-auto w-full pt-4 flex items-center justify-center sm:justify-start"
+        className="relative z-10 max-w-7xl mx-auto w-full pb-16 sm:pb-6 flex items-center justify-center sm:justify-start"
       >
         <button
           onClick={() => handleScrollToTarget(scrollTargetId)}
-          className="inline-flex items-center gap-2 text-[11px] uppercase font-mono tracking-widest text-slate-400 hover:text-white transition-colors cursor-pointer group"
+          className="inline-flex items-center justify-center gap-2 text-[11px] uppercase font-mono tracking-widest text-slate-400 hover:text-white transition-colors cursor-pointer group"
         >
           <span>Scroll to explore</span>
           <ChevronDown className="w-3.5 h-3.5 animate-bounce group-hover:text-[#C0622A]" />

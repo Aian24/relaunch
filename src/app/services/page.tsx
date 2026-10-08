@@ -31,17 +31,15 @@ const servicePillars = [
     id: "brand-strategy",
     number: "01",
     title: "Brand Strategy & Visual Identity",
-    tagline: "Build a brand that commands authority and stands the test of time.",
+    tagline: "Build a brand that commands market authority and profound customer trust.",
     description:
-      "We architect enduring brand positioning, distinct visual languages, and comprehensive design systems that set you apart from competitors and build profound trust.",
+      "We architect distinct visual languages, brand positioning frameworks, and comprehensive digital design systems that differentiate your business and accelerate conversions across every touchpoint.",
     deliverables: [
-      "Brand Positioning & Market Differentiation",
-      "Logo, Typography & Color Systems",
-      "Brand Style Guides & Digital Toolkits",
-      "Stationery, Packaging & Physical Collateral",
-      "Messaging Frameworks & Tone of Voice",
+      "Brand Positioning & Market Messaging Frameworks",
+      "Logo, Typography, Color & Design Systems",
+      "Commercial Photography, Video & Social Assets",
     ],
-    impact: "+300% brand recall & premium market positioning",
+    impact: "+300% brand recall & premium positioning",
     image: "/images/brand-strategy.jpg",
     icon: Layers,
   },
@@ -49,91 +47,33 @@ const servicePillars = [
     id: "web-software",
     number: "02",
     title: "Web Architecture & Custom Software",
-    tagline: "High-performance digital products engineered for scale.",
+    tagline: "High-performance digital products engineered for velocity and scale.",
     description:
-      "From bespoke marketing flagships to complex internal portals and SaaS platforms, we write clean, scalable, and ultra-fast code tailored precisely to your operational workflow.",
+      "From bespoke flagship websites to custom client portals and internal workflow SaaS tools, we engineer clean, ultra-fast Next.js code tailored specifically to your business operations.",
     deliverables: [
-      "Next.js, React & Modern Web Applications",
-      "Custom Client Portals & Dashboards",
-      "E-Commerce & High-Converting Funnels",
-      "API Integrations & Database Architecture",
-      "Zero-Bloat, Lightning-Fast Web Vitals",
+      "Next.js, React & Mobile-First Web Architecture",
+      "Custom Client Dashboards & Secure Portals",
+      "Database Infrastructure & Seamless API Integrations",
     ],
     impact: "<0.8s load times & 40%+ conversion lift",
     image: "/images/digital-studio.jpg",
     icon: Code2,
   },
   {
-    id: "performance-ads",
+    id: "growth-media",
     number: "03",
-    title: "Performance Marketing & Paid Media",
-    tagline: "Profitable customer acquisition channels with predictable ROI.",
+    title: "Performance Media & Search Dominance",
+    tagline: "Turn marketing spend into predictable, high-ticket customer pipeline.",
     description:
-      "Data-driven advertising campaigns across Google, Meta, and high-intent search networks designed to turn ad spend into high-ticket pipeline and revenue.",
+      "Data-driven multi-channel advertising, Google Local map-pack dominance, and organic search authority designed to capture high-intent buyers and maximize customer lifetime value.",
     deliverables: [
-      "Google Ads (Search, Display, Performance Max)",
-      "Meta Ads (Facebook & Instagram Acquisition)",
-      "High-Converting Landing Page Design",
-      "Multi-Touch Attribution & Analytics",
-      "Continuous A/B Creative Testing",
+      "High-ROI Google & Meta Paid Acquisition Campaigns",
+      "Local Map-Pack Dominance & Technical SEO Architecture",
+      "Conversion Tracking, Funnels & Real-Time Analytics",
     ],
-    impact: "3.8x average verified return on ad spend (ROAS)",
-    image: "/showcase/carmen_hotel.jpg",
-    icon: TrendingUp,
-  },
-  {
-    id: "ai-automation",
-    number: "04",
-    title: "AI Automation & Custom Workflows",
-    tagline: "Replace repetitive manual bottlenecks with automated intelligence.",
-    description:
-      "We design autonomous lead qualification pipelines, CRM integrations, and Generative Engine Optimization (GEO) strategies that accelerate your business 24/7.",
-    deliverables: [
-      "24/7 Inbound Qualified Lead Routing",
-      "Generative Engine Optimization (GEO/AEO)",
-      "CRM & Database Workflow Automations",
-      "Custom AI Internal Copilots",
-      "Automated Social Distribution Systems",
-    ],
-    impact: "15+ weekly operational hours saved per team",
-    image: "/images/ai-engineering.jpg",
-    icon: Bot,
-  },
-  {
-    id: "content-video",
-    number: "05",
-    title: "Creative Content & Video Production",
-    tagline: "Cinematic media that stops the scroll and builds authentic connection.",
-    description:
-      "High-production brand documentaries, product showcases, social video reels, and editorial photography that bring your story to life across every digital touchpoint.",
-    deliverables: [
-      "Cinematic Brand Films & Commercials",
-      "Short-Form Social Video Production (Reels, TikTok)",
-      "Product & Commercial Photography",
-      "Motion Graphics & 3D Visual Assets",
-      "Ongoing Monthly Content Engine",
-    ],
-    impact: "5.2x higher organic social engagement",
-    image: "/showcase/volcano_resort.jpg",
-    icon: Video,
-  },
-  {
-    id: "local-seo",
-    number: "06",
-    title: "Search Authority & Local Dominance",
-    tagline: "Capture high-intent buyers when they search for what you do.",
-    description:
-      "Comprehensive search engine optimization combining technical site architecture, local map-pack dominance, and AI-powered entity building to secure top search rankings.",
-    deliverables: [
-      "Google Business Profile Optimization",
-      "Local Citation Building & Review Systems",
-      "Technical SEO & Core Web Vitals",
-      "High-Intent Keyword Content Strategy",
-      "Competitor Search Share Conquesting",
-    ],
-    impact: "#1 rankings across high-ticket local search terms",
+    impact: "3.8x verified average return on ad spend (ROAS)",
     image: "/showcase/turflife.jpg",
-    icon: Search,
+    icon: TrendingUp,
   },
 ];
 
@@ -163,13 +103,13 @@ export default function ServicesPage() {
       <section id="detailed-deliverables" className="py-20 sm:py-28 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto w-full">
         <MotionWrapper direction="up" distance={30} className="text-center max-w-2xl mx-auto mb-16 sm:mb-20">
           <span className="text-xs font-mono uppercase tracking-widest text-[#C0622A] font-bold block mb-2">
-            DETAILED DELIVERABLES
+            THREE CORE CAPABILITIES
           </span>
           <h2 className="font-heading font-black text-3xl sm:text-5xl text-[#090D16] tracking-tight leading-tight mb-4">
             Everything your business needs to lead.
           </h2>
           <p className="text-slate-600 text-sm sm:text-base leading-relaxed">
-            Pick individual core competencies or bundle them together under one predictable monthly partnership.
+            Three unified disciplines designed to elevate your market position, accelerate digital speed, and scale high-value customer acquisition.
           </p>
         </MotionWrapper>
 

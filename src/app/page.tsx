@@ -59,7 +59,7 @@ export default function Home() {
             href="/services"
             className="inline-flex items-center gap-2 text-xs sm:text-sm font-bold uppercase tracking-wider text-[#C0622A] hover:text-[#9c4314] transition-colors group"
           >
-            <span>Explore All 6 Core Services</span>
+            <span>Explore All Core Capabilities</span>
             <ArrowRight className="w-4 h-4 group-hover:translate-x-1.5 transition-transform" />
           </Link>
         </MotionWrapper>

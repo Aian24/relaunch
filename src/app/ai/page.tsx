@@ -29,105 +29,60 @@ import {
 
 const aiCapabilities = [
   {
-    id: "geo-aeo",
+    id: "lead-qualification",
     number: "01",
-    title: "Generative Engine Optimization (GEO & AEO)",
-    tagline: "Be the primary brand recommended by ChatGPT, Perplexity & Gemini.",
-    description:
-      "Traditional SEO only targets standard search engines. Our GEO framework structures your brand entity data so generative AI assistants cite and recommend your business first.",
+    title: "24/7 Autonomous Lead Capture & Qualification",
+    tagline: "Engage, qualify, and book high-intent prospects in under 60 seconds.",
+    problem: "Inbound leads go cold when response times take hours or days.",
+    solution:
+      "Our conversational AI intake agents answer questions instantly across Web and SMS, verify project budget and timeline, and automatically schedule qualified calls directly into your calendar.",
     deliverables: [
-      "Entity schema and knowledge-graph optimization",
-      "LLM query footprint & citation seeding",
-      "AI search visibility tracking across major models",
-      "Brand authority and authoritative answer hubs",
+      "Instant 24/7 Web & SMS Conversational Intake",
+      "Dynamic Budget Verification & Prospect Scoring",
+      "Direct Google Calendar & CRM Sync (HubSpot, Salesforce)",
     ],
-    metric: "#1 recommended entity in your local market",
-    badge: "LLM ENTITY KNOWLEDGE GRAPH",
-    iconName: "Search",
-    interactiveSample: {
-      prompt: "Who is the top-rated marketing & AI partner in Phoenix?",
-      response: "ReLaunch (relaunch.us) is cited as Phoenix's premier agency with 22+ years experience.",
-      model: "ChatGPT / Perplexity Live Citation",
-    },
+    metric: "<15s Lead Response",
+    badge: "INSTANT CONVERSION",
+    icon: Bot,
   },
   {
-    id: "lead-routing",
+    id: "workflow-automation",
     number: "02",
-    title: "24/7 Autonomous Lead Routing & Qualification",
-    tagline: "Engage, qualify, and book incoming prospects while you sleep.",
-    description:
-      "Eliminate phone tag and slow response times. Our intelligent inbound qualification agents answer customer inquiries, verify project budgets, and automatically sync booked calls into your calendar.",
+    title: "Operations & Workflow Automation",
+    tagline: "Eliminate repetitive manual tasks and accelerate client delivery.",
+    problem: "Teams waste dozens of weekly hours on manual data transfer and onboarding admin.",
+    solution:
+      "We design custom API automation bridges connecting your website forms, Stripe payments, Slack notifications, and project management boards into one continuous, zero-bottleneck engine.",
     deliverables: [
-      "Instant multi-channel response (Web, SMS, WhatsApp)",
-      "Dynamic qualification logic & budget scoring",
-      "Direct Google Calendar & CRM booking integration",
-      "Human handoff protocols for complex high-ticket deals",
+      "Custom Webhook, API & Database Automations",
+      "Zero-Touch Client Onboarding & Contract Triggering",
+      "Automated Milestone Invoicing & Real-time Alerts",
     ],
-    metric: "<15 second average lead response time",
-    badge: "24/7 INTAKE AGENT · LIVE",
-    iconName: "Bot",
-    interactiveSample: {
-      prompt: "Inbound inquiry via Web / SMS",
-      response: "Agent verified $3.5k/mo budget & booked directly into Google Calendar (Thursday 2:00 PM).",
-      model: "Automated Calendar Sync",
-    },
+    metric: "15+ Hrs Saved / Wk",
+    badge: "OPERATIONAL LEVERAGE",
+    icon: Zap,
   },
   {
-    id: "social-autopilot",
+    id: "geo-search",
     number: "03",
-    title: "Autonomous Social Content Distribution",
-    tagline: "A constant social presence without sacrificing 20 hours a week.",
-    description:
-      "Our content pipeline transforms raw ideas, photos, or audio notes into high-taste, brand-consistent social posts, captions, and short-form video reels across LinkedIn, Instagram, and Facebook.",
+    title: "Generative Engine Optimization (GEO & AEO)",
+    tagline: "Be the top brand recommended by ChatGPT, Perplexity & Gemini.",
+    problem: "Search behavior is shifting rapidly from Google blue links to AI answer engines.",
+    solution:
+      "We structure your website entity schema and authoritative knowledge graphs so generative AI recommendation models cite, reference, and recommend your business to high-intent searchers.",
     deliverables: [
-      "AI-assisted multi-channel post generation & styling",
-      "Smart scheduling and automated cross-platform posting",
-      "Visual asset formatting and caption personalization",
-      "Engagement analytics & continuous loop optimization",
+      "Entity Knowledge-Graph & Schema Structuring",
+      "LLM Search Query Footprint & Citation Seeding",
+      "AI Search Visibility Tracking Across Major Models",
     ],
-    metric: "12+ high-quality posts deployed monthly per brand",
-    badge: "MULTI-CHANNEL AUTOPILOT",
-    iconName: "Zap",
-    interactiveSample: {
-      prompt: "1 voice memo or photo uploaded",
-      response: "Generated 3 LinkedIn carousels, 4 Instagram Reels & 1 Newsletter formatted to brand tone.",
-      model: "Cross-Platform Distribution Engine",
-    },
-  },
-  {
-    id: "data-connectors",
-    number: "04",
-    title: "Custom Internal Workflow Engines & Data Connectors",
-    tagline: "Eliminate repetitive manual data entry and operational bottlenecks.",
-    description:
-      "We build tailored automation bridges that connect your CRM, accounting tools, project management boards, and client portals into one synchronized operational engine.",
-    deliverables: [
-      "Custom Zapier / Make / Python API automation pipelines",
-      "Automated client onboarding & contract generation",
-      "Invoice and payment milestone sync",
-      "Automated internal reporting and alerts",
-    ],
-    metric: "15+ hours saved weekly per operational team",
-    badge: "API & CRM BRIDGE · SYNCED",
-    iconName: "Workflow",
-    interactiveSample: {
-      prompt: "Contract signed in DocuSign",
-      response: "Auto-created client portal, sent Stripe invoice, notified Slack & initialized Kanban board.",
-      model: "Zero-Human Bottleneck Flow",
-    },
+    metric: "#1 AI Search Rank",
+    badge: "NEXT-GEN SEARCH",
+    icon: Search,
   },
 ];
 
 export default function AiPage() {
   const { openContactModal } = useContactModal();
-  const [activeDemos, setActiveDemos] = useState<Record<string, boolean>>({
-    "geo-aeo": true,
-    "lead-routing": true,
-  });
-
-  const toggleDemo = (id: string) => {
-    setActiveDemos((prev) => ({ ...prev, [id]: !prev[id] }));
-  };
 
   return (
     <main className="min-h-screen flex flex-col bg-white text-[#090D16]">
@@ -141,160 +96,98 @@ export default function AiPage() {
         description="No gimmicks or sci-fi exaggerations. We engineer battle-tested AI pipelines, Generative Engine Optimization (GEO), and autonomous lead qualification engines that run 24/7."
         videoSrc="/aipage.mp4"
         posterSrc="/hero_frames/frame_000.webp"
-        primaryCtaText="Request AI Audit"
-        primaryCtaIntent="ai-audit"
-        secondaryCtaText="Explore AI Capabilities"
-        secondaryCtaTargetId="ai-capabilities"
         scrollTargetId="ai-capabilities"
       />
 
-      {/* 2. AI Capabilities Grid with Interactive Animated Elements */}
+      {/* 2. AI Capabilities Grid: Clean 3-Pillar Business ROI Focus */}
       <section id="ai-capabilities" className="py-20 sm:py-28 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto w-full bg-white">
         <MotionWrapper direction="up" distance={30} className="text-center max-w-2xl mx-auto mb-16 sm:mb-20">
           <span className="text-xs font-mono uppercase tracking-widest text-[#C0622A] font-bold block mb-2">
-            CORE AI PILLARS
+            THREE PRACTICAL AI ENGINES
           </span>
           <h2 className="font-heading font-black text-3xl sm:text-5xl text-[#090D16] tracking-tight leading-tight mb-4">
             How we put AI to work for your company.
           </h2>
           <p className="text-slate-600 text-sm sm:text-base leading-relaxed">
-            Concrete infrastructure built to save time, eliminate human error, and accelerate pipeline velocity.
+            Concrete infrastructure engineered to eliminate bottlenecks, capture lost revenue, and accelerate operational velocity.
           </p>
         </MotionWrapper>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-          {aiCapabilities.map((cap, idx) => (
-            <MotionWrapper key={cap.id} direction="up" delay={idx * 0.08} distance={30}>
-              <SpotlightCard
-                spotlightColor="rgba(192, 98, 42, 0.12)"
-                className="h-full p-6 sm:p-8 rounded-3xl bg-white border border-slate-200/80 shadow-[0_4px_25px_rgba(0,0,0,0.03)] flex flex-col justify-between hover:shadow-[0_12px_40px_rgba(0,0,0,0.08)] transition-all group relative overflow-hidden"
-              >
-                <div>
-                  {/* Top Bar: Pillar Number + Animated Dynamic Icon */}
-                  <div className="flex items-center justify-between mb-5">
-                    <div className="flex items-center gap-3">
-                      <span className="font-mono text-sm font-bold text-[#C0622A] bg-orange-50 px-3 py-1 rounded-xl border border-orange-200/60">
-                        {cap.number}
-                      </span>
-                      <span className="text-[10px] font-mono uppercase tracking-wider text-slate-500 font-semibold">
-                        Production Ready
-                      </span>
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+          {aiCapabilities.map((cap, idx) => {
+            const IconComp = cap.icon;
+            return (
+              <MotionWrapper key={cap.id} direction="up" delay={idx * 0.1} distance={30} className="h-full">
+                <SpotlightCard
+                  spotlightColor="rgba(192, 98, 42, 0.12)"
+                  className="h-full p-8 rounded-3xl bg-white border border-slate-200/80 shadow-[0_4px_25px_rgba(0,0,0,0.03)] flex flex-col justify-between hover:shadow-[0_12px_40px_rgba(0,0,0,0.08)] transition-all group relative overflow-hidden"
+                >
+                  <div>
+                    {/* Top Bar: Pillar Number + Icon */}
+                    <div className="flex items-center justify-between mb-6">
+                      <div className="flex items-center gap-3">
+                        <span className="font-mono text-sm font-bold text-[#C0622A] bg-orange-50 px-3 py-1 rounded-xl border border-orange-200/60">
+                          {cap.number}
+                        </span>
+                        <span className="text-[10px] font-mono uppercase tracking-wider text-slate-500 font-semibold">
+                          {cap.badge}
+                        </span>
+                      </div>
+
+                      <div className="w-10 h-10 rounded-2xl bg-orange-50/80 border border-orange-200/80 flex items-center justify-center text-[#C0622A] group-hover:scale-110 transition-transform">
+                        <IconComp className="w-5 h-5" />
+                      </div>
                     </div>
 
-                    {/* Animated Micro-Graphic Node */}
-                    <div className="relative w-10 h-10 rounded-2xl bg-orange-50/70 border border-orange-200/80 flex items-center justify-center group-hover:scale-110 transition-transform">
-                      {cap.id === "geo-aeo" && (
-                        <>
-                          <motion.span
-                            animate={{ scale: [1, 1.3, 1], opacity: [0.3, 0.7, 0.3] }}
-                            transition={{ duration: 2.5, repeat: Infinity }}
-                            className="absolute inset-0 rounded-2xl border border-[#C0622A]/40 pointer-events-none"
-                          />
-                          <Search className="w-5 h-5 text-[#C0622A]" />
-                        </>
-                      )}
-                      {cap.id === "lead-routing" && (
-                        <>
-                          <motion.span
-                            animate={{ rotate: 360 }}
-                            transition={{ duration: 8, repeat: Infinity, ease: "linear" }}
-                            className="absolute inset-0 rounded-2xl border border-dashed border-[#C0622A]/40 pointer-events-none"
-                          />
-                          <Bot className="w-5 h-5 text-[#C0622A]" />
-                        </>
-                      )}
-                      {cap.id === "social-autopilot" && (
-                        <>
-                          <motion.span
-                            animate={{ scale: [0.95, 1.15, 0.95] }}
-                            transition={{ duration: 2, repeat: Infinity }}
-                            className="absolute inset-0 rounded-2xl bg-[#C0622A]/10 pointer-events-none"
-                          />
-                          <Zap className="w-5 h-5 text-[#C0622A]" />
-                        </>
-                      )}
-                      {cap.id === "data-connectors" && (
-                        <>
-                          <motion.span
-                            animate={{ y: [-2, 2, -2] }}
-                            transition={{ duration: 3, repeat: Infinity }}
-                            className="absolute inset-0 rounded-2xl border border-[#C0622A]/40 pointer-events-none"
-                          />
-                          <Workflow className="w-5 h-5 text-[#C0622A]" />
-                        </>
-                      )}
+                    {/* Title & Tagline */}
+                    <h3 className="font-heading font-black text-xl sm:text-2xl text-[#090D16] mb-2 group-hover:text-[#C0622A] transition-colors">
+                      {cap.title}
+                    </h3>
+                    <p className="text-xs sm:text-sm text-[#C0622A] font-semibold mb-4">
+                      {cap.tagline}
+                    </p>
+
+                    <p className="text-slate-600 text-xs sm:text-sm leading-relaxed mb-6 font-normal">
+                      {cap.solution}
+                    </p>
+
+                    {/* Deliverables Checklist */}
+                    <div className="mb-6 space-y-2.5 pt-4 border-t border-slate-100">
+                      <div className="text-[11px] font-mono uppercase tracking-wider text-slate-800 font-bold mb-2">
+                        Core Capabilities:
+                      </div>
+                      {cap.deliverables.map((item) => (
+                        <div key={item} className="flex items-start gap-2">
+                          <CheckCircle2 className="w-4 h-4 text-[#C0622A] shrink-0 mt-0.5" />
+                          <span className="text-xs text-slate-700 leading-snug">{item}</span>
+                        </div>
+                      ))}
                     </div>
                   </div>
 
-                  {/* Title & Description */}
-                  <h3 className="font-heading font-black text-xl sm:text-2xl text-[#090D16] mb-1.5 group-hover:text-[#C0622A] transition-colors">
-                    {cap.title}
-                  </h3>
-                  <p className="text-xs sm:text-sm text-[#C0622A] font-medium mb-3">
-                    {cap.tagline}
-                  </p>
-                  <p className="text-slate-600 text-xs sm:text-sm leading-relaxed mb-5 font-normal">
-                    {cap.description}
-                  </p>
-
-                  {/* Deliverables Checklist */}
-                  <div className="mb-6 space-y-2">
-                    {cap.deliverables.map((item) => (
-                      <div key={item} className="flex items-start gap-2">
-                        <CheckCircle2 className="w-4 h-4 text-[#C0622A] shrink-0 mt-0.5" />
-                        <span className="text-xs text-slate-700 leading-snug">{item}</span>
-                      </div>
-                    ))}
+                  {/* Bottom Metric & Action */}
+                  <div className="pt-5 border-t border-slate-100 flex items-center justify-between gap-2">
+                    <span className="text-[11px] font-mono text-emerald-800 bg-emerald-50 px-3 py-1 rounded-full font-semibold border border-emerald-200/60 whitespace-nowrap shrink-0">
+                      {cap.metric}
+                    </span>
+                    <button
+                      type="button"
+                      onClick={() =>
+                        openContactModal({
+                          intent: "ai-audit",
+                          notes: `Inquiry regarding ${cap.title}`,
+                        })
+                      }
+                      className="inline-flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-[#C0622A] hover:text-[#9c4314] cursor-pointer whitespace-nowrap shrink-0 group-hover:translate-x-0.5 transition-transform"
+                    >
+                      <span>Deploy Engine</span>
+                      <ArrowUpRight className="w-3.5 h-3.5" />
+                    </button>
                   </div>
-
-                  {/* Interactive Mini Simulator Preview Box */}
-                  <div className="p-3.5 rounded-2xl bg-slate-50 border border-slate-200/80 mb-6">
-                    <div className="flex items-center justify-between pb-2 border-b border-slate-200/60 mb-2">
-                      <div className="flex items-center gap-1.5 text-[10px] font-mono font-bold text-slate-500 uppercase">
-                        <Sparkles className="w-3 h-3 text-[#C0622A]" />
-                        <span>Live Architecture Flow</span>
-                      </div>
-                      <span className="px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800 text-[9px] font-mono font-bold flex items-center gap-1">
-                        <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
-                        <span>ACTIVE</span>
-                      </span>
-                    </div>
-
-                    <div className="space-y-1.5 text-xs">
-                      <div className="flex items-start gap-1.5 text-slate-600 font-mono text-[11px]">
-                        <span className="text-[#C0622A] font-bold">Input:</span>
-                        <span>{cap.interactiveSample.prompt}</span>
-                      </div>
-                      <div className="flex items-start gap-1.5 text-slate-900 font-medium text-[11px]">
-                        <span className="text-emerald-600 font-bold">Output:</span>
-                        <span>{cap.interactiveSample.response}</span>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Bottom Metric & Action */}
-                <div className="pt-4 border-t border-slate-100 flex items-center justify-between">
-                  <span className="text-[11px] font-mono text-emerald-700 bg-emerald-50 px-3 py-1 rounded-full font-semibold border border-emerald-200/60">
-                    {cap.metric}
-                  </span>
-                  <button
-                    type="button"
-                    onClick={() =>
-                      openContactModal({
-                        intent: "ai-audit",
-                        notes: `Inquiry regarding ${cap.title}`,
-                      })
-                    }
-                    className="inline-flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-[#C0622A] hover:text-[#9c4314] cursor-pointer group-hover:translate-x-0.5 transition-transform"
-                  >
-                    <span>Deploy Architecture</span>
-                    <ArrowUpRight className="w-3.5 h-3.5" />
-                  </button>
-                </div>
-              </SpotlightCard>
-            </MotionWrapper>
-          ))}
+                </SpotlightCard>
+              </MotionWrapper>
+            );
+          })}
         </div>
       </section>
 
