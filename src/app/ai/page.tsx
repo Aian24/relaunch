@@ -143,10 +143,10 @@ export default function AiPage() {
             FULL STACK AI SERVICES
           </span>
           <h2 className="font-heading font-black text-3xl sm:text-5xl text-[#090D16] tracking-tight leading-tight mb-4">
-            Practical AI Systems Built for Real ROI.
+            AI Solutions Built for Real Business Growth.
           </h2>
           <p className="text-slate-600 text-sm sm:text-base leading-relaxed">
-            From Generative Engine Optimization (GEO) to autonomous 24/7 lead intake and workflow automations — discover the full spectrum of AI capabilities engineered for your business.
+            From AI search visibility to custom automations and voice agents — the full stack of practical AI services engineered for small and growing businesses.
           </p>
         </MotionWrapper>
 

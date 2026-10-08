@@ -164,6 +164,33 @@ export default function ContactModal() {
         );
       }
 
+      // Sync lead into ReLaunch Studio Admin Leads Storage
+      try {
+        const existingLeads = JSON.parse(localStorage.getItem("relaunch_admin_leads") || "[]");
+        const newLeadEntry = {
+          id: `LEAD-${Math.floor(1000 + Math.random() * 9000)}`,
+          name: formData.name || "Website Visitor",
+          email: formData.email,
+          phone: formData.phone || "N/A",
+          business: formData.business || "New Client",
+          service: formData.interest,
+          intent: activeTab === "calendar" ? "strategy-session" : activeTab === "ai-audit" ? "ai-audit" : "general",
+          date: new Date().toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" }) + " " + new Date().toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit" }),
+          status: activeTab === "calendar" ? "scheduled" : "new",
+          budget: "$3,000 – $5,000 / mo",
+          notes: activeTab === "calendar" ? `Booked Strategy Session for ${formData.preferredDate || "Selected Date"} at ${formData.preferredTime}. Message: ${formData.message || "None provided"}` : formData.message || "Inbound inquiry via website modal.",
+          priority: "high",
+          bookingDate: formData.preferredDate || "",
+          bookingTime: formData.preferredTime || "10:00 AM MST",
+          meetLink: activeTab === "calendar" ? `https://meet.google.com/rel-${Math.random().toString(36).substring(2, 7)}` : undefined,
+          emailSubject: activeTab === "calendar" ? `Strategy Session Booking: ${formData.name}` : `Inbound Inquiry: ${formData.interest}`,
+          isRead: false,
+        };
+        localStorage.setItem("relaunch_admin_leads", JSON.stringify([newLeadEntry, ...existingLeads]));
+      } catch (err) {
+        console.error("Failed to sync lead to admin storage", err);
+      }
+
       // Reset form
       setFormData({
         name: "",

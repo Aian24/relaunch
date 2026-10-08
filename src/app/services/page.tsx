@@ -29,7 +29,6 @@ import {
 const servicePillars = [
   {
     id: "brand-strategy",
-    number: "01",
     title: "Brand Strategy & Visual Identity",
     tagline: "Build a brand that commands market authority and profound customer trust.",
     description:
@@ -45,7 +44,6 @@ const servicePillars = [
   },
   {
     id: "web-software",
-    number: "02",
     title: "Web Architecture & Custom Software",
     tagline: "High-performance digital products engineered for velocity and scale.",
     description:
@@ -61,7 +59,6 @@ const servicePillars = [
   },
   {
     id: "growth-media",
-    number: "03",
     title: "Performance Media & Search Dominance",
     tagline: "Turn marketing spend into predictable, high-ticket customer pipeline.",
     description:
@@ -103,19 +100,20 @@ export default function ServicesPage() {
       <section id="detailed-deliverables" className="py-20 sm:py-28 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto w-full">
         <MotionWrapper direction="up" distance={30} className="text-center max-w-2xl mx-auto mb-16 sm:mb-20">
           <span className="text-xs font-mono uppercase tracking-widest text-[#C0622A] font-bold block mb-2">
-            THREE CORE CAPABILITIES
+            CORE CAPABILITIES
           </span>
           <h2 className="font-heading font-black text-3xl sm:text-5xl text-[#090D16] tracking-tight leading-tight mb-4">
             Everything your business needs to lead.
           </h2>
           <p className="text-slate-600 text-sm sm:text-base leading-relaxed">
-            Three unified disciplines designed to elevate your market position, accelerate digital speed, and scale high-value customer acquisition.
+            Unified disciplines designed to elevate your market position, accelerate digital speed, and scale high-value customer acquisition.
           </p>
         </MotionWrapper>
 
         <div className="flex flex-col gap-12 sm:gap-16">
           {servicePillars.map((pillar, idx) => {
             const isReversed = idx % 2 === 1;
+            const IconComp = pillar.icon;
 
             return (
               <MotionWrapper key={pillar.id} direction="up" delay={idx * 0.08} distance={35}>
@@ -128,10 +126,10 @@ export default function ServicesPage() {
                   {/* Content Column */}
                   <div className={`lg:col-span-7 flex flex-col justify-between ${isReversed ? "lg:order-2" : "lg:order-1"}`}>
                     <div>
-                      <div className="flex items-center gap-3 mb-3">
-                        <span className="font-mono text-sm font-bold text-[#C0622A] bg-orange-50 px-2.5 py-1 rounded-lg border border-orange-200/60">
-                          {pillar.number}
-                        </span>
+                      <div className="flex items-center gap-2.5 mb-3">
+                        <div className="w-8 h-8 rounded-lg bg-orange-50 border border-orange-200/60 flex items-center justify-center text-[#C0622A]">
+                          <IconComp className="w-4 h-4" />
+                        </div>
                         <span className="text-xs font-mono uppercase tracking-wider text-slate-500 font-semibold">
                           Core Competency
                         </span>
@@ -185,8 +183,6 @@ export default function ServicesPage() {
                       src={pillar.image}
                       alt={pillar.title}
                       aspectRatio="aspect-[4/3]"
-                      badge={pillar.number}
-                      badgeColor="bg-[#C0622A]"
                       className="border-slate-200 shadow-md"
                     />
                   </div>
