@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { motion, AnimatePresence } from "framer-motion";
 import { ArrowUp } from "lucide-react";
 
 export default function ScrollToTop() {
@@ -8,7 +9,7 @@ export default function ScrollToTop() {
 
   useEffect(() => {
     const toggleVisibility = () => {
-      if (window.scrollY > 350) {
+      if (window.scrollY > 300) {
         setIsVisible(true);
       } else {
         setIsVisible(false);
@@ -26,20 +27,39 @@ export default function ScrollToTop() {
     });
   };
 
-  if (!isVisible) return null;
-
   return (
-    <button
-      onClick={scrollToTop}
-      aria-label="Scroll to top"
-      className="fixed bottom-10 left-6 sm:bottom-12 sm:left-8 z-40 p-3.5 rounded-2xl bg-[#090D16] hover:bg-[#C0622A] text-white border border-slate-700/80 shadow-2xl transition-all duration-300 hover:scale-110 active:scale-95 group flex items-center justify-center cursor-pointer animate-in fade-in slide-in-from-bottom-4"
-      style={{
-        marginBottom: "max(0px, env(safe-area-inset-bottom, 0px))",
-        marginLeft: "max(0px, env(safe-area-inset-left, 0px))",
-      }}
-    >
-      <ArrowUp className="w-5 h-5 text-slate-300 group-hover:text-white transition-colors" />
-      <span className="sr-only">Scroll to top</span>
-    </button>
+    <AnimatePresence>
+      {isVisible && (
+        <motion.button
+          key="scroll-to-top"
+          onClick={scrollToTop}
+          initial={{ opacity: 0, scale: 0.7, y: 20 }}
+          animate={{
+            opacity: 1,
+            scale: 1,
+            y: [0, -4, 0],
+          }}
+          exit={{ opacity: 0, scale: 0.7, y: 20 }}
+          transition={{
+            y: {
+              repeat: Infinity,
+              duration: 2.4,
+              ease: "easeInOut",
+            },
+            duration: 0.25,
+            ease: "easeOut",
+          }}
+          aria-label="Scroll to top"
+          className="fixed bottom-10 left-6 sm:bottom-12 sm:left-8 z-40 p-3.5 rounded-2xl bg-[#090D16] hover:bg-[#C0622A] text-white border border-slate-700/80 shadow-2xl transition-colors duration-300 hover:scale-110 active:scale-95 group flex items-center justify-center cursor-pointer"
+          style={{
+            marginBottom: "max(0px, env(safe-area-inset-bottom, 0px))",
+            marginLeft: "max(0px, env(safe-area-inset-left, 0px))",
+          }}
+        >
+          <ArrowUp className="w-5 h-5 text-slate-300 group-hover:text-white transition-colors" />
+          <span className="sr-only">Scroll to top</span>
+        </motion.button>
+      )}
+    </AnimatePresence>
   );
 }
