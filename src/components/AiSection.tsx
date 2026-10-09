@@ -1,36 +1,115 @@
 "use client";
 
 import React from "react";
-import { aiSectionData, aiPillarsData } from "@/data/aiServices";
+import Link from "next/link";
 import { useContactModal } from "@/context/ContactModalContext";
-import Ai3DVisual from "./Ai3DVisual";
+import MotionWrapper from "./MotionWrapper";
 import {
-  Brain,
-  Zap,
+  Globe,
+  Lightbulb,
+  Workflow,
+  MessageSquare,
+  Star,
   Sparkles,
+  BarChart3,
+  Code2,
+  CheckCircle2,
+  ArrowUpRight,
+  ArrowRight,
   Bot,
   Rocket,
-  BarChart3,
-  Terminal,
-  ShieldCheck,
-  ArrowRight,
-  ArrowUpRight,
-  CheckCircle2,
 } from "lucide-react";
 
-import MotionWrapper from "./MotionWrapper";
-import SpotlightCard from "./SpotlightCard";
-
-const iconMap: Record<string, React.ComponentType<{ className?: string }>> = {
-  Brain,
-  Zap,
-  Sparkles,
-  Bot,
-  Rocket,
-  BarChart3,
-  Terminal,
-  ShieldCheck,
-};
+const aiServices = [
+  {
+    id: "aeo-geo",
+    title: "AI Search Visibility (AEO/GEO)",
+    category: "Search & Visibility",
+    icon: Globe,
+    deliverables: [
+      "AI visibility audit",
+      "Entity & schema optimization",
+      "Citation-ready content",
+    ],
+  },
+  {
+    id: "ai-strategy",
+    title: "AI Strategy & Consulting",
+    category: "Roadmap & Audits",
+    icon: Lightbulb,
+    deliverables: [
+      "AI readiness assessment",
+      "Opportunity mapping",
+      "Tool selection & integration",
+    ],
+  },
+  {
+    id: "automation-workflows",
+    title: "Automation & Workflows",
+    category: "Make, n8n & CRM",
+    icon: Workflow,
+    deliverables: [
+      "Lead follow-up automation",
+      "CRM data synchronization",
+      "Custom Make & n8n builds",
+    ],
+  },
+  {
+    id: "chatbots-voice-agents",
+    title: "AI Chatbots & Voice Agents",
+    category: "24/7 Inbound & Booking",
+    icon: MessageSquare,
+    deliverables: [
+      "Website chat agents",
+      "Inbound phone answering",
+      "Automated calendar booking",
+    ],
+  },
+  {
+    id: "reputation-reviews",
+    title: "AI Reputation & Reviews",
+    category: "Review Growth & Replies",
+    icon: Star,
+    deliverables: [
+      "Review request sequences",
+      "Multi-platform monitoring",
+      "AI response drafting",
+    ],
+  },
+  {
+    id: "content-creative",
+    title: "AI Content & Creative",
+    category: "Brand Copy & Pipelines",
+    icon: Sparkles,
+    deliverables: [
+      "Brand voice training",
+      "High-converting ad copy",
+      "Monthly content pipelines",
+    ],
+  },
+  {
+    id: "business-intelligence",
+    title: "AI Business Intelligence",
+    category: "Dashboards & Insights",
+    icon: BarChart3,
+    deliverables: [
+      "Automated performance reports",
+      "Competitor tracking",
+      "Revenue attribution",
+    ],
+  },
+  {
+    id: "apps-tools",
+    title: "AI Apps & Portals",
+    category: "Custom Web Applications",
+    icon: Code2,
+    deliverables: [
+      "Custom AI web apps",
+      "Client service portals",
+      "Internal operations tools",
+    ],
+  },
+];
 
 export default function AiSection() {
   const { openContactModal } = useContactModal();
@@ -38,142 +117,95 @@ export default function AiSection() {
   return (
     <section
       id="ai"
-      className="py-16 lg:py-24 bg-[#FBFBFA] border-b border-slate-200 select-none scroll-mt-20 overflow-hidden relative"
+      className="py-20 sm:py-28 bg-white border-b border-slate-200 select-none scroll-mt-20 overflow-hidden relative"
     >
-      {/* Subtle Background Pattern */}
-      <div
-        className="absolute inset-0 pointer-events-none opacity-[0.03]"
-        style={{
-          backgroundImage: "radial-gradient(#090D16 1.5px, transparent 1.5px)",
-          backgroundSize: "24px 24px",
-        }}
-      />
-
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-        {/* Section Header */}
+        {/* Section Header - Center Aligned */}
         <MotionWrapper
           direction="up"
           distance={20}
-          className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-10 sm:mb-12"
+          className="text-center max-w-3xl mx-auto mb-12 sm:mb-14"
         >
-          <div>
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-slate-100 border border-slate-200 text-slate-800 text-[10px] font-mono font-bold uppercase tracking-widest mb-3">
-              <Sparkles className="w-3.5 h-3.5 text-[#C0622A]" />
-              <span>{aiSectionData.badge}</span>
-            </div>
-            <h2 className="font-heading font-black text-3xl sm:text-5xl lg:text-6xl text-[#090D16] tracking-tight leading-[1.05]">
-              The future isn&apos;t coming. <br />
-              <span className="text-[#C0622A]">It&apos;s here.</span>
-            </h2>
-            <p className="text-slate-600 text-xs sm:text-sm font-normal max-w-2xl mt-2 leading-relaxed">
-              {aiSectionData.subheadline}
-            </p>
+          <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-orange-50 border border-orange-200 text-[#C0622A] text-[10px] font-mono font-bold uppercase tracking-widest mb-3 whitespace-nowrap">
+            <Sparkles className="w-3.5 h-3.5 text-[#C0622A]" />
+            <span>FULL STACK AI SERVICES</span>
           </div>
+          <h2 className="font-heading font-black text-3xl sm:text-5xl lg:text-6xl text-[#090D16] tracking-tight leading-[1.05] mb-3">
+            <span className="block whitespace-normal sm:whitespace-nowrap">The future isn&apos;t coming.</span>
+            <span className="block text-[#C0622A] whitespace-normal sm:whitespace-nowrap">It&apos;s here.</span>
+          </h2>
+          <p className="text-slate-600 text-sm sm:text-base font-normal max-w-2xl mx-auto mt-2 leading-relaxed mb-6">
+            Practical AI systems engineered to capture leads, answer customers, and automate workflows.
+          </p>
 
-          <div className="flex flex-wrap items-center gap-3 shrink-0 self-start md:self-auto">
+          <div className="flex flex-wrap items-center justify-center gap-3">
             <button
               type="button"
               onClick={() => openContactModal({ intent: "ai-audit" })}
-              className="inline-flex items-center justify-center gap-2 px-5 py-3 bg-orange-50/80 hover:bg-orange-100 border border-orange-200/90 hover:border-orange-300 text-[#C0622A] hover:text-[#a84f1d] font-heading font-bold text-xs uppercase tracking-wider rounded-xl transition-all shadow-xs whitespace-nowrap active:translate-y-0.5 cursor-pointer hover:scale-102"
+              className="inline-flex items-center justify-center gap-2 px-5 py-3 bg-orange-50 hover:bg-orange-100 border border-orange-200 hover:border-orange-300 text-[#C0622A] hover:text-[#a84f1d] font-heading font-bold text-xs uppercase tracking-wider rounded-xl transition-all shadow-xs whitespace-nowrap active:translate-y-0.5 cursor-pointer"
             >
               <Bot className="w-3.5 h-3.5 text-[#C0622A] shrink-0" />
               <span>Book an AI Audit</span>
               <ArrowUpRight className="w-3.5 h-3.5 text-[#C0622A]" />
             </button>
 
-            <button
-              type="button"
-              onClick={() => openContactModal({ intent: "start-project" })}
-              className="inline-flex items-center justify-center gap-2 px-5 py-3 bg-orange-50/80 hover:bg-orange-100 border border-orange-200/90 hover:border-orange-300 text-[#C0622A] hover:text-[#a84f1d] font-heading font-bold text-xs uppercase tracking-wider rounded-xl transition-all shadow-xs whitespace-nowrap active:translate-y-0.5 cursor-pointer hover:scale-102"
+            <Link
+              href="/ai"
+              className="inline-flex items-center justify-center gap-2 px-5 py-3 bg-[#C0622A] hover:bg-[#a84f1d] text-white font-heading font-bold text-xs uppercase tracking-wider rounded-xl transition-all shadow-xs whitespace-nowrap active:translate-y-0.5 cursor-pointer"
             >
-              <Rocket className="w-3.5 h-3.5 text-[#C0622A] shrink-0" />
-              <span>Start Your Project</span>
-              <ArrowRight className="w-3.5 h-3.5 text-[#C0622A]" />
-            </button>
+              <Rocket className="w-3.5 h-3.5 text-white shrink-0" />
+              <span>Explore Full AI Stack</span>
+              <ArrowRight className="w-3.5 h-3.5 text-white" />
+            </Link>
           </div>
         </MotionWrapper>
 
-        {/* 8 AI Pillars Grid with Unique 3D Visual Cards & Distinct Icons */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-5">
-          {aiPillarsData.map((item, idx) => {
-            const Icon = iconMap[item.icon] || Brain;
-
+        {/* 8 AI Services Grid with Bullet Checks */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+          {aiServices.map((service, idx) => {
+            const IconComp = service.icon;
             return (
               <MotionWrapper
-                key={item.id}
-                direction="left"
-                delay={idx * 0.07}
-                distance={35}
+                key={service.id}
+                direction="up"
+                delay={idx * 0.04}
+                distance={20}
                 className="h-full"
               >
-                <SpotlightCard
-                  onClick={() =>
-                    openContactModal({
-                      intent: "ai-audit",
-                      serviceInterest: item.title,
-                      notes: `Interested in deploying AI capability: ${item.title}`,
-                    })
-                  }
-                  spotlightColor="rgba(46, 139, 122, 0.15)"
-                  className="bg-white rounded-3xl p-5 sm:p-6 border border-slate-200/90 shadow-xs hover:shadow-2xl hover:border-[#C0622A]/60 transition-all duration-300 flex flex-col justify-between h-full group hover:-translate-y-1.5 cursor-pointer relative overflow-hidden"
+                <Link
+                  href={`/ai#${service.id}`}
+                  className="h-full p-6 sm:p-7 rounded-3xl bg-white border border-slate-200/90 shadow-[0_4px_25px_rgba(0,0,0,0.02)] hover:border-[#C0622A]/40 hover:shadow-[0_12px_35px_rgba(192,98,42,0.08)] transition-all duration-300 flex flex-col justify-between group"
                 >
-                  {/* Top Accent Gradient Line */}
-                  <div className="absolute top-0 left-0 right-0 h-1 bg-transparent group-hover:bg-gradient-to-r group-hover:from-[#C0622A] group-hover:to-[#2E8B7A] transition-all" />
-
                   <div>
-                    {/* Top Bar: Icon + Tag */}
-                    <div className="flex items-center justify-between gap-2 mb-3">
-                      <div className="w-10 h-10 rounded-2xl bg-slate-100 flex items-center justify-center text-[#090D16] group-hover:bg-[#090D16] group-hover:text-[#C0622A] group-hover:scale-110 transition-all duration-300 border border-slate-200/80 shadow-xs shrink-0">
-                        <Icon className="w-5 h-5 shrink-0" />
+                    <div className="flex items-center justify-between mb-5">
+                      <div className="w-12 h-12 rounded-2xl bg-orange-50 border border-orange-100 flex items-center justify-center text-[#C0622A] group-hover:bg-[#C0622A] group-hover:text-white transition-all duration-300 shadow-xs">
+                        <IconComp className="w-6 h-6 transition-transform group-hover:scale-110" />
                       </div>
-                      {item.tag && (
-                        <span className="text-[10px] font-mono font-bold uppercase tracking-wider px-2.5 py-0.5 rounded-full bg-slate-100 text-slate-700 group-hover:bg-orange-50 group-hover:text-[#C0622A] transition-colors border border-slate-200/60 whitespace-nowrap">
-                          {item.tag}
-                        </span>
-                      )}
+                      <span className="text-[10px] font-mono uppercase tracking-wider text-[#C0622A] bg-orange-50/80 px-2.5 py-1 rounded-full border border-orange-200/60 font-semibold">
+                        {service.category}
+                      </span>
                     </div>
 
-                    {/* Interactive 3D Spatial Visual Graphic (Unique for each of the 8 AI pillars) */}
-                    <Ai3DVisual
-                      pillarId={item.id}
-                      className="w-full h-32 mb-4"
-                    />
-
-                    {/* Title & Description */}
-                    <h3 className="font-heading font-black text-lg text-[#090D16] mb-1.5 leading-snug group-hover:text-[#C0622A] transition-colors tracking-tight">
-                      {item.title}
+                    <h3 className="font-heading font-black text-lg text-[#090D16] group-hover:text-[#C0622A] transition-colors leading-snug mb-4">
+                      {service.title}
                     </h3>
-                    <p className="text-slate-600 text-xs leading-relaxed mb-4 font-normal line-clamp-3">
-                      {item.description}
-                    </p>
-                  </div>
 
-                  <div>
-                    {/* Features Checklist */}
-                    <div className="pt-3 border-t border-slate-100 space-y-1.5 mb-4">
-                      {item.features.map((feat, fIdx) => (
-                        <div
-                          key={fIdx}
-                          className="flex items-center gap-2 text-[11px] text-slate-700 font-medium"
-                        >
-                          <CheckCircle2 className="w-3.5 h-3.5 text-[#2E8B7A] shrink-0" />
-                          <span className="truncate">{feat}</span>
+                    {/* Bullet Checks */}
+                    <div className="space-y-2 pt-3 border-t border-slate-100">
+                      {service.deliverables.map((item) => (
+                        <div key={item} className="flex items-start gap-2">
+                          <CheckCircle2 className="w-3.5 h-3.5 text-[#C0622A] shrink-0 mt-0.5" />
+                          <span className="text-xs text-slate-600 leading-snug">{item}</span>
                         </div>
                       ))}
                     </div>
-
-                    {/* Bottom Action Trigger */}
-                    <div className="pt-3 border-t border-slate-100 flex items-center justify-between text-xs font-heading font-bold text-[#090D16] group-hover:text-[#C0622A] transition-colors">
-                      <span className="flex items-center gap-1.5">
-                        <span className="w-2 h-2 rounded-full bg-[#2E8B7A] animate-pulse" />
-                        <span>Deploy Capability</span>
-                      </span>
-                      <span className="w-7 h-7 rounded-full bg-slate-100 group-hover:bg-[#C0622A] group-hover:text-white flex items-center justify-center transition-all">
-                        <ArrowUpRight className="w-3.5 h-3.5" />
-                      </span>
-                    </div>
                   </div>
-                </SpotlightCard>
+
+                  <div className="mt-5 pt-3.5 border-t border-slate-100 flex items-center justify-between text-xs font-bold text-[#C0622A]">
+                    <span className="font-heading uppercase tracking-wider text-[11px]">View Scope on AI Page</span>
+                    <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-1 transition-transform" />
+                  </div>
+                </Link>
               </MotionWrapper>
             );
           })}

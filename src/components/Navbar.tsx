@@ -68,7 +68,6 @@ export default function Navbar() {
               >
                 <span className="relative pb-0.5">
                   {link.label}
-                  {/* Subtle Indicator */}
                   <span
                     className={`absolute bottom-0 left-0 right-0 h-[1.5px] rounded-full transition-all duration-200 ${
                       isActive

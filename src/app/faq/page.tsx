@@ -15,7 +15,6 @@ import {
   ArrowUpRight,
   ArrowRight,
   ChevronDown,
-  Sparkles,
   Phone,
 } from "lucide-react";
 
@@ -44,30 +43,28 @@ export default function FaqPage() {
         <div className="absolute top-0 right-1/4 w-[700px] h-[500px] bg-[#C0622A]/15 rounded-full blur-[160px] pointer-events-none" />
 
         <div className="max-w-7xl mx-auto">
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-16 items-center">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-center">
             
             {/* LEFT COLUMN: Fonts, Badges, Typography & CTA */}
-            <div className="lg:col-span-6 flex flex-col justify-center text-center sm:text-left items-center sm:items-start">
+            <div className="lg:col-span-6 flex flex-col justify-center text-center sm:text-left items-center sm:items-start min-w-0">
               <motion.div
-                initial={{ opacity: 0, y: 16 }}
+                initial={{ opacity: 0, y: 14 }}
                 animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
-                className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white/[0.08] backdrop-blur-md border border-white/[0.12] text-[#F39C6B] text-[11px] sm:text-xs font-mono uppercase tracking-widest font-semibold mb-6 w-fit shadow-sm"
+                transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
+                className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-white/[0.08] border border-white/[0.12] text-[#C0622A] text-xs font-mono uppercase tracking-widest font-semibold mb-6 shadow-xs whitespace-nowrap"
               >
-                <HelpCircle className="w-3.5 h-3.5 text-[#C0622A]" />
+                <span className="w-2 h-2 rounded-full bg-[#C0622A] shrink-0" />
                 <span>Knowledge Base &amp; FAQ</span>
               </motion.div>
 
               <motion.h1
-                initial={{ opacity: 0, y: 20 }}
+                initial={{ opacity: 0, y: 18 }}
                 animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.7, delay: 0.1, ease: [0.16, 1, 0.3, 1] }}
-                className="font-heading font-black text-4xl sm:text-6xl xl:text-7xl tracking-tight leading-[1.04] text-white"
+                transition={{ duration: 0.6, delay: 0.1, ease: [0.16, 1, 0.3, 1] }}
+                className="font-heading font-black text-3xl sm:text-4xl md:text-5xl lg:text-5xl xl:text-6xl tracking-tight leading-[1.08] text-white"
               >
-                Frequently Asked <br />
-                <span className="bg-gradient-to-r from-white via-[#FAF9F6] to-[#E88C52] bg-clip-text text-transparent">
-                  Questions.
-                </span>
+                <span className="block">Frequently Asked</span>
+                <span className="block text-[#C0622A]">Questions.</span>
               </motion.h1>
 
               <motion.p
@@ -76,7 +73,7 @@ export default function FaqPage() {
                 transition={{ duration: 0.7, delay: 0.2, ease: [0.16, 1, 0.3, 1] }}
                 className="mt-6 text-slate-300 text-sm sm:text-base md:text-lg leading-relaxed font-normal max-w-xl"
               >
-                Everything you need to know about our subscription model, delivery timelines, AI workflows, and client ownership guarantees.
+                Clear answers about our subscriptions, turnaround timelines, AI workflows, and asset ownership.
               </motion.p>
 
               {/* Action Buttons */}
@@ -84,23 +81,23 @@ export default function FaqPage() {
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.7, delay: 0.3, ease: [0.16, 1, 0.3, 1] }}
-                className="mt-8 flex flex-wrap gap-4"
+                className="mt-8 flex flex-row items-center justify-center sm:justify-start gap-2.5 sm:gap-4 w-full sm:w-auto max-w-md sm:max-w-none"
               >
                 <button
                   type="button"
                   onClick={() => openContactModal({ intent: "strategy-session" })}
-                  className="inline-flex items-center gap-2 px-6 py-3.5 bg-[#C0622A] hover:bg-[#a84f1d] text-white text-xs sm:text-sm font-bold uppercase tracking-wider rounded-xl transition-all shadow-[0_0_20px_rgba(192,98,42,0.35)] cursor-pointer active:scale-98"
+                  className="flex-1 sm:flex-initial inline-flex items-center justify-center gap-1.5 sm:gap-2 px-3.5 sm:px-6 py-3 sm:py-3.5 bg-[#C0622A] hover:bg-[#a84f1d] text-white text-[11px] sm:text-sm font-bold uppercase tracking-wider rounded-xl transition-all shadow-[0_0_20px_rgba(192,98,42,0.35)] cursor-pointer active:scale-98 whitespace-nowrap"
                 >
-                  <span>Ask a Specific Question</span>
-                  <ArrowUpRight className="w-4 h-4 text-white" />
+                  <span>Ask a Question</span>
+                  <ArrowUpRight className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-white" />
                 </button>
 
                 <Link
                   href="/pricing"
-                  className="inline-flex items-center gap-2 px-6 py-3.5 bg-white/[0.06] hover:bg-white/[0.12] text-slate-200 hover:text-white text-xs sm:text-sm font-bold uppercase tracking-wider rounded-xl border border-white/[0.12] transition-all"
+                  className="flex-1 sm:flex-initial inline-flex items-center justify-center gap-1.5 sm:gap-2 px-3.5 sm:px-6 py-3 sm:py-3.5 bg-white/[0.06] hover:bg-white/[0.12] text-slate-200 hover:text-white text-[11px] sm:text-sm font-bold uppercase tracking-wider rounded-xl border border-white/[0.12] transition-all whitespace-nowrap"
                 >
-                  <span>View Pricing Breakdown</span>
-                  <ArrowRight className="w-4 h-4 text-slate-400" />
+                  <span>View Pricing</span>
+                  <ArrowRight className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-slate-400" />
                 </Link>
               </motion.div>
             </div>
@@ -115,7 +112,7 @@ export default function FaqPage() {
               >
                 <div className="flex items-center justify-between pb-4 border-b border-white/[0.08]">
                   <div className="flex items-center gap-2">
-                    <Sparkles className="w-4 h-4 text-[#E88C52]" />
+                    <HelpCircle className="w-4 h-4 text-[#E88C52]" />
                     <span className="text-xs font-mono uppercase tracking-widest text-white font-bold">
                       Instant Answers
                     </span>

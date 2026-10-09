@@ -29,7 +29,7 @@ export default function CtaBanner() {
           </h2>
 
           <p className="text-slate-600 text-xs sm:text-base max-w-xl mx-auto mb-8 leading-relaxed font-normal">
-            Book a free strategy session, request an AI audit, or send us your project details. We&apos;ll map out exactly what your business needs — no pressure, no fluff.
+            Book a free strategy session, request an AI audit, or start your project today.
           </p>
 
           {/* Action Buttons */}

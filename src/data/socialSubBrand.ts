@@ -15,7 +15,7 @@ export const socialData = {
   title: "ReLaunch Social",
   headline: "Your social media runs itself.",
   tagline:
-    "We create the content, schedule it, and publish it automatically — every month, across all 5 major platforms. You spend 30 minutes a month approving. We handle the rest.",
+    "Done-for-you social media content created, scheduled, and published across 5 platforms.",
   portalUrl: "https://relaunch-social-orbit.base44.app",
   platforms: ["Instagram", "Facebook", "LinkedIn", "TikTok", "Google Business"],
   stats: [
@@ -27,23 +27,23 @@ export const socialData = {
   steps: [
     {
       num: "01",
-      title: "Subscribe & Get Instant Portal Access",
-      description: "Choose your plan and your dedicated client management portal is active within 60 seconds.",
+      title: "Subscribe & Get Portal Access",
+      description: "Choose your plan and access your client portal in under 60 seconds.",
     },
     {
       num: "02",
-      title: "Complete 5-Minute Brand Profile",
-      description: "Quick intake: select your brand voice archetype, color tokens, target audience, and connect accounts via Metricool.",
+      title: "Set Brand Profile & Connect",
+      description: "Select your brand archetype, visual style, and connect social accounts.",
     },
     {
       num: "03",
-      title: "Approve Your Monthly Content Batch",
-      description: "We generate your complete monthly calendar (graphics, captions, hashtags, Reels). You review and click approve in one sitting.",
+      title: "Approve Monthly Batch",
+      description: "We produce your complete monthly content batch. Review and approve in one sitting.",
     },
     {
       num: "04",
-      title: "It Posts Automatically — Done",
-      description: "Content publishes reliably on optimal schedule across all platforms. You receive clean analytics at month end.",
+      title: "Automated Publishing",
+      description: "Posts publish reliably across all 5 platforms with monthly analytics reports.",
     },
   ],
   tiers: [

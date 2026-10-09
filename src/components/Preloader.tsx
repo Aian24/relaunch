@@ -48,9 +48,9 @@ export default function Preloader() {
     // Only mount if not seen yet
     setIsMounted(true);
 
-    // Play video at faster 2.5x speed for a brisk, seamless intro
+    // Play video at natural, smooth 1.0x speed for a cinematic, clear brand reveal
     if (videoRef.current) {
-      videoRef.current.playbackRate = 2.5;
+      videoRef.current.playbackRate = 1.0;
       videoRef.current.play().catch(() => {
         // Fallback if browser autoplay policy requires interaction
       });
@@ -59,7 +59,7 @@ export default function Preloader() {
     // Safety fallback: only if video is completely blocked/hung
     const safetyTimer = setTimeout(() => {
       dismissLoader();
-    }, 4500);
+    }, 12000);
 
     return () => clearTimeout(safetyTimer);
   }, []);
@@ -103,6 +103,14 @@ export default function Preloader() {
       <div className="absolute top-0 left-0 right-0 h-1 bg-[#C0622A]" />
 
       <div className="flex flex-col items-center max-w-lg px-4 sm:px-6 text-center w-full">
+        {/* Skip button for client convenience */}
+        <button
+          onClick={dismissLoader}
+          className="absolute top-6 right-6 text-[11px] font-mono uppercase tracking-widest text-slate-400 hover:text-[#C0622A] transition-colors cursor-pointer"
+        >
+          Skip Intro →
+        </button>
+
         {/* Logo Video Frame with Explicit Dimensions & Aspect Ratio */}
         <div className="w-[320px] sm:w-[480px] md:w-[540px] aspect-[16/9] max-w-full rounded-2xl bg-white flex items-center justify-center p-2 overflow-hidden shadow-xs">
           <video
@@ -118,12 +126,12 @@ export default function Preloader() {
             onEnded={handleEnded}
             onPlay={() => {
               if (videoRef.current) {
-                videoRef.current.playbackRate = 2.5;
+                videoRef.current.playbackRate = 1.0;
               }
             }}
             onLoadedMetadata={() => {
               if (videoRef.current) {
-                videoRef.current.playbackRate = 2.5;
+                videoRef.current.playbackRate = 1.0;
               }
             }}
             className="w-full h-full object-contain bg-white"

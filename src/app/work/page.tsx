@@ -290,18 +290,18 @@ export default function WorkPage() {
     <main className="min-h-screen flex flex-col bg-white text-[#090D16]">
       <Navbar />
 
-      {/* 1. Cinematic Work Video Hero */}
+      {/* 1. Cinematic Work Video Hero with Explore & Book a Strategy Call */}
       <PageVideoHero
         kicker="Proven Client Impact · Est. 2004"
         titleRegular="Our Work &"
         titleHighlight="Proven Outcomes."
-        description="Over 1,500 projects delivered across 22+ years. We partner with ambitious local businesses, growing brands, and enterprise teams to engineer decisive market results."
+        description="Over 1,500 projects delivered. We partner with ambitious businesses to engineer decisive market results."
         videoSrc="/ourwork.mp4"
         posterSrc="/hero_frames/frame_000.webp"
-        primaryCtaText="Start a Project"
-        primaryCtaIntent="strategy-session"
-        secondaryCtaText="Browse Case Studies"
-        secondaryCtaTargetId="case-studies-gallery"
+        exploreText="Explore Our Work"
+        exploreTargetId="case-studies-gallery"
+        bookStrategyText="Book Strategy Call"
+        bookStrategyIntent="strategy-session"
         scrollTargetId="case-studies-gallery"
       />
 

@@ -29,91 +29,90 @@ import {
 const aiServices = [
   {
     id: "aeo-geo",
-    title: "AEO / GEO — AI Search Visibility",
-    tagline: "Get your business cited by ChatGPT, Perplexity, Gemini & Google AI Overviews — where your customers now search.",
+    title: "AI Search Visibility (AEO/GEO)",
+    tagline: "Rank in ChatGPT, Perplexity & Google AI Overviews.",
     icon: Globe,
     deliverables: [
       "AI visibility audit",
       "Entity & schema optimization",
       "Citation-ready content",
-      "Monthly AI-rank tracking",
     ],
   },
   {
     id: "ai-strategy",
     title: "AI Strategy & Consulting",
-    tagline: "Find where AI creates the highest ROI, then build a clear roadmap.",
+    tagline: "Actionable roadmap focused on immediate ROI.",
     icon: Lightbulb,
     deliverables: [
       "AI readiness assessment",
       "Opportunity mapping",
-      "Tool & vendor selection",
+      "Tool selection & integration",
     ],
   },
   {
     id: "automation-workflows",
     title: "Automation & Workflows",
-    tagline: "Eliminate repetitive tasks with systems that run while you focus on growth.",
+    tagline: "Automate repetitive tasks and sync your tools.",
     icon: Workflow,
     deliverables: [
-      "Lead follow-up sequences",
-      "CRM automation",
-      "Make & n8n builds",
+      "Lead follow-up automation",
+      "CRM data synchronization",
+      "Custom Make & n8n builds",
     ],
   },
   {
     id: "chatbots-voice-agents",
     title: "AI Chatbots & Voice Agents",
-    tagline: "24/7 agents that answer, qualify leads, and book appointments — no extra staff.",
+    tagline: "24/7 agents that qualify leads and book appointments.",
     icon: MessageSquare,
     deliverables: [
-      "Website chatbots",
-      "Voice answering agents",
-      "Lead qualification bots",
+      "Website chat agents",
+      "Inbound phone answering",
+      "Automated calendar booking",
     ],
   },
   {
     id: "reputation-reviews",
     title: "AI Reputation & Reviews",
-    tagline: "Auto-request, monitor, and respond to reviews across every platform.",
+    tagline: "Automate review requests and draft AI replies.",
     icon: Star,
     deliverables: [
-      "Review generation",
-      "Sentiment monitoring",
+      "Review request sequences",
+      "Multi-platform monitoring",
       "AI response drafting",
     ],
   },
   {
     id: "content-creative",
     title: "AI Content & Creative",
-    tagline: "Train AI on your brand voice and generate on-brand content at scale.",
+    tagline: "Scale on-brand copy and assets trained on your voice.",
     icon: Sparkles,
     deliverables: [
       "Brand voice training",
-      "AI copywriting",
-      "Content calendars",
+      "High-converting ad copy",
+      "Monthly content pipelines",
     ],
   },
   {
     id: "business-intelligence",
     title: "AI Business Intelligence",
-    tagline: "Dashboards that surface insights so you always know what's working.",
+    tagline: "Real-time performance dashboards and revenue insights.",
     icon: BarChart3,
     deliverables: [
-      "Automated reporting",
-      "Competitor monitoring",
-      "Revenue dashboards",
+      "Automated performance reports",
+      "Competitor tracking",
+      "Revenue attribution",
     ],
   },
   {
     id: "apps-tools",
-    title: "AI-Powered Apps & Tools",
-    tagline: "Custom web & mobile apps with AI baked in — built for your workflow.",
+    title: "AI Apps & Portals",
+    tagline: "Custom web applications and portals with built-in AI.",
     icon: Code2,
     deliverables: [
-      "Custom AI apps",
-      "Client portals",
-      "Internal tools",
+      "Custom AI web apps",
+      "Client service portals",
+      "Internal operations tools",
     ],
   },
 ];
@@ -125,14 +124,18 @@ export default function AiPage() {
     <main className="min-h-screen flex flex-col bg-white text-[#090D16]">
       <Navbar />
 
-      {/* 1. Cinematic AI Video Hero with Mobile Centering */}
+      {/* 1. Cinematic AI Video Hero with Explore & Book a Strategy Call */}
       <PageVideoHero
         kicker="Pragmatic AI Systems · Est. 2004"
         titleRegular="The Future Isn't Coming."
         titleHighlight="It's Here."
-        description="Every business can leverage AI to automate, grow, and get found in the new world of AI search. We make it happen — no technical experience required. From AI search visibility to custom tools — the full stack of AI services for small and growing businesses."
+        description="Practical AI systems engineered to capture leads, answer customers, and automate workflows with zero technical experience required."
         videoSrc="/aipage.mp4"
         posterSrc="/hero_frames/frame_000.webp"
+        exploreText="Explore AI Stack"
+        exploreTargetId="all-ai-services"
+        bookStrategyText="Book Strategy Call"
+        bookStrategyIntent="ai-audit"
         scrollTargetId="all-ai-services"
       />
 
@@ -146,7 +149,7 @@ export default function AiPage() {
             AI Solutions Built for Real Business Growth.
           </h2>
           <p className="text-slate-600 text-sm sm:text-base leading-relaxed">
-            From AI search visibility to custom automations and voice agents — the full stack of practical AI services engineered for small and growing businesses.
+            Practical AI systems engineered to capture leads, answer customers, and automate workflows.
           </p>
         </MotionWrapper>
 
@@ -161,10 +164,11 @@ export default function AiPage() {
                 distance={25}
                 className="h-full"
               >
-                <SpotlightCard
-                  spotlightColor="rgba(192, 98, 42, 0.12)"
-                  className="h-full p-7 rounded-3xl bg-white border border-slate-200/80 shadow-[0_4px_25px_rgba(0,0,0,0.03)] flex flex-col justify-between hover:shadow-[0_12px_40px_rgba(0,0,0,0.08)] transition-all group relative overflow-hidden"
-                >
+                <div id={service.id} className="scroll-mt-28 h-full">
+                  <SpotlightCard
+                    spotlightColor="rgba(192, 98, 42, 0.12)"
+                    className="h-full p-7 rounded-3xl bg-white border border-slate-200/80 shadow-[0_4px_25px_rgba(0,0,0,0.03)] flex flex-col justify-between hover:shadow-[0_12px_40px_rgba(0,0,0,0.08)] transition-all group relative overflow-hidden"
+                  >
                   <div>
                     {/* Clean, Prominent Icon Tile */}
                     <div className="w-12 h-12 rounded-2xl bg-slate-50 border border-slate-200/80 flex items-center justify-center text-[#C0622A] group-hover:bg-[#C0622A] group-hover:text-white group-hover:border-[#C0622A] transition-all duration-300 mb-6 shadow-xs">
@@ -172,18 +176,15 @@ export default function AiPage() {
                     </div>
 
                     {/* Title & Tagline */}
-                    <h3 className="font-heading font-black text-xl text-[#090D16] mb-2.5 group-hover:text-[#C0622A] transition-colors leading-snug">
+                    <h3 className="font-heading font-black text-xl text-[#090D16] mb-2 group-hover:text-[#C0622A] transition-colors leading-snug">
                       {service.title}
                     </h3>
-                    <p className="text-xs sm:text-sm text-slate-600 leading-relaxed mb-6 font-normal">
+                    <p className="text-xs sm:text-sm text-slate-600 leading-relaxed mb-5 font-normal">
                       {service.tagline}
                     </p>
 
-                    {/* Deliverables Checklist */}
-                    <div className="space-y-2.5 pt-5 border-t border-slate-100 mb-6">
-                      <div className="text-[10px] font-mono uppercase tracking-wider text-slate-400 font-bold mb-3">
-                        Included Capabilities
-                      </div>
+                    {/* Clean Deliverables Checklist without busy labels */}
+                    <div className="space-y-2 pt-4 border-t border-slate-100 mb-6">
                       {service.deliverables.map((item) => (
                         <div key={item} className="flex items-start gap-2.5">
                           <CheckCircle2 className="w-4 h-4 text-[#C0622A] shrink-0 mt-0.5" />
@@ -211,7 +212,8 @@ export default function AiPage() {
                     </button>
                   </div>
                 </SpotlightCard>
-              </MotionWrapper>
+              </div>
+            </MotionWrapper>
             );
           })}
         </div>

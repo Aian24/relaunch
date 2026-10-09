@@ -6,29 +6,18 @@ import { motion } from "framer-motion";
 import Preloader from "@/components/Preloader";
 import Navbar from "@/components/Navbar";
 import Hero from "@/components/Hero";
-import TwoHeroesSection from "@/components/TwoHeroesSection";
+import DeliverablesSection from "@/components/DeliverablesSection";
+import AiSection from "@/components/AiSection";
+import ReLaunchSocialSection from "@/components/ReLaunchSocialSection";
 import TestimonialsSection from "@/components/TestimonialsSection";
 import CtaBanner from "@/components/CtaBanner";
 import Footer from "@/components/Footer";
 import ScrollToTop from "@/components/ScrollToTop";
-import InteractiveImage from "@/components/InteractiveImage";
 import MotionWrapper from "@/components/MotionWrapper";
-import { useContactModal } from "@/context/ContactModalContext";
-import {
-  ArrowRight,
-  ArrowUpRight,
-  Layers,
-  Code2,
-  Bot,
-  Sparkles,
-  TrendingUp,
-  ShieldCheck,
-  CheckCircle2,
-} from "lucide-react";
+import NumberCounter from "@/components/NumberCounter";
+import { ArrowRight } from "lucide-react";
 
 export default function Home() {
-  const { openContactModal } = useContactModal();
-
   return (
     <main className="min-h-screen flex flex-col bg-white text-[#090D16]">
       {/* 0. Brand Video Intro Preloader */}
@@ -37,139 +26,37 @@ export default function Home() {
       {/* Fixed Frosted Navigation Header */}
       <Navbar />
 
-      {/* 1. Cinematic Background Video Hero */}
+      {/* 1. Cinematic Background Video Hero (Clean, uncluttered, orange & white with integrated Tailored For) */}
       <Hero />
 
-      {/* 2. Strategic Positioning ("Which Door Fits You?") */}
-      <TwoHeroesSection />
+      {/* 2. CORE PILLAR 1: Services (Deliverables Section) */}
+      <DeliverablesSection />
 
-      {/* 3. Editorial Capabilities Teaser (Links to /services) */}
-      <section className="py-24 sm:py-32 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto w-full bg-white">
-        <MotionWrapper direction="up" distance={30} className="flex flex-col md:flex-row md:items-end justify-between mb-16 gap-6 border-b border-slate-200/80 pb-8">
-          <div className="max-w-2xl">
-            <span className="text-xs font-mono uppercase tracking-widest text-[#C0622A] font-bold block mb-3">
-              WHAT WE DO · FULL-SCOPE STUDIO
-            </span>
-            <h2 className="font-heading font-black text-3xl sm:text-5xl text-[#090D16] tracking-tight leading-[1.08]">
-              Strategy, Digital &amp; AI <br />
-              <span className="text-[#C0622A] italic">Under One Roof.</span>
-            </h2>
-          </div>
-          <Link
-            href="/services"
-            className="inline-flex items-center gap-2 text-xs sm:text-sm font-bold uppercase tracking-wider text-[#C0622A] hover:text-[#9c4314] transition-colors group"
-          >
-            <span>Explore All Core Capabilities</span>
-            <ArrowRight className="w-4 h-4 group-hover:translate-x-1.5 transition-transform" />
-          </Link>
-        </MotionWrapper>
+      {/* 4. CORE PILLAR 2: AI Capabilities Section */}
+      <AiSection />
 
-        {/* 3 Streamlined Pillar Cards with Staggered Scroll Up */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-          {/* Card 1: Brand & Strategy */}
-          <MotionWrapper direction="up" delay={0.1} distance={35}>
-            <div className="group flex flex-col justify-between rounded-3xl p-8 bg-white border border-slate-200/80 shadow-[0_4px_25px_rgba(0,0,0,0.03)] hover:shadow-[0_12px_40px_rgba(0,0,0,0.08)] transition-all h-full">
-              <div>
-                <InteractiveImage
-                  src="/images/brand-strategy.jpg"
-                  alt="Brand Strategy & Physical Artifacts"
-                  aspectRatio="aspect-[16/10]"
-                  badge="Pillar 01"
-                  className="mb-6 border-slate-200"
-                />
-                <h3 className="font-heading font-black text-xl text-[#090D16] mb-2">
-                  Brand Strategy &amp; Identity
-                </h3>
-                <p className="text-slate-600 text-xs sm:text-sm leading-relaxed mb-6 font-normal">
-                  Bespoke brand positioning, distinct visual identity systems, and high-impact physical and digital touchpoints that command market authority.
-                </p>
-              </div>
-              <Link
-                href="/services#brand-strategy"
-                className="inline-flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-[#C0622A] hover:text-[#9c4314] transition-colors"
-              >
-                <span>Learn More</span>
-                <ArrowUpRight className="w-3.5 h-3.5" />
-              </Link>
-            </div>
-          </MotionWrapper>
-
-          {/* Card 2: Web & Software */}
-          <MotionWrapper direction="up" delay={0.2} distance={35}>
-            <div className="group flex flex-col justify-between rounded-3xl p-8 bg-white border border-slate-200/80 shadow-[0_4px_25px_rgba(0,0,0,0.03)] hover:shadow-[0_12px_40px_rgba(0,0,0,0.08)] transition-all h-full">
-              <div>
-                <InteractiveImage
-                  src="/images/digital-studio.jpg"
-                  alt="Web & Custom Software Workspace"
-                  aspectRatio="aspect-[16/10]"
-                  badge="Pillar 02"
-                  className="mb-6 border-slate-200"
-                />
-                <h3 className="font-heading font-black text-xl text-[#090D16] mb-2">
-                  Web &amp; Custom Software
-                </h3>
-                <p className="text-slate-600 text-xs sm:text-sm leading-relaxed mb-6 font-normal">
-                  Lightning-fast Next.js web applications, client portals, and bespoke database backends built for high conversions and scale.
-                </p>
-              </div>
-              <Link
-                href="/services#web-software"
-                className="inline-flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-[#C0622A] hover:text-[#9c4314] transition-colors"
-              >
-                <span>Learn More</span>
-                <ArrowUpRight className="w-3.5 h-3.5" />
-              </Link>
-            </div>
-          </MotionWrapper>
-
-          {/* Card 3: AI & Automation */}
-          <MotionWrapper direction="up" delay={0.3} distance={35}>
-            <div className="group flex flex-col justify-between rounded-3xl p-8 bg-white border border-slate-200/80 shadow-[0_4px_25px_rgba(0,0,0,0.03)] hover:shadow-[0_12px_40px_rgba(0,0,0,0.08)] transition-all h-full">
-              <div>
-                <InteractiveImage
-                  src="/images/ai-engineering.jpg"
-                  alt="AI Automation & Workflows"
-                  aspectRatio="aspect-[16/10]"
-                  badge="Pillar 03"
-                  className="mb-6 border-slate-200"
-                />
-                <h3 className="font-heading font-black text-xl text-[#090D16] mb-2">
-                  AI &amp; Workflow Automation
-                </h3>
-                <p className="text-slate-600 text-xs sm:text-sm leading-relaxed mb-6 font-normal">
-                  Generative Engine Optimization (GEO/AEO), autonomous 24/7 lead qualification, and automated CRM pipeline infrastructure.
-                </p>
-              </div>
-              <Link
-                href="/ai"
-                className="inline-flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-[#C0622A] hover:text-[#9c4314] transition-colors"
-              >
-                <span>Learn More</span>
-                <ArrowUpRight className="w-3.5 h-3.5" />
-              </Link>
-            </div>
-          </MotionWrapper>
-        </div>
-      </section>
-
-      {/* 4. Featured Work Showcase Teaser (Links to /work) */}
-      <section className="py-20 sm:py-28 px-4 sm:px-6 lg:px-8 bg-white text-[#090D16] border-t border-slate-200/80">
+      {/* 5. CORE PILLAR 3: Our Work & Case Studies Showcase */}
+      <section id="work" className="py-20 sm:py-28 px-4 sm:px-6 lg:px-8 bg-white text-[#090D16] border-b border-slate-200">
         <div className="max-w-7xl mx-auto">
-          <MotionWrapper direction="up" distance={30} className="flex flex-col md:flex-row md:items-end justify-between mb-14 gap-6 border-b border-slate-200/80 pb-8">
-            <div className="max-w-2xl">
-              <span className="text-xs font-mono uppercase tracking-widest text-[#C0622A] font-bold block mb-3">
-                OUR WORK &amp; CASE STUDIES
-              </span>
-              <h2 className="font-heading font-black text-3xl sm:text-5xl text-[#090D16] tracking-tight leading-[1.08]">
-                Proven Transformations &amp; <br />
-                <span className="text-[#C0622A] italic">
-                  Real Business Metrics.
-                </span>
-              </h2>
-            </div>
+          {/* Section Header - Center Aligned */}
+          <MotionWrapper
+            direction="up"
+            distance={25}
+            className="text-center max-w-3xl mx-auto mb-14 sm:mb-16"
+          >
+            <span className="text-xs font-mono uppercase tracking-widest text-[#C0622A] font-bold block mb-2 sm:whitespace-nowrap">
+              OUR WORK &amp; CASE STUDIES
+            </span>
+            <h2 className="font-heading font-black text-3xl sm:text-5xl lg:text-6xl text-[#090D16] tracking-tight leading-[1.06] mb-3">
+              <span className="whitespace-normal sm:whitespace-nowrap">Results you can </span>
+              <span className="text-[#C0622A] whitespace-normal sm:whitespace-nowrap">see.</span>
+            </h2>
+            <p className="text-slate-600 text-sm sm:text-base leading-relaxed font-normal max-w-2xl mx-auto mb-6">
+              Real businesses we have launched, scaled, and built predictable sales pipelines for.
+            </p>
             <Link
               href="/work"
-              className="inline-flex items-center gap-2 text-xs sm:text-sm font-bold uppercase tracking-wider text-[#C0622A] hover:text-[#9c4314] transition-colors group"
+              className="inline-flex items-center gap-2 text-xs sm:text-sm font-bold uppercase tracking-wider text-[#C0622A] hover:text-[#a84f1d] transition-colors group whitespace-nowrap"
             >
               <span>View Full Case Studies Gallery</span>
               <ArrowRight className="w-4 h-4 group-hover:translate-x-1.5 transition-transform" />
@@ -177,25 +64,30 @@ export default function Home() {
           </MotionWrapper>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            {/* Project 1 */}
+            {/* Project 1: TurfLife */}
             <MotionWrapper direction="up" delay={0.1} distance={35}>
-              <Link href="/work" className="group block rounded-3xl overflow-hidden bg-white border border-slate-200/80 shadow-[0_4px_25px_rgba(0,0,0,0.03)] hover:shadow-[0_12px_40px_rgba(0,0,0,0.08)] transition-all">
+              <Link href="/work" className="group block rounded-3xl overflow-hidden bg-white border border-slate-200 shadow-[0_4px_25px_rgba(0,0,0,0.03)] hover:shadow-[0_16px_45px_rgba(0,0,0,0.08)] transition-all">
                 <div className="relative aspect-[16/10] overflow-hidden bg-slate-100">
                   <Image
                     src="/showcase/turflife.jpg"
                     alt="TurfLife Case Study"
                     fill
-                    className="object-cover transition-transform duration-700 group-hover:scale-106"
+                    className="object-cover transition-transform duration-700 group-hover:scale-105"
                   />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent" />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/75 via-black/20 to-transparent" />
                   <div className="absolute bottom-4 left-4 right-4">
-                    <span className="text-[10px] uppercase font-mono tracking-wider text-[#F39C6B] font-semibold block">Phoenix, AZ</span>
+                    <span className="text-[10px] uppercase font-mono tracking-wider text-[#F39C6B] font-semibold block">Phoenix, AZ · Landscaping</span>
                     <h3 className="font-heading font-bold text-xl text-white">TurfLife</h3>
                   </div>
                 </div>
                 <div className="p-6">
+                  <div className="flex items-center gap-2 mb-2">
+                    <span className="px-2.5 py-0.5 rounded-full bg-orange-50 text-[#C0622A] border border-orange-200 text-[10px] font-bold font-mono">
+                      <NumberCounter value={240} prefix="+" suffix="%" /> INBOUND LEADS
+                    </span>
+                  </div>
                   <p className="text-slate-600 text-xs sm:text-sm leading-relaxed mb-4">
-                    +240% inbound leads with sub-second Next.js architecture and targeted search dominance.
+                    Complete website redesign, sub-second Next.js architecture, and localized search dominance.
                   </p>
                   <span className="inline-flex items-center gap-1 text-xs font-bold text-[#C0622A] group-hover:underline">
                     View Outcome →
@@ -204,25 +96,30 @@ export default function Home() {
               </Link>
             </MotionWrapper>
 
-            {/* Project 2 */}
+            {/* Project 2: Carmen Hotel */}
             <MotionWrapper direction="up" delay={0.2} distance={35}>
-              <Link href="/work" className="group block rounded-3xl overflow-hidden bg-white border border-slate-200/80 shadow-[0_4px_25px_rgba(0,0,0,0.03)] hover:shadow-[0_12px_40px_rgba(0,0,0,0.08)] transition-all">
+              <Link href="/work" className="group block rounded-3xl overflow-hidden bg-white border border-slate-200 shadow-[0_4px_25px_rgba(0,0,0,0.03)] hover:shadow-[0_16px_45px_rgba(0,0,0,0.08)] transition-all">
                 <div className="relative aspect-[16/10] overflow-hidden bg-slate-100">
                   <Image
                     src="/showcase/carmen_hotel.jpg"
                     alt="Carmen Hotel Case Study"
                     fill
-                    className="object-cover transition-transform duration-700 group-hover:scale-106"
+                    className="object-cover transition-transform duration-700 group-hover:scale-105"
                   />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent" />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/75 via-black/20 to-transparent" />
                   <div className="absolute bottom-4 left-4 right-4">
-                    <span className="text-[10px] uppercase font-mono tracking-wider text-[#F39C6B] font-semibold block">Hospitality</span>
+                    <span className="text-[10px] uppercase font-mono tracking-wider text-[#F39C6B] font-semibold block">Hospitality · Luxury Boutique</span>
                     <h3 className="font-heading font-bold text-xl text-white">Carmen Hotel Collection</h3>
                   </div>
                 </div>
                 <div className="p-6">
+                  <div className="flex items-center gap-2 mb-2">
+                    <span className="px-2.5 py-0.5 rounded-full bg-orange-50 text-[#C0622A] border border-orange-200 text-[10px] font-bold font-mono">
+                      <NumberCounter value={180} prefix="+" suffix="%" /> DIRECT BOOKINGS
+                    </span>
+                  </div>
                   <p className="text-slate-600 text-xs sm:text-sm leading-relaxed mb-4">
-                    +180% direct bookings &amp; $120k/yr saved in third-party OTA commissions through custom booking UX.
+                    Bespoke brand positioning, high-converting direct booking engine, and $120k/yr saved in OTA fees.
                   </p>
                   <span className="inline-flex items-center gap-1 text-xs font-bold text-[#C0622A] group-hover:underline">
                     View Outcome →
@@ -231,25 +128,30 @@ export default function Home() {
               </Link>
             </MotionWrapper>
 
-            {/* Project 3 */}
+            {/* Project 3: Volcano Forest Resort */}
             <MotionWrapper direction="up" delay={0.3} distance={35}>
-              <Link href="/work" className="group block rounded-3xl overflow-hidden bg-white border border-slate-200/80 shadow-[0_4px_25px_rgba(0,0,0,0.03)] hover:shadow-[0_12px_40px_rgba(0,0,0,0.08)] transition-all">
+              <Link href="/work" className="group block rounded-3xl overflow-hidden bg-white border border-slate-200 shadow-[0_4px_25px_rgba(0,0,0,0.03)] hover:shadow-[0_16px_45px_rgba(0,0,0,0.08)] transition-all">
                 <div className="relative aspect-[16/10] overflow-hidden bg-slate-100">
                   <Image
                     src="/showcase/volcano_resort.jpg"
                     alt="Volcano Retreat Case Study"
                     fill
-                    className="object-cover transition-transform duration-700 group-hover:scale-106"
+                    className="object-cover transition-transform duration-700 group-hover:scale-105"
                   />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent" />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/75 via-black/20 to-transparent" />
                   <div className="absolute bottom-4 left-4 right-4">
-                    <span className="text-[10px] uppercase font-mono tracking-wider text-[#F39C6B] font-semibold block">Destination</span>
+                    <span className="text-[10px] uppercase font-mono tracking-wider text-[#F39C6B] font-semibold block">Destination · Eco-Resort</span>
                     <h3 className="font-heading font-bold text-xl text-white">Volcano Rainforest Retreat</h3>
                   </div>
                 </div>
                 <div className="p-6">
+                  <div className="flex items-center gap-2 mb-2">
+                    <span className="px-2.5 py-0.5 rounded-full bg-orange-50 text-[#C0622A] border border-orange-200 text-[10px] font-bold font-mono">
+                      <NumberCounter value={94} suffix="%" /> SEASONAL OCCUPANCY
+                    </span>
+                  </div>
                   <p className="text-slate-600 text-xs sm:text-sm leading-relaxed mb-4">
-                    94% seasonal occupancy achieved with immersive cinematic storytelling and dynamic booking pipelines.
+                    Immersive cinematic storytelling, custom guest reservation pipeline, and targeted content marketing.
                   </p>
                   <span className="inline-flex items-center gap-1 text-xs font-bold text-[#C0622A] group-hover:underline">
                     View Outcome →
@@ -261,13 +163,16 @@ export default function Home() {
         </div>
       </section>
 
-      {/* 5. Client Testimonials & Social Proof */}
+      {/* 5. Autopilot Sub-Brand: ReLaunch Social Engine */}
+      <ReLaunchSocialSection />
+
+      {/* 6. Client Stories & 5-Star Social Proof */}
       <TestimonialsSection />
 
-      {/* 6. High-Converting Bottom CTA */}
+      {/* 7. Bottom Strategic CTA Banner */}
       <CtaBanner />
 
-      {/* 7. Minimalist Footer */}
+      {/* 8. Minimalist Footer */}
       <Footer />
       <ScrollToTop />
     </main>
