@@ -160,15 +160,15 @@ export default function ServicesPage() {
             CHOOSE WHAT YOU NEED · BUNDLE &amp; SAVE
           </span>
           <h2 className="font-heading font-black text-3xl sm:text-5xl lg:text-6xl text-[#090D16] tracking-tight leading-[1.06] mb-3">
-            <span className="block whitespace-normal sm:whitespace-nowrap">Six core service lines.</span>
-            <span className="block text-[#C0622A] whitespace-normal sm:whitespace-nowrap">One integrated team.</span>
+            <span className="block whitespace-normal sm:whitespace-nowrap">A closer look at</span>
+            <span className="block text-[#C0622A] whitespace-normal sm:whitespace-nowrap">every service.</span>
           </h2>
           <p className="text-slate-600 text-sm sm:text-base leading-relaxed max-w-2xl mx-auto">
             Mix and match services to fit your growth goals. Bundle to save with zero long-term commitments.
           </p>
         </MotionWrapper>
 
-        {/* 6 Core Service Breakdown Cards */}
+        {/* Service Breakdown Cards */}
         <div className="flex flex-col gap-12 sm:gap-16">
           {servicePillars.map((pillar, idx) => {
             const isReversed = idx % 2 === 1;
@@ -185,19 +185,15 @@ export default function ServicesPage() {
                   {/* Content Column */}
                   <div className={`lg:col-span-7 flex flex-col justify-between ${isReversed ? "lg:order-2" : "lg:order-1"}`}>
                     <div>
-                      {/* Icon & Category Bar */}
-                      <div className="flex items-center gap-2.5 mb-4">
-                        <div className="w-9 h-9 rounded-xl bg-orange-50 border border-orange-200/60 flex items-center justify-center text-[#C0622A] shrink-0">
-                          <IconComp className="w-4 h-4" />
+                      {/* Service Title & Icon */}
+                      <div className="flex items-center gap-3 mb-3">
+                        <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-orange-50 border border-orange-200/60 flex items-center justify-center text-[#C0622A] shrink-0">
+                          <IconComp className="w-4 h-4 sm:w-5 sm:h-5" />
                         </div>
-                        <span className="text-xs font-mono uppercase tracking-widest text-[#C0622A] font-bold">
-                          Core Service
-                        </span>
+                        <h3 className="font-heading font-black text-2xl sm:text-3xl text-[#090D16] leading-snug">
+                          {pillar.title}
+                        </h3>
                       </div>
-
-                      <h3 className="font-heading font-black text-2xl sm:text-3xl text-[#090D16] mb-2 leading-snug">
-                        {pillar.title}
-                      </h3>
                       <p className="text-slate-600 text-xs sm:text-sm leading-relaxed mb-6 font-normal">
                         {pillar.description}
                       </p>
