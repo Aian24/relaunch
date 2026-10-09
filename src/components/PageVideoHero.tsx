@@ -11,6 +11,7 @@ export interface MetricPill {
 }
 
 export interface PageVideoHeroProps {
+  theme?: "orange" | "purple";
   kicker: string;
   titleRegular: string;
   titleHighlight: string;
@@ -32,6 +33,7 @@ export interface PageVideoHeroProps {
 }
 
 export default function PageVideoHero({
+  theme = "orange",
   kicker,
   titleRegular,
   titleHighlight,
@@ -49,6 +51,7 @@ export default function PageVideoHero({
   secondaryCtaTargetId,
   scrollTargetId,
 }: PageVideoHeroProps) {
+  const isPurple = theme === "purple";
   const { openContactModal } = useContactModal();
   const [activeVideo, setActiveVideo] = useState<0 | 1>(0);
   const videoRef0 = useRef<HTMLVideoElement>(null);
@@ -172,8 +175,12 @@ export default function PageVideoHero({
         <div className="absolute inset-0 bg-gradient-to-r from-[#07090E]/90 via-[#07090E]/60 to-[#07090E]/20" />
         <div className="absolute inset-0 bg-gradient-to-t from-[#07090E] via-transparent to-[#07090E]/50" />
 
-        {/* Warm Orange Ambient Glows */}
-        <div className="absolute -top-32 left-1/4 w-[600px] h-[500px] bg-[#C0622A]/15 rounded-full blur-[140px] pointer-events-none" />
+        {/* Ambient Glows */}
+        <div
+          className={`absolute -top-32 left-1/4 w-[600px] h-[500px] rounded-full blur-[140px] pointer-events-none ${
+            isPurple ? "bg-[#7F48ED]/20" : "bg-[#FF6700]/15"
+          }`}
+        />
       </div>
 
       {/* 2. Main Hero Content - Center-aligned on mobile, left-aligned on sm+ */}
@@ -183,13 +190,21 @@ export default function PageVideoHero({
           initial={{ opacity: 0, y: 14 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
-          className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-white/[0.08] border border-white/[0.12] text-[#C0622A] text-xs font-mono uppercase tracking-widest font-semibold mb-6 shadow-xs whitespace-nowrap mx-auto sm:mx-0"
+          className={`inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-white/[0.08] border border-white/[0.12] text-xs font-mono uppercase tracking-widest font-semibold mb-6 shadow-xs whitespace-nowrap mx-auto sm:mx-0 ${
+            isPurple ? "text-[#7F48ED]" : "text-[#FF6700]"
+          }`}
         >
-          <span className="w-2 h-2 rounded-full bg-[#C0622A] shrink-0" />
+          <span
+            className={`w-2 h-2 rounded-full shrink-0 ${
+              isPurple
+                ? "bg-[#7F48ED] shadow-[0_0_8px_#7F48ED]"
+                : "bg-[#FF6700] shadow-[0_0_8px_#FF6700]"
+            }`}
+          />
           <span>{kicker}</span>
         </motion.div>
 
-        {/* Clean Headline in White & Orange */}
+        {/* Clean Headline in White & Accent */}
         <motion.h1
           initial={{ opacity: 0, y: 18 }}
           animate={{ opacity: 1, y: 0 }}
@@ -197,7 +212,13 @@ export default function PageVideoHero({
           className="font-heading font-black text-3xl sm:text-5xl md:text-6xl lg:text-7xl xl:text-[80px] tracking-tight leading-[1.06] text-white max-w-4xl text-center sm:text-left"
         >
           <span className="block whitespace-normal sm:whitespace-nowrap">{titleRegular}</span>
-          <span className="block text-[#C0622A] whitespace-normal sm:whitespace-nowrap">{titleHighlight}</span>
+          <span
+            className={`block whitespace-normal sm:whitespace-nowrap ${
+              isPurple ? "text-[#7F48ED]" : "text-[#FF6700]"
+            }`}
+          >
+            {titleHighlight}
+          </span>
         </motion.h1>
 
         {/* Subtitle Description */}
@@ -220,7 +241,11 @@ export default function PageVideoHero({
           <button
             type="button"
             onClick={() => handleScrollToTarget(effectiveExploreTarget)}
-            className="flex-1 sm:flex-initial inline-flex items-center justify-center gap-1.5 sm:gap-2 px-3.5 sm:px-6 py-3 sm:py-3.5 rounded-xl bg-[#C0622A] hover:bg-[#a84f1d] text-white font-heading font-bold text-[11px] sm:text-sm uppercase tracking-wider transition-all duration-200 shadow-[0_0_25px_rgba(192,98,42,0.35)] cursor-pointer active:scale-98 whitespace-nowrap"
+            className={`flex-1 sm:flex-initial inline-flex items-center justify-center gap-1.5 sm:gap-2 px-3.5 sm:px-6 py-3 sm:py-3.5 rounded-xl text-white font-heading font-bold text-[11px] sm:text-sm uppercase tracking-wider transition-all duration-200 cursor-pointer active:scale-98 whitespace-nowrap ${
+              isPurple
+                ? "bg-[#7F48ED] hover:bg-[#6D28D9] shadow-[0_0_25px_rgba(127,72,237,0.35)]"
+                : "bg-[#FF6700] hover:bg-[#E55C00] shadow-[0_0_25px_rgba(255,103,0,0.35)]"
+            }`}
           >
             <span>{effectiveExploreText}</span>
             <ArrowRight className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
@@ -232,7 +257,11 @@ export default function PageVideoHero({
             className="flex-1 sm:flex-initial inline-flex items-center justify-center gap-1.5 sm:gap-2 px-3.5 sm:px-6 py-3 sm:py-3.5 rounded-xl bg-white/[0.08] hover:bg-white/[0.15] border border-white/20 text-white font-heading font-bold text-[11px] sm:text-sm uppercase tracking-wider transition-all duration-200 backdrop-blur-md cursor-pointer whitespace-nowrap"
           >
             <span>{effectiveBookText}</span>
-            <ArrowUpRight className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-[#C0622A]" />
+            <ArrowUpRight
+              className={`w-3.5 h-3.5 sm:w-4 sm:h-4 ${
+                isPurple ? "text-[#7F48ED]" : "text-[#FF6700]"
+              }`}
+            />
           </button>
         </motion.div>
       </div>
@@ -249,7 +278,11 @@ export default function PageVideoHero({
           className="inline-flex items-center gap-2 text-[11px] uppercase font-mono tracking-widest text-slate-400 hover:text-white transition-colors cursor-pointer group"
         >
           <span>Scroll to explore</span>
-          <ChevronDown className="w-3.5 h-3.5 animate-bounce text-[#C0622A] group-hover:translate-y-0.5 transition-transform" />
+          <ChevronDown
+            className={`w-3.5 h-3.5 animate-bounce transition-transform group-hover:translate-y-0.5 ${
+              isPurple ? "text-[#7F48ED]" : "text-[#FF6700]"
+            }`}
+          />
         </button>
       </motion.div>
     </section>

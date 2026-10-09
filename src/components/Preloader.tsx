@@ -100,13 +100,13 @@ export default function Preloader() {
       }`}
     >
       {/* Top subtle brand accent bar */}
-      <div className="absolute top-0 left-0 right-0 h-1 bg-[#C0622A]" />
+      <div className="absolute top-0 left-0 right-0 h-1 bg-[#FF6700]" />
 
       <div className="flex flex-col items-center max-w-lg px-4 sm:px-6 text-center w-full">
         {/* Skip button for client convenience */}
         <button
           onClick={dismissLoader}
-          className="absolute top-6 right-6 text-[11px] font-mono uppercase tracking-widest text-slate-400 hover:text-[#C0622A] transition-colors cursor-pointer"
+          className="absolute top-6 right-6 text-[11px] font-mono uppercase tracking-widest text-slate-400 hover:text-[#FF6700] transition-colors cursor-pointer"
         >
           Skip Intro →
         </button>
@@ -140,11 +140,11 @@ export default function Preloader() {
 
         {/* Loading Text & Percentage Indicator */}
         <div className="flex items-center gap-2 mt-5">
-          <span className="w-2.5 h-2.5 rounded-full bg-[#C0622A]" />
+          <span className="w-2.5 h-2.5 rounded-full bg-[#FF6700]" />
           <span className="font-heading font-bold text-xs uppercase tracking-widest text-[#090D16]">
             Loading, please wait...
           </span>
-          <span className="font-mono text-xs font-bold text-[#C0622A] ml-1">
+          <span className="font-mono text-xs font-bold text-[#FF6700] ml-1">
             {progress}%
           </span>
         </div>
@@ -156,7 +156,7 @@ export default function Preloader() {
               width: `${progress}%`,
               transition: "width 120ms linear",
             }}
-            className="h-full bg-[#C0622A] rounded-full"
+            className="h-full bg-[#FF6700] rounded-full"
           />
         </div>
       </div>

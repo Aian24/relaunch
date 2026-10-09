@@ -40,7 +40,7 @@ export default function FaqPage() {
 
       {/* 1. FAQ Hero: Left = Fonts / Typography, Right = Interactive Assistance Card */}
       <section className="relative pt-32 sm:pt-40 pb-20 sm:pb-28 px-4 sm:px-6 lg:px-8 bg-[#0A0D14] text-white overflow-hidden select-none">
-        <div className="absolute top-0 right-1/4 w-[700px] h-[500px] bg-[#C0622A]/15 rounded-full blur-[160px] pointer-events-none" />
+        <div className="absolute top-0 right-1/4 w-[700px] h-[500px] bg-[#7F48ED]/20 rounded-full blur-[160px] pointer-events-none" />
 
         <div className="max-w-7xl mx-auto">
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-center">
@@ -51,9 +51,9 @@ export default function FaqPage() {
                 initial={{ opacity: 0, y: 14 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
-                className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-white/[0.08] border border-white/[0.12] text-[#C0622A] text-xs font-mono uppercase tracking-widest font-semibold mb-6 shadow-xs whitespace-nowrap"
+                className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-white/[0.08] border border-white/[0.12] text-[#7F48ED] text-xs font-mono uppercase tracking-widest font-semibold mb-6 shadow-xs whitespace-nowrap"
               >
-                <span className="w-2 h-2 rounded-full bg-[#C0622A] shrink-0" />
+                <span className="w-2 h-2 rounded-full bg-[#7F48ED] shrink-0" />
                 <span>Knowledge Base &amp; FAQ</span>
               </motion.div>
 
@@ -64,7 +64,7 @@ export default function FaqPage() {
                 className="font-heading font-black text-3xl sm:text-4xl md:text-5xl lg:text-5xl xl:text-6xl tracking-tight leading-[1.08] text-white"
               >
                 <span className="block">Frequently Asked</span>
-                <span className="block text-[#C0622A]">Questions.</span>
+                <span className="block text-[#7F48ED]">Questions.</span>
               </motion.h1>
 
               <motion.p
@@ -86,7 +86,7 @@ export default function FaqPage() {
                 <button
                   type="button"
                   onClick={() => openContactModal({ intent: "strategy-session" })}
-                  className="flex-1 sm:flex-initial inline-flex items-center justify-center gap-1.5 sm:gap-2 px-3.5 sm:px-6 py-3 sm:py-3.5 bg-[#C0622A] hover:bg-[#a84f1d] text-white text-[11px] sm:text-sm font-bold uppercase tracking-wider rounded-xl transition-all shadow-[0_0_20px_rgba(192,98,42,0.35)] cursor-pointer active:scale-98 whitespace-nowrap"
+                  className="flex-1 sm:flex-initial inline-flex items-center justify-center gap-1.5 sm:gap-2 px-3.5 sm:px-6 py-3 sm:py-3.5 bg-[#7F48ED] hover:bg-[#6D28D9] text-white text-[11px] sm:text-sm font-bold uppercase tracking-wider rounded-xl transition-all shadow-[0_0_20px_rgba(127,72,237,0.35)] cursor-pointer active:scale-98 whitespace-nowrap"
                 >
                   <span>Ask a Question</span>
                   <ArrowUpRight className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-white" />
@@ -112,7 +112,7 @@ export default function FaqPage() {
               >
                 <div className="flex items-center justify-between pb-4 border-b border-white/[0.08]">
                   <div className="flex items-center gap-2">
-                    <HelpCircle className="w-4 h-4 text-[#E88C52]" />
+                    <HelpCircle className="w-4 h-4 text-[#7F48ED]" />
                     <span className="text-xs font-mono uppercase tracking-widest text-white font-bold">
                       Instant Answers
                     </span>
@@ -124,17 +124,17 @@ export default function FaqPage() {
 
                 <div className="space-y-3">
                   <div className="p-4 rounded-2xl bg-white/[0.04] border border-white/[0.06]">
-                    <div className="text-[10px] uppercase font-mono text-[#E88C52] font-bold">Contracts &amp; Lock-in</div>
+                    <div className="text-[10px] uppercase font-mono text-[#7F48ED] font-bold">Contracts &amp; Lock-in</div>
                     <div className="text-xs text-white mt-1">Zero long-term contracts. 100% month-to-month flexibility.</div>
                   </div>
 
                   <div className="p-4 rounded-2xl bg-white/[0.04] border border-white/[0.06]">
-                    <div className="text-[10px] uppercase font-mono text-[#E88C52] font-bold">Turnaround Speed</div>
+                    <div className="text-[10px] uppercase font-mono text-[#7F48ED] font-bold">Turnaround Speed</div>
                     <div className="text-xs text-white mt-1">AI pipelines deploy in 24–48h. Custom Next.js sites in 2–3 weeks.</div>
                   </div>
 
                   <div className="p-4 rounded-2xl bg-white/[0.04] border border-white/[0.06]">
-                    <div className="text-[10px] uppercase font-mono text-[#E88C52] font-bold">Client IP Ownership</div>
+                    <div className="text-[10px] uppercase font-mono text-[#7F48ED] font-bold">Client IP Ownership</div>
                     <div className="text-xs text-white mt-1">You own 100% of all code, designs, domains, and ad accounts.</div>
                   </div>
                 </div>
@@ -144,7 +144,7 @@ export default function FaqPage() {
                     href="tel:4807799875"
                     className="inline-flex items-center gap-2 text-xs font-mono text-slate-300 hover:text-white transition-colors"
                   >
-                    <Phone className="w-3.5 h-3.5 text-[#C0622A]" />
+                    <Phone className="w-3.5 h-3.5 text-[#7F48ED]" />
                     <span>Direct phone: (480) 779-9875</span>
                   </a>
                 </div>
@@ -170,7 +170,7 @@ export default function FaqPage() {
                 }}
                 className={`px-5 py-2 rounded-full text-xs font-semibold uppercase tracking-wider transition-all cursor-pointer ${
                   isSelected
-                    ? "bg-[#C0622A] text-white shadow-md"
+                    ? "bg-[#7F48ED] text-white shadow-md"
                     : "bg-white text-slate-700 hover:bg-slate-100 border border-slate-200/80"
                 }`}
               >
@@ -187,14 +187,14 @@ export default function FaqPage() {
 
             return (
               <MotionWrapper key={faq.question} direction="up" delay={index * 0.06} distance={25}>
-                <div className="rounded-2xl sm:rounded-3xl bg-white border border-slate-200/80 shadow-[0_2px_15px_rgba(0,0,0,0.02)] overflow-hidden transition-all hover:border-[#C0622A]/30">
+                <div className="rounded-2xl sm:rounded-3xl bg-white border border-slate-200/80 shadow-[0_2px_15px_rgba(0,0,0,0.02)] overflow-hidden transition-all hover:border-[#7F48ED]/30">
                   <button
                     onClick={() => toggleFaq(index)}
                     className="w-full flex items-center justify-between p-6 sm:p-7 text-left cursor-pointer focus:outline-none"
                     aria-expanded={isOpen}
                   >
                     <div className="pr-4">
-                      <span className="text-[10px] font-mono uppercase tracking-widest text-[#C0622A] font-bold block mb-1">
+                      <span className="text-[10px] font-mono uppercase tracking-widest text-[#7F48ED] font-bold block mb-1">
                         {faq.category}
                       </span>
                       <h3 className="font-heading font-black text-base sm:text-lg text-[#090D16] leading-snug">
@@ -203,7 +203,7 @@ export default function FaqPage() {
                     </div>
                     <div
                       className={`w-8 h-8 rounded-full flex items-center justify-center shrink-0 transition-transform duration-300 ${
-                        isOpen ? "bg-[#C0622A] text-white rotate-180" : "bg-slate-100 text-slate-600"
+                        isOpen ? "bg-[#7F48ED] text-white rotate-180" : "bg-slate-100 text-slate-600"
                       }`}
                     >
                       <ChevronDown className="w-4 h-4" />

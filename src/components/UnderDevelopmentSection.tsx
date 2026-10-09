@@ -26,20 +26,20 @@ export default function UnderDevelopmentSection({
       <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
         <MotionWrapper direction="left" distance={45}>
           {/* Construction Blueprint Card with Dashed Border */}
-          <div className="bg-white rounded-2xl sm:rounded-3xl border-2 border-dashed border-[#C0622A]/40 shadow-sm p-6 sm:p-10 text-center relative overflow-hidden">
+          <div className="bg-white rounded-2xl sm:rounded-3xl border-2 border-dashed border-[#FF6700]/40 shadow-sm p-6 sm:p-10 text-center relative overflow-hidden">
             {/* Top Amber Accent Bar */}
-            <div className="absolute top-0 left-0 right-0 h-1.5 bg-[#C0622A]" />
+            <div className="absolute top-0 left-0 right-0 h-1.5 bg-[#FF6700]" />
 
             {/* Icon */}
-            <div className="w-14 h-14 rounded-2xl bg-orange-50 border border-[#C0622A]/20 text-[#C0622A] flex items-center justify-center mx-auto mb-4 shadow-xs">
+            <div className="w-14 h-14 rounded-2xl bg-orange-50 border border-[#FF6700]/20 text-[#FF6700] flex items-center justify-center mx-auto mb-4 shadow-xs">
               <Construction className="w-7 h-7" />
             </div>
 
             {/* Status Badge */}
-            <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-orange-100/70 border border-[#C0622A]/30 text-[#C0622A] text-xs font-mono font-black uppercase tracking-wider mb-3">
+            <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-orange-100/70 border border-[#FF6700]/30 text-[#FF6700] text-xs font-mono font-black uppercase tracking-wider mb-3">
               <span className="relative flex h-2 w-2">
-                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#C0622A] opacity-75"></span>
-                <span className="relative inline-flex rounded-full h-2 w-2 bg-[#C0622A]"></span>
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#FF6700] opacity-75"></span>
+                <span className="relative inline-flex rounded-full h-2 w-2 bg-[#FF6700]"></span>
               </span>
               <span>UNDER DEVELOPMENT · SPRINT 2</span>
             </div>
@@ -70,7 +70,7 @@ export default function UnderDevelopmentSection({
                     notes: `Inquiry regarding ${title} (Sprint 2 rollout).`,
                   })
                 }
-                className="inline-flex items-center justify-center gap-1.5 px-4 py-2 bg-[#090D16] hover:bg-[#C0622A] text-white text-xs font-bold font-heading uppercase tracking-wider rounded-xl transition-all shadow-sm active:translate-y-0.5 cursor-pointer"
+                className="inline-flex items-center justify-center gap-1.5 px-4 py-2 bg-[#090D16] hover:bg-[#FF6700] text-white text-xs font-bold font-heading uppercase tracking-wider rounded-xl transition-all shadow-sm active:translate-y-0.5 cursor-pointer"
               >
                 <span>Book Strategy Call</span>
                 <ArrowRight className="w-3.5 h-3.5" />

@@ -30,7 +30,7 @@ export default function NisGraderSection() {
 
   const getScoreGrade = (score: number) => {
     if (score >= 85) return { grade: "A", label: "High-Converting Engine", color: "text-[#090D16]", bg: "bg-slate-100 border-slate-300" };
-    if (score >= 65) return { grade: "B", label: "Good, but Leaking Conversions", color: "text-[#C0622A]", bg: "bg-orange-50 border-[#C0622A]/30" };
+    if (score >= 65) return { grade: "B", label: "Good, but Leaking Conversions", color: "text-[#FF6700]", bg: "bg-orange-50 border-[#FF6700]/30" };
     if (score >= 45) return { grade: "C", label: "Significant Funnel Leaks", color: "text-slate-800", bg: "bg-slate-100 border-slate-200" };
     return { grade: "D", label: "Urgent Marketing Overhaul Needed", color: "text-red-700", bg: "bg-red-50 border-red-200" };
   };
@@ -42,11 +42,11 @@ export default function NisGraderSection() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Header */}
         <MotionWrapper direction="up" distance={20} className="text-center max-w-3xl mx-auto mb-6 sm:mb-8">
-          <span className="text-xs font-mono uppercase tracking-widest text-[#C0622A] font-bold block mb-2">
+          <span className="text-xs font-mono uppercase tracking-widest text-[#FF6700] font-bold block mb-2">
             INSTANT DIAGNOSTIC TOOL · 100% FREE
           </span>
           <h2 className="font-heading font-black text-3xl sm:text-5xl lg:text-6xl text-[#090D16] tracking-tight leading-[1.05] mb-3">
-            Free NIS <span className="text-[#C0622A]">Marketing Grader</span>
+            Free NIS <span className="text-[#FF6700]">Marketing Grader</span>
           </h2>
           <p className="text-slate-600 text-xs sm:text-sm leading-relaxed font-normal">
             Take our 60-second four-layer diagnostic. Discover exactly where your current website, ads, and brand presence fail to sell—and see what fixes will unlock immediate growth.
@@ -60,13 +60,13 @@ export default function NisGraderSection() {
               {/* Progress */}
               <div className="flex items-center justify-between mb-6 pb-3 border-b border-slate-100">
                 <div className="flex items-center gap-2">
-                  <BarChart className="w-4 h-4 text-[#C0622A]" />
+                  <BarChart className="w-4 h-4 text-[#FF6700]" />
                   <span className="font-heading font-bold text-xs uppercase tracking-wider text-slate-700">
                     Step {answeredCount} of {nisGraderPillars.length} Answered
                   </span>
                 </div>
 
-                <span className="font-mono text-xs font-bold text-[#C0622A]">
+                <span className="font-mono text-xs font-bold text-[#FF6700]">
                   {Math.round((answeredCount / nisGraderPillars.length) * 100)}%
                 </span>
               </div>
@@ -82,7 +82,7 @@ export default function NisGraderSection() {
                       className="p-4 sm:p-5 rounded-xl bg-slate-50 border border-slate-200"
                     >
                       <div className="flex items-center justify-between mb-1.5">
-                        <span className="font-heading font-bold text-xs uppercase tracking-wider text-[#C0622A]">
+                        <span className="font-heading font-bold text-xs uppercase tracking-wider text-[#FF6700]">
                           Pillar 0{pIdx + 1} · {pillar.name} ({pillar.weight})
                         </span>
                       </div>
@@ -101,14 +101,14 @@ export default function NisGraderSection() {
                               onClick={() => handleSelect(pillar.id, oIdx)}
                               className={`w-full text-left p-3.5 rounded-xl border transition-all duration-150 flex items-start gap-3 ${
                                 isChosen
-                                  ? "bg-orange-50 border-[#C0622A] text-slate-900 font-semibold shadow-sm"
+                                  ? "bg-orange-50 border-[#FF6700] text-slate-900 font-semibold shadow-sm"
                                   : "bg-white border-slate-200 text-slate-700 hover:border-slate-300"
                               }`}
                             >
                               <span
                                 className={`w-5 h-5 rounded-full border flex items-center justify-center mt-0.5 shrink-0 text-xs font-bold ${
                                   isChosen
-                                    ? "border-[#C0622A] bg-[#C0622A] text-white"
+                                    ? "border-[#FF6700] bg-[#FF6700] text-white"
                                     : "border-slate-300 text-slate-400"
                                 }`}
                               >
@@ -135,7 +135,7 @@ export default function NisGraderSection() {
                 <span className="inline-flex items-center gap-1.5 text-xs text-slate-500 font-medium">
                   {isComplete ? (
                     <>
-                      <CheckCircle2 className="w-3.5 h-3.5 text-[#C0622A]" />
+                      <CheckCircle2 className="w-3.5 h-3.5 text-[#FF6700]" />
                       <span>All 4 pillars answered. Ready for diagnosis!</span>
                     </>
                   ) : (
@@ -148,7 +148,7 @@ export default function NisGraderSection() {
                   onClick={() => isComplete && setIsSubmitted(true)}
                   className={`px-7 py-3.5 rounded-xl font-heading font-bold text-xs uppercase tracking-wider transition-all shadow-sm ${
                     isComplete
-                      ? "bg-[#C0622A] hover:bg-[#a84f1d] text-white cursor-pointer active:translate-y-0.5"
+                      ? "bg-[#FF6700] hover:bg-[#E55C00] text-white cursor-pointer active:translate-y-0.5"
                       : "bg-slate-200 text-slate-400 cursor-not-allowed"
                   }`}
                 >
@@ -201,7 +201,7 @@ export default function NisGraderSection() {
                         </p>
                       </div>
 
-                      <span className="font-heading font-black text-sm text-[#C0622A] shrink-0">
+                      <span className="font-heading font-black text-sm text-[#FF6700] shrink-0">
                         {option.score} pts
                       </span>
                     </div>
@@ -240,7 +240,7 @@ export default function NisGraderSection() {
                         notes: `NIS Diagnostic Grader Result: ${totalScore}/100 (${gradeInfo.grade} Grade - ${gradeInfo.label}). Requesting audit walkthrough.`,
                       })
                     }
-                    className="px-7 py-3.5 bg-[#C0622A] hover:bg-[#a84f1d] text-white font-heading font-bold text-xs uppercase tracking-wider rounded-xl shadow-sm transition-all text-center whitespace-nowrap active:translate-y-0.5"
+                    className="px-7 py-3.5 bg-[#FF6700] hover:bg-[#E55C00] text-white font-heading font-bold text-xs uppercase tracking-wider rounded-xl shadow-sm transition-all text-center whitespace-nowrap active:translate-y-0.5"
                   >
                     <span>Book Free Strategy Call</span>
                     <ArrowUpRight className="w-3.5 h-3.5" />

@@ -7,7 +7,7 @@ export const triggerConfetti = () => {
       particleCount: 80,
       spread: 70,
       origin: { y: 0.6 },
-      colors: ["#C0622A", "#2E8B7A", "#090D16", "#3AAB97", "#D4703A"],
+      colors: ["#FF6700", "#2E8B7A", "#090D16", "#3AAB97", "#D4703A"],
     });
   } catch (e) {
     // Ignore if canvas not supported
@@ -36,7 +36,7 @@ export const showSuccessSwal = async (
     icon: "success",
     iconColor: "#2E8B7A",
     confirmButtonText: "Awesome, Got It!",
-    confirmButtonColor: "#C0622A",
+    confirmButtonColor: "#FF6700",
     background: "#FFFFFF",
     padding: "24px",
     customClass: {

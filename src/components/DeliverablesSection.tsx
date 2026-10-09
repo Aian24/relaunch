@@ -114,7 +114,7 @@ export default function DeliverablesSection() {
   return (
     <section
       id="services"
-      className="py-20 sm:py-28 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto w-full bg-white select-none border-b border-slate-200"
+      className="py-20 sm:py-28 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto w-full select-none scroll-mt-20 border-b border-slate-200"
     >
       {/* Section Header - Center Aligned */}
       <MotionWrapper
@@ -122,30 +122,31 @@ export default function DeliverablesSection() {
         distance={25}
         className="text-center max-w-3xl mx-auto mb-14 sm:mb-16"
       >
-        <span className="text-xs font-mono uppercase tracking-widest text-[#C0622A] font-bold block mb-2 sm:whitespace-nowrap">
-          CORE DELIVERABLES · ONE SUBSCRIPTION
+        <span className="text-xs font-mono uppercase tracking-widest text-[#FF6700] font-bold block mb-2 sm:whitespace-nowrap">
+          EVERYTHING INCLUDED · ZERO FLUFF
         </span>
         <h2 className="font-heading font-black text-3xl sm:text-5xl lg:text-6xl text-[#090D16] tracking-tight leading-[1.06] mb-3">
-          <span className="block whitespace-normal sm:whitespace-nowrap">Everything your business needs.</span>
-          <span className="block text-[#C0622A] whitespace-normal sm:whitespace-nowrap">One subscription.</span>
+          <span className="whitespace-normal sm:whitespace-nowrap">All your marketing, </span>
+          <span className="text-[#FF6700] whitespace-normal sm:whitespace-nowrap">handled.</span>
         </h2>
         <p className="text-slate-600 text-sm sm:text-base leading-relaxed font-normal max-w-2xl mx-auto mb-6">
-          Pick the exact services your business needs. Bundle to save, pause or cancel anytime. No long-term contracts.
+          Everything your business needs to build authority, capture demand, and close clients — delivered by one unified team.
         </p>
 
         <Link
           href="/services"
-          className="inline-flex items-center gap-2 text-xs sm:text-sm font-bold uppercase tracking-wider text-[#C0622A] hover:text-[#a84f1d] transition-colors group whitespace-nowrap"
+          className="inline-flex items-center gap-2 text-xs sm:text-sm font-bold uppercase tracking-wider text-[#FF6700] hover:text-[#E55C00] transition-colors group whitespace-nowrap"
         >
           <span>View All Service Scopes</span>
           <ArrowRight className="w-4 h-4 group-hover:translate-x-1.5 transition-transform" />
         </Link>
       </MotionWrapper>
 
-      {/* 6 Core Deliverables Grid - Pure Orange & White */}
+      {/* 6 Core Deliverables Grid - Unified Orange Section */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8">
         {pillars.map((pillar, idx) => {
           const Icon = pillar.icon;
+
           return (
             <MotionWrapper
               key={pillar.title}
@@ -155,38 +156,38 @@ export default function DeliverablesSection() {
               className="h-full"
             >
               <SpotlightCard
-                spotlightColor="rgba(192, 98, 42, 0.08)"
-                className="group flex flex-col justify-between rounded-3xl p-7 sm:p-8 bg-white border border-slate-200 shadow-[0_4px_25px_rgba(0,0,0,0.03)] hover:shadow-[0_16px_45px_rgba(0,0,0,0.08)] hover:border-[#C0622A]/40 transition-all duration-300 h-full relative"
+                spotlightColor="rgba(255,103,0, 0.08)"
+                className="group flex flex-col justify-between rounded-3xl p-7 sm:p-8 bg-white border border-slate-200 shadow-[0_4px_25px_rgba(0,0,0,0.03)] hover:shadow-[0_16px_45px_rgba(0,0,0,0.08)] hover:border-[#FF6700]/40 transition-all duration-300 h-full relative"
               >
-                {/* Top Orange Accent */}
-                <div className="absolute top-0 left-8 right-8 h-[2px] bg-transparent group-hover:bg-[#C0622A] transition-colors rounded-full" />
+                {/* Top Brand Accent Bar */}
+                <div className="absolute top-0 left-8 right-8 h-[2px] bg-transparent group-hover:bg-[#FF6700] transition-colors rounded-full" />
 
                 <div>
                   {/* Category Pill */}
                   <div className="flex items-center justify-between mb-5">
-                    <span className="text-[10px] font-mono uppercase tracking-wider font-bold text-[#C0622A] bg-orange-50 border border-orange-200/60 px-2.5 py-1 rounded-full">
+                    <span className="text-[10px] font-mono uppercase tracking-wider font-bold px-2.5 py-1 rounded-full text-[#FF6700] bg-orange-50 border border-orange-200/60">
                       {pillar.category}
                     </span>
                   </div>
 
                   {/* Icon & Title */}
                   <div className="flex items-center gap-3 mb-6">
-                    <div className="w-10 h-10 rounded-xl bg-orange-50 border border-orange-100 flex items-center justify-center text-[#C0622A] shrink-0 group-hover:scale-105 transition-transform">
-                      <Icon className="w-5 h-5 text-[#C0622A]" />
+                    <div className="w-10 h-10 rounded-xl flex items-center justify-center shrink-0 group-hover:scale-105 transition-all bg-orange-50 border border-orange-100 text-[#FF6700] group-hover:bg-[#FF6700] group-hover:text-white">
+                      <Icon className="w-5 h-5 transition-colors" />
                     </div>
-                    <h3 className="font-heading font-black text-xl text-[#090D16] group-hover:text-[#C0622A] transition-colors leading-snug">
+                    <h3 className="font-heading font-black text-xl text-[#090D16] group-hover:text-[#FF6700] transition-colors leading-snug">
                       {pillar.title}
                     </h3>
                   </div>
 
-                  {/* Clean Deliverable Checklist - Direct & Concise without dense paragraphs or busy labels */}
+                  {/* Clean Deliverable Checklist */}
                   <div className="space-y-2.5 mb-6 pt-5 border-t border-slate-100">
                     {pillar.tags.map((tag) => (
                       <div
                         key={tag}
                         className="flex items-center gap-2.5 text-xs text-slate-700"
                       >
-                        <CheckCircle2 className="w-4 h-4 text-[#C0622A] shrink-0" />
+                        <CheckCircle2 className="w-4 h-4 shrink-0 text-[#FF6700]" />
                         <span className="font-medium">{tag}</span>
                       </div>
                     ))}
@@ -208,7 +209,7 @@ export default function DeliverablesSection() {
                           notes: `Interested in ReLaunch Deliverable: ${pillar.title} (${pillar.rate}).`,
                         })
                       }
-                      className="inline-flex items-center gap-1 text-[11px] font-bold uppercase tracking-wider text-[#C0622A] hover:text-[#9c4314] transition-colors cursor-pointer py-1 px-2.5 rounded-lg hover:bg-orange-50"
+                      className="inline-flex items-center gap-1 text-[11px] font-bold uppercase tracking-wider text-[#FF6700] hover:text-[#CC5200] hover:bg-orange-50 transition-colors cursor-pointer py-1 px-2.5 rounded-lg"
                     >
                       <span>Inquire</span>
                       <ArrowUpRight className="w-3.5 h-3.5" />

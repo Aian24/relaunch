@@ -108,12 +108,12 @@ export default function CaseStudiesSection() {
           className="flex flex-col lg:flex-row lg:items-end justify-between gap-6 mb-8 sm:mb-10"
         >
           <div>
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-slate-100 border border-slate-200 text-[#C0622A] text-[10px] font-mono font-bold uppercase tracking-widest mb-3">
-              <span className="w-1.5 h-1.5 rounded-full bg-[#C0622A]" />
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-slate-100 border border-slate-200 text-[#FF6700] text-[10px] font-mono font-bold uppercase tracking-widest mb-3">
+              <span className="w-1.5 h-1.5 rounded-full bg-[#FF6700]" />
               <span>FEATURED WORK &amp; CLIENT PROOF</span>
             </div>
             <h2 className="font-heading font-black text-3xl sm:text-5xl lg:text-6xl text-[#090D16] tracking-tight leading-[1.05]">
-              Real builds. <span className="text-[#C0622A]">Proven growth.</span>
+              Real builds. <span className="text-[#FF6700]">Proven growth.</span>
             </h2>
           </div>
 
@@ -150,8 +150,8 @@ export default function CaseStudiesSection() {
             >
               <SpotlightCard
                 onClick={() => setActiveStudy(study)}
-                spotlightColor="rgba(192, 98, 42, 0.12)"
-                className="group bg-white rounded-2xl sm:rounded-3xl border border-slate-200 shadow-sm hover:shadow-2xl hover:border-[#C0622A]/60 transition-all duration-300 hover:-translate-y-1.5 cursor-pointer flex flex-col h-full overflow-hidden"
+                spotlightColor="rgba(255,103,0, 0.12)"
+                className="group bg-white rounded-2xl sm:rounded-3xl border border-slate-200 shadow-sm hover:shadow-2xl hover:border-[#FF6700]/60 transition-all duration-300 hover:-translate-y-1.5 cursor-pointer flex flex-col h-full overflow-hidden"
               >
                 {/* 3D Perspective Browser & Image Showcase Component */}
                 <Work3DShowcase
@@ -167,21 +167,21 @@ export default function CaseStudiesSection() {
                 <div className="p-5 sm:p-6 flex flex-col flex-1 justify-between bg-white">
                   <div>
                     {/* Title */}
-                    <h3 className="font-heading font-bold text-lg sm:text-xl text-[#090D16] group-hover:text-[#C0622A] transition-colors mb-2">
+                    <h3 className="font-heading font-bold text-lg sm:text-xl text-[#090D16] group-hover:text-[#FF6700] transition-colors mb-2">
                       {study.title}
                     </h3>
 
                     {/* Dedicated Spacious Metric Box */}
-                    <div className="my-3 p-3 rounded-xl bg-orange-50/70 border border-[#C0622A]/20 flex items-center justify-between gap-3">
+                    <div className="my-3 p-3 rounded-xl bg-orange-50/70 border border-[#FF6700]/20 flex items-center justify-between gap-3">
                       <div>
-                        <span className="font-heading font-black text-2xl text-[#C0622A] block leading-tight">
+                        <span className="font-heading font-black text-2xl text-[#FF6700] block leading-tight">
                           {study.metricValue}
                         </span>
                         <span className="text-xs font-semibold text-slate-700 block leading-tight mt-0.5">
                           {study.metricLabel}
                         </span>
                       </div>
-                      <div className="w-8 h-8 rounded-lg bg-[#C0622A]/10 text-[#C0622A] flex items-center justify-center shrink-0">
+                      <div className="w-8 h-8 rounded-lg bg-[#FF6700]/10 text-[#FF6700] flex items-center justify-center shrink-0">
                         <TrendingUp className="w-4 h-4" />
                       </div>
                     </div>
@@ -212,9 +212,9 @@ export default function CaseStudiesSection() {
                     </div>
 
                     {/* Bottom Action Trigger */}
-                    <div className="w-full flex items-center justify-between pt-2 text-xs font-heading font-bold text-[#090D16] group-hover:text-[#C0622A] transition-colors">
+                    <div className="w-full flex items-center justify-between pt-2 text-xs font-heading font-bold text-[#090D16] group-hover:text-[#FF6700] transition-colors">
                       <span>Explore Case Showcase</span>
-                      <span className="w-7 h-7 rounded-full bg-slate-100 group-hover:bg-[#C0622A] group-hover:text-white flex items-center justify-center transition-all">
+                      <span className="w-7 h-7 rounded-full bg-slate-100 group-hover:bg-[#FF6700] group-hover:text-white flex items-center justify-center transition-all">
                         <ArrowUpRight className="w-3.5 h-3.5" />
                       </span>
                     </div>
@@ -238,7 +238,7 @@ export default function CaseStudiesSection() {
             {clientLogos.map((logo) => (
               <span
                 key={logo}
-                className="px-3.5 py-1.5 bg-white rounded-full border border-slate-200 text-slate-700 text-xs font-semibold hover:border-[#C0622A] hover:text-[#C0622A] transition-colors shadow-xs"
+                className="px-3.5 py-1.5 bg-white rounded-full border border-slate-200 text-slate-700 text-xs font-semibold hover:border-[#FF6700] hover:text-[#FF6700] transition-colors shadow-xs"
               >
                 {logo}
               </span>
@@ -257,7 +257,7 @@ export default function CaseStudiesSection() {
                 notes: "Interested in starting a new build with ReLaunch.",
               })
             }
-            className="inline-flex items-center justify-center gap-2 px-7 py-3.5 bg-[#C0622A] hover:bg-[#a84f1d] text-white font-heading font-bold text-xs uppercase tracking-wider rounded-xl transition-all shadow-md active:translate-y-0.5 cursor-pointer"
+            className="inline-flex items-center justify-center gap-2 px-7 py-3.5 bg-[#FF6700] hover:bg-[#E55C00] text-white font-heading font-bold text-xs uppercase tracking-wider rounded-xl transition-all shadow-md active:translate-y-0.5 cursor-pointer"
           >
             <span>Start Your Project With ReLaunch</span>
             <ArrowRight className="w-3.5 h-3.5" />
@@ -304,9 +304,9 @@ export default function CaseStudiesSection() {
                     initial={{ opacity: 0, y: -8 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.3, delay: 0.05 }}
-                    className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-orange-50 border border-orange-200/80 text-[#C0622A] text-[10px] font-mono font-bold uppercase tracking-widest mb-2"
+                    className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-orange-50 border border-orange-200/80 text-[#FF6700] text-[10px] font-mono font-bold uppercase tracking-widest mb-2"
                   >
-                    <span className="w-1.5 h-1.5 rounded-full bg-[#C0622A]" />
+                    <span className="w-1.5 h-1.5 rounded-full bg-[#FF6700]" />
                     <span>Case Study Showcase</span>
                   </motion.div>
                   <motion.h3
@@ -375,18 +375,18 @@ export default function CaseStudiesSection() {
                   transition={{ duration: 0.35, delay: 0.18 }}
                   className="grid grid-cols-1 sm:grid-cols-3 gap-4"
                 >
-                  <div className="p-4 rounded-2xl bg-orange-50 border border-[#C0622A]/20 flex flex-col justify-center">
+                  <div className="p-4 rounded-2xl bg-orange-50 border border-[#FF6700]/20 flex flex-col justify-center">
                     <span className="text-[11px] font-bold uppercase tracking-wider text-slate-500 mb-1">
                       {activeStudy.metricLabel}
                     </span>
-                    <span className="font-heading font-black text-3xl sm:text-4xl text-[#C0622A]">
+                    <span className="font-heading font-black text-3xl sm:text-4xl text-[#FF6700]">
                       {activeStudy.metricValue}
                     </span>
                   </div>
 
                   <div className="sm:col-span-2 p-4 rounded-2xl bg-slate-50 border border-slate-200 flex flex-col justify-center">
                     <div className="flex items-center gap-2 text-xs font-bold text-slate-800 mb-1.5">
-                      <Quote className="w-4 h-4 text-[#C0622A]" />
+                      <Quote className="w-4 h-4 text-[#FF6700]" />
                       <span>Verified Client Outcome</span>
                     </div>
                     <p className="text-xs sm:text-sm text-slate-600 italic leading-relaxed">
@@ -411,7 +411,7 @@ export default function CaseStudiesSection() {
                         initial={{ opacity: 0, scale: 0.95, y: 8 }}
                         animate={{ opacity: 1, scale: 1, y: 0 }}
                         transition={{ duration: 0.25, delay: 0.24 + idx * 0.03 }}
-                        className="flex items-center gap-2 p-3 rounded-xl bg-slate-50 border border-slate-200 text-xs font-medium text-slate-800 hover:bg-white hover:border-[#C0622A]/40 transition-colors"
+                        className="flex items-center gap-2 p-3 rounded-xl bg-slate-50 border border-slate-200 text-xs font-medium text-slate-800 hover:bg-white hover:border-[#FF6700]/40 transition-colors"
                       >
                         <CheckCircle2 className="w-4 h-4 text-[#2E8B7A] shrink-0" />
                         <span>{tag}</span>
@@ -432,7 +432,7 @@ export default function CaseStudiesSection() {
                       href={activeStudy.liveUrl}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="inline-flex items-center gap-1.5 text-xs font-bold text-[#090D16] hover:text-[#C0622A] transition-colors"
+                      className="inline-flex items-center gap-1.5 text-xs font-bold text-[#090D16] hover:text-[#FF6700] transition-colors"
                     >
                       <Globe className="w-4 h-4 text-[#2E8B7A]" />
                       <span>Visit Live Website ({activeStudy.displayUrl})</span>
@@ -449,7 +449,7 @@ export default function CaseStudiesSection() {
                     whileTap={{ scale: 0.97 }}
                     type="button"
                     onClick={() => handleStartSimilarProject(activeStudy)}
-                    className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-6 py-3 bg-[#C0622A] hover:bg-[#a84f1d] text-white font-heading font-bold text-xs uppercase tracking-wider rounded-xl transition-all shadow-md active:translate-y-0.5 cursor-pointer"
+                    className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-6 py-3 bg-[#FF6700] hover:bg-[#E55C00] text-white font-heading font-bold text-xs uppercase tracking-wider rounded-xl transition-all shadow-md active:translate-y-0.5 cursor-pointer"
                   >
                     <span>Start Similar Project</span>
                     <ArrowRight className="w-4 h-4" />

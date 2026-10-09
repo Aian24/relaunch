@@ -65,7 +65,7 @@ export default function SocialPage() {
 
       {/* 1. Cinematic Social Hero */}
       <section className="relative pt-32 sm:pt-40 pb-20 sm:pb-28 px-4 sm:px-6 lg:px-8 bg-[#0A0D14] text-white overflow-hidden select-none">
-        <div className="absolute top-0 right-1/4 w-[700px] h-[500px] bg-[#C0622A]/15 rounded-full blur-[160px] pointer-events-none" />
+        <div className="absolute top-0 right-1/4 w-[700px] h-[500px] bg-[#FF6700]/15 rounded-full blur-[160px] pointer-events-none" />
         <div className="absolute inset-0 bg-gradient-to-b from-transparent via-[#0A0D14]/50 to-[#0A0D14] pointer-events-none" />
 
         <div className="max-w-7xl mx-auto relative z-10">
@@ -76,9 +76,9 @@ export default function SocialPage() {
                 initial={{ opacity: 0, y: 14 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
-                className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-white/[0.08] border border-white/[0.12] text-[#C0622A] text-xs font-mono uppercase tracking-widest font-semibold mb-6 shadow-xs whitespace-nowrap"
+                className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-white/[0.08] border border-white/[0.12] text-[#FF6700] text-xs font-mono uppercase tracking-widest font-semibold mb-6 shadow-xs whitespace-nowrap"
               >
-                <span className="w-2 h-2 rounded-full bg-[#C0622A] shrink-0" />
+                <span className="w-2 h-2 rounded-full bg-[#FF6700] shrink-0" />
                 <span>ReLaunch Social · Done-for-You Content</span>
               </motion.div>
 
@@ -89,7 +89,7 @@ export default function SocialPage() {
                 className="font-heading font-black text-3xl sm:text-5xl md:text-6xl lg:text-7xl xl:text-[80px] tracking-tight leading-[1.06] text-white"
               >
                 <span className="block whitespace-normal sm:whitespace-nowrap">Your Social Media,</span>
-                <span className="block text-[#C0622A] whitespace-normal sm:whitespace-nowrap">Always In Orbit.</span>
+                <span className="block text-[#FF6700] whitespace-normal sm:whitespace-nowrap">Always In Orbit.</span>
               </motion.h1>
 
               <motion.p
@@ -109,7 +109,7 @@ export default function SocialPage() {
               >
                 <Link
                   href="/pricing"
-                  className="flex-1 sm:flex-initial inline-flex items-center justify-center gap-1.5 sm:gap-2 px-3.5 sm:px-6 py-3 sm:py-3.5 bg-[#C0622A] hover:bg-[#a84f1d] text-white text-[11px] sm:text-sm font-bold uppercase tracking-wider rounded-xl transition-all shadow-[0_0_20px_rgba(192,98,42,0.35)] cursor-pointer active:scale-98 whitespace-nowrap"
+                  className="flex-1 sm:flex-initial inline-flex items-center justify-center gap-1.5 sm:gap-2 px-3.5 sm:px-6 py-3 sm:py-3.5 bg-[#FF6700] hover:bg-[#E55C00] text-white text-[11px] sm:text-sm font-bold uppercase tracking-wider rounded-xl transition-all shadow-[0_0_20px_rgba(255,103,0,0.35)] cursor-pointer active:scale-98 whitespace-nowrap"
                 >
                   <span>View Pricing &amp; Plans</span>
                   <ArrowUpRight className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-white" />
@@ -136,8 +136,8 @@ export default function SocialPage() {
               >
                 <div className="flex items-center justify-between pb-3 border-b border-white/[0.08]">
                   <div className="flex items-center gap-2">
-                    <Zap className="w-4 h-4 text-[#C0622A]" />
-                    <span className="text-xs font-mono uppercase tracking-widest text-[#E88C52] font-bold">
+                    <Zap className="w-4 h-4 text-[#FF6700]" />
+                    <span className="text-xs font-mono uppercase tracking-widest text-[#FF6700] font-bold">
                       The Social Advantage
                     </span>
                   </div>
@@ -175,7 +175,7 @@ export default function SocialPage() {
       <section className="py-20 sm:py-28 px-4 sm:px-6 lg:px-8 bg-white border-b border-slate-100">
         <div className="max-w-7xl mx-auto">
           <MotionWrapper direction="up" distance={30} className="text-center max-w-2xl mx-auto mb-16">
-            <span className="text-xs font-mono uppercase tracking-widest text-[#C0622A] font-bold block mb-2">
+            <span className="text-xs font-mono uppercase tracking-widest text-[#FF6700] font-bold block mb-2">
               TWO FLEXIBLE WAYS TO WORK
             </span>
             <h2 className="font-heading font-black text-3xl sm:text-5xl text-[#090D16] tracking-tight">
@@ -189,7 +189,7 @@ export default function SocialPage() {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
             {/* Track A */}
             <MotionWrapper direction="up" delay={0.1} distance={30} className="h-full">
-              <div className="p-8 sm:p-10 rounded-3xl bg-slate-50/80 border border-slate-200/80 hover:border-[#C0622A]/40 transition-all flex flex-col justify-between h-full group">
+              <div className="p-8 sm:p-10 rounded-3xl bg-slate-50/80 border border-slate-200/80 hover:border-[#FF6700]/40 transition-all flex flex-col justify-between h-full group">
                 <div>
                   <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-slate-200/70 text-slate-800 text-[11px] font-mono font-bold uppercase tracking-wider mb-4">
                     Track A · Media Provided
@@ -204,15 +204,15 @@ export default function SocialPage() {
 
                   <div className="space-y-3 pt-2">
                     <div className="flex items-start gap-2.5">
-                      <CheckCircle2 className="w-4 h-4 text-[#C0622A] shrink-0 mt-0.5" />
+                      <CheckCircle2 className="w-4 h-4 text-[#FF6700] shrink-0 mt-0.5" />
                       <span className="text-xs text-slate-700">Persuasive, high-converting copywriting &amp; targeted hashtags</span>
                     </div>
                     <div className="flex items-start gap-2.5">
-                      <CheckCircle2 className="w-4 h-4 text-[#C0622A] shrink-0 mt-0.5" />
+                      <CheckCircle2 className="w-4 h-4 text-[#FF6700] shrink-0 mt-0.5" />
                       <span className="text-xs text-slate-700">Multi-ratio formatting for Reels, Carousels, Stories &amp; Feeds</span>
                     </div>
                     <div className="flex items-start gap-2.5">
-                      <CheckCircle2 className="w-4 h-4 text-[#C0622A] shrink-0 mt-0.5" />
+                      <CheckCircle2 className="w-4 h-4 text-[#FF6700] shrink-0 mt-0.5" />
                       <span className="text-xs text-slate-700">Automated scheduling at optimal audience engagement windows</span>
                     </div>
                   </div>
@@ -221,7 +221,7 @@ export default function SocialPage() {
                 <div className="pt-8 border-t border-slate-200/80 mt-8">
                   <Link
                     href="/pricing"
-                    className="inline-flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-[#C0622A] hover:text-[#9c4314] transition-colors"
+                    className="inline-flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-[#FF6700] hover:text-[#CC5200] transition-colors"
                   >
                     <span>View Track A Plans</span>
                     <ArrowRight className="w-3.5 h-3.5" />
@@ -232,9 +232,9 @@ export default function SocialPage() {
 
             {/* Track B */}
             <MotionWrapper direction="up" delay={0.2} distance={30} className="h-full">
-              <div className="p-8 sm:p-10 rounded-3xl bg-slate-50/80 border border-slate-200/80 hover:border-[#C0622A]/40 transition-all flex flex-col justify-between h-full group">
+              <div className="p-8 sm:p-10 rounded-3xl bg-slate-50/80 border border-slate-200/80 hover:border-[#FF6700]/40 transition-all flex flex-col justify-between h-full group">
                 <div>
-                  <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#C0622A]/10 text-[#C0622A] text-[11px] font-mono font-bold uppercase tracking-wider mb-4">
+                  <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#FF6700]/10 text-[#FF6700] text-[11px] font-mono font-bold uppercase tracking-wider mb-4">
                     Track B · 100% Full-Service
                   </div>
                   <h3 className="font-heading font-black text-2xl sm:text-3xl text-[#090D16] mb-2">
@@ -247,15 +247,15 @@ export default function SocialPage() {
 
                   <div className="space-y-3 pt-2">
                     <div className="flex items-start gap-2.5">
-                      <CheckCircle2 className="w-4 h-4 text-[#C0622A] shrink-0 mt-0.5" />
+                      <CheckCircle2 className="w-4 h-4 text-[#FF6700] shrink-0 mt-0.5" />
                       <span className="text-xs text-slate-700">Custom branded visual graphics, typography &amp; carousels</span>
                     </div>
                     <div className="flex items-start gap-2.5">
-                      <CheckCircle2 className="w-4 h-4 text-[#C0622A] shrink-0 mt-0.5" />
+                      <CheckCircle2 className="w-4 h-4 text-[#FF6700] shrink-0 mt-0.5" />
                       <span className="text-xs text-slate-700">Industry research, educational hooks &amp; thought-leadership posts</span>
                     </div>
                     <div className="flex items-start gap-2.5">
-                      <CheckCircle2 className="w-4 h-4 text-[#C0622A] shrink-0 mt-0.5" />
+                      <CheckCircle2 className="w-4 h-4 text-[#FF6700] shrink-0 mt-0.5" />
                       <span className="text-xs text-slate-700">1-click calendar approval workflow before anything goes live</span>
                     </div>
                   </div>
@@ -264,7 +264,7 @@ export default function SocialPage() {
                 <div className="pt-8 border-t border-slate-200/80 mt-8">
                   <Link
                     href="/pricing"
-                    className="inline-flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-[#C0622A] hover:text-[#9c4314] transition-colors"
+                    className="inline-flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-[#FF6700] hover:text-[#CC5200] transition-colors"
                   >
                     <span>View Track B Plans</span>
                     <ArrowRight className="w-3.5 h-3.5" />
@@ -280,7 +280,7 @@ export default function SocialPage() {
       <section className="py-20 sm:py-28 px-4 sm:px-6 lg:px-8 bg-slate-50/50 border-b border-slate-100">
         <div className="max-w-7xl mx-auto">
           <MotionWrapper direction="up" distance={30} className="text-center max-w-2xl mx-auto mb-16">
-            <span className="text-xs font-mono uppercase tracking-widest text-[#C0622A] font-bold block mb-2">
+            <span className="text-xs font-mono uppercase tracking-widest text-[#FF6700] font-bold block mb-2">
               SEAMLESS LIFTOFF
             </span>
             <h2 className="font-heading font-black text-3xl sm:text-5xl text-[#090D16] tracking-tight">
@@ -297,9 +297,9 @@ export default function SocialPage() {
                 distance={30}
                 className="h-full"
               >
-                <div className="p-8 rounded-3xl bg-white border border-slate-200/80 hover:border-[#C0622A]/40 hover:shadow-lg transition-all flex flex-col justify-between h-full">
+                <div className="p-8 rounded-3xl bg-white border border-slate-200/80 hover:border-[#FF6700]/40 hover:shadow-lg transition-all flex flex-col justify-between h-full">
                   <div>
-                    <div className="font-mono font-black text-3xl text-[#C0622A] mb-4">
+                    <div className="font-mono font-black text-3xl text-[#FF6700] mb-4">
                       {step.step}
                     </div>
                     <h3 className="font-heading font-bold text-xl text-[#090D16] mb-2">
@@ -338,8 +338,8 @@ export default function SocialPage() {
                   delay={idx * 0.05}
                   distance={15}
                 >
-                  <div className="p-5 rounded-2xl bg-slate-50/70 border border-slate-200/80 text-center hover:border-[#C0622A]/40 transition-all flex flex-col items-center justify-center">
-                    <div className="w-10 h-10 rounded-xl bg-white flex items-center justify-center text-[#C0622A] mb-2.5 shadow-xs">
+                  <div className="p-5 rounded-2xl bg-slate-50/70 border border-slate-200/80 text-center hover:border-[#FF6700]/40 transition-all flex flex-col items-center justify-center">
+                    <div className="w-10 h-10 rounded-xl bg-white flex items-center justify-center text-[#FF6700] mb-2.5 shadow-xs">
                       <IconComp className="w-5 h-5" />
                     </div>
                     <div className="font-heading font-bold text-sm text-[#090D16]">{p.name}</div>

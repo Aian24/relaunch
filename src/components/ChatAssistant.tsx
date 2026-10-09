@@ -161,20 +161,20 @@ export default function ChatAssistant() {
             <button
               onClick={() => setIsOpen(true)}
               aria-label="Open ReLaunch AI Assistant"
-              className="group relative flex items-center gap-2 sm:gap-2.5 px-4 py-2.5 sm:px-5 sm:py-3 bg-white hover:bg-orange-50/80 text-slate-900 rounded-full shadow-xl hover:shadow-[0_4px_20px_rgba(192,98,42,0.2)] border border-slate-200/90 hover:border-orange-300 transition-all duration-300 hover:scale-105 active:scale-95 cursor-pointer"
+              className="group relative flex items-center gap-2 sm:gap-2.5 px-4 py-2.5 sm:px-5 sm:py-3 bg-white hover:bg-orange-50/80 text-slate-900 rounded-full shadow-xl hover:shadow-[0_4px_20px_rgba(255,103,0,0.2)] border border-slate-200/90 hover:border-orange-300 transition-all duration-300 hover:scale-105 active:scale-95 cursor-pointer"
             >
               {/* Clean Status Dot */}
               <span className="relative flex h-2 sm:h-2.5 w-2 sm:w-2.5 ml-0.5">
-                <span className="relative inline-flex rounded-full h-2 sm:h-2.5 w-2 sm:w-2.5 bg-[#C0622A]" />
+                <span className="relative inline-flex rounded-full h-2 sm:h-2.5 w-2 sm:w-2.5 bg-[#FF6700]" />
               </span>
 
-              <Bot className="w-4 h-4 sm:w-5 sm:h-5 text-[#C0622A] ml-0.5" />
+              <Bot className="w-4 h-4 sm:w-5 sm:h-5 text-[#FF6700] ml-0.5" />
               <span className="font-heading font-black text-[11px] sm:text-xs uppercase tracking-wider pr-0.5 sm:pr-1 ml-0.5 text-slate-900">
                 ReLaunch AI
               </span>
 
               {hasUnread && (
-                <span className="absolute -top-1 right-0 flex h-4 w-4 items-center justify-center rounded-full bg-[#C0622A] text-[9px] font-black text-white shadow-xs">
+                <span className="absolute -top-1 right-0 flex h-4 w-4 items-center justify-center rounded-full bg-[#FF6700] text-[9px] font-black text-white shadow-xs">
                   1
                 </span>
               )}
@@ -206,7 +206,7 @@ export default function ChatAssistant() {
             {/* Header */}
             <div className="p-4 bg-slate-50 border-b border-slate-100 flex items-center justify-between">
               <div className="flex items-center gap-3">
-                <div className="w-9 h-9 rounded-xl bg-[#C0622A] flex items-center justify-center shadow-xs">
+                <div className="w-9 h-9 rounded-xl bg-[#FF6700] flex items-center justify-center shadow-xs">
                   <Bot className="w-5 h-5 text-white" />
                 </div>
                 <div>
@@ -214,7 +214,7 @@ export default function ChatAssistant() {
                     <h3 className="font-heading font-black text-sm text-slate-900">
                     ReLaunch Assistant
                   </h3>
-                  <span className="inline-flex items-center px-1.5 py-0.5 rounded-full text-[9px] font-bold bg-orange-50 text-[#C0622A] border border-orange-200/80">
+                  <span className="inline-flex items-center px-1.5 py-0.5 rounded-full text-[9px] font-bold bg-orange-50 text-[#FF6700] border border-orange-200/80">
                     AI Active
                   </span>
                 </div>
@@ -258,7 +258,7 @@ export default function ChatAssistant() {
                 }`}
               >
                 {msg.sender === "ai" && (
-                  <div className="w-7 h-7 rounded-lg bg-[#C0622A] text-white flex items-center justify-center shrink-0 mt-0.5">
+                  <div className="w-7 h-7 rounded-lg bg-[#FF6700] text-white flex items-center justify-center shrink-0 mt-0.5">
                     <Sparkles className="w-3.5 h-3.5" />
                   </div>
                 )}
@@ -266,7 +266,7 @@ export default function ChatAssistant() {
                 <div
                   className={`max-w-[82%] p-3.5 rounded-2xl ${
                     msg.sender === "user"
-                      ? "bg-[#C0622A] text-white font-medium rounded-tr-none"
+                      ? "bg-[#FF6700] text-white font-medium rounded-tr-none"
                       : "bg-slate-50 border border-slate-200/80 text-slate-800 rounded-tl-none shadow-xs"
                   }`}
                 >
@@ -293,7 +293,7 @@ export default function ChatAssistant() {
                           }
                         }
                       }}
-                      className="mt-3 inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white hover:bg-[#C0622A] text-slate-800 hover:text-white font-heading font-bold text-[11px] uppercase tracking-wider transition-colors border border-slate-200 hover:border-[#C0622A] text-center shadow-xs cursor-pointer"
+                      className="mt-3 inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white hover:bg-[#FF6700] text-slate-800 hover:text-white font-heading font-bold text-[11px] uppercase tracking-wider transition-colors border border-slate-200 hover:border-[#FF6700] text-center shadow-xs cursor-pointer"
                     >
                       <span>{msg.action.label}</span>
                       <ArrowUpRight className="w-3 h-3" />
@@ -311,13 +311,13 @@ export default function ChatAssistant() {
 
             {isTyping && (
               <div className="flex gap-2.5 justify-start">
-                <div className="w-7 h-7 rounded-lg bg-[#C0622A] text-white flex items-center justify-center shrink-0 mt-0.5">
+                <div className="w-7 h-7 rounded-lg bg-[#FF6700] text-white flex items-center justify-center shrink-0 mt-0.5">
                   <Sparkles className="w-3.5 h-3.5" />
                 </div>
                 <div className="p-3 rounded-2xl bg-slate-50 border border-slate-200 text-slate-400 rounded-tl-none flex items-center gap-1.5">
-                  <span className="w-1.5 h-1.5 rounded-full bg-[#C0622A] animate-bounce" />
-                  <span className="w-1.5 h-1.5 rounded-full bg-[#C0622A] animate-bounce [animation-delay:0.2s]" />
-                  <span className="w-1.5 h-1.5 rounded-full bg-[#C0622A] animate-bounce [animation-delay:0.4s]" />
+                  <span className="w-1.5 h-1.5 rounded-full bg-[#FF6700] animate-bounce" />
+                  <span className="w-1.5 h-1.5 rounded-full bg-[#FF6700] animate-bounce [animation-delay:0.2s]" />
+                  <span className="w-1.5 h-1.5 rounded-full bg-[#FF6700] animate-bounce [animation-delay:0.4s]" />
                 </div>
               </div>
             )}
@@ -330,7 +330,7 @@ export default function ChatAssistant() {
               <button
                 key={prompt}
                 onClick={() => handleSend(prompt)}
-                className="px-2.5 py-1 rounded-lg bg-white hover:bg-[#C0622A] text-slate-700 hover:text-white border border-slate-200 hover:border-[#C0622A] text-[10px] font-semibold whitespace-nowrap transition-colors cursor-pointer shrink-0 shadow-xs"
+                className="px-2.5 py-1 rounded-lg bg-white hover:bg-[#FF6700] text-slate-700 hover:text-white border border-slate-200 hover:border-[#FF6700] text-[10px] font-semibold whitespace-nowrap transition-colors cursor-pointer shrink-0 shadow-xs"
               >
                 {prompt}
               </button>
@@ -346,14 +346,14 @@ export default function ChatAssistant() {
                 onChange={(e) => setInputValue(e.target.value)}
                 onKeyDown={handleKeyDown}
                 placeholder="Ask about bundles, pricing, services..."
-                className="w-full py-2.5 pl-3.5 pr-11 bg-white text-slate-900 placeholder-slate-400 rounded-xl text-xs border border-slate-200 focus:outline-none focus:border-[#C0622A] transition-colors"
+                className="w-full py-2.5 pl-3.5 pr-11 bg-white text-slate-900 placeholder-slate-400 rounded-xl text-xs border border-slate-200 focus:outline-none focus:border-[#FF6700] transition-colors"
               />
               <button
                 onClick={() => handleSend()}
                 disabled={!inputValue.trim()}
                 className={`absolute right-1.5 p-1.5 rounded-lg transition-all ${
                   inputValue.trim()
-                    ? "bg-[#C0622A] text-white hover:bg-[#a84f1d] cursor-pointer"
+                    ? "bg-[#FF6700] text-white hover:bg-[#E55C00] cursor-pointer"
                     : "text-slate-300 cursor-not-allowed"
                 }`}
               >

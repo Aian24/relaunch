@@ -117,7 +117,7 @@ export default function AboutPage() {
 
       {/* 1. Cinematic About Hero */}
       <section className="relative pt-32 sm:pt-40 pb-20 sm:pb-28 px-4 sm:px-6 lg:px-8 bg-[#0A0D14] text-white overflow-hidden select-none">
-        <div className="absolute top-0 right-1/4 w-[700px] h-[500px] bg-[#C0622A]/15 rounded-full blur-[160px] pointer-events-none" />
+        <div className="absolute top-0 right-1/4 w-[700px] h-[500px] bg-[#FF6700]/15 rounded-full blur-[160px] pointer-events-none" />
         <div className="absolute inset-0 bg-gradient-to-b from-transparent via-[#0A0D14]/50 to-[#0A0D14] pointer-events-none" />
 
         <div className="max-w-7xl mx-auto relative z-10">
@@ -129,9 +129,9 @@ export default function AboutPage() {
                 initial={{ opacity: 0, y: 14 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
-                className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-white/[0.08] border border-white/[0.12] text-[#C0622A] text-xs font-mono uppercase tracking-widest font-semibold mb-6 shadow-xs whitespace-nowrap"
+                className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-white/[0.08] border border-white/[0.12] text-[#FF6700] text-xs font-mono uppercase tracking-widest font-semibold mb-6 shadow-xs whitespace-nowrap"
               >
-                <span className="w-2 h-2 rounded-full bg-[#C0622A] shrink-0" />
+                <span className="w-2 h-2 rounded-full bg-[#FF6700] shrink-0" />
                 <span>Phoenix, AZ · Est. 2004</span>
               </motion.div>
 
@@ -142,7 +142,7 @@ export default function AboutPage() {
                 className="font-heading font-black text-3xl sm:text-4xl md:text-5xl lg:text-5xl xl:text-6xl tracking-tight leading-[1.08] text-white"
               >
                 <span className="block">Two Decades of</span>
-                <span className="block text-[#C0622A]">Engineering Impact.</span>
+                <span className="block text-[#FF6700]">Engineering Impact.</span>
               </motion.h1>
 
               <motion.p
@@ -163,7 +163,7 @@ export default function AboutPage() {
                 <button
                   type="button"
                   onClick={() => openContactModal({ intent: "strategy-session" })}
-                  className="flex-1 sm:flex-initial inline-flex items-center justify-center gap-1.5 sm:gap-2 px-3.5 sm:px-6 py-3 sm:py-3.5 bg-[#C0622A] hover:bg-[#a84f1d] text-white text-[11px] sm:text-sm font-bold uppercase tracking-wider rounded-xl transition-all shadow-[0_0_20px_rgba(192,98,42,0.35)] cursor-pointer active:scale-98 whitespace-nowrap"
+                  className="flex-1 sm:flex-initial inline-flex items-center justify-center gap-1.5 sm:gap-2 px-3.5 sm:px-6 py-3 sm:py-3.5 bg-[#FF6700] hover:bg-[#E55C00] text-white text-[11px] sm:text-sm font-bold uppercase tracking-wider rounded-xl transition-all shadow-[0_0_20px_rgba(255,103,0,0.35)] cursor-pointer active:scale-98 whitespace-nowrap"
                 >
                   <span>Book Strategy Call</span>
                   <ArrowUpRight className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-white" />
@@ -186,15 +186,15 @@ export default function AboutPage() {
                 className="mt-8 flex flex-wrap justify-center sm:justify-start gap-2 sm:gap-4 text-xs text-slate-300 font-medium"
               >
                 <div className="flex items-center gap-1.5 bg-white/[0.05] px-3 py-1.5 rounded-lg border border-white/[0.08]">
-                  <ShieldCheck className="w-4 h-4 text-[#C0622A]" />
+                  <ShieldCheck className="w-4 h-4 text-[#FF6700]" />
                   <span>Zero Lock-In</span>
                 </div>
                 <div className="flex items-center gap-1.5 bg-white/[0.05] px-3 py-1.5 rounded-lg border border-white/[0.08]">
-                  <Lock className="w-4 h-4 text-[#C0622A]" />
+                  <Lock className="w-4 h-4 text-[#FF6700]" />
                   <span>100% IP Ownership</span>
                 </div>
                 <div className="flex items-center gap-1.5 bg-white/[0.05] px-3 py-1.5 rounded-lg border border-white/[0.08]">
-                  <Users className="w-4 h-4 text-[#C0622A]" />
+                  <Users className="w-4 h-4 text-[#FF6700]" />
                   <span>Senior Architects Only</span>
                 </div>
               </motion.div>
@@ -211,12 +211,12 @@ export default function AboutPage() {
                 {/* Card Header */}
                 <div className="flex items-center justify-between pb-3.5 border-b border-white/[0.08]">
                   <div className="flex items-center gap-2">
-                    <Award className="w-4 h-4 text-[#E88C52]" />
+                    <Award className="w-4 h-4 text-[#FF6700]" />
                     <span className="text-xs font-mono uppercase tracking-widest text-white font-bold">
                       Studio Track Record
                     </span>
                   </div>
-                  <span className="px-2.5 py-0.5 rounded-full bg-[#C0622A]/20 text-[#F39C6B] border border-[#C0622A]/30 text-[10px] font-mono font-semibold uppercase">
+                  <span className="px-2.5 py-0.5 rounded-full bg-[#FF6700]/20 text-[#F39C6B] border border-[#FF6700]/30 text-[10px] font-mono font-semibold uppercase">
                     Est. 2004 · Phoenix
                   </span>
                 </div>
@@ -225,7 +225,7 @@ export default function AboutPage() {
                 <div className="space-y-3">
                   <div className="p-4 rounded-2xl bg-white/[0.04] border border-white/[0.06] flex items-center justify-between gap-4">
                     <div>
-                      <div className="text-[10px] font-mono text-[#E88C52] uppercase font-bold">Track Record</div>
+                      <div className="text-[10px] font-mono text-[#FF6700] uppercase font-bold">Track Record</div>
                       <div className="font-heading font-bold text-white text-sm mt-0.5">Continuous Innovation</div>
                       <div className="text-xs text-slate-400 mt-0.5">Pioneering digital growth in Phoenix, AZ</div>
                     </div>
@@ -237,7 +237,7 @@ export default function AboutPage() {
 
                   <div className="p-4 rounded-2xl bg-white/[0.04] border border-white/[0.06] flex items-center justify-between gap-4">
                     <div>
-                      <div className="text-[10px] font-mono text-[#E88C52] uppercase font-bold">Shipped Products</div>
+                      <div className="text-[10px] font-mono text-[#FF6700] uppercase font-bold">Shipped Products</div>
                       <div className="font-heading font-bold text-white text-sm mt-0.5">Proven Delivery Velocity</div>
                       <div className="text-xs text-slate-400 mt-0.5">Web platforms, brands &amp; AI systems</div>
                     </div>
@@ -249,7 +249,7 @@ export default function AboutPage() {
 
                   <div className="p-4 rounded-2xl bg-white/[0.04] border border-white/[0.06] flex items-center justify-between gap-4">
                     <div>
-                      <div className="text-[10px] font-mono text-[#E88C52] uppercase font-bold">Client Autonomy</div>
+                      <div className="text-[10px] font-mono text-[#FF6700] uppercase font-bold">Client Autonomy</div>
                       <div className="font-heading font-bold text-white text-sm mt-0.5">100% Asset &amp; IP Ownership</div>
                       <div className="text-xs text-slate-400 mt-0.5">You own all code, designs &amp; accounts</div>
                     </div>
@@ -262,7 +262,7 @@ export default function AboutPage() {
 
                 {/* Bottom Strip */}
                 <div className="pt-3 border-t border-white/[0.08] text-center text-xs text-slate-400 flex items-center justify-center gap-2">
-                  <Zap className="w-3.5 h-3.5 text-[#E88C52]" />
+                  <Zap className="w-3.5 h-3.5 text-[#FF6700]" />
                   <span>Direct senior architect execution · Zero junior handoffs</span>
                 </div>
               </motion.div>
@@ -276,7 +276,7 @@ export default function AboutPage() {
       <section className="py-20 sm:py-28 px-4 sm:px-6 lg:px-8 bg-white border-b border-slate-100">
         <div className="max-w-7xl mx-auto">
           <MotionWrapper direction="up" distance={30} className="text-center max-w-2xl mx-auto mb-16">
-            <span className="text-xs font-mono uppercase tracking-widest text-[#C0622A] font-bold block mb-2">
+            <span className="text-xs font-mono uppercase tracking-widest text-[#FF6700] font-bold block mb-2">
               PROVEN RELIABILITY
             </span>
             <h2 className="font-heading font-black text-3xl sm:text-5xl text-[#090D16] tracking-tight">
@@ -298,18 +298,18 @@ export default function AboutPage() {
                   distance={30}
                   className="h-full"
                 >
-                  <div className="p-8 rounded-3xl bg-slate-50/80 border border-slate-200/80 hover:border-[#C0622A]/40 hover:shadow-xl hover:shadow-slate-200/50 transition-all duration-300 flex flex-col justify-between h-full group">
+                  <div className="p-8 rounded-3xl bg-slate-50/80 border border-slate-200/80 hover:border-[#FF6700]/40 hover:shadow-xl hover:shadow-slate-200/50 transition-all duration-300 flex flex-col justify-between h-full group">
                     <div>
                       <div className="flex items-center justify-between mb-6">
-                        <div className="w-12 h-12 rounded-2xl bg-white border border-slate-200/80 flex items-center justify-center text-[#C0622A] shadow-xs group-hover:bg-[#C0622A] group-hover:text-white transition-colors duration-300">
+                        <div className="w-12 h-12 rounded-2xl bg-white border border-slate-200/80 flex items-center justify-center text-[#FF6700] shadow-xs group-hover:bg-[#FF6700] group-hover:text-white transition-colors duration-300">
                           <IconComp className="w-6 h-6" />
                         </div>
-                        <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-[#C0622A] bg-[#C0622A]/10 px-2.5 py-1 rounded-full">
+                        <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-[#FF6700] bg-[#FF6700]/10 px-2.5 py-1 rounded-full">
                           {stat.highlight}
                         </span>
                       </div>
 
-                      <div className="font-heading font-black text-4xl sm:text-5xl text-[#090D16] tracking-tight group-hover:text-[#C0622A] transition-colors">
+                      <div className="font-heading font-black text-4xl sm:text-5xl text-[#090D16] tracking-tight group-hover:text-[#FF6700] transition-colors">
                         <NumberCounter value={stat.numericValue} suffix={stat.suffix} />
                       </div>
 
@@ -333,7 +333,7 @@ export default function AboutPage() {
       <section className="py-20 sm:py-28 px-4 sm:px-6 lg:px-8 bg-slate-50/50 border-b border-slate-100">
         <div className="max-w-7xl mx-auto">
           <MotionWrapper direction="up" distance={30} className="text-center max-w-2xl mx-auto mb-16">
-            <span className="text-xs font-mono uppercase tracking-widest text-[#C0622A] font-bold block mb-2">
+            <span className="text-xs font-mono uppercase tracking-widest text-[#FF6700] font-bold block mb-2">
               OUR PHILOSOPHY
             </span>
             <h2 className="font-heading font-black text-3xl sm:text-5xl text-[#090D16] tracking-tight">
@@ -355,9 +355,9 @@ export default function AboutPage() {
                   distance={30}
                   className="h-full"
                 >
-                  <div className="p-8 rounded-3xl bg-white border border-slate-200/80 hover:border-[#C0622A]/40 hover:shadow-lg transition-all flex flex-col justify-between h-full">
+                  <div className="p-8 rounded-3xl bg-white border border-slate-200/80 hover:border-[#FF6700]/40 hover:shadow-lg transition-all flex flex-col justify-between h-full">
                     <div>
-                      <div className="w-12 h-12 rounded-2xl bg-orange-50/80 border border-orange-200/60 flex items-center justify-center text-[#C0622A] shadow-xs mb-6 font-mono font-bold text-sm">
+                      <div className="w-12 h-12 rounded-2xl bg-orange-50/80 border border-orange-200/60 flex items-center justify-center text-[#FF6700] shadow-xs mb-6 font-mono font-bold text-sm">
                         {p.number}
                       </div>
                       <h3 className="font-heading font-bold text-xl text-[#090D16] mb-3">
@@ -398,7 +398,7 @@ export default function AboutPage() {
               >
                 <div className="p-6 rounded-2xl bg-slate-50/70 border border-slate-200/80 flex flex-col justify-between h-full">
                   <div>
-                    <span className="text-xs font-mono font-bold text-[#C0622A] tracking-wider uppercase block mb-2">
+                    <span className="text-xs font-mono font-bold text-[#FF6700] tracking-wider uppercase block mb-2">
                       {item.period}
                     </span>
                     <h4 className="font-heading font-bold text-base text-[#090D16] mb-1.5">

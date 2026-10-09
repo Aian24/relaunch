@@ -142,7 +142,7 @@ export default function AiPage() {
       {/* 2. Full Stack AI Services Grid */}
       <section id="all-ai-services" className="py-20 sm:py-28 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto w-full bg-white">
         <MotionWrapper direction="up" distance={30} className="text-center max-w-3xl mx-auto mb-16 sm:mb-20">
-          <span className="text-xs font-mono uppercase tracking-widest text-[#C0622A] font-bold block mb-2">
+          <span className="text-xs font-mono uppercase tracking-widest text-[#FF6700] font-bold block mb-2">
             FULL STACK AI SERVICES
           </span>
           <h2 className="font-heading font-black text-3xl sm:text-5xl text-[#090D16] tracking-tight leading-tight mb-4">
@@ -166,17 +166,17 @@ export default function AiPage() {
               >
                 <div id={service.id} className="scroll-mt-28 h-full">
                   <SpotlightCard
-                    spotlightColor="rgba(192, 98, 42, 0.12)"
+                    spotlightColor="rgba(255,103,0, 0.12)"
                     className="h-full p-7 rounded-3xl bg-white border border-slate-200/80 shadow-[0_4px_25px_rgba(0,0,0,0.03)] flex flex-col justify-between hover:shadow-[0_12px_40px_rgba(0,0,0,0.08)] transition-all group relative overflow-hidden"
                   >
                   <div>
                     {/* Clean, Prominent Icon Tile */}
-                    <div className="w-12 h-12 rounded-2xl bg-slate-50 border border-slate-200/80 flex items-center justify-center text-[#C0622A] group-hover:bg-[#C0622A] group-hover:text-white group-hover:border-[#C0622A] transition-all duration-300 mb-6 shadow-xs">
+                    <div className="w-12 h-12 rounded-2xl bg-slate-50 border border-slate-200/80 flex items-center justify-center text-[#FF6700] group-hover:bg-[#FF6700] group-hover:text-white group-hover:border-[#FF6700] transition-all duration-300 mb-6 shadow-xs">
                       <IconComp className="w-6 h-6 transition-transform group-hover:scale-110" />
                     </div>
 
                     {/* Title & Tagline */}
-                    <h3 className="font-heading font-black text-xl text-[#090D16] mb-2 group-hover:text-[#C0622A] transition-colors leading-snug">
+                    <h3 className="font-heading font-black text-xl text-[#090D16] mb-2 group-hover:text-[#FF6700] transition-colors leading-snug">
                       {service.title}
                     </h3>
                     <p className="text-xs sm:text-sm text-slate-600 leading-relaxed mb-5 font-normal">
@@ -187,7 +187,7 @@ export default function AiPage() {
                     <div className="space-y-2 pt-4 border-t border-slate-100 mb-6">
                       {service.deliverables.map((item) => (
                         <div key={item} className="flex items-start gap-2.5">
-                          <CheckCircle2 className="w-4 h-4 text-[#C0622A] shrink-0 mt-0.5" />
+                          <CheckCircle2 className="w-4 h-4 text-[#FF6700] shrink-0 mt-0.5" />
                           <span className="text-xs text-slate-700 leading-snug">{item}</span>
                         </div>
                       ))}
@@ -205,7 +205,7 @@ export default function AiPage() {
                           notes: `Inquiry regarding ${service.title}`,
                         })
                       }
-                      className="inline-flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-[#C0622A] hover:text-[#9c4314] cursor-pointer whitespace-nowrap shrink-0 group-hover:translate-x-0.5 transition-transform"
+                      className="inline-flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-[#FF6700] hover:text-[#CC5200] cursor-pointer whitespace-nowrap shrink-0 group-hover:translate-x-0.5 transition-transform"
                     >
                       <span>Deploy System</span>
                       <ArrowUpRight className="w-3.5 h-3.5" />

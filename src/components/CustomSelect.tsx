@@ -73,7 +73,7 @@ export default function CustomSelect({
         onClick={() => setIsOpen(!isOpen)}
         className={`w-full px-3.5 py-2.5 bg-slate-50 border rounded-xl text-sm flex items-center justify-between text-left transition-all ${
           isOpen
-            ? "border-[#C0622A] bg-white ring-2 ring-[#C0622A]/15 shadow-sm text-slate-900"
+            ? "border-[#FF6700] bg-white ring-2 ring-[#FF6700]/15 shadow-sm text-slate-900"
             : "border-slate-200 text-slate-900 hover:border-slate-300 hover:bg-white"
         }`}
         aria-haspopup="listbox"
@@ -84,7 +84,7 @@ export default function CustomSelect({
         </span>
         <ChevronDown
           className={`w-4 h-4 text-slate-500 transition-transform duration-200 shrink-0 ml-2 ${
-            isOpen ? "transform rotate-180 text-[#C0622A]" : ""
+            isOpen ? "transform rotate-180 text-[#FF6700]" : ""
           }`}
         />
       </button>
@@ -102,8 +102,8 @@ export default function CustomSelect({
                 onClick={() => handleSelect(opt.value)}
                 className={`w-full px-3.5 py-2.5 text-xs sm:text-sm flex items-center justify-between text-left transition-colors cursor-pointer ${
                   isSelected
-                    ? "bg-[#C0622A] text-white font-bold"
-                    : "text-slate-800 hover:bg-[#FFF7ED] hover:text-[#C0622A]"
+                    ? "bg-[#FF6700] text-white font-bold"
+                    : "text-slate-800 hover:bg-[#FFF7ED] hover:text-[#FF6700]"
                 }`}
                 role="option"
                 aria-selected={isSelected}

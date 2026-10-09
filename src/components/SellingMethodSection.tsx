@@ -11,12 +11,12 @@ export default function SellingMethodSection() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Header */}
         <MotionWrapper direction="up" distance={20} className="text-center max-w-3xl mx-auto mb-8 sm:mb-10">
-          <span className="text-xs font-mono uppercase tracking-widest text-[#C0622A] font-bold block mb-2">
+          <span className="text-xs font-mono uppercase tracking-widest text-[#FF6700] font-bold block mb-2">
             THE RELAUNCH METHOD
           </span>
           <h2 className="font-heading font-black text-3xl sm:text-5xl lg:text-6xl text-[#090D16] tracking-tight leading-[1.05] mb-3">
             Marketing That Sells. <br />
-            <span className="text-[#C0622A]">Nothing Else Ships.</span>
+            <span className="text-[#FF6700]">Nothing Else Ships.</span>
           </h2>
           <p className="text-slate-600 text-xs sm:text-sm leading-relaxed font-normal">
             Every deliverable is engineered on our four-layer selling framework. Clients buy results, not methods—our framework ensures every piece moves customers toward buying.
@@ -33,10 +33,10 @@ export default function SellingMethodSection() {
               distance={35}
             >
               <SpotlightCard
-                spotlightColor="rgba(192, 98, 42, 0.12)"
-                className="bg-slate-50 p-5 sm:p-6 rounded-2xl border border-slate-200/90 flex flex-col justify-between hover:shadow-xl hover:border-[#C0622A]/40 transition-all duration-300 hover:-translate-y-1 relative overflow-hidden group h-full"
+                spotlightColor="rgba(255,103,0, 0.12)"
+                className="bg-slate-50 p-5 sm:p-6 rounded-2xl border border-slate-200/90 flex flex-col justify-between hover:shadow-xl hover:border-[#FF6700]/40 transition-all duration-300 hover:-translate-y-1 relative overflow-hidden group h-full"
               >
-                <div className="absolute top-0 left-0 right-0 h-1 bg-transparent group-hover:bg-[#C0622A] transition-colors" />
+                <div className="absolute top-0 left-0 right-0 h-1 bg-transparent group-hover:bg-[#FF6700] transition-colors" />
 
                 <div>
                   <div className="flex items-center justify-between mb-3">
@@ -46,12 +46,12 @@ export default function SellingMethodSection() {
                     >
                       {layer.weightPercent}
                     </span>
-                    <span className="font-mono text-xs font-bold text-slate-400 group-hover:text-[#C0622A] transition-colors">
+                    <span className="font-mono text-xs font-bold text-slate-400 group-hover:text-[#FF6700] transition-colors">
                       Layer 0{idx + 1}
                     </span>
                   </div>
 
-                  <h3 className="font-heading font-bold text-base text-[#090D16] mb-1.5 group-hover:text-[#C0622A] transition-colors">
+                  <h3 className="font-heading font-bold text-base text-[#090D16] mb-1.5 group-hover:text-[#FF6700] transition-colors">
                     {layer.layer}
                   </h3>
                   <p className="text-xs text-slate-600 leading-relaxed mb-4 font-normal">
@@ -75,10 +75,10 @@ export default function SellingMethodSection() {
         {/* Ironclad Standard Box */}
         <MotionWrapper direction="left" distance={40} delay={0.15} className="w-full mb-8 sm:mb-10">
           <SpotlightCard
-            spotlightColor="rgba(192, 98, 42, 0.12)"
+            spotlightColor="rgba(255,103,0, 0.12)"
             className="p-6 sm:p-8 bg-orange-50/50 text-slate-900 rounded-2xl sm:rounded-3xl text-center shadow-md border border-orange-200/80 max-w-5xl mx-auto"
           >
-            <span className="text-xs font-mono uppercase tracking-widest text-[#C0622A] font-bold mb-2 block">
+            <span className="text-xs font-mono uppercase tracking-widest text-[#FF6700] font-bold mb-2 block">
               OUR IRONCLAD PRODUCTION STANDARD
             </span>
             <blockquote className="font-heading font-black text-xl sm:text-2xl lg:text-3xl text-slate-950 leading-snug mb-3">
@@ -114,7 +114,7 @@ export default function SellingMethodSection() {
                   className="bg-slate-50 p-5 sm:p-6 rounded-2xl border border-slate-200 relative flex flex-col justify-between h-full hover:shadow-md transition-shadow"
                 >
                   <div>
-                    <div className="w-8 h-8 rounded-full bg-orange-50 border border-orange-200 text-[#C0622A] flex items-center justify-center font-heading font-black text-xs mb-3 shadow-xs">
+                    <div className="w-8 h-8 rounded-full bg-orange-50 border border-orange-200 text-[#FF6700] flex items-center justify-center font-heading font-black text-xs mb-3 shadow-xs">
                       {step.stepNumber}
                     </div>
 
@@ -127,7 +127,7 @@ export default function SellingMethodSection() {
                     </p>
                   </div>
 
-                  <div className="text-[11px] text-[#C0622A] font-semibold bg-white p-2.5 rounded-xl border border-slate-200">
+                  <div className="text-[11px] text-[#FF6700] font-semibold bg-white p-2.5 rounded-xl border border-slate-200">
                     {step.detail}
                   </div>
                 </SpotlightCard>

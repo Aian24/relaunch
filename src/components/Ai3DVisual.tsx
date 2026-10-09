@@ -54,7 +54,7 @@ export default function Ai3DVisual({
               animate={{ y: [-4, 4, -4], rotateY: [-5, 5, -5] }}
               transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
               style={{ transform: "translateZ(30px)" }}
-              className="relative z-10 w-16 h-16 rounded-2xl bg-gradient-to-tr from-purple-600 via-[#C0622A] to-indigo-500 p-0.5 shadow-xl shadow-purple-500/20"
+              className="relative z-10 w-16 h-16 rounded-2xl bg-gradient-to-tr from-purple-600 via-[#FF6700] to-indigo-500 p-0.5 shadow-xl shadow-purple-500/20"
             >
               <div className="w-full h-full bg-[#090D16] rounded-2xl flex items-center justify-center p-3">
                 <svg viewBox="0 0 24 24" className="w-8 h-8 text-purple-400" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -88,7 +88,7 @@ export default function Ai3DVisual({
               animate={{ y: [-4, 4, -4], rotate: [-3, 3, -3] }}
               transition={{ duration: 3.8, repeat: Infinity, ease: "easeInOut" }}
               style={{ transform: "translateZ(30px)" }}
-              className="relative z-10 w-16 h-16 rounded-2xl bg-gradient-to-tr from-[#2E8B7A] via-[#C0622A] to-amber-400 p-0.5 shadow-xl shadow-teal-500/20"
+              className="relative z-10 w-16 h-16 rounded-2xl bg-gradient-to-tr from-[#2E8B7A] via-[#FF6700] to-amber-400 p-0.5 shadow-xl shadow-teal-500/20"
             >
               <div className="w-full h-full bg-[#090D16] rounded-2xl flex items-center justify-center p-3">
                 <svg viewBox="0 0 24 24" className="w-8 h-8 text-[#2E8B7A]" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -116,7 +116,7 @@ export default function Ai3DVisual({
               animate={{ y: [-4, 4, -4], rotateZ: [-4, 4, -4] }}
               transition={{ duration: 4.2, repeat: Infinity, ease: "easeInOut" }}
               style={{ transform: "translateZ(30px)" }}
-              className="relative z-10 w-16 h-16 rounded-2xl bg-gradient-to-tr from-pink-500 via-[#C0622A] to-purple-500 p-0.5 shadow-xl shadow-pink-500/20"
+              className="relative z-10 w-16 h-16 rounded-2xl bg-gradient-to-tr from-pink-500 via-[#FF6700] to-purple-500 p-0.5 shadow-xl shadow-pink-500/20"
             >
               <div className="w-full h-full bg-[#090D16] rounded-2xl flex items-center justify-center p-3">
                 <svg viewBox="0 0 24 24" className="w-8 h-8 text-pink-400" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -148,7 +148,7 @@ export default function Ai3DVisual({
               animate={{ y: [-4, 4, -4], rotateY: [-6, 6, -6] }}
               transition={{ duration: 3.5, repeat: Infinity, ease: "easeInOut" }}
               style={{ transform: "translateZ(30px)" }}
-              className="relative z-10 w-16 h-16 rounded-2xl bg-gradient-to-tr from-cyan-500 via-[#C0622A] to-blue-500 p-0.5 shadow-xl shadow-cyan-500/20"
+              className="relative z-10 w-16 h-16 rounded-2xl bg-gradient-to-tr from-cyan-500 via-[#FF6700] to-blue-500 p-0.5 shadow-xl shadow-cyan-500/20"
             >
               <div className="w-full h-full bg-[#090D16] rounded-2xl flex items-center justify-center p-3">
                 <svg viewBox="0 0 24 24" className="w-8 h-8 text-cyan-400" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -183,10 +183,10 @@ export default function Ai3DVisual({
               animate={{ y: [-5, 5, -5], rotate: [-2, 2, -2] }}
               transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
               style={{ transform: "translateZ(30px)" }}
-              className="relative z-10 w-16 h-16 rounded-2xl bg-gradient-to-tr from-[#C0622A] via-red-500 to-amber-400 p-0.5 shadow-xl shadow-orange-500/20"
+              className="relative z-10 w-16 h-16 rounded-2xl bg-gradient-to-tr from-[#FF6700] via-red-500 to-amber-400 p-0.5 shadow-xl shadow-orange-500/20"
             >
               <div className="w-full h-full bg-[#090D16] rounded-2xl flex items-center justify-center p-3">
-                <svg viewBox="0 0 24 24" className="w-8 h-8 text-[#E88C52]" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <svg viewBox="0 0 24 24" className="w-8 h-8 text-[#FF6700]" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                   <path d="M4.5 16.5c-1.5 1.26-2 5-2 5s3.74-.5 5-2c.71-.84.7-2.13-.09-2.91a2.18 2.18 0 0 0-2.91-.09z" />
                   <path d="m12 15-3-3a22 22 0 0 1 2-3.95A12.88 12.88 0 0 1 22 2c0 2.72-.78 7.5-6 11a22.35 22.35 0 0 1-4 2z" />
                 </svg>
@@ -195,7 +195,7 @@ export default function Ai3DVisual({
             {/* Ad Multiplier Badge */}
             <motion.div
               style={{ transform: "translateZ(45px)" }}
-              className="absolute -top-1 -left-1 bg-white/95 px-2 py-0.5 rounded-full border border-orange-200 shadow-md text-[9px] font-mono font-bold text-[#C0622A] z-20"
+              className="absolute -top-1 -left-1 bg-white/95 px-2 py-0.5 rounded-full border border-orange-200 shadow-md text-[9px] font-mono font-bold text-[#FF6700] z-20"
             >
               PREDICTIVE PPC
             </motion.div>
@@ -216,7 +216,7 @@ export default function Ai3DVisual({
               animate={{ y: [-4, 4, -4], rotateY: [-5, 5, -5] }}
               transition={{ duration: 4.2, repeat: Infinity, ease: "easeInOut" }}
               style={{ transform: "translateZ(30px)" }}
-              className="relative z-10 w-16 h-16 rounded-2xl bg-gradient-to-tr from-indigo-500 via-[#C0622A] to-emerald-400 p-0.5 shadow-xl shadow-indigo-500/20"
+              className="relative z-10 w-16 h-16 rounded-2xl bg-gradient-to-tr from-indigo-500 via-[#FF6700] to-emerald-400 p-0.5 shadow-xl shadow-indigo-500/20"
             >
               <div className="w-full h-full bg-[#090D16] rounded-2xl flex items-center justify-center p-3">
                 <svg viewBox="0 0 24 24" className="w-8 h-8 text-indigo-400" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -250,7 +250,7 @@ export default function Ai3DVisual({
               animate={{ y: [-4, 4, -4], rotateZ: [-3, 3, -3] }}
               transition={{ duration: 3.8, repeat: Infinity, ease: "easeInOut" }}
               style={{ transform: "translateZ(30px)" }}
-              className="relative z-10 w-16 h-16 rounded-2xl bg-gradient-to-tr from-amber-500 via-[#C0622A] to-teal-500 p-0.5 shadow-xl shadow-amber-500/20"
+              className="relative z-10 w-16 h-16 rounded-2xl bg-gradient-to-tr from-amber-500 via-[#FF6700] to-teal-500 p-0.5 shadow-xl shadow-amber-500/20"
             >
               <div className="w-full h-full bg-[#090D16] rounded-2xl flex items-center justify-center p-3">
                 <svg viewBox="0 0 24 24" className="w-8 h-8 text-amber-400" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -283,7 +283,7 @@ export default function Ai3DVisual({
               animate={{ y: [-4, 4, -4], rotateY: [-5, 5, -5] }}
               transition={{ duration: 4.5, repeat: Infinity, ease: "easeInOut" }}
               style={{ transform: "translateZ(30px)" }}
-              className="relative z-10 w-16 h-16 rounded-2xl bg-gradient-to-tr from-blue-600 via-[#2E8B7A] to-[#C0622A] p-0.5 shadow-xl shadow-blue-500/20"
+              className="relative z-10 w-16 h-16 rounded-2xl bg-gradient-to-tr from-blue-600 via-[#2E8B7A] to-[#FF6700] p-0.5 shadow-xl shadow-blue-500/20"
             >
               <div className="w-full h-full bg-[#090D16] rounded-2xl flex items-center justify-center p-3">
                 <svg viewBox="0 0 24 24" className="w-8 h-8 text-blue-400" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -319,7 +319,7 @@ export default function Ai3DVisual({
           transformStyle: "preserve-3d",
         }}
         className={`w-full h-full rounded-2xl overflow-hidden bg-gradient-to-b from-slate-100/90 via-white to-slate-50/70 border border-slate-200/80 p-3 flex items-center justify-center transition-shadow duration-300 ${
-          isHovered ? "shadow-xl border-[#C0622A]/40" : "shadow-xs"
+          isHovered ? "shadow-xl border-[#FF6700]/40" : "shadow-xs"
         }`}
       >
         {/* Dynamic Light Sheen on Mouse Movement */}
@@ -327,7 +327,7 @@ export default function Ai3DVisual({
           className="absolute inset-0 pointer-events-none transition-opacity duration-300 z-0"
           style={{
             opacity: isHovered ? 0.35 : 0,
-            background: `radial-gradient(220px circle at calc(50% + ${mouseX.get() * 100}%) calc(50% + ${mouseY.get() * 100}%), rgba(192, 98, 42, 0.25), transparent 70%)`,
+            background: `radial-gradient(220px circle at calc(50% + ${mouseX.get() * 100}%) calc(50% + ${mouseY.get() * 100}%), rgba(255,103,0, 0.25), transparent 70%)`,
           }}
         />
 

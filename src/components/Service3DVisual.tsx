@@ -53,22 +53,22 @@ export default function Service3DVisual({
             <motion.div
               animate={{ rotate: 360 }}
               transition={{ duration: 24, repeat: Infinity, ease: "linear" }}
-              className="absolute w-28 h-28 sm:w-32 sm:h-32 rounded-full border border-[#C0622A]/20 border-dashed"
+              className="absolute w-28 h-28 sm:w-32 sm:h-32 rounded-full border border-[#FF6700]/20 border-dashed"
             />
             <motion.div
               animate={{ rotate: -360 }}
               transition={{ duration: 18, repeat: Infinity, ease: "linear" }}
-              className="absolute w-20 h-20 sm:w-24 sm:h-24 rounded-full border border-[#E88C52]/30"
+              className="absolute w-20 h-20 sm:w-24 sm:h-24 rounded-full border border-[#FF6700]/30"
             />
             {/* 3D Megaphone / Bullseye Asset */}
             <motion.div
               animate={{ y: [-4, 4, -4], rotate: [-2, 2, -2] }}
               transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
               style={{ transform: "translateZ(30px)" }}
-              className="relative z-10 w-16 h-16 sm:w-20 sm:h-20 rounded-2xl bg-gradient-to-tr from-[#C0622A] via-[#E88C52] to-[#FF9F68] p-0.5 shadow-lg shadow-orange-500/20 flex items-center justify-center"
+              className="relative z-10 w-16 h-16 sm:w-20 sm:h-20 rounded-2xl bg-gradient-to-tr from-[#FF6700] via-[#FF6700] to-[#FF9F68] p-0.5 shadow-lg shadow-orange-500/20 flex items-center justify-center"
             >
               <div className="w-full h-full bg-[#090D16] rounded-2xl flex items-center justify-center p-3">
-                <svg viewBox="0 0 24 24" className="w-8 h-8 text-[#E88C52]" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <svg viewBox="0 0 24 24" className="w-8 h-8 text-[#FF6700]" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                   <path d="m3 11 18-5v12L3 14v-3z" />
                   <path d="M11.6 16.8a3 3 0 1 1-5.8-1.6" />
                 </svg>
@@ -94,14 +94,14 @@ export default function Service3DVisual({
             <motion.div
               animate={{ rotate: [0, 90, 180, 270, 360] }}
               transition={{ duration: 30, repeat: Infinity, ease: "linear" }}
-              className="absolute w-24 h-24 rounded-2xl bg-gradient-to-br from-[#2E8B7A]/20 via-[#C0622A]/20 to-purple-500/20 blur-md"
+              className="absolute w-24 h-24 rounded-2xl bg-gradient-to-br from-[#2E8B7A]/20 via-[#FF6700]/20 to-purple-500/20 blur-md"
             />
             {/* Floating 3D Palette Stack */}
             <motion.div
               animate={{ y: [-5, 5, -5], rotateZ: [-3, 3, -3] }}
               transition={{ duration: 4.5, repeat: Infinity, ease: "easeInOut" }}
               style={{ transform: "translateZ(30px)" }}
-              className="relative z-10 w-16 h-16 sm:w-20 sm:h-20 rounded-2xl bg-gradient-to-tr from-[#2E8B7A] to-[#C0622A] p-0.5 shadow-lg shadow-teal-500/20"
+              className="relative z-10 w-16 h-16 sm:w-20 sm:h-20 rounded-2xl bg-gradient-to-tr from-[#2E8B7A] to-[#FF6700] p-0.5 shadow-lg shadow-teal-500/20"
             >
               <div className="w-full h-full bg-[#090D16] rounded-2xl flex items-center justify-center p-3">
                 <svg viewBox="0 0 24 24" className="w-8 h-8 text-[#2E8B7A]" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -119,7 +119,7 @@ export default function Service3DVisual({
               className="absolute -bottom-1 -left-1 bg-white/95 backdrop-blur-md px-2 py-1 rounded-full border border-slate-200 shadow-md flex items-center gap-1 z-20"
             >
               <span className="w-2.5 h-2.5 rounded-full bg-[#090D16]" />
-              <span className="w-2.5 h-2.5 rounded-full bg-[#C0622A]" />
+              <span className="w-2.5 h-2.5 rounded-full bg-[#FF6700]" />
               <span className="w-2.5 h-2.5 rounded-full bg-[#2E8B7A]" />
               <span className="text-[9px] font-mono font-bold text-slate-700 ml-1">SYSTEM</span>
             </motion.div>
@@ -134,7 +134,7 @@ export default function Service3DVisual({
               <motion.div
                 animate={{ scale: [0.95, 1.08, 0.95], opacity: [0.3, 0.7, 0.3] }}
                 transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
-                className="w-28 h-28 rounded-full bg-gradient-to-r from-[#C0622A]/20 via-cyan-500/20 to-[#2E8B7A]/20 blur-lg"
+                className="w-28 h-28 rounded-full bg-gradient-to-r from-[#FF6700]/20 via-cyan-500/20 to-[#2E8B7A]/20 blur-lg"
               />
             </div>
             {/* 3D Neural Chip */}
@@ -142,7 +142,7 @@ export default function Service3DVisual({
               animate={{ y: [-4, 4, -4], rotateY: [-5, 5, -5] }}
               transition={{ duration: 3.8, repeat: Infinity, ease: "easeInOut" }}
               style={{ transform: "translateZ(35px)" }}
-              className="relative z-10 w-16 h-16 sm:w-20 sm:h-20 rounded-2xl bg-gradient-to-tr from-cyan-500 via-[#C0622A] to-emerald-400 p-0.5 shadow-xl shadow-cyan-500/20"
+              className="relative z-10 w-16 h-16 sm:w-20 sm:h-20 rounded-2xl bg-gradient-to-tr from-cyan-500 via-[#FF6700] to-emerald-400 p-0.5 shadow-xl shadow-cyan-500/20"
             >
               <div className="w-full h-full bg-[#090D16] rounded-2xl flex items-center justify-center p-3 relative overflow-hidden">
                 <div className="absolute inset-0 bg-[radial-gradient(#2E8B7A_1px,transparent_1px)] [background-size:8px_8px] opacity-30" />
@@ -182,7 +182,7 @@ export default function Service3DVisual({
                 <span className="text-[7px] font-mono text-slate-400 ml-1">page.tsx</span>
               </div>
               <div className="space-y-1 font-mono text-[8px] text-slate-300">
-                <div className="text-[#C0622A]">export default function UI()</div>
+                <div className="text-[#FF6700]">export default function UI()</div>
                 <div className="text-emerald-400 pl-2">&lt;NextApp /&gt;</div>
               </div>
             </motion.div>
@@ -206,7 +206,7 @@ export default function Service3DVisual({
               animate={{ y: [-4, 4, -4], rotate: [-2, 2, -2] }}
               transition={{ duration: 4.2, repeat: Infinity, ease: "easeInOut" }}
               style={{ transform: "translateZ(30px)" }}
-              className="relative z-10 w-16 h-16 sm:w-20 sm:h-20 rounded-2xl bg-gradient-to-tr from-red-500 via-[#C0622A] to-amber-400 p-0.5 shadow-xl shadow-orange-500/20"
+              className="relative z-10 w-16 h-16 sm:w-20 sm:h-20 rounded-2xl bg-gradient-to-tr from-red-500 via-[#FF6700] to-amber-400 p-0.5 shadow-xl shadow-orange-500/20"
             >
               <div className="w-full h-full bg-[#090D16] rounded-2xl flex items-center justify-center p-3">
                 <svg viewBox="0 0 24 24" className="w-8 h-8 text-amber-400" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -240,7 +240,7 @@ export default function Service3DVisual({
               animate={{ y: [-4, 4, -4], rotateY: [-6, 6, -6] }}
               transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
               style={{ transform: "translateZ(30px)" }}
-              className="relative z-10 w-16 h-16 sm:w-20 sm:h-20 rounded-2xl bg-gradient-to-tr from-blue-500 via-[#2E8B7A] to-[#C0622A] p-0.5 shadow-xl shadow-blue-500/20"
+              className="relative z-10 w-16 h-16 sm:w-20 sm:h-20 rounded-2xl bg-gradient-to-tr from-blue-500 via-[#2E8B7A] to-[#FF6700] p-0.5 shadow-xl shadow-blue-500/20"
             >
               <div className="w-full h-full bg-[#090D16] rounded-2xl flex items-center justify-center p-3">
                 <svg viewBox="0 0 24 24" className="w-8 h-8 text-blue-400" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -275,7 +275,7 @@ export default function Service3DVisual({
               animate={{ y: [-4, 4, -4], rotateZ: [-3, 3, -3] }}
               transition={{ duration: 4.5, repeat: Infinity, ease: "easeInOut" }}
               style={{ transform: "translateZ(30px)" }}
-              className="relative z-10 w-16 h-16 sm:w-20 sm:h-20 rounded-2xl bg-gradient-to-tr from-purple-600 via-[#C0622A] to-indigo-400 p-0.5 shadow-xl shadow-purple-500/20"
+              className="relative z-10 w-16 h-16 sm:w-20 sm:h-20 rounded-2xl bg-gradient-to-tr from-purple-600 via-[#FF6700] to-indigo-400 p-0.5 shadow-xl shadow-purple-500/20"
             >
               <div className="w-full h-full bg-[#090D16] rounded-2xl flex items-center justify-center p-3">
                 <svg viewBox="0 0 24 24" className="w-8 h-8 text-purple-400" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -302,17 +302,17 @@ export default function Service3DVisual({
             <motion.div
               animate={{ rotate: 360 }}
               transition={{ duration: 16, repeat: Infinity, ease: "linear" }}
-              className="absolute w-26 h-26 rounded-full border border-[#C0622A]/30"
+              className="absolute w-26 h-26 rounded-full border border-[#FF6700]/30"
             />
             {/* 3D Sales Compass */}
             <motion.div
               animate={{ y: [-4, 4, -4], rotateY: [-5, 5, -5] }}
               transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
               style={{ transform: "translateZ(30px)" }}
-              className="relative z-10 w-16 h-16 sm:w-20 sm:h-20 rounded-2xl bg-gradient-to-tr from-[#C0622A] via-pink-500 to-indigo-500 p-0.5 shadow-xl shadow-orange-500/20"
+              className="relative z-10 w-16 h-16 sm:w-20 sm:h-20 rounded-2xl bg-gradient-to-tr from-[#FF6700] via-pink-500 to-indigo-500 p-0.5 shadow-xl shadow-orange-500/20"
             >
               <div className="w-full h-full bg-[#090D16] rounded-2xl flex items-center justify-center p-3">
-                <svg viewBox="0 0 24 24" className="w-8 h-8 text-[#E88C52]" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <svg viewBox="0 0 24 24" className="w-8 h-8 text-[#FF6700]" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                   <circle cx="12" cy="12" r="10" />
                   <polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76" />
                 </svg>
@@ -321,7 +321,7 @@ export default function Service3DVisual({
             {/* 4-Layer Diagnostic Tag */}
             <motion.div
               style={{ transform: "translateZ(45px)" }}
-              className="absolute -bottom-1 -right-1 bg-[#090D16] text-[#E88C52] border border-[#C0622A]/40 px-2 py-0.5 rounded-full text-[9px] font-mono font-bold shadow-md z-20"
+              className="absolute -bottom-1 -right-1 bg-[#090D16] text-[#FF6700] border border-[#FF6700]/40 px-2 py-0.5 rounded-full text-[9px] font-mono font-bold shadow-md z-20"
             >
               4-LAYER AUDIT
             </motion.div>
@@ -346,7 +346,7 @@ export default function Service3DVisual({
           transformStyle: "preserve-3d",
         }}
         className={`w-full h-full rounded-2xl overflow-hidden bg-gradient-to-b from-slate-100/90 via-white to-slate-50/70 border border-slate-200/80 p-3 sm:p-4 flex items-center justify-center transition-shadow duration-300 ${
-          isHovered ? "shadow-xl border-[#C0622A]/40" : "shadow-xs"
+          isHovered ? "shadow-xl border-[#FF6700]/40" : "shadow-xs"
         }`}
       >
         {/* Dynamic Light Sheen on Mouse Movement */}
@@ -354,7 +354,7 @@ export default function Service3DVisual({
           className="absolute inset-0 pointer-events-none transition-opacity duration-300 z-0"
           style={{
             opacity: isHovered ? 0.35 : 0,
-            background: `radial-gradient(250px circle at calc(50% + ${mouseX.get() * 100}%) calc(50% + ${mouseY.get() * 100}%), rgba(192, 98, 42, 0.25), transparent 70%)`,
+            background: `radial-gradient(250px circle at calc(50% + ${mouseX.get() * 100}%) calc(50% + ${mouseY.get() * 100}%), rgba(255,103,0, 0.25), transparent 70%)`,
           }}
         />
 

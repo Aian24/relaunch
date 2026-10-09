@@ -68,7 +68,7 @@ export default function Work3DShowcase({
           transformStyle: "preserve-3d",
         }}
         className={`relative w-full rounded-2xl overflow-hidden bg-slate-900 border border-slate-800 transition-shadow duration-300 ${
-          isHovered ? "shadow-2xl shadow-orange-950/20 border-[#C0622A]/50" : "shadow-lg"
+          isHovered ? "shadow-2xl shadow-orange-950/20 border-[#FF6700]/50" : "shadow-lg"
         }`}
       >
         {/* Layer 1: 3D Browser Top Window Chrome */}
@@ -85,7 +85,7 @@ export default function Work3DShowcase({
             <span className="text-[#2E8B7A]">https://</span>
             <span>{displayUrl}</span>
           </div>
-          <ExternalLink className="w-3.5 h-3.5 text-slate-400 group-hover:text-[#C0622A] transition-colors" />
+          <ExternalLink className="w-3.5 h-3.5 text-slate-400 group-hover:text-[#FF6700] transition-colors" />
         </div>
 
         {/* Layer 2: 3D Image Canvas Viewport */}
@@ -132,9 +132,9 @@ export default function Work3DShowcase({
               className="absolute bottom-3 right-3 pointer-events-none z-20"
             >
               <div className="px-3 py-1.5 rounded-xl bg-white/95 backdrop-blur-md border border-orange-200/80 shadow-xl flex items-center gap-2">
-                <TrendingUp className="w-3.5 h-3.5 text-[#C0622A] shrink-0" />
+                <TrendingUp className="w-3.5 h-3.5 text-[#FF6700] shrink-0" />
                 <div className="leading-tight">
-                  <span className="font-heading font-black text-xs text-[#C0622A] block">
+                  <span className="font-heading font-black text-xs text-[#FF6700] block">
                     {metricValue}
                   </span>
                   <span className="text-[9px] font-mono text-slate-600 block">

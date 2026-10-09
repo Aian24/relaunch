@@ -71,8 +71,8 @@ export default function Navbar() {
                   <span
                     className={`absolute bottom-0 left-0 right-0 h-[1.5px] rounded-full transition-all duration-200 ${
                       isActive
-                        ? "bg-[#C0622A] opacity-100 scale-x-100"
-                        : "bg-[#C0622A] opacity-0 scale-x-0 group-hover:opacity-70 group-hover:scale-x-100"
+                        ? "bg-[#7F48ED] opacity-100 scale-x-100"
+                        : "bg-[#7F48ED] opacity-0 scale-x-0 group-hover:opacity-70 group-hover:scale-x-100"
                     }`}
                   />
                 </span>
@@ -87,14 +87,14 @@ export default function Navbar() {
             href={contactInfo.phoneTel}
             className="hidden xl:inline-flex items-center gap-2 text-xs text-slate-300 hover:text-white font-mono transition-colors py-1.5 px-2.5 rounded-lg hover:bg-white/[0.05]"
           >
-            <Phone className="w-3.5 h-3.5 text-[#C0622A]" />
+            <Phone className="w-3.5 h-3.5 text-[#FF6700]" />
             <span>{contactInfo.phoneFormatted}</span>
           </a>
 
           <button
             type="button"
             onClick={() => openContactModal({ intent: "strategy-session" })}
-            className="inline-flex items-center justify-center gap-2 px-5 sm:px-6 py-2.5 bg-[#C0622A] hover:bg-[#a84f1d] text-white text-xs font-bold uppercase tracking-wider rounded-xl transition-all duration-200 shadow-[0_0_20px_rgba(192,98,42,0.35)] hover:shadow-[0_0_25px_rgba(192,98,42,0.5)] active:scale-98 cursor-pointer whitespace-nowrap"
+            className="inline-flex items-center justify-center gap-2 px-5 sm:px-6 py-2.5 bg-[#FF6700] hover:bg-[#E55C00] text-white text-xs font-bold uppercase tracking-wider rounded-xl transition-all duration-200 shadow-[0_0_20px_rgba(255,103,0,0.35)] active:scale-98 cursor-pointer whitespace-nowrap"
           >
             <span>Book a Call</span>
             <ArrowUpRight className="w-3.5 h-3.5 text-white" />
@@ -137,12 +137,12 @@ export default function Navbar() {
                       onClick={() => setMobileMenuOpen(false)}
                       className={`flex items-center justify-between px-4 py-3 text-xs font-semibold uppercase tracking-wider rounded-xl transition-colors whitespace-nowrap ${
                         isActive
-                          ? "bg-white/[0.1] text-white border-l-4 border-[#C0622A]"
+                          ? "bg-white/[0.1] text-white border-l-4 border-[#7F48ED]"
                           : "text-slate-300 hover:bg-white/[0.06] hover:text-white"
                       }`}
                     >
                       <span>{link.label}</span>
-                      {isActive && <span className="w-1.5 h-1.5 rounded-full bg-[#C0622A]" />}
+                      {isActive && <span className="w-1.5 h-1.5 rounded-full bg-[#7F48ED]" />}
                     </Link>
                   );
                 })}
@@ -155,7 +155,7 @@ export default function Navbar() {
                     setMobileMenuOpen(false);
                     openContactModal({ intent: "strategy-session" });
                   }}
-                  className="w-full flex items-center justify-center gap-2 py-3 bg-[#C0622A] hover:bg-[#a84f1d] text-white text-xs font-bold uppercase tracking-wider rounded-xl shadow-md whitespace-nowrap"
+                  className="w-full flex items-center justify-center gap-2 py-3 bg-[#FF6700] hover:bg-[#E55C00] text-white text-xs font-bold uppercase tracking-wider rounded-xl shadow-md whitespace-nowrap"
                 >
                   <span>Book a Strategy Call</span>
                   <ArrowUpRight className="w-4 h-4 text-white" />

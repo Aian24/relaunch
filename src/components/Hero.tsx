@@ -113,7 +113,8 @@ export default function Hero() {
         <div className="absolute inset-0 bg-gradient-to-r from-[#07090E]/90 via-[#07090E]/60 to-[#07090E]/20" />
         <div className="absolute inset-0 bg-gradient-to-t from-[#07090E] via-transparent to-[#07090E]/50" />
 
-        <div className="absolute -top-32 left-1/4 w-[600px] h-[500px] bg-[#C0622A]/15 rounded-full blur-[140px] pointer-events-none" />
+        <div className="absolute -top-32 left-1/4 w-[600px] h-[500px] bg-[#FF6700]/15 rounded-full blur-[140px] pointer-events-none" />
+        <div className="absolute top-1/4 right-0 w-[550px] h-[500px] bg-[#7F48ED]/20 rounded-full blur-[150px] pointer-events-none" />
       </div>
 
       {/* Main Clean Hero Content - Center-aligned on mobile, flushed left on sm+ */}
@@ -123,9 +124,9 @@ export default function Hero() {
           initial={{ opacity: 0, y: 14 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
-          className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-white/[0.08] border border-white/[0.12] text-[#C0622A] text-xs font-mono uppercase tracking-widest font-semibold mb-6 shadow-xs whitespace-nowrap mx-auto sm:mx-0"
+          className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-white/[0.08] border border-white/[0.12] text-[#FF6700] text-xs font-mono uppercase tracking-widest font-semibold mb-6 shadow-xs whitespace-nowrap mx-auto sm:mx-0"
         >
-          <span className="w-2 h-2 rounded-full bg-[#C0622A] shrink-0" />
+          <span className="w-2 h-2 rounded-full bg-[#FF6700] shadow-[0_0_8px_#FF6700] shrink-0" />
           <span>Phoenix, AZ · Est. 2004</span>
         </motion.div>
 
@@ -137,7 +138,7 @@ export default function Hero() {
           className="font-heading font-black text-3xl sm:text-5xl md:text-6xl lg:text-7xl xl:text-[80px] tracking-tight leading-[1.06] text-white text-center sm:text-left"
         >
           <span className="block whitespace-normal sm:whitespace-nowrap">Your Business Deserves</span>
-          <span className="block text-[#C0622A] whitespace-normal sm:whitespace-nowrap">a Full Marketing Team.</span>
+          <span className="block text-[#FF6700] whitespace-normal sm:whitespace-nowrap">a Full Marketing Team.</span>
         </motion.h1>
 
         {/* Subtitle */}
@@ -159,7 +160,7 @@ export default function Hero() {
         >
           <button
             onClick={() => handleScrollToSection("services")}
-            className="flex-1 sm:flex-initial inline-flex items-center justify-center gap-1.5 sm:gap-2 px-3.5 sm:px-6 py-3 sm:py-3.5 rounded-xl bg-[#C0622A] hover:bg-[#a84f1d] text-white font-heading font-bold text-[11px] sm:text-sm uppercase tracking-wider transition-all duration-200 shadow-[0_0_25px_rgba(192,98,42,0.35)] cursor-pointer active:scale-98 whitespace-nowrap"
+            className="flex-1 sm:flex-initial inline-flex items-center justify-center gap-1.5 sm:gap-2 px-3.5 sm:px-6 py-3 sm:py-3.5 rounded-xl bg-[#FF6700] hover:bg-[#E55C00] text-white font-heading font-bold text-[11px] sm:text-sm uppercase tracking-wider transition-all duration-200 shadow-[0_0_25px_rgba(255,103,0,0.35)] cursor-pointer active:scale-98 whitespace-nowrap"
           >
             <span>Explore Services</span>
             <ArrowRight className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
@@ -169,7 +170,7 @@ export default function Hero() {
             onClick={() => openContactModal({ intent: "strategy-session" })}
             className="flex-1 sm:flex-initial inline-flex items-center justify-center gap-1.5 sm:gap-2 px-3.5 sm:px-6 py-3 sm:py-3.5 rounded-xl bg-white/[0.08] hover:bg-white/[0.15] border border-white/20 text-white font-heading font-bold text-[11px] sm:text-sm uppercase tracking-wider transition-all duration-200 backdrop-blur-md cursor-pointer whitespace-nowrap"
           >
-            <PhoneCall className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-[#C0622A]" />
+            <PhoneCall className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-[#FF6700]" />
             <span>Book Strategy Call</span>
           </button>
         </motion.div>
@@ -181,7 +182,7 @@ export default function Hero() {
           transition={{ duration: 0.6, delay: 0.3, ease: [0.16, 1, 0.3, 1] }}
           className="mt-8 pt-5 border-t border-white/[0.1] flex flex-wrap items-center justify-center sm:justify-start gap-x-4 gap-y-2 text-xs text-slate-300 max-w-4xl text-center sm:text-left mx-auto sm:mx-0 w-full"
         >
-          <span className="text-[11px] font-mono uppercase tracking-widest text-[#C0622A] font-bold whitespace-nowrap">
+          <span className="text-[11px] font-mono uppercase tracking-widest text-[#FF6700] font-bold whitespace-nowrap">
             Tailored For:
           </span>
           <div className="flex flex-wrap items-center justify-center sm:justify-start gap-x-3 sm:gap-x-4 gap-y-1.5 text-xs text-slate-300 font-medium">
@@ -241,7 +242,7 @@ export default function Hero() {
             className="inline-flex items-center gap-2 text-[11px] uppercase font-mono tracking-widest text-slate-400 hover:text-white transition-colors cursor-pointer group"
           >
             <span>Scroll to explore</span>
-            <ChevronDown className="w-3.5 h-3.5 animate-bounce group-hover:text-[#C0622A]" />
+            <ChevronDown className="w-3.5 h-3.5 animate-bounce group-hover:text-[#FF6700]" />
           </button>
         </motion.div>
       </div>

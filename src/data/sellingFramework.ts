@@ -70,7 +70,7 @@ export const sellingFrameworkLayers: SellingLayer[] = [
     weightPercent: "35%",
     role: "Positions customer as the hero, defines their urgent problem, establishes ReLaunch as guide with a clear plan and direct call to action.",
     whereItApplies: "Website architecture, landing pages, direct-response ad copy, core headlines",
-    color: "#C0622A",
+    color: "#FF6700",
   },
   {
     layer: "Hero's Journey Narrative",
@@ -86,7 +86,7 @@ export const sellingFrameworkLayers: SellingLayer[] = [
     weightPercent: "25%",
     role: "One big emotional idea per campaign; captures attention immediately by selling the feeling and business outcome, not a sterile feature checklist.",
     whereItApplies: "Campaign concepts, creative direction, high-impact hooks and taglines",
-    color: "#C0622A",
+    color: "#FF6700",
   },
   {
     layer: "Archetype Consistency",

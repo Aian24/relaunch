@@ -240,8 +240,8 @@ export default function ContactModal() {
         {/* Modal Header */}
         <div className="shrink-0 bg-white text-slate-900 p-5 sm:p-6 flex items-start justify-between border-b border-slate-100">
           <div>
-            <div className="inline-flex items-center gap-2 px-2.5 py-0.5 rounded-full bg-orange-50 border border-orange-200/80 text-[#C0622A] text-[9.5px] font-mono font-bold uppercase tracking-widest mb-1.5">
-              <span className="w-1.5 h-1.5 rounded-full bg-[#C0622A]" />
+            <div className="inline-flex items-center gap-2 px-2.5 py-0.5 rounded-full bg-orange-50 border border-orange-200/80 text-[#FF6700] text-[9.5px] font-mono font-bold uppercase tracking-widest mb-1.5">
+              <span className="w-1.5 h-1.5 rounded-full bg-[#FF6700]" />
               <span>
                 {activeTab === "calendar"
                   ? "GOOGLE CALENDAR STRATEGY SESSION"
@@ -278,14 +278,14 @@ export default function ContactModal() {
             onClick={() => setActiveTab("form")}
             className={`relative py-2.5 sm:py-3 text-xs sm:text-sm font-bold flex items-center gap-2 transition-colors cursor-pointer whitespace-nowrap ${
               activeTab === "form"
-                ? "text-[#C0622A]"
+                ? "text-[#FF6700]"
                 : "text-slate-500 hover:text-[#090D16]"
             }`}
           >
-            <Send className={`w-3.5 h-3.5 ${activeTab === "form" ? "text-[#C0622A]" : "text-slate-400"}`} />
+            <Send className={`w-3.5 h-3.5 ${activeTab === "form" ? "text-[#FF6700]" : "text-slate-400"}`} />
             <span>Send a Message / Start Project</span>
             {activeTab === "form" && (
-              <span className="absolute bottom-0 left-0 right-0 h-0.5 bg-[#C0622A]" />
+              <span className="absolute bottom-0 left-0 right-0 h-0.5 bg-[#FF6700]" />
             )}
           </button>
 
@@ -294,14 +294,14 @@ export default function ContactModal() {
             onClick={() => setActiveTab("ai-audit")}
             className={`relative py-2.5 sm:py-3 text-xs sm:text-sm font-bold flex items-center gap-2 transition-colors cursor-pointer whitespace-nowrap ${
               activeTab === "ai-audit"
-                ? "text-[#C0622A]"
+                ? "text-[#FF6700]"
                 : "text-slate-500 hover:text-[#090D16]"
             }`}
           >
-            <Bot className={`w-3.5 h-3.5 ${activeTab === "ai-audit" ? "text-[#C0622A]" : "text-slate-400"}`} />
+            <Bot className={`w-3.5 h-3.5 ${activeTab === "ai-audit" ? "text-[#FF6700]" : "text-slate-400"}`} />
             <span>Book an AI Audit</span>
             {activeTab === "ai-audit" && (
-              <span className="absolute bottom-0 left-0 right-0 h-0.5 bg-[#C0622A]" />
+              <span className="absolute bottom-0 left-0 right-0 h-0.5 bg-[#FF6700]" />
             )}
           </button>
 
@@ -310,14 +310,14 @@ export default function ContactModal() {
             onClick={() => setActiveTab("calendar")}
             className={`relative py-2.5 sm:py-3 text-xs sm:text-sm font-bold flex items-center gap-2 transition-colors cursor-pointer whitespace-nowrap ${
               activeTab === "calendar"
-                ? "text-[#C0622A]"
+                ? "text-[#FF6700]"
                 : "text-slate-500 hover:text-[#090D16]"
             }`}
           >
-            <Calendar className={`w-3.5 h-3.5 ${activeTab === "calendar" ? "text-[#C0622A]" : "text-slate-400"}`} />
+            <Calendar className={`w-3.5 h-3.5 ${activeTab === "calendar" ? "text-[#FF6700]" : "text-slate-400"}`} />
             <span>Live Calendar Slot</span>
             {activeTab === "calendar" && (
-              <span className="absolute bottom-0 left-0 right-0 h-0.5 bg-[#C0622A]" />
+              <span className="absolute bottom-0 left-0 right-0 h-0.5 bg-[#FF6700]" />
             )}
           </button>
         </div>
@@ -334,7 +334,7 @@ export default function ContactModal() {
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <div>
                 <label className="block text-[10.5px] font-bold uppercase tracking-wider text-slate-700 mb-1">
-                  Full Name <span className="text-[#C0622A]">*</span>
+                  Full Name <span className="text-[#FF6700]">*</span>
                 </label>
                 <input
                   type="text"
@@ -343,13 +343,13 @@ export default function ContactModal() {
                   placeholder="Jane Smith"
                   value={formData.name}
                   onChange={handleChange}
-                  className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs sm:text-sm text-slate-900 focus:bg-white focus:border-[#C0622A] focus:ring-2 focus:ring-[#C0622A]/15 focus:outline-none transition-all"
+                  className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs sm:text-sm text-slate-900 focus:bg-white focus:border-[#FF6700] focus:ring-2 focus:ring-[#FF6700]/15 focus:outline-none transition-all"
                 />
               </div>
 
               <div>
                 <label className="block text-[10.5px] font-bold uppercase tracking-wider text-slate-700 mb-1">
-                  Work Email <span className="text-[#C0622A]">*</span>
+                  Work Email <span className="text-[#FF6700]">*</span>
                 </label>
                 <input
                   type="email"
@@ -358,7 +358,7 @@ export default function ContactModal() {
                   placeholder="jane@business.com"
                   value={formData.email}
                   onChange={handleChange}
-                  className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs sm:text-sm text-slate-900 focus:bg-white focus:border-[#C0622A] focus:ring-2 focus:ring-[#C0622A]/15 focus:outline-none transition-all"
+                  className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs sm:text-sm text-slate-900 focus:bg-white focus:border-[#FF6700] focus:ring-2 focus:ring-[#FF6700]/15 focus:outline-none transition-all"
                 />
               </div>
             </div>
@@ -375,7 +375,7 @@ export default function ContactModal() {
                   placeholder="480-779-9875"
                   value={formData.phone}
                   onChange={handleChange}
-                  className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs sm:text-sm text-slate-900 focus:bg-white focus:border-[#C0622A] focus:ring-2 focus:ring-[#C0622A]/15 focus:outline-none transition-all"
+                  className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs sm:text-sm text-slate-900 focus:bg-white focus:border-[#FF6700] focus:ring-2 focus:ring-[#FF6700]/15 focus:outline-none transition-all"
                 />
               </div>
 
@@ -389,7 +389,7 @@ export default function ContactModal() {
                   placeholder="Your Company LLC"
                   value={formData.business}
                   onChange={handleChange}
-                  className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs sm:text-sm text-slate-900 focus:bg-white focus:border-[#C0622A] focus:ring-2 focus:ring-[#C0622A]/15 focus:outline-none transition-all"
+                  className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs sm:text-sm text-slate-900 focus:bg-white focus:border-[#FF6700] focus:ring-2 focus:ring-[#FF6700]/15 focus:outline-none transition-all"
                 />
               </div>
             </div>
@@ -411,12 +411,12 @@ export default function ContactModal() {
 
             {/* Calendar-Specific Google Calendar Schedule Section */}
             {activeTab === "calendar" && (
-              <div className="p-3 sm:p-4 bg-orange-50/70 rounded-2xl border border-[#C0622A]/30 space-y-2.5">
+              <div className="p-3 sm:p-4 bg-orange-50/70 rounded-2xl border border-[#FF6700]/30 space-y-2.5">
                 <div className="flex items-center justify-between">
                   <span className="text-xs font-bold text-slate-900">
                     Instant Google Calendar Confirmation (30 Min)
                   </span>
-                  <span className="text-[9.5px] font-mono font-bold uppercase tracking-wider px-2 py-0.5 rounded-full bg-[#C0622A] text-white">
+                  <span className="text-[9.5px] font-mono font-bold uppercase tracking-wider px-2 py-0.5 rounded-full bg-[#FF6700] text-white">
                     Free Session
                   </span>
                 </div>
@@ -478,8 +478,8 @@ export default function ContactModal() {
                           }
                           className={`py-1 px-1 rounded-lg text-[10px] font-bold text-center transition-all cursor-pointer truncate ${
                             isSelected
-                              ? "bg-[#C0622A] text-white shadow-xs font-black"
-                              : "bg-white text-slate-700 border border-orange-200/80 hover:border-[#C0622A] hover:bg-orange-50"
+                              ? "bg-[#FF6700] text-white shadow-xs font-black"
+                              : "bg-white text-slate-700 border border-orange-200/80 hover:border-[#FF6700] hover:bg-orange-50"
                           }`}
                         >
                           {slot.replace(" MST", "")}
@@ -504,7 +504,7 @@ export default function ContactModal() {
                 placeholder="A few sentences about your business goals, timeline, or current challenges..."
                 value={formData.message}
                 onChange={handleChange}
-                className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs sm:text-sm text-slate-900 focus:bg-white focus:border-[#C0622A] focus:ring-2 focus:ring-[#C0622A]/15 focus:outline-none transition-all resize-none"
+                className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs sm:text-sm text-slate-900 focus:bg-white focus:border-[#FF6700] focus:ring-2 focus:ring-[#FF6700]/15 focus:outline-none transition-all resize-none"
               />
             </div>
 
@@ -513,7 +513,7 @@ export default function ContactModal() {
               <button
                 type="submit"
                 disabled={isSubmitting}
-                className="w-full flex items-center justify-center gap-2 px-5 py-3 bg-[#C0622A] hover:bg-[#a84f1d] disabled:opacity-60 text-white font-heading font-bold text-xs uppercase tracking-wider rounded-xl transition-all shadow-md active:translate-y-0.5 cursor-pointer"
+                className="w-full flex items-center justify-center gap-2 px-5 py-3 bg-[#FF6700] hover:bg-[#E55C00] disabled:opacity-60 text-white font-heading font-bold text-xs uppercase tracking-wider rounded-xl transition-all shadow-md active:translate-y-0.5 cursor-pointer"
               >
                 {isSubmitting ? (
                   <span>Reserving Your Slot...</span>
@@ -537,15 +537,15 @@ export default function ContactModal() {
           <div className="mt-3.5 pt-3 border-t border-slate-200 grid grid-cols-1 sm:grid-cols-3 gap-2.5 text-center sm:text-left">
             <a
               href="tel:4807799875"
-              className="flex items-center justify-center sm:justify-start gap-1.5 text-xs font-semibold text-slate-700 hover:text-[#C0622A] transition-colors"
+              className="flex items-center justify-center sm:justify-start gap-1.5 text-xs font-semibold text-slate-700 hover:text-[#FF6700] transition-colors"
             >
-              <Phone className="w-3.5 h-3.5 text-[#C0622A] shrink-0" />
+              <Phone className="w-3.5 h-3.5 text-[#FF6700] shrink-0" />
               <span>(480) 779-9875</span>
             </a>
 
             <a
               href="mailto:care@relaunch.us"
-              className="flex items-center justify-center sm:justify-start gap-1.5 text-xs font-semibold text-slate-700 hover:text-[#C0622A] transition-colors"
+              className="flex items-center justify-center sm:justify-start gap-1.5 text-xs font-semibold text-slate-700 hover:text-[#FF6700] transition-colors"
             >
               <Mail className="w-3.5 h-3.5 text-[#2E8B7A] shrink-0" />
               <span>care@relaunch.us</span>

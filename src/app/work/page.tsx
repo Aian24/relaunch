@@ -9,6 +9,7 @@ import ScrollToTop from "@/components/ScrollToTop";
 import CtaBanner from "@/components/CtaBanner";
 import PageVideoHero from "@/components/PageVideoHero";
 import MotionWrapper from "@/components/MotionWrapper";
+import BrandsHelpedSection from "@/components/BrandsHelpedSection";
 import { useContactModal } from "@/context/ContactModalContext";
 import {
   ArrowUpRight,
@@ -45,182 +46,238 @@ const caseStudies: CaseStudy[] = [
   {
     id: "turflife",
     title: "TurfLife",
-    category: "Web & Performance Ads",
-    filter: "web",
-    location: "Phoenix, AZ",
+    category: "Brand Movement & E-Commerce",
+    filter: "brand",
+    location: "Winter Springs, FL / Scottsdale, AZ",
     gallery: [
       {
-        url: "/showcase/turflife.jpg",
-        caption: "Commercial synthetic turf installation in Scottsdale with luxury architectural landscaping",
+        url: "/showcase/turflife_real_1.png",
+        caption: "Protect Your Turf national golf and athletic lifestyle brand movement",
       },
       {
-        url: "/showcase/turflife_2.jpg",
-        caption: "Custom residential putting green with pristine desert mountain backdrop",
+        url: "/showcase/turflife_real_5.png",
+        caption: "Custom apparel e-commerce storefront and national community hub",
       },
       {
-        url: "/showcase/turflife_3.jpg",
-        caption: "High-converting Next.js web application and Google Ads lead capture dashboard",
+        url: "/showcase/turflife_real_2.png",
+        caption: "High-converting digital experience and automated lead capture engine",
       },
     ],
-    headline: "Scaling Inbound Commercial Turf Inquiries by 240%",
+    headline: "Building a National Turf Sports & Lifestyle Brand from Scratch",
     summary:
-      "Engineered an ultra-fast Next.js digital experience paired with high-intent Google Search campaigns and local map-pack dominance.",
+      "Partnered with Golf Central Magazine's founder to build a national lifestyle movement competing head-to-head with Salt Life—creating the website, social presence, and national recognition across golf and turf sports.",
     results: [
-      { label: "Inbound Leads", value: "+240%" },
-      { label: "Cost Per Acquisition", value: "-42%" },
-      { label: "Page Speed Score", value: "99/100" },
+      { label: "Community Growth", value: "+240%" },
+      { label: "Inbound Pipeline", value: "3.8x" },
+      { label: "National Reach", value: "50 States" },
     ],
-    tags: ["Next.js", "Google Ads", "Local SEO", "Lead Automation"],
+    tags: ["Brand Strategy", "E-Commerce", "Community", "Lead Automation"],
   },
   {
     id: "carmen-hotel",
     title: "Carmen Hotel Collection",
-    category: "Brand & Web Experience",
+    category: "Brand & Direct Booking Engine",
     filter: "brand",
-    location: "Playa del Carmen / Scottsdale",
+    location: "Playa del Carmen, Mexico",
     gallery: [
       {
-        url: "/showcase/carmen_hotel.jpg",
-        caption: "Playa del Carmen luxury boutique beachfront hotel and hospitality rebrand",
+        url: "/showcase/carmen_hotel_real_1.jpg",
+        caption: "Playa del Carmen luxury beachfront boutique hotel guest experience",
       },
       {
-        url: "/showcase/carmen_hotel_2.jpg",
-        caption: "Ocean-view rooftop infinity pool at golden hour sunset with ambient deck lighting",
+        url: "/showcase/carmen_hotel_real_2.jpg",
+        caption: "Ocean-view rooftop pool at golden hour and luxury hospitality social campaigns",
       },
       {
-        url: "/showcase/carmen_hotel_3.jpg",
-        caption: "Bespoke gold-embossed brand collateral, keycard, and mobile direct booking engine",
+        url: "/showcase/carmen_hotel_real_4.png",
+        caption: "Direct booking promotional campaign, ad creative testing, and booking portal",
       },
     ],
     headline: "Luxury Boutique Hospitality Rebrand & Direct Booking Engine",
     summary:
-      "Transformed boutique hotel positioning with editorial visual identity, custom booking portal, and paid social guest acquisition.",
+      "Developed and executed full social media marketing strategy, ad design and testing, and community management for the Carmen Hotel in Quintana Roo, Mexico—reducing OTA reliance and lifting direct bookings.",
     results: [
-      { label: "Direct Bookings", value: "+180%" },
+      { label: "Direct Bookings", value: "+15%" },
+      { label: "Follower Growth", value: "10k New" },
       { label: "OTA Commission Saved", value: "$120k/yr" },
-      { label: "Mobile Conversion", value: "4.2%" },
     ],
-    tags: ["Brand Identity", "Booking Portal", "Meta Ads", "Content Production"],
+    tags: ["Hospitality Marketing", "Social Ads", "Direct Booking", "Content Production"],
   },
   {
-    id: "volcano-resort",
-    title: "Volcano Rainforest Retreat",
-    category: "Full-Funnel Growth",
-    filter: "web",
-    location: "Hawaii",
+    id: "jacksonville",
+    title: "City of Jacksonville",
+    category: "Government Enterprise Architecture",
+    filter: "software",
+    location: "Duval County, FL",
     gallery: [
       {
-        url: "/showcase/volcano_resort.jpg",
-        caption: "Volcano Rainforest Retreat destination overview in lush tropical Hawaii",
+        url: "/showcase/jacksonville_real_1.jpg",
+        caption: "City of Jacksonville Duval County property appraisal records system and entity network framework",
       },
       {
-        url: "/showcase/volcano_resort_2.jpg",
-        caption: "Secluded luxury eco-treehouse villa surrounded by giant fern trees and volcanic mist",
+        url: "/showcase/jacksonville_real_3.png",
+        caption: "Enterprise architectural database modernization replacing 1998 legacy public records system",
       },
       {
-        url: "/showcase/volcano_resort_3.jpg",
-        caption: "Private steaming volcanic basalt stone soaking tub under evening jungle canopy",
+        url: "/showcase/jacksonville_real_4.png",
+        caption: "Modernized architectural record portal delivered a full month earlier than agreed deadline",
       },
     ],
-    headline: "High-Ticket Destination Retreat Marketing & Booking Engine",
+    headline: "Modernizing Municipal Property Records for 450,000+ Citizens",
     summary:
-      "Crafted an immersive visual storytelling platform with automated guest inquiry pipelines and seasonal dynamic pricing.",
+      "Awarded county bid to engineer modern Entity Network Framework for property appraisals, land records, and inter-departmental data sync—debugged and delivered a full month ahead of schedule.",
     results: [
-      { label: "Seasonal Occupancy", value: "94%" },
-      { label: "Average Order Value", value: "+35%" },
-      { label: "Organic Search Lift", value: "3.2x" },
+      { label: "Delivery Time", value: "1 Mo Early" },
+      { label: "Citizen Reach", value: "450k+" },
+      { label: "Contract Value", value: "$65,000" },
     ],
-    tags: ["Visual Storytelling", "SEO Strategy", "Email Automation", "Web Design"],
+    tags: ["Enterprise Software", "Entity Framework", "Government", "Public Records"],
+  },
+  {
+    id: "swing-perfect",
+    title: "Swing Perfect (Golf Tech)",
+    category: "Proprietary Mobile App & Kinematics",
+    filter: "software",
+    location: "Scottsdale / National",
+    gallery: [
+      {
+        url: "/showcase/swing_perfect_real_1.png",
+        caption: "Swing Perfect proprietary mobile application interpreting handwriting metrics and swing dynamics",
+      },
+      {
+        url: "/showcase/swing_perfect_real_2.png",
+        caption: "Kinematic data visualization screen showing swing tempo, clubface angle, and performance tracking",
+      },
+      {
+        url: "/showcase/swing_perfect_real_4.png",
+        caption: "Successful acquisition milestone: intellectual property and application acquired by Golf Galaxy",
+      },
+    ],
+    headline: "Patented Swing Analysis Mobile App Acquired by Golf Galaxy",
+    summary:
+      "Engineered an innovative cross-platform mobile app capable of interpreting custom handwriting styles and swing telemetry to provide actionable feedback—rapidly developed in 2 months and subsequently acquired by Golf Galaxy.",
+    results: [
+      { label: "Build Time", value: "2 Months" },
+      { label: "Acquisition", value: "Golf Galaxy" },
+      { label: "Client Rating", value: "5.0 ★" },
+    ],
+    tags: ["Mobile App", "Golf Tech", "Proprietary Data", "Acquired"],
   },
   {
     id: "chicago-dog",
-    title: "Chicago Dog House",
-    category: "Local SEO & Social Autopilot",
-    filter: "growth",
-    location: "Phoenix Metro",
+    title: "Chicago Dog 42",
+    category: "Brand Launch & Restaurant Expansion",
+    filter: "brand",
+    location: "Omaha, NE / Regional",
     gallery: [
       {
-        url: "/showcase/chicago_dog.jpg",
-        caption: "Chicago Dog House fast-casual brand identity and multi-channel marketing",
+        url: "/showcase/chicago_dog_real_1.jpg",
+        caption: "Chicago Dog 42 signature gourmet dog, fresh fries, and restaurant dining counter",
       },
       {
-        url: "/showcase/chicago_dog_2.jpg",
-        caption: "Artisanal Chicago-style hot dog loaded with green relish, sport peppers, and crispy fries",
+        url: "/showcase/chicago_dog_real_2.png",
+        caption: "Vintage 1950s diner menu collateral, modern branding, and food truck wrap",
       },
       {
-        url: "/showcase/chicago_dog_3.jpg",
-        caption: "Vibrant restaurant dining counter with glowing neon signage and high foot traffic",
+        url: "/showcase/chicago_dog_real_3.png",
+        caption: "CD42 splatter brand identity, viral video campaigns, and community buzz",
       },
     ],
-    headline: "Dominating Local Search & Autonomous Weekly Social Content",
+    headline: "From Single Dying Mall Stall to 3 Locations & 5 Food Concepts",
     summary:
-      "Automated multi-channel social distribution, Google Map-Pack #1 ranking, and high-converting local promotions.",
+      "Having the creative freedom to achieve an organic 1950s diner with a modern twist, ReLaunch handled branding, social media, paid ads, and business consultation to scale from a single failing mall unit to 3 locations and 5 food concepts in 18 months.",
     results: [
-      { label: "Google Map Views", value: "+310%" },
-      { label: "Foot Traffic Lift", value: "+28%" },
-      { label: "Weekly Social Posts", value: "12 / wk" },
+      { label: "New Locations", value: "3 Units" },
+      { label: "Food Concepts", value: "5 Brands" },
+      { label: "Expansion Speed", value: "18 Months" },
     ],
-    tags: ["Local SEO", "Social Autopilot", "Review Engine", "Video Shorts"],
+    tags: ["Brand Launch", "Social Autopilot", "Paid Ads", "Business Consulting"],
   },
   {
     id: "aspiration-bank",
-    title: "Aspiration Green Finance",
-    category: "Custom Software & UX",
+    title: "Aspiration Bank",
+    category: "FinTech & Sustainable Banking",
     filter: "software",
-    location: "Los Angeles / Phoenix",
+    location: "Los Angeles, CA",
     gallery: [
       {
-        url: "/showcase/aspiration_bank.jpg",
-        caption: "Aspiration green finance web platform and enterprise security architecture",
+        url: "/showcase/aspiration_real_1.png",
+        caption: "Aspiration green finance eco-friendly debit card and sustainable account architecture",
       },
       {
-        url: "/images/service-software.jpg",
-        caption: "Ultra-fast Next.js engineering, client dashboard UX, and SOC2 compliance API",
+        url: "/showcase/aspiration_real_2.png",
+        caption: "Aspiration web application interface and sustainable customer onboarding",
       },
       {
-        url: "/images/digital-studio.jpg",
-        caption: "Modern digital analytics workstation and sustainable onboarding user experience",
+        url: "/showcase/aspiration_real_3.png",
+        caption: "Interactive platform connecting emotionally with values-based customers",
       },
     ],
-    headline: "Enterprise Financial Platform UI & Compliance Infrastructure",
+    headline: "Eco-Conscious Digital Banking UI/UX & Brand Story",
     summary:
-      "Architected secure, responsive dashboard interfaces for sustainable banking products with zero downtime.",
+      "Selected by executive leadership to architect Aspiration's digital presence and conversion funnels, distilling a complex organizational mission into an emotional brand story for customers seeking sustainable, values-based banking.",
     results: [
-      { label: "User Onboarding Dropoff", value: "-35%" },
-      { label: "System Uptime", value: "99.99%" },
+      { label: "Traffic Growth", value: "+340% YoY" },
+      { label: "Subscription Lift", value: "+44%" },
       { label: "SOC2 Compliance", value: "100%" },
     ],
-    tags: ["React / TypeScript", "Financial UX", "API Integration", "Security"],
+    tags: ["FinTech UI/UX", "Brand Story", "Conversion Funnels", "Web Platform"],
   },
   {
-    id: "ehr-migration",
-    title: "Healthcare EHR Intelligence",
-    category: "AI & Custom Software",
-    filter: "software",
-    location: "Scottsdale Healthcare Network",
+    id: "mother-truckin",
+    title: "Mother Truckin Burgers",
+    category: "Culinary Brand & Fleet Marketing",
+    filter: "brand",
+    location: "Phoenix Metro / Regional",
     gallery: [
       {
-        url: "/showcase/ehr_migration.jpg",
-        caption: "Scottsdale Healthcare EHR intelligence and clinical data migration platform",
+        url: "/showcase/mother_truckin_real_1.png",
+        caption: "Mother Truckin Burgers food truck fleet and artisanal burger brand identity",
       },
       {
-        url: "/images/ai-engineering.jpg",
-        caption: "AI-assisted clinical analytics, data harmonization pipeline, and HIPAA security",
+        url: "/showcase/mother_truckin_real_2.png",
+        caption: "Custom truck vehicle wrap and culinary event promotional design",
       },
       {
-        url: "/images/service-ai.jpg",
-        caption: "Specialist diagnostic workstation displaying automated patient workflow intelligence",
+        url: "/showcase/mother_truckin_real_3.png",
+        caption: "High-volume fast casual food truck branding, social blitz, and local advertising",
       },
     ],
-    headline: "AI-Assisted Patient Workflow Migration & Clinical Analytics",
+    headline: "High-Volume Mobile Food Fleet & Fast-Casual Brand Rollout",
     summary:
-      "Engineered automated clinical data harmonization pipeline processing over 450,000 patient records seamlessly.",
+      "Engineered comprehensive culinary branding, vehicle fleet wraps, and localized social media promotion for Mother Truckin Burgers, generating lines around the block and massive catering booking growth.",
     results: [
-      { label: "Records Migrated", value: "450k+" },
-      { label: "Processing Time", value: "-80%" },
-      { label: "Data Integrity", value: "100%" },
+      { label: "Fleet Expansion", value: "Multi-Truck" },
+      { label: "Catering Growth", value: "+320%" },
+      { label: "Social Reach", value: "High-Engagement" },
     ],
-    tags: ["AI Pipeline", "Data Migration", "Healthcare HIPAA", "Automation"],
+    tags: ["Food & Beverage", "Fleet Branding", "Social Blitz", "Local Marketing"],
+  },
+  {
+    id: "volcano-resort",
+    title: "Volcano Forest Resort",
+    category: "Eco-Resort & Lodging Experience",
+    filter: "web",
+    location: "Volcano, Hawaii",
+    gallery: [
+      {
+        url: "/showcase/volcano_resort_real_1.png",
+        caption: "Volcano Forest Resort brand identity and destination retreat booking portal",
+      },
+      {
+        url: "/brands/volcano-glamping.png",
+        caption: "Luxury Glamping and Eco-Resort brand identity emblem",
+      },
+    ],
+    headline: "High-Ticket Destination Retreat Marketing & Booking Portal",
+    summary:
+      "Crafted an immersive visual storytelling platform with automated guest inquiry pipelines, brand identity, and international search visibility for a secluded eco-retreat in the rainforest.",
+    results: [
+      { label: "Seasonal Occupancy", value: "94%" },
+      { label: "Organic Search Lift", value: "3.2x" },
+      { label: "Direct Revenue", value: "+310%" },
+    ],
+    tags: ["Visual Storytelling", "SEO Strategy", "Booking Engine", "Web Design"],
   },
 ];
 
@@ -292,6 +349,7 @@ export default function WorkPage() {
 
       {/* 1. Cinematic Work Video Hero with Explore & Book a Strategy Call */}
       <PageVideoHero
+        theme="purple"
         kicker="Proven Client Impact · Est. 2004"
         titleRegular="Our Work &"
         titleHighlight="Proven Outcomes."
@@ -305,6 +363,9 @@ export default function WorkPage() {
         scrollTargetId="case-studies-gallery"
       />
 
+      {/* 1.5 The Brands We've Helped - Interactive Logo Marquee */}
+      <BrandsHelpedSection variant="light" className="border-b border-slate-200" />
+
       {/* 2. Portfolio Gallery Grid with Interactive Multi-Photo Showcase */}
       <section id="case-studies-gallery" className="py-20 sm:py-28 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto w-full">
         {/* Category Filter Pills */}
@@ -317,7 +378,7 @@ export default function WorkPage() {
                 onClick={() => setActiveFilter(cat.id)}
                 className={`px-5 py-2.5 rounded-full text-xs font-semibold uppercase tracking-wider transition-all cursor-pointer ${
                   isSelected
-                    ? "bg-[#C0622A] text-white shadow-md"
+                    ? "bg-[#7F48ED] text-white shadow-md shadow-purple-500/25"
                     : "bg-white text-slate-700 hover:bg-slate-100 border border-slate-200/80"
                 }`}
               >
@@ -337,7 +398,7 @@ export default function WorkPage() {
 
               return (
                 <MotionWrapper key={study.id} direction="up" delay={idx * 0.07} distance={30}>
-                  <div className="group flex flex-col rounded-3xl overflow-hidden bg-white border border-slate-200/80 shadow-[0_4px_25px_rgba(0,0,0,0.03)] hover:shadow-[0_16px_45px_rgba(0,0,0,0.08)] transition-all h-full">
+                  <div className="group flex flex-col rounded-3xl overflow-hidden bg-white border border-slate-200/80 hover:border-[#7F48ED]/40 shadow-[0_4px_25px_rgba(0,0,0,0.03)] hover:shadow-[0_16px_45px_rgba(0,0,0,0.08)] transition-all h-full">
                     {/* Interactive Multi-Image Gallery Card Header */}
                     <div className="relative aspect-[16/10] overflow-hidden bg-slate-900 select-none">
                       <AnimatePresence mode="wait">
@@ -401,7 +462,7 @@ export default function WorkPage() {
                       {/* Bottom Info & Thumbnail Dots */}
                       <div className="absolute bottom-3 left-4 right-4 z-10 flex items-end justify-between">
                         <div className="text-white pr-2">
-                          <span className="text-[10px] font-mono uppercase tracking-widest text-[#E88C52] block mb-0.5 font-bold">
+                          <span className="text-[10px] font-mono uppercase tracking-widest text-[#7F48ED] block mb-0.5 font-bold">
                             {study.location}
                           </span>
                           <h3 className="font-heading font-black text-lg sm:text-xl drop-shadow-sm">
@@ -421,7 +482,7 @@ export default function WorkPage() {
                               }}
                               className={`h-2 rounded-full transition-all cursor-pointer ${
                                 dotIdx === currentImgIdx
-                                  ? "w-5 bg-[#E88C52]"
+                                  ? "w-5 bg-[#7F48ED]"
                                   : "w-2 bg-white/40 hover:bg-white/80"
                               }`}
                               title={`View photo ${dotIdx + 1}`}
@@ -445,7 +506,7 @@ export default function WorkPage() {
                         <div className="grid grid-cols-3 gap-3 p-4 rounded-2xl bg-slate-50 border border-slate-200/80 mb-6">
                           {study.results.map((res) => (
                             <div key={res.label} className="text-center">
-                              <div className="font-heading font-black text-base sm:text-lg text-[#C0622A]">
+                              <div className="font-heading font-black text-base sm:text-lg text-[#7F48ED]">
                                 {res.value}
                               </div>
                               <div className="text-[10px] text-slate-500 uppercase font-mono tracking-wider mt-0.5 leading-tight">
@@ -478,7 +539,7 @@ export default function WorkPage() {
                               notes: `Inquiry inspired by ${study.title} case study.`,
                             })
                           }
-                          className="inline-flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-[#C0622A] hover:text-[#9c4314] transition-colors cursor-pointer group/btn"
+                          className="inline-flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-[#7F48ED] hover:text-[#6D28D9] transition-colors cursor-pointer group/btn"
                         >
                           <span>Inquire Now</span>
                           <ArrowUpRight className="w-3.5 h-3.5 group-hover/btn:translate-x-0.5 group-hover/btn:-translate-y-0.5 transition-transform" />
@@ -509,7 +570,7 @@ export default function WorkPage() {
               onClick={(e) => e.stopPropagation()}
             >
               <div className="flex items-center gap-3">
-                <span className="px-3 py-1 rounded-full bg-[#C0622A] text-white text-[10px] font-mono uppercase font-bold tracking-wider">
+                <span className="px-3 py-1 rounded-full bg-[#7F48ED] text-white text-[10px] font-mono uppercase font-bold tracking-wider">
                   {activeModalStudy.category}
                 </span>
                 <div>
@@ -533,7 +594,7 @@ export default function WorkPage() {
                       notes: `Inquiry from full gallery view: ${s.title}`,
                     });
                   }}
-                  className="hidden sm:inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-[#C0622A] hover:bg-[#a84f1d] text-white text-xs font-bold uppercase tracking-wider transition-all shadow-md cursor-pointer"
+                  className="hidden sm:inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-[#7F48ED] hover:bg-[#6D28D9] text-white text-xs font-bold uppercase tracking-wider transition-all shadow-md cursor-pointer"
                 >
                   <span>Inquire About Project</span>
                   <ArrowUpRight className="w-3.5 h-3.5" />
@@ -617,7 +678,7 @@ export default function WorkPage() {
                   onClick={() => setModalImageIndex(thumbIdx)}
                   className={`relative w-20 sm:w-24 h-12 sm:h-14 rounded-xl overflow-hidden border-2 transition-all cursor-pointer shrink-0 ${
                     thumbIdx === modalImageIndex
-                      ? "border-[#E88C52] scale-105 shadow-[0_0_15px_rgba(232,140,82,0.5)]"
+                      ? "border-[#7F48ED] scale-105 shadow-[0_0_15px_rgba(127,72,237,0.5)]"
                       : "border-white/20 opacity-50 hover:opacity-100"
                   }`}
                 >

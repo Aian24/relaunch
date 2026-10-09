@@ -23,7 +23,7 @@ export default function Error({
       </p>
       <button
         onClick={() => reset()}
-        className="px-6 py-3 bg-[#C0622A] text-white font-bold text-xs uppercase tracking-wider rounded-xl shadow transition-all"
+        className="px-6 py-3 bg-[#FF6700] text-white font-bold text-xs uppercase tracking-wider rounded-xl shadow transition-all"
       >
         Try Again
       </button>

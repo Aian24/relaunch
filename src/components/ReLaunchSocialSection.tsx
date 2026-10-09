@@ -5,7 +5,7 @@ import { socialData } from "@/data/socialSubBrand";
 import { useContactModal } from "@/context/ContactModalContext";
 import MotionWrapper from "./MotionWrapper";
 import NumberCounter from "./NumberCounter";
-import { CheckCircle2, ExternalLink, Rocket, ArrowRight, Zap, Share2 } from "lucide-react";
+import { CheckCircle2, ExternalLink, ArrowRight, Zap, Share2 } from "lucide-react";
 
 export default function ReLaunchSocialSection() {
   const { openContactModal } = useContactModal();
@@ -20,13 +20,13 @@ export default function ReLaunchSocialSection() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Top Header - Centered with no awkward wrapping */}
         <MotionWrapper direction="up" distance={20} className="text-center max-w-3xl mx-auto mb-14 sm:mb-16">
-          <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-orange-50 border border-orange-200 text-[#C0622A] text-[10px] font-mono font-bold uppercase tracking-widest mb-3 whitespace-nowrap">
-            <Share2 className="w-3.5 h-3.5 text-[#C0622A]" />
+          <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-purple-50 border border-purple-200 text-[#7F48ED] text-[10px] font-mono font-bold uppercase tracking-widest mb-3 whitespace-nowrap shadow-2xs">
+            <Share2 className="w-3.5 h-3.5 text-[#7F48ED]" />
             <span>Autopilot Sub-Brand</span>
           </div>
           <h2 className="font-heading font-black text-3xl sm:text-5xl lg:text-6xl text-[#090D16] tracking-tight leading-[1.05] mb-3">
             <span className="block whitespace-normal sm:whitespace-nowrap">Your Social Media,</span>
-            <span className="block text-[#C0622A] whitespace-normal sm:whitespace-nowrap">Running Itself.</span>
+            <span className="block text-[#7F48ED] whitespace-normal sm:whitespace-nowrap">Running Itself.</span>
           </h2>
           <p className="text-slate-600 text-sm sm:text-base leading-relaxed font-normal max-w-2xl mx-auto">
             Hands-off social media content created, scheduled, and published across 5 platforms. Just 30 minutes a month to approve.
@@ -40,10 +40,10 @@ export default function ReLaunchSocialSection() {
             direction="left"
             delay={0.08}
             distance={45}
-            className="lg:col-span-6 bg-[#FAF9F6] border border-slate-200/90 rounded-3xl p-6 sm:p-8 flex flex-col justify-between shadow-[0_4px_25px_rgba(0,0,0,0.02)] hover:shadow-[0_12px_35px_rgba(0,0,0,0.06)] transition-all"
+            className="lg:col-span-6 bg-[#FAF9F6] border border-slate-200/90 rounded-3xl p-6 sm:p-8 flex flex-col justify-between shadow-[0_4px_25px_rgba(0,0,0,0.02)] hover:shadow-[0_12px_35px_rgba(127,72,237,0.06)] hover:border-[#7F48ED]/30 transition-all"
           >
             <div>
-              <span className="text-xs font-mono uppercase tracking-widest text-[#C0622A] font-bold block mb-1.5 whitespace-nowrap">
+              <span className="text-xs font-mono uppercase tracking-widest text-[#7F48ED] font-bold block mb-1.5 whitespace-nowrap">
                 HANDS-OFF AUTOMATION
               </span>
               <h3 className="font-heading font-black text-xl sm:text-2xl text-[#090D16] mb-3">
@@ -72,7 +72,7 @@ export default function ReLaunchSocialSection() {
             </div>
 
             <div>
-              {/* Action Buttons: Clean Symmetrical 2-Button Grid */}
+              {/* Action Buttons */}
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-6">
                 <button
                   type="button"
@@ -83,7 +83,7 @@ export default function ReLaunchSocialSection() {
                       notes: "Interested in getting started with ReLaunch Social Autopilot.",
                     })
                   }
-                  className="w-full inline-flex items-center justify-center gap-2 px-5 py-3 bg-[#C0622A] hover:bg-[#a84f1d] text-white font-heading font-bold text-xs uppercase tracking-wider rounded-xl shadow-xs transition-all active:translate-y-0.5 whitespace-nowrap cursor-pointer"
+                  className="w-full inline-flex items-center justify-center gap-2 px-5 py-3 bg-[#7F48ED] hover:bg-[#6D28D9] text-white font-heading font-bold text-xs uppercase tracking-wider rounded-xl shadow-xs transition-all active:translate-y-0.5 whitespace-nowrap cursor-pointer"
                 >
                   <span>Start Your Project</span>
                   <ArrowRight className="w-3.5 h-3.5" />
@@ -93,17 +93,17 @@ export default function ReLaunchSocialSection() {
                   href={socialData.portalUrl}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="w-full inline-flex items-center justify-center gap-2 px-5 py-3 bg-white hover:bg-slate-100 border border-slate-200 text-[#090D16] font-heading font-bold text-xs uppercase tracking-wider rounded-xl transition-all active:translate-y-0.5 whitespace-nowrap"
+                  className="w-full inline-flex items-center justify-center gap-2 px-5 py-3 bg-white hover:bg-slate-100 border border-slate-200 text-[#090D16] font-heading font-bold text-xs uppercase tracking-wider rounded-xl transition-all active:translate-y-0.5 whitespace-nowrap hover:border-[#7F48ED]/40"
                 >
                   <span>Login to Portal</span>
-                  <ExternalLink className="w-3.5 h-3.5 text-[#C0622A]" />
+                  <ExternalLink className="w-3.5 h-3.5 text-[#7F48ED]" />
                 </a>
               </div>
 
               {/* Stats Counter Strip */}
               <div className="grid grid-cols-3 gap-3 pt-5 border-t border-slate-200">
                 <div>
-                  <div className="font-heading font-black text-xl sm:text-2xl text-[#C0622A]">
+                  <div className="font-heading font-black text-xl sm:text-2xl text-[#7F48ED]">
                     <NumberCounter value={30} suffix="min" />
                   </div>
                   <div className="text-[10px] font-semibold uppercase tracking-wider text-slate-500 mt-0.5">
@@ -111,7 +111,7 @@ export default function ReLaunchSocialSection() {
                   </div>
                 </div>
                 <div>
-                  <div className="font-heading font-black text-xl sm:text-2xl text-[#C0622A]">
+                  <div className="font-heading font-black text-xl sm:text-2xl text-[#7F48ED]">
                     <NumberCounter value={6} />
                   </div>
                   <div className="text-[10px] font-semibold uppercase tracking-wider text-slate-500 mt-0.5">
@@ -119,7 +119,7 @@ export default function ReLaunchSocialSection() {
                   </div>
                 </div>
                 <div>
-                  <div className="font-heading font-black text-xl sm:text-2xl text-[#C0622A]">
+                  <div className="font-heading font-black text-xl sm:text-2xl text-[#7F48ED]">
                     <NumberCounter value={5} />
                   </div>
                   <div className="text-[10px] font-semibold uppercase tracking-wider text-slate-500 mt-0.5">
@@ -135,10 +135,10 @@ export default function ReLaunchSocialSection() {
             direction="left"
             delay={0.16}
             distance={45}
-            className="lg:col-span-6 bg-[#FAF9F6] border border-slate-200/90 rounded-3xl p-6 sm:p-8 flex flex-col justify-between shadow-[0_4px_25px_rgba(0,0,0,0.02)] hover:shadow-[0_12px_35px_rgba(0,0,0,0.06)] transition-all"
+            className="lg:col-span-6 bg-[#FAF9F6] border border-slate-200/90 rounded-3xl p-6 sm:p-8 flex flex-col justify-between shadow-[0_4px_25px_rgba(0,0,0,0.02)] hover:shadow-[0_12px_35px_rgba(127,72,237,0.06)] hover:border-[#7F48ED]/30 transition-all"
           >
             <div>
-              <span className="text-xs font-mono uppercase tracking-widest text-[#C0622A] font-bold block mb-1.5 whitespace-nowrap">
+              <span className="text-xs font-mono uppercase tracking-widest text-[#7F48ED] font-bold block mb-1.5 whitespace-nowrap">
                 THE 4-STEP PROCESS
               </span>
               <h3 className="font-heading font-black text-xl sm:text-2xl text-[#090D16] mb-4">
@@ -151,7 +151,7 @@ export default function ReLaunchSocialSection() {
                     key={step.num}
                     className="flex items-start gap-3 pb-3 border-b border-slate-200 last:border-none last:pb-0"
                   >
-                    <div className="w-7 h-7 rounded-lg bg-[#C0622A] text-white font-heading font-black text-xs flex items-center justify-center shrink-0 mt-0.5 shadow-2xs">
+                    <div className="w-7 h-7 rounded-lg bg-[#7F48ED] text-white font-heading font-black text-xs flex items-center justify-center shrink-0 mt-0.5 shadow-2xs">
                       {i + 1}
                     </div>
                     <div>
@@ -168,7 +168,7 @@ export default function ReLaunchSocialSection() {
             </div>
 
             <div className="mt-6 pt-3 border-t border-slate-200 text-[11px] sm:text-xs text-slate-500 flex items-center gap-1.5">
-              <Zap className="w-3.5 h-3.5 text-[#C0622A] shrink-0" />
+              <Zap className="w-3.5 h-3.5 text-[#7F48ED] shrink-0" />
               <span>5-minute setup · Instant portal access upon checkout</span>
             </div>
           </MotionWrapper>
@@ -189,7 +189,7 @@ export default function ReLaunchSocialSection() {
                 onClick={() => setActiveTrack("Track B")}
                 className={`px-4 sm:px-5 py-2 rounded-lg font-heading font-bold text-xs uppercase tracking-wider transition-all text-center whitespace-nowrap cursor-pointer ${
                   activeTrack === "Track B"
-                    ? "bg-[#C0622A] text-white shadow-xs"
+                    ? "bg-[#7F48ED] text-white shadow-xs"
                     : "text-slate-600 hover:text-[#090D16]"
                 }`}
               >
@@ -199,7 +199,7 @@ export default function ReLaunchSocialSection() {
                 onClick={() => setActiveTrack("Track A")}
                 className={`px-4 sm:px-5 py-2 rounded-lg font-heading font-bold text-xs uppercase tracking-wider transition-all text-center whitespace-nowrap cursor-pointer ${
                   activeTrack === "Track A"
-                    ? "bg-[#C0622A] text-white shadow-xs"
+                    ? "bg-[#7F48ED] text-white shadow-xs"
                     : "text-slate-600 hover:text-[#090D16]"
                 }`}
               >
@@ -218,8 +218,8 @@ export default function ReLaunchSocialSection() {
                 distance={35}
                 className={`p-7 sm:p-8 rounded-3xl border transition-all ${
                   tier.popular
-                    ? "bg-white border-[#C0622A] shadow-[0_12px_40px_rgba(192,98,42,0.12)] relative"
-                    : "bg-white border-slate-200/90 hover:border-slate-300 shadow-[0_4px_25px_rgba(0,0,0,0.03)]"
+                    ? "bg-white border-[#7F48ED] shadow-[0_12px_40px_rgba(127,72,237,0.12)] relative"
+                    : "bg-white border-slate-200/90 hover:border-[#7F48ED]/30 shadow-[0_4px_25px_rgba(0,0,0,0.03)]"
                 } flex flex-col justify-between`}
               >
                 <div>
@@ -228,7 +228,7 @@ export default function ReLaunchSocialSection() {
                       {tier.name}
                     </span>
                     {tier.popular && (
-                      <span className="text-[9px] font-black uppercase tracking-wider px-2.5 py-0.5 rounded-full bg-[#C0622A] text-white whitespace-nowrap">
+                      <span className="text-[9px] font-black uppercase tracking-wider px-2.5 py-0.5 rounded-full bg-[#7F48ED] text-white whitespace-nowrap">
                         Popular
                       </span>
                     )}
@@ -239,7 +239,7 @@ export default function ReLaunchSocialSection() {
                       ${tier.price}
                       <span className="text-xs text-slate-500 font-normal"> /month</span>
                     </div>
-                    <span className="text-xs font-semibold text-[#C0622A] block mt-1 whitespace-nowrap">
+                    <span className="text-xs font-semibold text-[#7F48ED] block mt-1 whitespace-nowrap">
                       {tier.postsPerMonth}
                     </span>
                   </div>
@@ -251,7 +251,7 @@ export default function ReLaunchSocialSection() {
                   <div className="space-y-2 mb-6">
                     {tier.features.map((f, i) => (
                       <div key={i} className="flex items-start gap-2 text-xs text-slate-700">
-                        <CheckCircle2 className="w-3.5 h-3.5 text-[#C0622A] shrink-0 mt-0.5" />
+                        <CheckCircle2 className="w-3.5 h-3.5 text-[#7F48ED] shrink-0 mt-0.5" />
                         <span>{f}</span>
                       </div>
                     ))}
@@ -270,8 +270,8 @@ export default function ReLaunchSocialSection() {
                     }
                     className={`w-full py-3.5 px-4 rounded-xl font-heading font-bold text-xs uppercase tracking-wider flex items-center justify-center gap-1.5 transition-all text-center whitespace-nowrap cursor-pointer ${
                       tier.popular
-                        ? "bg-[#C0622A] hover:bg-[#a84f1d] text-white shadow-xs active:translate-y-0.5"
-                        : "bg-slate-100 text-slate-800 hover:bg-slate-200 active:translate-y-0.5"
+                        ? "bg-[#7F48ED] hover:bg-[#6D28D9] text-white shadow-xs active:translate-y-0.5"
+                        : "bg-purple-50 text-[#7F48ED] hover:bg-[#7F48ED] hover:text-white border border-purple-200/80 active:translate-y-0.5"
                     }`}
                   >
                     <span>Select Plan &amp; Launch</span>

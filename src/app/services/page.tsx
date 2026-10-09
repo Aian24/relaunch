@@ -139,6 +139,7 @@ export default function ServicesPage() {
 
       {/* 1. Cinematic Services Video Hero */}
       <PageVideoHero
+        theme="purple"
         kicker="Full-Scope Capabilities · Est. 2004"
         titleRegular="Everything Under One Roof."
         titleHighlight="Our Services."
@@ -156,12 +157,12 @@ export default function ServicesPage() {
       {/* 2. Choose What You Need - Centered Header */}
       <section id="services-overview" className="py-20 sm:py-28 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto w-full select-none">
         <MotionWrapper direction="up" distance={30} className="text-center max-w-3xl mx-auto mb-16 sm:mb-20">
-          <span className="text-xs font-mono uppercase tracking-widest text-[#C0622A] font-bold block mb-2 sm:whitespace-nowrap">
+          <span className="text-xs font-mono uppercase tracking-widest text-[#7F48ED] font-bold block mb-2 sm:whitespace-nowrap">
             CHOOSE WHAT YOU NEED · BUNDLE &amp; SAVE
           </span>
           <h2 className="font-heading font-black text-3xl sm:text-5xl lg:text-6xl text-[#090D16] tracking-tight leading-[1.06] mb-3">
             <span className="block whitespace-normal sm:whitespace-nowrap">A closer look at</span>
-            <span className="block text-[#C0622A] whitespace-normal sm:whitespace-nowrap">every service.</span>
+            <span className="block text-[#7F48ED] whitespace-normal sm:whitespace-nowrap">every service.</span>
           </h2>
           <p className="text-slate-600 text-sm sm:text-base leading-relaxed max-w-2xl mx-auto">
             Mix and match services to fit your growth goals. Bundle to save with zero long-term commitments.
@@ -178,7 +179,7 @@ export default function ServicesPage() {
               <MotionWrapper key={pillar.id} direction="up" delay={idx * 0.08} distance={35}>
                 <div
                   id={pillar.id}
-                  className={`grid grid-cols-1 lg:grid-cols-12 gap-8 sm:gap-12 items-center p-6 sm:p-10 rounded-3xl bg-white border border-slate-200/80 shadow-[0_4px_25px_rgba(0,0,0,0.03)] transition-all hover:shadow-[0_12px_40px_rgba(0,0,0,0.06)] hover:border-slate-300 ${
+                  className={`grid grid-cols-1 lg:grid-cols-12 gap-8 sm:gap-12 items-center py-10 sm:py-14 border-b border-slate-100 last:border-b-0 ${
                     isReversed ? "lg:flex-row-reverse" : ""
                   }`}
                 >
@@ -187,7 +188,7 @@ export default function ServicesPage() {
                     <div>
                       {/* Service Title & Icon */}
                       <div className="flex items-center gap-3 mb-3">
-                        <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-orange-50 border border-orange-200/60 flex items-center justify-center text-[#C0622A] shrink-0">
+                        <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl flex items-center justify-center shrink-0 border bg-purple-50 border-purple-200/60 text-[#7F48ED]">
                           <IconComp className="w-4 h-4 sm:w-5 sm:h-5" />
                         </div>
                         <h3 className="font-heading font-black text-2xl sm:text-3xl text-[#090D16] leading-snug">
@@ -198,12 +199,12 @@ export default function ServicesPage() {
                         {pillar.description}
                       </p>
 
-                      {/* Clean Deliverables List without busy labels */}
+                      {/* Clean Deliverables List */}
                       <div className="mb-6 pt-4 border-t border-slate-100">
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
                           {pillar.deliverables.map((item) => (
                             <div key={item} className="flex items-start gap-2">
-                              <CheckCircle2 className="w-4 h-4 text-[#C0622A] shrink-0 mt-0.5" />
+                              <CheckCircle2 className="w-4 h-4 shrink-0 mt-0.5 text-[#7F48ED]" />
                               <span className="text-xs text-slate-700 leading-snug">{item}</span>
                             </div>
                           ))}
@@ -213,8 +214,8 @@ export default function ServicesPage() {
 
                     {/* Bottom Action Strip */}
                     <div className="pt-6 border-t border-slate-100 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-                      <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-orange-50 text-[#C0622A] text-xs font-medium border border-orange-200/60 whitespace-nowrap">
-                        <ShieldCheck className="w-4 h-4 text-[#C0622A]" />
+                      <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full text-xs font-medium border whitespace-nowrap bg-purple-50 text-[#7F48ED] border-purple-200/60">
+                        <ShieldCheck className="w-4 h-4 text-[#7F48ED]" />
                         <span>{pillar.impact}</span>
                       </div>
 
@@ -229,7 +230,7 @@ export default function ServicesPage() {
                         <button
                           type="button"
                           onClick={() => openContactModal({ intent: "strategy-session", serviceInterest: pillar.title })}
-                          className="inline-flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-[#C0622A] hover:text-[#9c4314] transition-colors cursor-pointer group whitespace-nowrap"
+                          className="inline-flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider transition-colors cursor-pointer group whitespace-nowrap text-[#7F48ED] hover:text-[#6D28D9]"
                         >
                           <span>Inquire Scope</span>
                           <ArrowUpRight className="w-3.5 h-3.5 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" />
@@ -244,7 +245,7 @@ export default function ServicesPage() {
                       src={pillar.image}
                       alt={pillar.title}
                       aspectRatio="aspect-[4/3]"
-                      className="border-slate-200 shadow-md rounded-2xl overflow-hidden"
+                      className="border-slate-200 shadow-md rounded-2xl overflow-hidden hover:border-[#7F48ED]/30"
                     />
                   </div>
                 </div>

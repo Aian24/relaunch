@@ -121,12 +121,12 @@ export default function CustomDatePicker({
         onClick={() => setIsOpen(!isOpen)}
         className={`w-full px-3.5 py-2.5 bg-white border rounded-xl text-xs sm:text-sm flex items-center justify-between text-left transition-all cursor-pointer shadow-xs ${
           isOpen
-            ? "border-[#C0622A] ring-2 ring-[#C0622A]/15 text-slate-900"
-            : "border-[#C0622A]/30 text-slate-800 hover:border-[#C0622A]"
+            ? "border-[#FF6700] ring-2 ring-[#FF6700]/15 text-slate-900"
+            : "border-[#FF6700]/30 text-slate-800 hover:border-[#FF6700]"
         }`}
       >
         <div className="flex items-center gap-2 truncate">
-          <CalendarIcon className="w-3.5 h-3.5 text-[#C0622A] shrink-0" />
+          <CalendarIcon className="w-3.5 h-3.5 text-[#FF6700] shrink-0" />
           <span className={value ? "font-bold text-slate-900" : "text-slate-400 font-normal"}>
             {formattedDisplay}
           </span>
@@ -146,11 +146,11 @@ export default function CustomDatePicker({
 
       {/* Brand Orange Custom Calendar Dropdown */}
       {isOpen && (
-        <div className="absolute z-50 top-full left-0 mt-1.5 w-72 sm:w-80 bg-white border border-[#C0622A]/30 rounded-2xl shadow-2xl p-4 animate-in fade-in zoom-in-95 duration-150">
+        <div className="absolute z-50 top-full left-0 mt-1.5 w-72 sm:w-80 bg-white border border-[#FF6700]/30 rounded-2xl shadow-2xl p-4 animate-in fade-in zoom-in-95 duration-150">
           {/* Calendar Header */}
           <div className="flex items-center justify-between mb-3 pb-2.5 border-b border-orange-100">
             <div className="font-heading font-bold text-sm text-[#090D16]">
-              <span className="text-[#C0622A]">{MONTH_NAMES[currentMonth]}</span>{" "}
+              <span className="text-[#FF6700]">{MONTH_NAMES[currentMonth]}</span>{" "}
               <span>{currentYear}</span>
             </div>
 
@@ -158,7 +158,7 @@ export default function CustomDatePicker({
               <button
                 type="button"
                 onClick={prevMonth}
-                className="p-1.5 rounded-lg hover:bg-orange-50 text-slate-600 hover:text-[#C0622A] transition-colors cursor-pointer"
+                className="p-1.5 rounded-lg hover:bg-orange-50 text-slate-600 hover:text-[#FF6700] transition-colors cursor-pointer"
                 aria-label="Previous Month"
               >
                 <ChevronLeft className="w-4 h-4" />
@@ -166,7 +166,7 @@ export default function CustomDatePicker({
               <button
                 type="button"
                 onClick={nextMonth}
-                className="p-1.5 rounded-lg hover:bg-orange-50 text-slate-600 hover:text-[#C0622A] transition-colors cursor-pointer"
+                className="p-1.5 rounded-lg hover:bg-orange-50 text-slate-600 hover:text-[#FF6700] transition-colors cursor-pointer"
                 aria-label="Next Month"
               >
                 <ChevronRight className="w-4 h-4" />
@@ -216,10 +216,10 @@ export default function CustomDatePicker({
                   onClick={() => handleSelectDay(day)}
                   className={`text-xs font-semibold py-1.5 rounded-lg transition-all cursor-pointer ${
                     isSelected
-                      ? "bg-[#C0622A] text-white font-bold shadow-md scale-105"
+                      ? "bg-[#FF6700] text-white font-bold shadow-md scale-105"
                       : isToday
-                      ? "bg-orange-50 text-[#C0622A] font-bold border border-[#C0622A]/40 hover:bg-[#C0622A] hover:text-white"
-                      : "text-slate-800 hover:bg-orange-50 hover:text-[#C0622A]"
+                      ? "bg-orange-50 text-[#FF6700] font-bold border border-[#FF6700]/40 hover:bg-[#FF6700] hover:text-white"
+                      : "text-slate-800 hover:bg-orange-50 hover:text-[#FF6700]"
                   }`}
                 >
                   {day}
@@ -240,7 +240,7 @@ export default function CustomDatePicker({
             <button
               type="button"
               onClick={handleSelectToday}
-              className="text-[#C0622A] hover:text-[#a84f1d] font-bold cursor-pointer"
+              className="text-[#FF6700] hover:text-[#E55C00] font-bold cursor-pointer"
             >
               Today
             </button>

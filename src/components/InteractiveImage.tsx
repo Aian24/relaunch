@@ -21,7 +21,7 @@ export default function InteractiveImage({
   alt,
   aspectRatio = "aspect-[16/10]",
   badge,
-  badgeColor = "bg-[#C0622A]",
+  badgeColor = "bg-[#FF6700]",
   title,
   subtitle,
   className = "",
@@ -101,7 +101,7 @@ export default function InteractiveImage({
       {(title || subtitle) && (
         <div className="absolute bottom-6 left-6 right-6 z-10 text-white">
           {subtitle && (
-            <span className="text-[10px] uppercase font-mono tracking-widest text-[#E88C52] font-bold block mb-1">
+            <span className="text-[10px] uppercase font-mono tracking-widest text-[#FF6700] font-bold block mb-1">
               {subtitle}
             </span>
           )}

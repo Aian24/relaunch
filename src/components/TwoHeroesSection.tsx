@@ -28,12 +28,12 @@ export default function TwoHeroesSection() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Header with Scroll Reveal */}
         <MotionWrapper direction="up" distance={20} className="text-center max-w-3xl mx-auto mb-8 sm:mb-10">
-          <span className="text-xs font-mono uppercase tracking-widest text-[#C0622A] font-bold block mb-2">
+          <span className="text-xs font-mono uppercase tracking-widest text-[#FF6700] font-bold block mb-2">
             STRATEGIC POSITIONING · TWO DOORS
           </span>
           <h2 className="font-heading font-black text-3xl sm:text-5xl lg:text-6xl text-[#090D16] tracking-tight leading-[1.05] mb-3">
             Two Paths to Growth. <br />
-            <span className="text-[#C0622A] italic">Which Door Fits You?</span>
+            <span className="text-[#FF6700] italic">Which Door Fits You?</span>
           </h2>
           <p className="text-slate-600 text-xs sm:text-sm leading-relaxed font-normal">
             Whether you need more inbound customer calls for your local service business or custom software that actually ships on time—we have a dedicated path designed for you.
@@ -51,7 +51,7 @@ export default function TwoHeroesSection() {
                   onClick={() => setActiveTab(hero.id as any)}
                   className={`flex items-center justify-center gap-1.5 sm:gap-2.5 px-4 sm:px-8 py-2.5 rounded-lg sm:rounded-xl font-heading font-bold text-[11px] sm:text-xs md:text-sm uppercase tracking-wider transition-all duration-200 cursor-pointer sm:whitespace-nowrap ${
                     isSelected
-                      ? "bg-[#C0622A] text-white shadow-sm"
+                      ? "bg-[#FF6700] text-white shadow-sm"
                       : "text-slate-600 hover:text-slate-900 hover:bg-slate-200/60"
                   }`}
                 >
@@ -79,7 +79,7 @@ export default function TwoHeroesSection() {
             >
               <div className="bg-slate-50 p-6 sm:p-7 flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-200/80">
                 <div>
-                  <span className="text-[10px] font-bold uppercase tracking-widest px-2.5 py-0.5 rounded-full bg-[#C0622A] text-white shadow-xs">
+                  <span className="text-[10px] font-bold uppercase tracking-widest px-2.5 py-0.5 rounded-full bg-[#FF6700] text-white shadow-xs">
                     {activeHero.badge}
                   </span>
                   <h3 className="font-heading font-black text-2xl sm:text-3xl lg:text-4xl text-[#090D16] mt-2">
@@ -91,7 +91,7 @@ export default function TwoHeroesSection() {
                 </div>
 
                 <div className="sm:text-right">
-                  <span className="text-[10px] uppercase tracking-widest text-[#C0622A] font-bold block mb-0.5">
+                  <span className="text-[10px] uppercase tracking-widest text-[#FF6700] font-bold block mb-0.5">
                     Primary Goal
                   </span>
                   <span className="font-heading font-black text-base sm:text-xl text-[#090D16]">
@@ -108,11 +108,11 @@ export default function TwoHeroesSection() {
                     transition={{ duration: 0.45, delay: 0.05, ease: [0.16, 1, 0.3, 1] }}
                   >
                     <SpotlightCard
-                      spotlightColor="rgba(192, 98, 42, 0.08)"
+                      spotlightColor="rgba(255,103,0, 0.08)"
                       className="p-4 bg-white rounded-2xl border border-slate-200/80 hover:border-slate-300 transition-colors shadow-xs"
                     >
                       <div className="flex items-center gap-2 text-slate-900 font-heading font-bold text-xs uppercase tracking-wider mb-1">
-                        <AlertCircle className="w-4 h-4 text-[#C0622A]" />
+                        <AlertCircle className="w-4 h-4 text-[#FF6700]" />
                         <span>The External Problem</span>
                       </div>
                       <p className="text-xs sm:text-sm text-slate-600 leading-relaxed font-normal">
@@ -127,11 +127,11 @@ export default function TwoHeroesSection() {
                     transition={{ duration: 0.45, delay: 0.12, ease: [0.16, 1, 0.3, 1] }}
                   >
                     <SpotlightCard
-                      spotlightColor="rgba(192, 98, 42, 0.08)"
+                      spotlightColor="rgba(255,103,0, 0.08)"
                       className="p-4 bg-white rounded-2xl border border-slate-200/80 hover:border-slate-300 transition-colors shadow-xs"
                     >
                       <div className="flex items-center gap-2 text-slate-900 font-heading font-bold text-xs uppercase tracking-wider mb-1">
-                        <AlertCircle className="w-4 h-4 text-[#C0622A]" />
+                        <AlertCircle className="w-4 h-4 text-[#FF6700]" />
                         <span>The Internal Frustration</span>
                       </div>
                       <p className="text-xs sm:text-sm text-slate-600 leading-relaxed font-normal">
@@ -146,11 +146,11 @@ export default function TwoHeroesSection() {
                     transition={{ duration: 0.45, delay: 0.19, ease: [0.16, 1, 0.3, 1] }}
                   >
                     <SpotlightCard
-                      spotlightColor="rgba(192, 98, 42, 0.08)"
+                      spotlightColor="rgba(255,103,0, 0.08)"
                       className="p-4 bg-white rounded-2xl border border-slate-200/80 hover:border-slate-300 transition-colors shadow-xs"
                     >
                       <div className="flex items-center gap-2 text-slate-900 font-heading font-bold text-xs uppercase tracking-wider mb-1">
-                        <TrendingDown className="w-4 h-4 text-[#C0622A]" />
+                        <TrendingDown className="w-4 h-4 text-[#FF6700]" />
                         <span>What Is At Stake</span>
                       </div>
                       <p className="text-xs sm:text-sm text-slate-600 leading-relaxed font-normal">
@@ -167,12 +167,12 @@ export default function TwoHeroesSection() {
                   className="h-full"
                 >
                   <SpotlightCard
-                    spotlightColor="rgba(192, 98, 42, 0.12)"
+                    spotlightColor="rgba(255,103,0, 0.12)"
                     className="bg-orange-50/40 p-6 sm:p-7 rounded-2xl border border-orange-200/60 flex flex-col justify-between h-full shadow-xs"
                   >
                     <div>
-                      <div className="flex items-center gap-2 text-[#C0622A] font-heading font-bold text-xs uppercase tracking-wider mb-3">
-                        <CheckCircle2 className="w-5 h-5 text-[#C0622A]" />
+                      <div className="flex items-center gap-2 text-[#FF6700] font-heading font-bold text-xs uppercase tracking-wider mb-3">
+                        <CheckCircle2 className="w-5 h-5 text-[#FF6700]" />
                         <span>What Success Looks Like</span>
                       </div>
 
@@ -182,11 +182,11 @@ export default function TwoHeroesSection() {
 
                       <div className="space-y-2.5 mb-6 text-xs text-slate-600">
                         <div className="flex items-start gap-2">
-                          <Check className="w-4 h-4 text-[#C0622A] mt-0.5 shrink-0" />
+                          <Check className="w-4 h-4 text-[#FF6700] mt-0.5 shrink-0" />
                           <span>Engineered on the 4-layer selling framework (SB7, Hero&apos;s Journey, Draper)</span>
                         </div>
                         <div className="flex items-start gap-2">
-                          <Check className="w-4 h-4 text-[#C0622A] mt-0.5 shrink-0" />
+                          <Check className="w-4 h-4 text-[#FF6700] mt-0.5 shrink-0" />
                           <span>Single flexible monthly subscription — pause or cancel anytime</span>
                         </div>
                       </div>
@@ -194,7 +194,7 @@ export default function TwoHeroesSection() {
 
                     <Link
                       href={activeHero.ctaHref}
-                      className="w-full inline-flex items-center justify-center gap-2 py-3.5 px-6 bg-[#C0622A] hover:bg-[#a84f1d] text-white font-heading font-bold text-xs uppercase tracking-wider rounded-xl shadow-[0_0_20px_rgba(192,98,42,0.3)] hover:shadow-[0_0_25px_rgba(192,98,42,0.45)] transition-all text-center active:translate-y-0.5 hover:scale-[1.01]"
+                      className="w-full inline-flex items-center justify-center gap-2 py-3.5 px-6 bg-[#FF6700] hover:bg-[#E55C00] text-white font-heading font-bold text-xs uppercase tracking-wider rounded-xl shadow-[0_0_20px_rgba(255,103,0,0.3)] hover:shadow-[0_0_25px_rgba(255,103,0,0.45)] transition-all text-center active:translate-y-0.5 hover:scale-[1.01]"
                     >
                       <span>{activeHero.ctaText}</span>
                       <ArrowRight className="w-3.5 h-3.5" />

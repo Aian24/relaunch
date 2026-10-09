@@ -30,7 +30,7 @@ h1, h2, h3, h4, h5, h6 {
 /* Custom Scrollbar with Phoenix Orange Theme */
 * {
   scrollbar-width: thin;
-  scrollbar-color: #C0622A #FFF7ED;
+  scrollbar-color: #FF6700 #FFF7ED;
 }
 
 ::-webkit-scrollbar {
@@ -41,39 +41,39 @@ h1, h2, h3, h4, h5, h6 {
   background: #FFF7ED;
 }
 ::-webkit-scrollbar-thumb {
-  background: #C0622A;
+  background: #FF6700;
   border-radius: 9999px;
   border: 2px solid #FFF7ED;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: #a84f1d;
+  background: #E55C00;
 }
 
 /* Text Selection & Accent Theme */
 ::selection {
-  background-color: #C0622A;
+  background-color: #FF6700;
   color: #FFFFFF;
 }
 
 :root {
-  accent-color: #C0622A;
+  accent-color: #FF6700;
 }
 
 /* Focus styles */
 :focus-visible {
-  outline: 2px solid #C0622A;
+  outline: 2px solid #FF6700;
   outline-offset: 2px;
 }
 
 input:focus, select:focus, textarea:focus {
   outline: none;
-  border-color: #C0622A !important;
-  box-shadow: 0 0 0 2px rgba(192, 98, 42, 0.15) !important;
+  border-color: #FF6700 !important;
+  box-shadow: 0 0 0 2px rgba(255,103,0, 0.15) !important;
 }
 
 select option:checked,
 select option:hover {
-  background-color: #C0622A !important;
+  background-color: #FF6700 !important;
   color: #FFFFFF !important;
 }
 

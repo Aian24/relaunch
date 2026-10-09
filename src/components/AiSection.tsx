@@ -20,7 +20,15 @@ import {
   Rocket,
 } from "lucide-react";
 
-const aiServices = [
+interface AiServiceItem {
+  id: string;
+  title: string;
+  category: string;
+  icon: React.ComponentType<{ className?: string }>;
+  deliverables: string[];
+}
+
+const aiServices: AiServiceItem[] = [
   {
     id: "aeo-geo",
     title: "AI Search Visibility (AEO/GEO)",
@@ -126,13 +134,15 @@ export default function AiSection() {
           distance={20}
           className="text-center max-w-3xl mx-auto mb-12 sm:mb-14"
         >
-          <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-orange-50 border border-orange-200 text-[#C0622A] text-[10px] font-mono font-bold uppercase tracking-widest mb-3 whitespace-nowrap">
-            <Sparkles className="w-3.5 h-3.5 text-[#C0622A]" />
+          <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-purple-50 border border-purple-200 text-[#7F48ED] text-[10px] font-mono font-bold uppercase tracking-widest mb-3 whitespace-nowrap shadow-2xs">
+            <Sparkles className="w-3.5 h-3.5 text-[#7F48ED]" />
             <span>FULL STACK AI SERVICES</span>
           </div>
           <h2 className="font-heading font-black text-3xl sm:text-5xl lg:text-6xl text-[#090D16] tracking-tight leading-[1.05] mb-3">
             <span className="block whitespace-normal sm:whitespace-nowrap">The future isn&apos;t coming.</span>
-            <span className="block text-[#C0622A] whitespace-normal sm:whitespace-nowrap">It&apos;s here.</span>
+            <span className="block text-[#7F48ED] whitespace-normal sm:whitespace-nowrap">
+              It&apos;s here.
+            </span>
           </h2>
           <p className="text-slate-600 text-sm sm:text-base font-normal max-w-2xl mx-auto mt-2 leading-relaxed mb-6">
             Practical AI systems engineered to capture leads, answer customers, and automate workflows.
@@ -142,16 +152,16 @@ export default function AiSection() {
             <button
               type="button"
               onClick={() => openContactModal({ intent: "ai-audit" })}
-              className="inline-flex items-center justify-center gap-2 px-5 py-3 bg-orange-50 hover:bg-orange-100 border border-orange-200 hover:border-orange-300 text-[#C0622A] hover:text-[#a84f1d] font-heading font-bold text-xs uppercase tracking-wider rounded-xl transition-all shadow-xs whitespace-nowrap active:translate-y-0.5 cursor-pointer"
+              className="inline-flex items-center justify-center gap-2 px-5 py-3 bg-purple-50 hover:bg-purple-100 border border-purple-200 hover:border-purple-300 text-[#7F48ED] hover:text-[#6D28D9] font-heading font-bold text-xs uppercase tracking-wider rounded-xl transition-all shadow-xs whitespace-nowrap active:translate-y-0.5 cursor-pointer"
             >
-              <Bot className="w-3.5 h-3.5 text-[#C0622A] shrink-0" />
+              <Bot className="w-3.5 h-3.5 text-[#7F48ED] shrink-0" />
               <span>Book an AI Audit</span>
-              <ArrowUpRight className="w-3.5 h-3.5 text-[#C0622A]" />
+              <ArrowUpRight className="w-3.5 h-3.5 text-[#7F48ED]" />
             </button>
 
             <Link
               href="/ai"
-              className="inline-flex items-center justify-center gap-2 px-5 py-3 bg-[#C0622A] hover:bg-[#a84f1d] text-white font-heading font-bold text-xs uppercase tracking-wider rounded-xl transition-all shadow-xs whitespace-nowrap active:translate-y-0.5 cursor-pointer"
+              className="inline-flex items-center justify-center gap-2 px-5 py-3 bg-[#7F48ED] hover:bg-[#6D28D9] text-white font-heading font-bold text-xs uppercase tracking-wider rounded-xl transition-all shadow-[0_4px_20px_rgba(127,72,237,0.25)] whitespace-nowrap active:translate-y-0.5 cursor-pointer"
             >
               <Rocket className="w-3.5 h-3.5 text-white shrink-0" />
               <span>Explore Full AI Stack</span>
@@ -160,10 +170,11 @@ export default function AiSection() {
           </div>
         </MotionWrapper>
 
-        {/* 8 AI Services Grid with Bullet Checks */}
+        {/* 8 AI Services Grid - Unified Purple Section */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
           {aiServices.map((service, idx) => {
             const IconComp = service.icon;
+
             return (
               <MotionWrapper
                 key={service.id}
@@ -174,19 +185,19 @@ export default function AiSection() {
               >
                 <Link
                   href={`/ai#${service.id}`}
-                  className="h-full p-6 sm:p-7 rounded-3xl bg-white border border-slate-200/90 shadow-[0_4px_25px_rgba(0,0,0,0.02)] hover:border-[#C0622A]/40 hover:shadow-[0_12px_35px_rgba(192,98,42,0.08)] transition-all duration-300 flex flex-col justify-between group"
+                  className="h-full p-6 sm:p-7 rounded-3xl bg-white border border-slate-200/90 shadow-[0_4px_25px_rgba(0,0,0,0.02)] hover:border-[#7F48ED]/40 hover:shadow-[0_12px_35px_rgba(127,72,237,0.08)] transition-all duration-300 flex flex-col justify-between group"
                 >
                   <div>
                     <div className="flex items-center justify-between mb-5">
-                      <div className="w-12 h-12 rounded-2xl bg-orange-50 border border-orange-100 flex items-center justify-center text-[#C0622A] group-hover:bg-[#C0622A] group-hover:text-white transition-all duration-300 shadow-xs">
+                      <div className="w-12 h-12 rounded-2xl flex items-center justify-center transition-all duration-300 shadow-xs bg-purple-50 border border-purple-100 text-[#7F48ED] group-hover:bg-[#7F48ED] group-hover:text-white">
                         <IconComp className="w-6 h-6 transition-transform group-hover:scale-110" />
                       </div>
-                      <span className="text-[10px] font-mono uppercase tracking-wider text-[#C0622A] bg-orange-50/80 px-2.5 py-1 rounded-full border border-orange-200/60 font-semibold">
+                      <span className="text-[10px] font-mono uppercase tracking-wider px-2.5 py-1 rounded-full font-semibold border text-[#7F48ED] bg-purple-50/80 border-purple-200/60">
                         {service.category}
                       </span>
                     </div>
 
-                    <h3 className="font-heading font-black text-lg text-[#090D16] group-hover:text-[#C0622A] transition-colors leading-snug mb-4">
+                    <h3 className="font-heading font-black text-lg text-[#090D16] group-hover:text-[#7F48ED] transition-colors leading-snug mb-4">
                       {service.title}
                     </h3>
 
@@ -194,14 +205,14 @@ export default function AiSection() {
                     <div className="space-y-2 pt-3 border-t border-slate-100">
                       {service.deliverables.map((item) => (
                         <div key={item} className="flex items-start gap-2">
-                          <CheckCircle2 className="w-3.5 h-3.5 text-[#C0622A] shrink-0 mt-0.5" />
+                          <CheckCircle2 className="w-3.5 h-3.5 shrink-0 mt-0.5 text-[#7F48ED]" />
                           <span className="text-xs text-slate-600 leading-snug">{item}</span>
                         </div>
                       ))}
                     </div>
                   </div>
 
-                  <div className="mt-5 pt-3.5 border-t border-slate-100 flex items-center justify-between text-xs font-bold text-[#C0622A]">
+                  <div className="mt-5 pt-3.5 border-t border-slate-100 flex items-center justify-between text-xs font-bold text-[#7F48ED]">
                     <span className="font-heading uppercase tracking-wider text-[11px]">View Scope on AI Page</span>
                     <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-1 transition-transform" />
                   </div>

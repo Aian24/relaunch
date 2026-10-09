@@ -47,7 +47,7 @@ interface ThemeConfig {
 const themePresets: Record<string, ThemeConfig> = {
   phoenixLight: {
     name: "Phoenix Pure Light (Default)",
-    primary: "#C0622A",
+    primary: "#FF6700",
     secondary: "#D97706",
     bg: "#F8FAFC",
     sidebarBg: "#FFFFFF",
@@ -63,7 +63,7 @@ const themePresets: Record<string, ThemeConfig> = {
   },
   warmIvory: {
     name: "Warm Ivory & Amber",
-    primary: "#C0622A",
+    primary: "#FF6700",
     secondary: "#EA580C",
     bg: "#FAF8F5",
     sidebarBg: "#FFFFFF",
@@ -79,8 +79,8 @@ const themePresets: Record<string, ThemeConfig> = {
   },
   phoenixDark: {
     name: "Phoenix Obsidian Dark",
-    primary: "#C0622A",
-    secondary: "#E88C52",
+    primary: "#FF6700",
+    secondary: "#FF6700",
     bg: "#07090E",
     sidebarBg: "#0A0D14",
     cardBg: "#0E121B",
@@ -298,7 +298,7 @@ export default function AdminPortal() {
   if (authLoading) {
     return (
       <div className="min-h-screen bg-[#07090E] flex items-center justify-center text-white font-mono text-xs">
-        <RefreshCw className="w-5 h-5 text-[#C0622A] animate-spin mr-2" />
+        <RefreshCw className="w-5 h-5 text-[#FF6700] animate-spin mr-2" />
         <span>AUTHENTICATING COMMAND SESSION...</span>
       </div>
     );
@@ -308,8 +308,8 @@ export default function AdminPortal() {
   if (!isAuthenticated) {
     return (
       <main className="min-h-screen bg-[#07090E] text-white flex flex-col justify-between relative overflow-hidden select-none px-4 py-8">
-        <div className="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[700px] h-[500px] bg-[#C0622A]/20 rounded-full blur-[160px] pointer-events-none" />
-        <div className="absolute bottom-0 right-1/4 w-[400px] h-[350px] bg-[#E88C52]/10 rounded-full blur-[140px] pointer-events-none" />
+        <div className="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[700px] h-[500px] bg-[#FF6700]/20 rounded-full blur-[160px] pointer-events-none" />
+        <div className="absolute bottom-0 right-1/4 w-[400px] h-[350px] bg-[#FF6700]/10 rounded-full blur-[140px] pointer-events-none" />
         <div className="absolute inset-0 bg-[radial-gradient(#ffffff08_1px,transparent_1px)] [background-size:24px_24px] pointer-events-none" />
 
         {/* Top Minimal Security Brand Bar */}
@@ -326,7 +326,7 @@ export default function AdminPortal() {
           </div>
 
           <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/[0.05] border border-white/[0.1] text-slate-400 text-[10px] font-mono uppercase tracking-wider">
-            <Lock className="w-3 h-3 text-[#C0622A]" />
+            <Lock className="w-3 h-3 text-[#FF6700]" />
             <span>Studio Portal · Encrypted</span>
           </div>
         </div>
@@ -339,7 +339,7 @@ export default function AdminPortal() {
             transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
             className="p-8 sm:p-10 rounded-3xl bg-white/[0.04] border border-white/[0.12] backdrop-blur-2xl shadow-2xl relative overflow-hidden"
           >
-            <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-transparent via-[#C0622A] to-transparent" />
+            <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-transparent via-[#FF6700] to-transparent" />
 
             <div className="text-center mb-8">
               <div className="relative h-9 w-40 mx-auto mb-4 flex items-center justify-center">
@@ -384,7 +384,7 @@ export default function AdminPortal() {
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     placeholder="admin@relaunch.us"
-                    className="w-full pl-10 pr-4 py-3 bg-white/[0.06] border border-white/[0.12] rounded-xl text-sm text-white placeholder-slate-500 focus:outline-none focus:border-[#C0622A] focus:bg-white/[0.08] transition-all"
+                    className="w-full pl-10 pr-4 py-3 bg-white/[0.06] border border-white/[0.12] rounded-xl text-sm text-white placeholder-slate-500 focus:outline-none focus:border-[#FF6700] focus:bg-white/[0.08] transition-all"
                   />
                 </div>
               </div>
@@ -403,7 +403,7 @@ export default function AdminPortal() {
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                     placeholder="••••••••••••"
-                    className="w-full pl-10 pr-11 py-3 bg-white/[0.06] border border-white/[0.12] rounded-xl text-sm text-white placeholder-slate-500 focus:outline-none focus:border-[#C0622A] focus:bg-white/[0.08] transition-all"
+                    className="w-full pl-10 pr-11 py-3 bg-white/[0.06] border border-white/[0.12] rounded-xl text-sm text-white placeholder-slate-500 focus:outline-none focus:border-[#FF6700] focus:bg-white/[0.08] transition-all"
                   />
                   <button
                     type="button"
@@ -421,7 +421,7 @@ export default function AdminPortal() {
                     type="checkbox"
                     checked={rememberMe}
                     onChange={(e) => setRememberMe(e.target.checked)}
-                    className="rounded bg-white/10 border-white/20 text-[#C0622A] focus:ring-0 focus:ring-offset-0 accent-[#C0622A]"
+                    className="rounded bg-white/10 border-white/20 text-[#FF6700] focus:ring-0 focus:ring-offset-0 accent-[#FF6700]"
                   />
                   <span>Remember Session</span>
                 </label>
@@ -429,7 +429,7 @@ export default function AdminPortal() {
                 <button
                   type="button"
                   onClick={fillDemoCredentials}
-                  className="text-[#E88C52] hover:text-[#C0622A] text-[11px] font-mono uppercase tracking-wider underline cursor-pointer"
+                  className="text-[#FF6700] hover:text-[#FF6700] text-[11px] font-mono uppercase tracking-wider underline cursor-pointer"
                 >
                   Fill Demo Access
                 </button>
@@ -438,7 +438,7 @@ export default function AdminPortal() {
               <button
                 type="submit"
                 disabled={isLoggingIn}
-                className="w-full mt-2 py-3.5 px-6 rounded-xl bg-gradient-to-r from-[#C0622A] to-[#E88C52] hover:from-[#a84f1d] hover:to-[#C0622A] text-white font-heading font-bold text-xs sm:text-sm uppercase tracking-wider shadow-[0_0_25px_rgba(192,98,42,0.4)] transition-all flex items-center justify-center gap-2 active:scale-98 cursor-pointer disabled:opacity-70"
+                className="w-full mt-2 py-3.5 px-6 rounded-xl bg-[#FF6700] hover:bg-[#E55C00] text-white font-heading font-bold text-xs sm:text-sm uppercase tracking-wider shadow-[0_0_25px_rgba(255,103,0,0.4)] transition-all flex items-center justify-center gap-2 active:scale-98 cursor-pointer disabled:opacity-70"
               >
                 {isLoggingIn ? (
                   <>
@@ -475,7 +475,7 @@ export default function AdminPortal() {
         backgroundColor: theme.bg,
         color: theme.textPrimary,
       }}
-      className="min-h-screen flex selection:bg-[#C0622A] selection:text-white transition-colors duration-300 font-sans"
+      className="min-h-screen flex selection:bg-[#FF6700] selection:text-white transition-colors duration-300 font-sans"
     >
       {/* GLOBAL TOAST POPUP */}
       <AnimatePresence>
