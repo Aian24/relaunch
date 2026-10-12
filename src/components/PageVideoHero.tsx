@@ -2,7 +2,7 @@
 
 import React, { useRef, useEffect, useState } from "react";
 import { motion } from "framer-motion";
-import { ChevronDown, ArrowRight, ArrowUpRight } from "lucide-react";
+import { ChevronDown, ArrowUpRight } from "lucide-react";
 import { useContactModal, ContactIntent } from "@/context/ContactModalContext";
 
 export interface MetricPill {
@@ -122,7 +122,7 @@ export default function PageVideoHero({
 
   const effectiveExploreText = exploreText || secondaryCtaText || "Explore Capabilities";
   const effectiveExploreTarget = exploreTargetId || secondaryCtaTargetId || scrollTargetId;
-  const effectiveBookText = bookStrategyText || primaryCtaText || "Book Strategy Call";
+  const effectiveBookText = bookStrategyText || primaryCtaText || "Book a Strategy Call";
   const effectiveBookIntent = bookStrategyIntent || primaryCtaIntent || "strategy-session";
 
   return (
@@ -240,23 +240,23 @@ export default function PageVideoHero({
         >
           <button
             type="button"
-            onClick={() => handleScrollToTarget(effectiveExploreTarget)}
+            onClick={() => openContactModal({ intent: effectiveBookIntent })}
             className={`flex-1 sm:flex-initial inline-flex items-center justify-center gap-1.5 sm:gap-2 px-3.5 sm:px-6 py-3 sm:py-3.5 rounded-xl text-white font-heading font-bold text-[11px] sm:text-sm uppercase tracking-wider transition-all duration-200 cursor-pointer active:scale-98 whitespace-nowrap ${
               isPurple
                 ? "bg-[#7F48ED] hover:bg-[#6D28D9] shadow-[0_0_25px_rgba(127,72,237,0.35)]"
                 : "bg-[#FF6700] hover:bg-[#E55C00] shadow-[0_0_25px_rgba(255,103,0,0.35)]"
             }`}
           >
-            <span>{effectiveExploreText}</span>
-            <ArrowRight className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+            <span>{effectiveBookText}</span>
+            <ArrowUpRight className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-white" />
           </button>
 
           <button
             type="button"
-            onClick={() => openContactModal({ intent: effectiveBookIntent })}
+            onClick={() => handleScrollToTarget(effectiveExploreTarget)}
             className="flex-1 sm:flex-initial inline-flex items-center justify-center gap-1.5 sm:gap-2 px-3.5 sm:px-6 py-3 sm:py-3.5 rounded-xl bg-white/[0.08] hover:bg-white/[0.15] border border-white/20 text-white font-heading font-bold text-[11px] sm:text-sm uppercase tracking-wider transition-all duration-200 backdrop-blur-md cursor-pointer whitespace-nowrap"
           >
-            <span>{effectiveBookText}</span>
+            <span>{effectiveExploreText}</span>
             <ArrowUpRight
               className={`w-3.5 h-3.5 sm:w-4 sm:h-4 ${
                 isPurple ? "text-[#7F48ED]" : "text-[#FF6700]"

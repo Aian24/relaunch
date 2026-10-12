@@ -60,7 +60,7 @@ export default function Navbar() {
               <Link
                 key={link.label}
                 href={link.href}
-                className={`relative py-1 px-3 text-[11px] xl:text-xs font-semibold uppercase tracking-wider transition-all whitespace-nowrap group ${
+                className={`relative py-1 px-2.5 xl:px-3 text-[10.5px] xl:text-xs font-semibold uppercase tracking-wider transition-all whitespace-nowrap group ${
                   isActive
                     ? "text-white font-bold"
                     : "text-slate-300 hover:text-white"
@@ -96,7 +96,7 @@ export default function Navbar() {
             onClick={() => openContactModal({ intent: "strategy-session" })}
             className="inline-flex items-center justify-center gap-2 px-5 sm:px-6 py-2.5 bg-[#FF6700] hover:bg-[#E55C00] text-white text-xs font-bold uppercase tracking-wider rounded-xl transition-all duration-200 shadow-[0_0_20px_rgba(255,103,0,0.35)] active:scale-98 cursor-pointer whitespace-nowrap"
           >
-            <span>Book a Call</span>
+            <span>Book a Strategy Call</span>
             <ArrowUpRight className="w-3.5 h-3.5 text-white" />
           </button>
         </div>

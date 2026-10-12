@@ -281,19 +281,56 @@ export default function AdminPortal() {
     setLoginError("");
   };
 
-  // Sidebar link items
-  const sidebarLinks: { id: AdminTabId; label: string; icon: React.ComponentType<{ className?: string }>; badge?: string }[] = [
-    { id: "dashboard", label: "Dashboard", icon: LayoutDashboard },
-    { id: "bookings", label: "Bookings & Calendar", icon: Calendar, badge: "5" },
-    { id: "inbox", label: "Email Inbox", icon: Inbox, badge: "2" },
-    { id: "inquiries", label: "All Client Leads", icon: Users },
-    { id: "colors", label: "Colors & Theme", icon: Palette },
-    { id: "fonts", label: "Fonts & Typography", icon: Type },
-    { id: "media", label: "Media & Assets", icon: ImageIcon },
-    { id: "pages", label: "Pages & Content", icon: FileText },
-    { id: "ai-engine", label: "AI Engine Settings", icon: Cpu },
-    { id: "settings", label: "Studio Settings", icon: Settings },
+  // Grouped Sidebar links with dual Phoenix Orange & Logo Purple integration
+  interface SidebarLinkItem {
+    id: AdminTabId;
+    label: string;
+    icon: React.ComponentType<{ className?: string }>;
+    badge?: string;
+    category: "operations" | "creative" | "system";
+    accent: "orange" | "purple" | "gradient";
+  }
+
+  const sidebarGroups: {
+    key: "operations" | "creative" | "system";
+    title: string;
+    accentDot: string;
+    items: SidebarLinkItem[];
+  }[] = [
+    {
+      key: "operations",
+      title: "OPERATIONS & CRM",
+      accentDot: "#FF6700",
+      items: [
+        { id: "dashboard", label: "Dashboard", icon: LayoutDashboard, category: "operations", accent: "orange" },
+        { id: "bookings", label: "Bookings & Calendar", icon: Calendar, badge: "5", category: "operations", accent: "orange" },
+        { id: "inbox", label: "Email Inbox", icon: Inbox, badge: "2", category: "operations", accent: "orange" },
+        { id: "inquiries", label: "All Client Leads", icon: Users, category: "operations", accent: "orange" },
+      ],
+    },
+    {
+      key: "creative",
+      title: "STUDIO & AI ENGINE",
+      accentDot: "#7F48ED",
+      items: [
+        { id: "colors", label: "Colors & Theme", icon: Palette, category: "creative", accent: "purple" },
+        { id: "fonts", label: "Fonts & Typography", icon: Type, category: "creative", accent: "purple" },
+        { id: "media", label: "Media & Assets", icon: ImageIcon, category: "creative", accent: "purple" },
+        { id: "pages", label: "Pages & Content", icon: FileText, category: "creative", accent: "purple" },
+        { id: "ai-engine", label: "AI Engine Settings", icon: Cpu, badge: "AI", category: "creative", accent: "purple" },
+      ],
+    },
+    {
+      key: "system",
+      title: "SYSTEM",
+      accentDot: "#7F48ED",
+      items: [
+        { id: "settings", label: "Studio Settings", icon: Settings, category: "system", accent: "gradient" },
+      ],
+    },
   ];
+
+  const allSidebarLinks: SidebarLinkItem[] = sidebarGroups.flatMap((g) => g.items);
 
   if (authLoading) {
     return (
@@ -308,8 +345,8 @@ export default function AdminPortal() {
   if (!isAuthenticated) {
     return (
       <main className="min-h-screen bg-[#07090E] text-white flex flex-col justify-between relative overflow-hidden select-none px-4 py-8">
-        <div className="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[700px] h-[500px] bg-[#FF6700]/20 rounded-full blur-[160px] pointer-events-none" />
-        <div className="absolute bottom-0 right-1/4 w-[400px] h-[350px] bg-[#FF6700]/10 rounded-full blur-[140px] pointer-events-none" />
+        <div className="absolute top-1/4 left-1/3 -translate-y-1/2 w-[650px] h-[500px] bg-[#FF6700]/20 rounded-full blur-[160px] pointer-events-none" />
+        <div className="absolute bottom-10 right-1/4 w-[550px] h-[450px] bg-[#7F48ED]/20 rounded-full blur-[160px] pointer-events-none" />
         <div className="absolute inset-0 bg-[radial-gradient(#ffffff08_1px,transparent_1px)] [background-size:24px_24px] pointer-events-none" />
 
         {/* Top Minimal Security Brand Bar */}
@@ -326,6 +363,7 @@ export default function AdminPortal() {
           </div>
 
           <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/[0.05] border border-white/[0.1] text-slate-400 text-[10px] font-mono uppercase tracking-wider">
+            <span className="w-1.5 h-1.5 rounded-full bg-[#7F48ED]" />
             <Lock className="w-3 h-3 text-[#FF6700]" />
             <span>Studio Portal · Encrypted</span>
           </div>
@@ -339,7 +377,7 @@ export default function AdminPortal() {
             transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
             className="p-8 sm:p-10 rounded-3xl bg-white/[0.04] border border-white/[0.12] backdrop-blur-2xl shadow-2xl relative overflow-hidden"
           >
-            <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-transparent via-[#FF6700] to-transparent" />
+            <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-[#FF6700] via-[#D946EF] to-[#7F48ED]" />
 
             <div className="text-center mb-8">
               <div className="relative h-9 w-40 mx-auto mb-4 flex items-center justify-center">
@@ -518,82 +556,110 @@ export default function AdminPortal() {
             />
           </div>
 
-          <div
-            style={{ color: theme.textMuted }}
-            className="text-[10px] font-mono uppercase tracking-widest font-bold mb-3 px-3"
-          >
-            Mission Control
-          </div>
+          {/* Navigation Links Grouped with Orange & Purple Integration */}
+          <nav className="space-y-4">
+            {sidebarGroups.map((group) => (
+              <div key={group.key} className="space-y-1">
+                <div className="flex items-center gap-1.5 px-3 pt-1 pb-1">
+                  <span
+                    style={{ backgroundColor: group.accentDot }}
+                    className="w-1.5 h-1.5 rounded-full shrink-0"
+                  />
+                  <span
+                    style={{ color: theme.textMuted }}
+                    className="text-[9px] font-mono uppercase tracking-widest font-bold"
+                  >
+                    {group.title}
+                  </span>
+                </div>
 
-          {/* Navigation Links */}
-          <nav className="space-y-1">
-            {sidebarLinks.map((item) => {
-              const IconComp = item.icon;
-              const isActive = activeTab === item.id;
+                {group.items.map((item) => {
+                  const IconComp = item.icon;
+                  const isActive = activeTab === item.id;
+                  const isPurple = item.accent === "purple";
+                  const isGradient = item.accent === "gradient";
 
-              return (
-                <button
-                  key={item.id}
-                  onClick={() => setActiveTab(item.id)}
-                  style={{
-                    backgroundColor: isActive ? theme.primary : "transparent",
-                    color: isActive ? "#FFFFFF" : theme.textSecondary,
-                  }}
-                  className={`w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl text-xs font-semibold tracking-wide transition-all cursor-pointer ${
-                    !isActive ? "hover:bg-slate-500/10" : ""
-                  }`}
-                >
-                  <div className="flex items-center gap-3">
-                    <IconComp className="w-4 h-4" />
-                    <span>{item.label}</span>
-                  </div>
-                  {item.badge && (
-                    <span
+                  return (
+                    <button
+                      key={item.id}
+                      onClick={() => setActiveTab(item.id)}
                       style={{
-                        backgroundColor: isActive ? "rgba(255,255,255,0.25)" : `${theme.primary}25`,
-                        color: isActive ? "#FFFFFF" : theme.secondary,
+                        background: isActive
+                          ? isGradient
+                            ? "linear-gradient(135deg, #FF6700, #7F48ED)"
+                            : isPurple
+                            ? "#7F48ED"
+                            : theme.primary
+                          : "transparent",
+                        color: isActive ? "#FFFFFF" : theme.textSecondary,
                       }}
-                      className="px-2 py-0.5 rounded-full text-[10px] font-mono font-bold"
+                      className={`w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl text-xs font-semibold tracking-wide transition-all cursor-pointer group ${
+                        !isActive
+                          ? "hover:bg-purple-500/10 hover:text-[#7F48ED]"
+                          : isPurple
+                          ? "shadow-[0_4px_18px_rgba(127,72,237,0.3)]"
+                          : "shadow-[0_4px_18px_rgba(255,103,0,0.3)]"
+                      }`}
                     >
-                      {item.badge}
-                    </span>
-                  )}
-                </button>
-              );
-            })}
+                      <div className="flex items-center gap-3">
+                        <IconComp
+                          className={`w-4 h-4 transition-transform group-hover:scale-110 ${
+                            !isActive
+                              ? "text-[#7F48ED]"
+                              : "text-white"
+                          }`}
+                        />
+                        <span>{item.label}</span>
+                      </div>
+                      {item.badge && (
+                        <span
+                          className={`px-2 py-0.5 rounded-full text-[10px] font-mono font-bold transition-colors ${
+                            isActive
+                              ? "bg-white/25 text-white"
+                              : "bg-purple-500/15 text-[#7F48ED] border border-purple-500/30"
+                          }`}
+                        >
+                          {item.badge}
+                        </span>
+                      )}
+                    </button>
+                  );
+                })}
+              </div>
+            ))}
           </nav>
         </div>
 
-        {/* Sidebar Footer */}
+        {/* Sidebar Footer with Solid Purple AD Avatar */}
         <div
           style={{ borderColor: theme.border }}
           className="p-4 border-t flex items-center justify-between"
         >
           <div className="flex items-center gap-2.5">
-            <div
-              style={{
-                backgroundColor: `${theme.primary}20`,
-                borderColor: `${theme.primary}40`,
-                color: theme.secondary,
-              }}
-              className="w-8 h-8 rounded-xl border flex items-center justify-center text-xs font-bold font-mono"
-            >
-              AD
+            <div className="relative">
+              <div className="w-9 h-9 rounded-xl bg-[#7F48ED] flex items-center justify-center font-heading font-black text-xs text-white shadow-sm shadow-purple-500/25">
+                AD
+              </div>
+              <span className="absolute -bottom-0.5 -right-0.5 w-2.5 h-2.5 rounded-full bg-[#10B981] border-2 border-white ring-1 ring-[#10B981]/40" />
             </div>
             <div>
-              <div style={{ color: theme.textPrimary }} className="text-xs font-bold leading-tight">
-                Studio Admin
+              <div style={{ color: theme.textPrimary }} className="text-xs font-bold leading-tight flex items-center gap-1.5">
+                <span>Studio Admin</span>
+                <span className="px-1.5 py-0.2 rounded-md bg-purple-500/10 border border-purple-500/25 text-[#7F48ED] text-[9px] font-mono font-bold uppercase tracking-wider">
+                  Super
+                </span>
               </div>
-              <div style={{ color: theme.textMuted }} className="text-[10px] font-mono">
-                {theme.name.split(" ")[0]} Mode
+              <div style={{ color: theme.textMuted }} className="text-[10px] font-mono mt-0.5 flex items-center gap-1">
+                <span className="w-1.5 h-1.5 rounded-full bg-[#7F48ED]" />
+                <span>Phoenix &middot; Active</span>
               </div>
             </div>
           </div>
 
           <button
             onClick={handleLogout}
-            style={{ borderColor: theme.border, color: theme.textMuted }}
-            className="p-1.5 rounded-lg border hover:text-red-400 hover:border-red-500/40 transition-colors cursor-pointer"
+            style={{ borderColor: theme.border }}
+            className="p-2 rounded-xl border text-[#7F48ED] hover:text-red-400 hover:border-red-500/40 hover:bg-red-500/10 transition-colors cursor-pointer"
             title="Log Out"
           >
             <LogOut className="w-4 h-4" />
@@ -643,31 +709,58 @@ export default function AdminPortal() {
           </div>
         </header>
 
-        {/* Mobile Horizontal Subnav */}
+        {/* Mobile Horizontal Subnav with Orange & Purple Integration */}
         <div
           style={{
             backgroundColor: theme.sidebarBg,
             borderColor: theme.border,
           }}
-          className="md:hidden flex items-center gap-1 p-2 border-b overflow-x-auto scrollbar-none"
+          className="md:hidden flex items-center gap-1.5 p-2.5 border-b overflow-x-auto scrollbar-none"
         >
-          {sidebarLinks.map((item) => {
+          {allSidebarLinks.map((item) => {
             const IconComp = item.icon;
             const isActive = activeTab === item.id;
+            const isPurple = item.accent === "purple";
+            const isGradient = item.accent === "gradient";
+
             return (
               <button
                 key={item.id}
                 onClick={() => setActiveTab(item.id)}
                 style={{
-                  backgroundColor: isActive ? theme.primary : "transparent",
+                  background: isActive
+                    ? isGradient
+                      ? "linear-gradient(135deg, #FF6700, #7F48ED)"
+                      : isPurple
+                      ? "#7F48ED"
+                      : theme.primary
+                    : "transparent",
                   color: isActive ? "#FFFFFF" : theme.textSecondary,
                 }}
-                className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[11px] font-semibold whitespace-nowrap shrink-0"
+                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-[11px] font-semibold whitespace-nowrap shrink-0 transition-all ${
+                  isActive
+                    ? isPurple
+                      ? "shadow-sm shadow-purple-500/30"
+                      : "shadow-sm shadow-orange-500/30"
+                    : "hover:bg-purple-500/10 hover:text-[#7F48ED]"
+                }`}
               >
-                <IconComp className="w-3.5 h-3.5" />
+                <IconComp
+                  className={`w-3.5 h-3.5 ${
+                    !isActive
+                      ? "text-[#7F48ED]"
+                      : "text-white"
+                  }`}
+                />
                 <span>{item.label}</span>
                 {item.badge && (
-                  <span className="px-1.5 py-0.2 rounded-full text-[9px] font-mono font-bold bg-white/20">
+                  <span
+                    className={`px-1.5 py-0.2 rounded-full text-[9px] font-mono font-bold ${
+                      isActive
+                        ? "bg-white/20 text-white"
+                        : "bg-purple-500/15 text-[#7F48ED] border border-purple-500/30"
+                    }`}
+                  >
                     {item.badge}
                   </span>
                 )}
@@ -678,48 +771,59 @@ export default function AdminPortal() {
 
         {/* TAB CONTENT: UNDER DEVELOPMENT DISPLAY */}
         <div className="p-4 sm:p-8 space-y-6 flex-1 flex items-center justify-center">
-          <motion.div
-            key={activeTab}
-            initial={{ opacity: 0, y: 12 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.3 }}
-            style={{
-              backgroundColor: theme.cardBg,
-              borderColor: theme.cardBorder,
-            }}
-            className="p-12 sm:p-16 rounded-3xl border text-center space-y-4 max-w-xl w-full mx-auto my-8 shadow-sm"
-          >
-            <div
-              style={{
-                backgroundColor: `${theme.primary}15`,
-                borderColor: `${theme.primary}30`,
-                color: theme.primary,
-              }}
-              className="w-14 h-14 rounded-2xl border flex items-center justify-center mx-auto shadow-inner"
-            >
-              <ActiveIcon className="w-7 h-7" />
-            </div>
+          {(() => {
+            const activeLink = allSidebarLinks.find((l) => l.id === activeTab);
+            const isPurpleActive = activeLink?.accent === "purple";
+            const activeAccentColor = isPurpleActive ? "#7F48ED" : theme.primary;
 
-            <div
-              style={{
-                backgroundColor: `${theme.primary}15`,
-                borderColor: `${theme.primary}30`,
-                color: theme.primary,
-              }}
-              className="h-7 px-3 rounded-lg border text-[10px] font-mono uppercase font-bold inline-flex items-center justify-center gap-1.5"
-            >
-              <span style={{ backgroundColor: theme.primary }} className="w-1.5 h-1.5 rounded-full animate-pulse" />
-              Under Development
-            </div>
+            return (
+              <motion.div
+                key={activeTab}
+                initial={{ opacity: 0, y: 12 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.3 }}
+                style={{
+                  backgroundColor: theme.cardBg,
+                  borderColor: theme.cardBorder,
+                }}
+                className="p-12 sm:p-16 rounded-3xl border text-center space-y-4 max-w-xl w-full mx-auto my-8 shadow-sm"
+              >
+                <div
+                  style={{
+                    backgroundColor: isPurpleActive ? "rgba(127,72,237,0.12)" : `${theme.primary}15`,
+                    borderColor: isPurpleActive ? "rgba(127,72,237,0.25)" : `${theme.primary}30`,
+                    color: activeAccentColor,
+                  }}
+                  className="w-14 h-14 rounded-2xl border flex items-center justify-center mx-auto shadow-inner"
+                >
+                  <ActiveIcon className="w-7 h-7" />
+                </div>
 
-            <h2 style={{ color: theme.textPrimary }} className="font-heading font-black text-2xl tracking-tight">
-              {currentPage.title}
-            </h2>
+                <div
+                  style={{
+                    backgroundColor: isPurpleActive ? "rgba(127,72,237,0.1)" : `${theme.primary}15`,
+                    borderColor: isPurpleActive ? "rgba(127,72,237,0.25)" : `${theme.primary}30`,
+                    color: activeAccentColor,
+                  }}
+                  className="h-7 px-3 rounded-lg border text-[10px] font-mono uppercase font-bold inline-flex items-center justify-center gap-1.5"
+                >
+                  <span
+                    style={{ backgroundColor: activeAccentColor }}
+                    className="w-1.5 h-1.5 rounded-full animate-pulse"
+                  />
+                  Under Development
+                </div>
 
-            <p style={{ color: theme.textSecondary }} className="text-xs sm:text-sm max-w-md mx-auto leading-relaxed">
-              {currentPage.description}
-            </p>
-          </motion.div>
+                <h2 style={{ color: theme.textPrimary }} className="font-heading font-black text-2xl tracking-tight">
+                  {currentPage.title}
+                </h2>
+
+                <p style={{ color: theme.textSecondary }} className="text-xs sm:text-sm max-w-md mx-auto leading-relaxed">
+                  {currentPage.description}
+                </p>
+              </motion.div>
+            );
+          })()}
         </div>
       </div>
     </div>

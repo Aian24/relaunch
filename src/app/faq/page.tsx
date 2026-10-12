@@ -88,7 +88,7 @@ export default function FaqPage() {
                   onClick={() => openContactModal({ intent: "strategy-session" })}
                   className="flex-1 sm:flex-initial inline-flex items-center justify-center gap-1.5 sm:gap-2 px-3.5 sm:px-6 py-3 sm:py-3.5 bg-[#7F48ED] hover:bg-[#6D28D9] text-white text-[11px] sm:text-sm font-bold uppercase tracking-wider rounded-xl transition-all shadow-[0_0_20px_rgba(127,72,237,0.35)] cursor-pointer active:scale-98 whitespace-nowrap"
                 >
-                  <span>Ask a Question</span>
+                  <span>Book a Strategy Call</span>
                   <ArrowUpRight className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-white" />
                 </button>
 
@@ -97,7 +97,7 @@ export default function FaqPage() {
                   className="flex-1 sm:flex-initial inline-flex items-center justify-center gap-1.5 sm:gap-2 px-3.5 sm:px-6 py-3 sm:py-3.5 bg-white/[0.06] hover:bg-white/[0.12] text-slate-200 hover:text-white text-[11px] sm:text-sm font-bold uppercase tracking-wider rounded-xl border border-white/[0.12] transition-all whitespace-nowrap"
                 >
                   <span>View Pricing</span>
-                  <ArrowRight className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-slate-400" />
+                  <ArrowUpRight className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-[#7F48ED]" />
                 </Link>
               </motion.div>
             </div>

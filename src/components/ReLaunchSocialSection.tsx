@@ -16,7 +16,7 @@ export default function ReLaunchSocialSection() {
   );
 
   return (
-    <section id="social" className="py-20 sm:py-28 bg-white text-[#090D16] border-b border-slate-200 select-none scroll-mt-20 overflow-hidden">
+    <section id="social" className="py-14 sm:py-20 bg-white text-[#090D16] select-none scroll-mt-20 overflow-hidden">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Top Header - Centered with no awkward wrapping */}
         <MotionWrapper direction="up" distance={20} className="text-center max-w-3xl mx-auto mb-14 sm:mb-16">
@@ -40,7 +40,7 @@ export default function ReLaunchSocialSection() {
             direction="left"
             delay={0.08}
             distance={45}
-            className="lg:col-span-6 bg-[#FAF9F6] border border-slate-200/90 rounded-3xl p-6 sm:p-8 flex flex-col justify-between shadow-[0_4px_25px_rgba(0,0,0,0.02)] hover:shadow-[0_12px_35px_rgba(127,72,237,0.06)] hover:border-[#7F48ED]/30 transition-all"
+            className="lg:col-span-6 bg-white border border-slate-200 rounded-3xl p-6 sm:p-8 flex flex-col justify-between shadow-[0_4px_25px_rgba(0,0,0,0.02)] hover:shadow-[0_12px_35px_rgba(127,72,237,0.06)] hover:border-[#7F48ED]/30 transition-all"
           >
             <div>
               <span className="text-xs font-mono uppercase tracking-widest text-[#7F48ED] font-bold block mb-1.5 whitespace-nowrap">
@@ -85,7 +85,7 @@ export default function ReLaunchSocialSection() {
                   }
                   className="w-full inline-flex items-center justify-center gap-2 px-5 py-3 bg-[#7F48ED] hover:bg-[#6D28D9] text-white font-heading font-bold text-xs uppercase tracking-wider rounded-xl shadow-xs transition-all active:translate-y-0.5 whitespace-nowrap cursor-pointer"
                 >
-                  <span>Start Your Project</span>
+                  <span>Book a Strategy Call</span>
                   <ArrowRight className="w-3.5 h-3.5" />
                 </button>
 
@@ -101,7 +101,7 @@ export default function ReLaunchSocialSection() {
               </div>
 
               {/* Stats Counter Strip */}
-              <div className="grid grid-cols-3 gap-3 pt-5 border-t border-slate-200">
+              <div className="grid grid-cols-3 gap-3 pt-4">
                 <div>
                   <div className="font-heading font-black text-xl sm:text-2xl text-[#7F48ED]">
                     <NumberCounter value={30} suffix="min" />
@@ -135,7 +135,7 @@ export default function ReLaunchSocialSection() {
             direction="left"
             delay={0.16}
             distance={45}
-            className="lg:col-span-6 bg-[#FAF9F6] border border-slate-200/90 rounded-3xl p-6 sm:p-8 flex flex-col justify-between shadow-[0_4px_25px_rgba(0,0,0,0.02)] hover:shadow-[0_12px_35px_rgba(127,72,237,0.06)] hover:border-[#7F48ED]/30 transition-all"
+            className="lg:col-span-6 bg-white border border-slate-200 rounded-3xl p-6 sm:p-8 flex flex-col justify-between shadow-[0_4px_25px_rgba(0,0,0,0.02)] hover:shadow-[0_12px_35px_rgba(127,72,237,0.06)] hover:border-[#7F48ED]/30 transition-all"
           >
             <div>
               <span className="text-xs font-mono uppercase tracking-widest text-[#7F48ED] font-bold block mb-1.5 whitespace-nowrap">
@@ -149,7 +149,7 @@ export default function ReLaunchSocialSection() {
                 {socialData.steps.map((step, i) => (
                   <li
                     key={step.num}
-                    className="flex items-start gap-3 pb-3 border-b border-slate-200 last:border-none last:pb-0"
+                    className="flex items-start gap-3"
                   >
                     <div className="w-7 h-7 rounded-lg bg-[#7F48ED] text-white font-heading font-black text-xs flex items-center justify-center shrink-0 mt-0.5 shadow-2xs">
                       {i + 1}
@@ -167,7 +167,7 @@ export default function ReLaunchSocialSection() {
               </ul>
             </div>
 
-            <div className="mt-6 pt-3 border-t border-slate-200 text-[11px] sm:text-xs text-slate-500 flex items-center gap-1.5">
+            <div className="mt-4 pt-2 text-[11px] sm:text-xs text-slate-500 flex items-center gap-1.5">
               <Zap className="w-3.5 h-3.5 text-[#7F48ED] shrink-0" />
               <span>5-minute setup · Instant portal access upon checkout</span>
             </div>
@@ -175,7 +175,7 @@ export default function ReLaunchSocialSection() {
         </div>
 
         {/* Social Plan Tiers Selector */}
-        <div className="pt-8 border-t border-slate-200">
+        <div className="pt-4 sm:pt-6">
           <MotionWrapper direction="up" className="text-center max-w-3xl mx-auto mb-8 sm:mb-10">
             <h3 className="font-heading font-black text-2xl sm:text-3xl text-[#090D16] mb-2">
               ReLaunch Social Plan Options
@@ -258,7 +258,7 @@ export default function ReLaunchSocialSection() {
                   </div>
                 </div>
 
-                <div className="pt-4 border-t border-slate-100">
+                <div className="pt-2">
                   <button
                     type="button"
                     onClick={() =>

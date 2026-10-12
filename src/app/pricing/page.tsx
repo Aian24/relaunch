@@ -25,8 +25,8 @@ export default function PricingPage() {
 
       {/* 1. Pricing Hero: Left = Fonts / Typography, Right = Interactive Bundle Savings Card */}
       <section className="relative pt-32 sm:pt-40 pb-16 sm:pb-24 px-4 sm:px-6 lg:px-8 bg-[#0A0D14] text-white overflow-hidden select-none">
-        <div className="absolute top-0 right-1/4 w-[700px] h-[500px] bg-[#7F48ED]/20 rounded-full blur-[160px] pointer-events-none" />
-        <div className="absolute top-1/4 left-10 w-[600px] h-[500px] bg-[#7F48ED]/18 rounded-full blur-[160px] pointer-events-none" />
+        <div className="absolute top-0 right-1/4 w-[700px] h-[500px] bg-[#FF6700]/15 rounded-full blur-[160px] pointer-events-none" />
+        <div className="absolute top-1/4 left-10 w-[600px] h-[500px] bg-[#FF6700]/12 rounded-full blur-[160px] pointer-events-none" />
 
         <div className="max-w-7xl mx-auto">
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-center">
@@ -37,9 +37,9 @@ export default function PricingPage() {
                 initial={{ opacity: 0, y: 14 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
-                className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-white/[0.08] border border-white/[0.12] text-[#7F48ED] text-xs font-mono uppercase tracking-widest font-semibold mb-6 shadow-xs whitespace-nowrap"
+                className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-white/[0.08] border border-white/[0.12] text-[#FF6700] text-xs font-mono uppercase tracking-widest font-semibold mb-6 shadow-xs whitespace-nowrap"
               >
-                <span className="w-2 h-2 rounded-full bg-[#7F48ED] shrink-0" />
+                <span className="w-2 h-2 rounded-full bg-[#FF6700] shrink-0" />
                 <span>Transparent Subscription Pricing</span>
               </motion.div>
 
@@ -50,8 +50,8 @@ export default function PricingPage() {
                 className="font-heading font-black text-3xl sm:text-4xl md:text-5xl lg:text-5xl xl:text-6xl tracking-tight leading-[1.08] text-white"
               >
                 <span className="block">Build Your Bundle.</span>
-                <span className="block text-[#7F48ED]">
-                  Save up to 25%.
+                <span className="block text-[#FF6700]">
+                  Save up to 20%.
                 </span>
               </motion.h1>
 
@@ -72,15 +72,15 @@ export default function PricingPage() {
                 className="mt-8 flex flex-wrap justify-center sm:justify-start gap-2 sm:gap-4 text-xs text-slate-300 font-medium"
               >
                 <div className="flex items-center gap-1.5 bg-white/[0.05] px-3 py-1.5 rounded-lg border border-white/[0.08]">
-                  <ShieldCheck className="w-4 h-4 text-[#7F48ED]" />
+                  <ShieldCheck className="w-4 h-4 text-[#FF6700]" />
                   <span>Zero Contracts</span>
                 </div>
                 <div className="flex items-center gap-1.5 bg-white/[0.05] px-3 py-1.5 rounded-lg border border-white/[0.08]">
-                  <Lock className="w-4 h-4 text-[#7F48ED]" />
+                  <Lock className="w-4 h-4 text-[#FF6700]" />
                   <span>100% IP Ownership</span>
                 </div>
                 <div className="flex items-center gap-1.5 bg-white/[0.05] px-3 py-1.5 rounded-lg border border-white/[0.08]">
-                  <RotateCcw className="w-4 h-4 text-[#7F48ED]" />
+                  <RotateCcw className="w-4 h-4 text-[#FF6700]" />
                   <span>Pause Anytime</span>
                 </div>
               </motion.div>
@@ -96,12 +96,12 @@ export default function PricingPage() {
               >
                 <div className="flex items-center justify-between pb-4 border-b border-white/[0.08]">
                   <div className="flex items-center gap-2">
-                    <Layers className="w-4 h-4 text-[#7F48ED]" />
-                    <span className="text-xs font-mono uppercase tracking-widest text-[#7F48ED] font-bold">
+                    <Layers className="w-4 h-4 text-[#FF6700]" />
+                    <span className="text-xs font-mono uppercase tracking-widest text-[#FF6700] font-bold">
                       Bundle Discount Tiering
                     </span>
                   </div>
-                  <span className="px-2.5 py-1 rounded-full bg-[#7F48ED] text-white text-[10px] font-mono font-bold">
+                  <span className="px-2.5 py-1 rounded-full bg-[#FF6700] text-white text-[10px] font-mono font-bold">
                     Compounding ROI
                   </span>
                 </div>
@@ -109,33 +109,33 @@ export default function PricingPage() {
                 <div className="mt-6 space-y-4">
                   <div className="flex items-center justify-between p-3.5 rounded-2xl bg-white/[0.04] border border-white/[0.06]">
                     <div>
-                      <div className="font-heading font-bold text-sm text-white">2 Services Selected</div>
+                      <div className="font-heading font-bold text-sm text-white">2–3 Services (Growth)</div>
                       <div className="text-[11px] text-slate-400">Marketing + Web, or SEO + Ads</div>
                     </div>
-                    <span className="text-sm font-bold text-[#7F48ED] font-mono">10% OFF</span>
+                    <span className="text-sm font-bold text-[#FF6700] font-mono">10% OFF</span>
                   </div>
 
                   <div className="flex items-center justify-between p-3.5 rounded-2xl bg-white/[0.04] border border-white/[0.06]">
                     <div>
-                      <div className="font-heading font-bold text-sm text-white">3 Services Selected</div>
-                      <div className="text-[11px] text-slate-400">Full-funnel digital presence</div>
+                      <div className="font-heading font-bold text-sm text-white">4–5 Services (Scale)</div>
+                      <div className="text-[11px] text-slate-400">Full-funnel digital & automated presence</div>
                     </div>
-                    <span className="text-sm font-bold text-[#7F48ED] font-mono">15% OFF</span>
+                    <span className="text-sm font-bold text-[#FF6700] font-mono">15% OFF</span>
                   </div>
 
-                  <div className="flex items-center justify-between p-3.5 rounded-2xl bg-purple-500/10 border border-[#7F48ED]/40 shadow-sm">
+                  <div className="flex items-center justify-between p-3.5 rounded-2xl bg-orange-500/10 border border-[#FF6700]/40 shadow-sm">
                     <div>
-                      <div className="font-heading font-bold text-sm text-white">4+ Services (Complete Engine)</div>
-                      <div className="text-[11px] text-slate-300">Brand + Web + Ads + AI Systems</div>
+                      <div className="font-heading font-bold text-sm text-white">6+ Services (Mission Control)</div>
+                      <div className="text-[11px] text-slate-300">Complete turnkey growth department</div>
                     </div>
-                    <span className="text-base font-black text-purple-300 font-mono">25% OFF</span>
+                    <span className="text-base font-black text-orange-400 font-mono">20% OFF</span>
                   </div>
                 </div>
 
                 <div className="mt-6 pt-4 border-t border-white/[0.08] text-center">
                   <a
                     href="#bundle-builder"
-                    className="inline-flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-[#7F48ED] hover:text-white transition-colors"
+                    className="inline-flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-[#FF6700] hover:text-white transition-colors"
                   >
                     <span>Configure Your Custom Bundle Below ↓</span>
                   </a>

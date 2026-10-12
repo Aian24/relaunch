@@ -6,10 +6,12 @@ import { motion } from "framer-motion";
 import Preloader from "@/components/Preloader";
 import Navbar from "@/components/Navbar";
 import Hero from "@/components/Hero";
+import ProblemSection from "@/components/ProblemSection";
 import DeliverablesSection from "@/components/DeliverablesSection";
 import AiSection from "@/components/AiSection";
 import ReLaunchSocialSection from "@/components/ReLaunchSocialSection";
 import TestimonialsSection from "@/components/TestimonialsSection";
+import FounderSection from "@/components/FounderSection";
 import CtaBanner from "@/components/CtaBanner";
 import Footer from "@/components/Footer";
 import ScrollToTop from "@/components/ScrollToTop";
@@ -29,6 +31,9 @@ export default function Home() {
       {/* 1. Cinematic Background Video Hero */}
       <Hero />
 
+      {/* 1.5 The Revenue Bottleneck: Problem Section */}
+      <ProblemSection />
+
       {/* 2. CORE PILLAR 1: Services (Deliverables Section) */}
       <DeliverablesSection />
 
@@ -36,7 +41,7 @@ export default function Home() {
       <AiSection />
 
       {/* 5. CORE PILLAR 3: Our Work & Case Studies Showcase - 100% Real Client Works */}
-      <section id="work" className="py-20 sm:py-28 px-4 sm:px-6 lg:px-8 bg-white text-[#090D16] border-b border-slate-200">
+      <section id="work" className="py-14 sm:py-20 px-4 sm:px-6 lg:px-8 bg-white text-[#090D16]">
         <div className="max-w-7xl mx-auto">
           {/* Section Header - Center Aligned */}
           <MotionWrapper
@@ -288,6 +293,9 @@ export default function Home() {
 
       {/* 6. Client Stories & 5-Star Social Proof */}
       <TestimonialsSection />
+
+      {/* 6.5 Founder Presence: Bobby Clark (22 Years in Phoenix) */}
+      <FounderSection />
 
       {/* 7. Bottom Strategic CTA Banner */}
       <CtaBanner />

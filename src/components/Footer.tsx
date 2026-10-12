@@ -55,8 +55,13 @@ export default function Footer() {
                 </Link>
               </li>
               <li>
+                <Link href="/enterprise" className="text-white hover:text-[#FF6700] transition-colors font-medium">
+                  Enterprise &amp; Custom Software →
+                </Link>
+              </li>
+              <li>
                 <Link href="/services#web-software" className="hover:text-[#7F48ED] transition-colors">
-                  Web &amp; Custom Software
+                  Web Platforms &amp; Software
                 </Link>
               </li>
               <li>

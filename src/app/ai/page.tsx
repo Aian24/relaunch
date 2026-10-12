@@ -17,8 +17,8 @@ import {
   Lightbulb,
   Workflow,
   MessageSquare,
-  Star,
-  Sparkles,
+  ThumbsUp,
+  PenTool,
   BarChart3,
   Code2,
   CheckCircle2,
@@ -75,7 +75,7 @@ const aiServices = [
     id: "reputation-reviews",
     title: "AI Reputation & Reviews",
     tagline: "Automate review requests and draft AI replies.",
-    icon: Star,
+    icon: ThumbsUp,
     deliverables: [
       "Review request sequences",
       "Multi-platform monitoring",
@@ -86,7 +86,7 @@ const aiServices = [
     id: "content-creative",
     title: "AI Content & Creative",
     tagline: "Scale on-brand copy and assets trained on your voice.",
-    icon: Sparkles,
+    icon: PenTool,
     deliverables: [
       "Brand voice training",
       "High-converting ad copy",
@@ -134,7 +134,7 @@ export default function AiPage() {
         posterSrc="/hero_frames/frame_000.webp"
         exploreText="Explore AI Stack"
         exploreTargetId="all-ai-services"
-        bookStrategyText="Book Strategy Call"
+        bookStrategyText="Book a Strategy Call"
         bookStrategyIntent="ai-audit"
         scrollTargetId="all-ai-services"
       />
@@ -207,7 +207,7 @@ export default function AiPage() {
                       }
                       className="inline-flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-[#FF6700] hover:text-[#CC5200] cursor-pointer whitespace-nowrap shrink-0 group-hover:translate-x-0.5 transition-transform"
                     >
-                      <span>Deploy System</span>
+                      <span>Book a Strategy Call</span>
                       <ArrowUpRight className="w-3.5 h-3.5" />
                     </button>
                   </div>

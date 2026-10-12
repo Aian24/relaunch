@@ -9,6 +9,7 @@ interface CustomDatePickerProps {
   minDate?: Date;
   placeholder?: string;
   className?: string;
+  theme?: "orange" | "purple";
 }
 
 const MONTH_NAMES = [
@@ -24,6 +25,7 @@ export default function CustomDatePicker({
   minDate = new Date(),
   placeholder = "Select Date",
   className = "",
+  theme = "orange",
 }: CustomDatePickerProps) {
   const [isOpen, setIsOpen] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
@@ -113,6 +115,8 @@ export default function CustomDatePicker({
   const isCurrentMonthToday =
     today.getMonth() === currentMonth && today.getFullYear() === currentYear;
 
+  const isOrange = theme === "orange";
+
   return (
     <div ref={containerRef} className={`relative select-none ${className}`}>
       {/* Trigger Button */}
@@ -121,12 +125,20 @@ export default function CustomDatePicker({
         onClick={() => setIsOpen(!isOpen)}
         className={`w-full px-3.5 py-2.5 bg-white border rounded-xl text-xs sm:text-sm flex items-center justify-between text-left transition-all cursor-pointer shadow-xs ${
           isOpen
-            ? "border-[#FF6700] ring-2 ring-[#FF6700]/15 text-slate-900"
-            : "border-[#FF6700]/30 text-slate-800 hover:border-[#FF6700]"
+            ? isOrange
+              ? "border-[#FF6700] ring-2 ring-[#FF6700]/15 text-slate-900"
+              : "border-[#7F48ED] ring-2 ring-[#7F48ED]/15 text-slate-900"
+            : isOrange
+            ? "border-[#FF6700]/30 text-slate-800 hover:border-[#FF6700]"
+            : "border-[#7F48ED]/30 text-slate-800 hover:border-[#7F48ED]"
         }`}
       >
         <div className="flex items-center gap-2 truncate">
-          <CalendarIcon className="w-3.5 h-3.5 text-[#FF6700] shrink-0" />
+          <CalendarIcon
+            className={`w-3.5 h-3.5 shrink-0 ${
+              isOrange ? "text-[#FF6700]" : "text-[#7F48ED]"
+            }`}
+          />
           <span className={value ? "font-bold text-slate-900" : "text-slate-400 font-normal"}>
             {formattedDisplay}
           </span>
@@ -144,13 +156,23 @@ export default function CustomDatePicker({
         )}
       </button>
 
-      {/* Brand Orange Custom Calendar Dropdown */}
+      {/* Brand Custom Calendar Dropdown */}
       {isOpen && (
-        <div className="absolute z-50 top-full left-0 mt-1.5 w-72 sm:w-80 bg-white border border-[#FF6700]/30 rounded-2xl shadow-2xl p-4 animate-in fade-in zoom-in-95 duration-150">
+        <div
+          className={`absolute z-50 top-full left-0 mt-1.5 w-72 sm:w-80 bg-white border rounded-2xl shadow-2xl p-4 animate-in fade-in zoom-in-95 duration-150 ${
+            isOrange ? "border-[#FF6700]/30" : "border-[#7F48ED]/30"
+          }`}
+        >
           {/* Calendar Header */}
-          <div className="flex items-center justify-between mb-3 pb-2.5 border-b border-orange-100">
+          <div
+            className={`flex items-center justify-between mb-3 pb-2.5 border-b ${
+              isOrange ? "border-orange-100" : "border-purple-100"
+            }`}
+          >
             <div className="font-heading font-bold text-sm text-[#090D16]">
-              <span className="text-[#FF6700]">{MONTH_NAMES[currentMonth]}</span>{" "}
+              <span className={isOrange ? "text-[#FF6700]" : "text-[#7F48ED]"}>
+                {MONTH_NAMES[currentMonth]}
+              </span>{" "}
               <span>{currentYear}</span>
             </div>
 
@@ -158,7 +180,11 @@ export default function CustomDatePicker({
               <button
                 type="button"
                 onClick={prevMonth}
-                className="p-1.5 rounded-lg hover:bg-orange-50 text-slate-600 hover:text-[#FF6700] transition-colors cursor-pointer"
+                className={`p-1.5 rounded-lg text-slate-600 transition-colors cursor-pointer ${
+                  isOrange
+                    ? "hover:bg-orange-50 hover:text-[#FF6700]"
+                    : "hover:bg-purple-50 hover:text-[#7F48ED]"
+                }`}
                 aria-label="Previous Month"
               >
                 <ChevronLeft className="w-4 h-4" />
@@ -166,7 +192,11 @@ export default function CustomDatePicker({
               <button
                 type="button"
                 onClick={nextMonth}
-                className="p-1.5 rounded-lg hover:bg-orange-50 text-slate-600 hover:text-[#FF6700] transition-colors cursor-pointer"
+                className={`p-1.5 rounded-lg text-slate-600 transition-colors cursor-pointer ${
+                  isOrange
+                    ? "hover:bg-orange-50 hover:text-[#FF6700]"
+                    : "hover:bg-purple-50 hover:text-[#7F48ED]"
+                }`}
                 aria-label="Next Month"
               >
                 <ChevronRight className="w-4 h-4" />
@@ -216,10 +246,16 @@ export default function CustomDatePicker({
                   onClick={() => handleSelectDay(day)}
                   className={`text-xs font-semibold py-1.5 rounded-lg transition-all cursor-pointer ${
                     isSelected
-                      ? "bg-[#FF6700] text-white font-bold shadow-md scale-105"
+                      ? isOrange
+                        ? "bg-[#FF6700] text-white font-bold shadow-md scale-105"
+                        : "bg-[#7F48ED] text-white font-bold shadow-md scale-105"
                       : isToday
-                      ? "bg-orange-50 text-[#FF6700] font-bold border border-[#FF6700]/40 hover:bg-[#FF6700] hover:text-white"
-                      : "text-slate-800 hover:bg-orange-50 hover:text-[#FF6700]"
+                      ? isOrange
+                        ? "bg-orange-50 text-[#FF6700] font-bold border border-[#FF6700]/40 hover:bg-[#FF6700] hover:text-white"
+                        : "bg-purple-50 text-[#7F48ED] font-bold border border-[#7F48ED]/40 hover:bg-[#7F48ED] hover:text-white"
+                      : isOrange
+                      ? "text-slate-800 hover:bg-orange-50 hover:text-[#FF6700]"
+                      : "text-slate-800 hover:bg-purple-50 hover:text-[#7F48ED]"
                   }`}
                 >
                   {day}
@@ -229,7 +265,11 @@ export default function CustomDatePicker({
           </div>
 
           {/* Quick Action Buttons */}
-          <div className="flex items-center justify-between pt-3 mt-3 border-t border-orange-100 text-xs">
+          <div
+            className={`flex items-center justify-between pt-3 mt-3 border-t text-xs ${
+              isOrange ? "border-orange-100" : "border-purple-100"
+            }`}
+          >
             <button
               type="button"
               onClick={handleClear}
@@ -240,7 +280,11 @@ export default function CustomDatePicker({
             <button
               type="button"
               onClick={handleSelectToday}
-              className="text-[#FF6700] hover:text-[#E55C00] font-bold cursor-pointer"
+              className={`font-bold cursor-pointer ${
+                isOrange
+                  ? "text-[#FF6700] hover:text-[#E55C00]"
+                  : "text-[#7F48ED] hover:text-[#6D28D9]"
+              }`}
             >
               Today
             </button>

@@ -9,6 +9,7 @@ import MotionWrapper from "./MotionWrapper";
 import SpotlightCard from "./SpotlightCard";
 import Work3DShowcase from "./Work3DShowcase";
 import { motion, AnimatePresence } from "framer-motion";
+import NumberCounter from "./NumberCounter";
 import {
   ArrowUpRight,
   ArrowRight,
@@ -175,7 +176,7 @@ export default function CaseStudiesSection() {
                     <div className="my-3 p-3 rounded-xl bg-orange-50/70 border border-[#FF6700]/20 flex items-center justify-between gap-3">
                       <div>
                         <span className="font-heading font-black text-2xl text-[#FF6700] block leading-tight">
-                          {study.metricValue}
+                          <NumberCounter value={study.metricValue} />
                         </span>
                         <span className="text-xs font-semibold text-slate-700 block leading-tight mt-0.5">
                           {study.metricLabel}
@@ -259,7 +260,7 @@ export default function CaseStudiesSection() {
             }
             className="inline-flex items-center justify-center gap-2 px-7 py-3.5 bg-[#FF6700] hover:bg-[#E55C00] text-white font-heading font-bold text-xs uppercase tracking-wider rounded-xl transition-all shadow-md active:translate-y-0.5 cursor-pointer"
           >
-            <span>Start Your Project With ReLaunch</span>
+            <span>Book a Strategy Call</span>
             <ArrowRight className="w-3.5 h-3.5" />
           </button>
         </div>

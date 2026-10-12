@@ -1,10 +1,11 @@
 "use client";
 
 import React, { useRef, useEffect, useState } from "react";
+import Link from "next/link";
 import { motion } from "framer-motion";
 import { useContactModal } from "@/context/ContactModalContext";
 import NumberCounter from "@/components/NumberCounter";
-import { ArrowRight, PhoneCall, ChevronDown } from "lucide-react";
+import { ArrowUpRight, ChevronDown } from "lucide-react";
 
 const industries = [
   "Restaurants",
@@ -159,20 +160,20 @@ export default function Hero() {
           className="mt-8 flex flex-row items-center justify-center sm:justify-start gap-2.5 sm:gap-4 w-full sm:w-auto max-w-md sm:max-w-none"
         >
           <button
-            onClick={() => handleScrollToSection("services")}
+            onClick={() => openContactModal({ intent: "strategy-session" })}
             className="flex-1 sm:flex-initial inline-flex items-center justify-center gap-1.5 sm:gap-2 px-3.5 sm:px-6 py-3 sm:py-3.5 rounded-xl bg-[#FF6700] hover:bg-[#E55C00] text-white font-heading font-bold text-[11px] sm:text-sm uppercase tracking-wider transition-all duration-200 shadow-[0_0_25px_rgba(255,103,0,0.35)] cursor-pointer active:scale-98 whitespace-nowrap"
           >
-            <span>Explore Services</span>
-            <ArrowRight className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+            <span>Book a Strategy Call</span>
+            <ArrowUpRight className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-white" />
           </button>
 
-          <button
-            onClick={() => openContactModal({ intent: "strategy-session" })}
+          <Link
+            href="/work"
             className="flex-1 sm:flex-initial inline-flex items-center justify-center gap-1.5 sm:gap-2 px-3.5 sm:px-6 py-3 sm:py-3.5 rounded-xl bg-white/[0.08] hover:bg-white/[0.15] border border-white/20 text-white font-heading font-bold text-[11px] sm:text-sm uppercase tracking-wider transition-all duration-200 backdrop-blur-md cursor-pointer whitespace-nowrap"
           >
-            <PhoneCall className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-[#FF6700]" />
-            <span>Book Strategy Call</span>
-          </button>
+            <span>View Case Studies</span>
+            <ArrowUpRight className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-[#FF6700]" />
+          </Link>
         </motion.div>
 
         {/* Tailored For placed INSIDE Hero with zero awkward wrapping */}
@@ -206,7 +207,7 @@ export default function Hero() {
         >
           <div>
             <div className="font-heading font-black text-2xl sm:text-3xl text-white whitespace-nowrap">
-              <NumberCounter value={22} suffix="+" />
+              <NumberCounter value={22} suffix="+" immediate />
             </div>
             <div className="text-[10px] sm:text-xs font-mono uppercase tracking-wider text-slate-400 mt-0.5 whitespace-nowrap">
               Years in Business
@@ -214,7 +215,7 @@ export default function Hero() {
           </div>
           <div>
             <div className="font-heading font-black text-2xl sm:text-3xl text-white whitespace-nowrap">
-              <NumberCounter value={1500} suffix="+" />
+              <NumberCounter value={1500} suffix="+" immediate />
             </div>
             <div className="text-[10px] sm:text-xs font-mono uppercase tracking-wider text-slate-400 mt-0.5 whitespace-nowrap">
               Projects Delivered
@@ -222,7 +223,7 @@ export default function Hero() {
           </div>
           <div>
             <div className="font-heading font-black text-2xl sm:text-3xl text-white whitespace-nowrap">
-              <NumberCounter value={480} suffix="+" />
+              <NumberCounter value={480} suffix="+" immediate />
             </div>
             <div className="text-[10px] sm:text-xs font-mono uppercase tracking-wider text-slate-400 mt-0.5 whitespace-nowrap">
               Campaigns Launched
@@ -238,7 +239,7 @@ export default function Hero() {
           className="mt-8 pt-4 flex items-center justify-center sm:justify-start w-full"
         >
           <button
-            onClick={() => handleScrollToSection("services")}
+            onClick={() => handleScrollToSection("problem")}
             className="inline-flex items-center gap-2 text-[11px] uppercase font-mono tracking-widest text-slate-400 hover:text-white transition-colors cursor-pointer group"
           >
             <span>Scroll to explore</span>

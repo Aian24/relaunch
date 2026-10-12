@@ -16,6 +16,7 @@ interface CustomSelectProps {
   options: (string | CustomSelectOption)[];
   placeholder?: string;
   className?: string;
+  theme?: "orange" | "purple";
 }
 
 export default function CustomSelect({
@@ -25,6 +26,7 @@ export default function CustomSelect({
   options,
   placeholder = "Select an option",
   className = "",
+  theme = "orange",
 }: CustomSelectProps) {
   const [isOpen, setIsOpen] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
@@ -65,6 +67,8 @@ export default function CustomSelect({
     setIsOpen(false);
   };
 
+  const isOrange = theme === "orange";
+
   return (
     <div ref={containerRef} className={`relative select-none ${className}`}>
       {/* Trigger Button */}
@@ -73,7 +77,9 @@ export default function CustomSelect({
         onClick={() => setIsOpen(!isOpen)}
         className={`w-full px-3.5 py-2.5 bg-slate-50 border rounded-xl text-sm flex items-center justify-between text-left transition-all ${
           isOpen
-            ? "border-[#FF6700] bg-white ring-2 ring-[#FF6700]/15 shadow-sm text-slate-900"
+            ? isOrange
+              ? "border-[#FF6700] bg-white ring-2 ring-[#FF6700]/15 shadow-sm text-slate-900"
+              : "border-[#7F48ED] bg-white ring-2 ring-[#7F48ED]/15 shadow-sm text-slate-900"
             : "border-slate-200 text-slate-900 hover:border-slate-300 hover:bg-white"
         }`}
         aria-haspopup="listbox"
@@ -84,7 +90,11 @@ export default function CustomSelect({
         </span>
         <ChevronDown
           className={`w-4 h-4 text-slate-500 transition-transform duration-200 shrink-0 ml-2 ${
-            isOpen ? "transform rotate-180 text-[#FF6700]" : ""
+            isOpen
+              ? isOrange
+                ? "transform rotate-180 text-[#FF6700]"
+                : "transform rotate-180 text-[#7F48ED]"
+              : ""
           }`}
         />
       </button>
@@ -102,8 +112,12 @@ export default function CustomSelect({
                 onClick={() => handleSelect(opt.value)}
                 className={`w-full px-3.5 py-2.5 text-xs sm:text-sm flex items-center justify-between text-left transition-colors cursor-pointer ${
                   isSelected
-                    ? "bg-[#FF6700] text-white font-bold"
-                    : "text-slate-800 hover:bg-[#FFF7ED] hover:text-[#FF6700]"
+                    ? isOrange
+                      ? "bg-[#FF6700] text-white font-bold"
+                      : "bg-[#7F48ED] text-white font-bold"
+                    : isOrange
+                    ? "text-slate-800 hover:bg-orange-50 hover:text-[#FF6700]"
+                    : "text-slate-800 hover:bg-purple-50 hover:text-[#7F48ED]"
                 }`}
                 role="option"
                 aria-selected={isSelected}

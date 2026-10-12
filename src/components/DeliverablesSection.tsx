@@ -114,7 +114,7 @@ export default function DeliverablesSection() {
   return (
     <section
       id="services"
-      className="py-20 sm:py-28 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto w-full select-none scroll-mt-20 border-b border-slate-200"
+      className="py-14 sm:py-20 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto w-full select-none scroll-mt-20"
     >
       {/* Section Header - Center Aligned */}
       <MotionWrapper
@@ -211,7 +211,7 @@ export default function DeliverablesSection() {
                       }
                       className="inline-flex items-center gap-1 text-[11px] font-bold uppercase tracking-wider text-[#FF6700] hover:text-[#CC5200] hover:bg-orange-50 transition-colors cursor-pointer py-1 px-2.5 rounded-lg"
                     >
-                      <span>Inquire</span>
+                      <span>Book Strategy Call</span>
                       <ArrowUpRight className="w-3.5 h-3.5" />
                     </button>
                     <Link

@@ -23,6 +23,7 @@ import {
 } from "lucide-react";
 
 const serviceOptions = [
+  "Enterprise & Custom Software",
   "Marketing & Advertising",
   "Brand & Design",
   "AI Services (AEO/GEO)",
@@ -84,6 +85,13 @@ export default function ContactModal() {
           ...prev,
           interest: options.serviceInterest || "Web & App Development",
           message: options.notes || "Ready to start a new project with ReLaunch.",
+        }));
+      } else if (options.intent === "enterprise-inquiry") {
+        setActiveTab("form");
+        setFormData((prev) => ({
+          ...prev,
+          interest: options.serviceInterest || "Enterprise & Custom Software",
+          message: options.notes || "Inquiring about enterprise software development, architectural review, or RFP.",
         }));
       } else {
         setActiveTab("form");
@@ -240,8 +248,8 @@ export default function ContactModal() {
         {/* Modal Header */}
         <div className="shrink-0 bg-white text-slate-900 p-5 sm:p-6 flex items-start justify-between border-b border-slate-100">
           <div>
-            <div className="inline-flex items-center gap-2 px-2.5 py-0.5 rounded-full bg-orange-50 border border-orange-200/80 text-[#FF6700] text-[9.5px] font-mono font-bold uppercase tracking-widest mb-1.5">
-              <span className="w-1.5 h-1.5 rounded-full bg-[#FF6700]" />
+            <div className="inline-flex items-center gap-2 px-2.5 py-0.5 rounded-full bg-purple-50 border border-purple-200/80 text-[#7F48ED] text-[9.5px] font-mono font-bold uppercase tracking-widest mb-1.5">
+              <span className="w-1.5 h-1.5 rounded-full bg-[#7F48ED]" />
               <span>
                 {activeTab === "calendar"
                   ? "GOOGLE CALENDAR STRATEGY SESSION"
@@ -278,14 +286,14 @@ export default function ContactModal() {
             onClick={() => setActiveTab("form")}
             className={`relative py-2.5 sm:py-3 text-xs sm:text-sm font-bold flex items-center gap-2 transition-colors cursor-pointer whitespace-nowrap ${
               activeTab === "form"
-                ? "text-[#FF6700]"
+                ? "text-[#7F48ED]"
                 : "text-slate-500 hover:text-[#090D16]"
             }`}
           >
-            <Send className={`w-3.5 h-3.5 ${activeTab === "form" ? "text-[#FF6700]" : "text-slate-400"}`} />
+            <Send className={`w-3.5 h-3.5 ${activeTab === "form" ? "text-[#7F48ED]" : "text-slate-400"}`} />
             <span>Send a Message / Start Project</span>
             {activeTab === "form" && (
-              <span className="absolute bottom-0 left-0 right-0 h-0.5 bg-[#FF6700]" />
+              <span className="absolute bottom-0 left-0 right-0 h-0.5 bg-[#7F48ED]" />
             )}
           </button>
 
@@ -294,14 +302,14 @@ export default function ContactModal() {
             onClick={() => setActiveTab("ai-audit")}
             className={`relative py-2.5 sm:py-3 text-xs sm:text-sm font-bold flex items-center gap-2 transition-colors cursor-pointer whitespace-nowrap ${
               activeTab === "ai-audit"
-                ? "text-[#FF6700]"
+                ? "text-[#7F48ED]"
                 : "text-slate-500 hover:text-[#090D16]"
             }`}
           >
-            <Bot className={`w-3.5 h-3.5 ${activeTab === "ai-audit" ? "text-[#FF6700]" : "text-slate-400"}`} />
+            <Bot className={`w-3.5 h-3.5 ${activeTab === "ai-audit" ? "text-[#7F48ED]" : "text-slate-400"}`} />
             <span>Book an AI Audit</span>
             {activeTab === "ai-audit" && (
-              <span className="absolute bottom-0 left-0 right-0 h-0.5 bg-[#FF6700]" />
+              <span className="absolute bottom-0 left-0 right-0 h-0.5 bg-[#7F48ED]" />
             )}
           </button>
 
@@ -310,14 +318,14 @@ export default function ContactModal() {
             onClick={() => setActiveTab("calendar")}
             className={`relative py-2.5 sm:py-3 text-xs sm:text-sm font-bold flex items-center gap-2 transition-colors cursor-pointer whitespace-nowrap ${
               activeTab === "calendar"
-                ? "text-[#FF6700]"
+                ? "text-[#7F48ED]"
                 : "text-slate-500 hover:text-[#090D16]"
             }`}
           >
-            <Calendar className={`w-3.5 h-3.5 ${activeTab === "calendar" ? "text-[#FF6700]" : "text-slate-400"}`} />
+            <Calendar className={`w-3.5 h-3.5 ${activeTab === "calendar" ? "text-[#7F48ED]" : "text-slate-400"}`} />
             <span>Live Calendar Slot</span>
             {activeTab === "calendar" && (
-              <span className="absolute bottom-0 left-0 right-0 h-0.5 bg-[#FF6700]" />
+              <span className="absolute bottom-0 left-0 right-0 h-0.5 bg-[#7F48ED]" />
             )}
           </button>
         </div>
@@ -436,6 +444,7 @@ export default function ContactModal() {
                         }))
                       }
                       placeholder="Select Session Date"
+                      theme="orange"
                     />
                   </div>
 
@@ -454,6 +463,7 @@ export default function ContactModal() {
                         }))
                       }
                       options={availableTimeSlots}
+                      theme="orange"
                     />
                   </div>
                 </div>
@@ -513,7 +523,7 @@ export default function ContactModal() {
               <button
                 type="submit"
                 disabled={isSubmitting}
-                className="w-full flex items-center justify-center gap-2 px-5 py-3 bg-[#FF6700] hover:bg-[#E55C00] disabled:opacity-60 text-white font-heading font-bold text-xs uppercase tracking-wider rounded-xl transition-all shadow-md active:translate-y-0.5 cursor-pointer"
+                className="w-full flex items-center justify-center gap-2 px-5 py-3 bg-[#FF6700] hover:bg-[#E55C00] disabled:opacity-60 text-white font-heading font-bold text-xs uppercase tracking-wider rounded-xl transition-all shadow-[0_4px_20px_rgba(255,103,0,0.25)] active:translate-y-0.5 cursor-pointer"
               >
                 {isSubmitting ? (
                   <span>Reserving Your Slot...</span>
@@ -545,9 +555,9 @@ export default function ContactModal() {
 
             <a
               href="mailto:care@relaunch.us"
-              className="flex items-center justify-center sm:justify-start gap-1.5 text-xs font-semibold text-slate-700 hover:text-[#FF6700] transition-colors"
+              className="flex items-center justify-center sm:justify-start gap-1.5 text-xs font-semibold text-slate-700 hover:text-emerald-600 transition-colors"
             >
-              <Mail className="w-3.5 h-3.5 text-[#2E8B7A] shrink-0" />
+              <Mail className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
               <span>care@relaunch.us</span>
             </a>
 

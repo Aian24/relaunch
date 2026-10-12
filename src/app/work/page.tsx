@@ -11,6 +11,7 @@ import PageVideoHero from "@/components/PageVideoHero";
 import MotionWrapper from "@/components/MotionWrapper";
 import BrandsHelpedSection from "@/components/BrandsHelpedSection";
 import { useContactModal } from "@/context/ContactModalContext";
+import NumberCounter from "@/components/NumberCounter";
 import {
   ArrowUpRight,
   ChevronLeft,
@@ -358,13 +359,10 @@ export default function WorkPage() {
         posterSrc="/hero_frames/frame_000.webp"
         exploreText="Explore Our Work"
         exploreTargetId="case-studies-gallery"
-        bookStrategyText="Book Strategy Call"
+        bookStrategyText="Book a Strategy Call"
         bookStrategyIntent="strategy-session"
         scrollTargetId="case-studies-gallery"
       />
-
-      {/* 1.5 The Brands We've Helped - Interactive Logo Marquee */}
-      <BrandsHelpedSection variant="light" className="border-b border-slate-200" />
 
       {/* 2. Portfolio Gallery Grid with Interactive Multi-Photo Showcase */}
       <section id="case-studies-gallery" className="py-20 sm:py-28 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto w-full">
@@ -507,7 +505,7 @@ export default function WorkPage() {
                           {study.results.map((res) => (
                             <div key={res.label} className="text-center">
                               <div className="font-heading font-black text-base sm:text-lg text-[#7F48ED]">
-                                {res.value}
+                                <NumberCounter value={res.value} />
                               </div>
                               <div className="text-[10px] text-slate-500 uppercase font-mono tracking-wider mt-0.5 leading-tight">
                                 {res.label}
@@ -554,6 +552,9 @@ export default function WorkPage() {
         </motion.div>
       </section>
 
+      {/* 2.5 The Brands We've Helped - Interactive Logo Marquee Below Projects */}
+      <BrandsHelpedSection variant="light" className="border-t border-slate-200" />
+
       {/* 3. Interactive Full-Screen Lightbox Gallery Modal */}
       <AnimatePresence>
         {activeModalStudy && (
@@ -596,7 +597,7 @@ export default function WorkPage() {
                   }}
                   className="hidden sm:inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-[#7F48ED] hover:bg-[#6D28D9] text-white text-xs font-bold uppercase tracking-wider transition-all shadow-md cursor-pointer"
                 >
-                  <span>Inquire About Project</span>
+                  <span>Book a Strategy Call</span>
                   <ArrowUpRight className="w-3.5 h-3.5" />
                 </button>
 

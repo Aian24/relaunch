@@ -7,6 +7,7 @@ export type ContactIntent =
   | "ai-audit"
   | "start-project"
   | "bundle-inquiry"
+  | "enterprise-inquiry"
   | "general-message";
 
 interface ContactModalOptions {

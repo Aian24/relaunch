@@ -9,15 +9,18 @@ import {
   Lightbulb,
   Workflow,
   MessageSquare,
-  Star,
-  Sparkles,
+  ThumbsUp,
+  PenTool,
   BarChart3,
   Code2,
   CheckCircle2,
-  ArrowUpRight,
   ArrowRight,
-  Bot,
+  ClipboardCheck,
   Rocket,
+  Cpu,
+  FileText,
+  Search,
+  ShieldCheck,
 } from "lucide-react";
 
 interface AiServiceItem {
@@ -77,7 +80,7 @@ const aiServices: AiServiceItem[] = [
     id: "reputation-reviews",
     title: "AI Reputation & Reviews",
     category: "Review Growth & Replies",
-    icon: Star,
+    icon: ThumbsUp,
     deliverables: [
       "Review request sequences",
       "Multi-platform monitoring",
@@ -88,7 +91,7 @@ const aiServices: AiServiceItem[] = [
     id: "content-creative",
     title: "AI Content & Creative",
     category: "Brand Copy & Pipelines",
-    icon: Sparkles,
+    icon: PenTool,
     deliverables: [
       "Brand voice training",
       "High-converting ad copy",
@@ -125,17 +128,17 @@ export default function AiSection() {
   return (
     <section
       id="ai"
-      className="py-20 sm:py-28 bg-white border-b border-slate-200 select-none scroll-mt-20 overflow-hidden relative"
+      className="py-14 sm:py-20 bg-white select-none scroll-mt-20 overflow-hidden relative"
     >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
         {/* Section Header - Center Aligned */}
         <MotionWrapper
           direction="up"
           distance={20}
-          className="text-center max-w-3xl mx-auto mb-12 sm:mb-14"
+          className="text-center max-w-3xl mx-auto mb-10 sm:mb-12"
         >
           <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-purple-50 border border-purple-200 text-[#7F48ED] text-[10px] font-mono font-bold uppercase tracking-widest mb-3 whitespace-nowrap shadow-2xs">
-            <Sparkles className="w-3.5 h-3.5 text-[#7F48ED]" />
+            <Cpu className="w-3.5 h-3.5 text-[#7F48ED]" />
             <span>FULL STACK AI SERVICES</span>
           </div>
           <h2 className="font-heading font-black text-3xl sm:text-5xl lg:text-6xl text-[#090D16] tracking-tight leading-[1.05] mb-3">
@@ -154,9 +157,9 @@ export default function AiSection() {
               onClick={() => openContactModal({ intent: "ai-audit" })}
               className="inline-flex items-center justify-center gap-2 px-5 py-3 bg-purple-50 hover:bg-purple-100 border border-purple-200 hover:border-purple-300 text-[#7F48ED] hover:text-[#6D28D9] font-heading font-bold text-xs uppercase tracking-wider rounded-xl transition-all shadow-xs whitespace-nowrap active:translate-y-0.5 cursor-pointer"
             >
-              <Bot className="w-3.5 h-3.5 text-[#7F48ED] shrink-0" />
+              <ClipboardCheck className="w-3.5 h-3.5 text-[#7F48ED] shrink-0" />
               <span>Book an AI Audit</span>
-              <ArrowUpRight className="w-3.5 h-3.5 text-[#7F48ED]" />
+              <ArrowRight className="w-3.5 h-3.5 text-[#7F48ED]" />
             </button>
 
             <Link
@@ -220,6 +223,114 @@ export default function AiSection() {
               </MotionWrapper>
             );
           })}
+        </div>
+
+        {/* 2.3 What the Audit Scores - Direct Cards Only */}
+        <div className="mt-14 sm:mt-18">
+          <MotionWrapper
+            direction="up"
+            delay={0.1}
+            distance={20}
+            className="text-center max-w-2xl mx-auto mb-8 sm:mb-10"
+          >
+            <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-purple-50 border border-purple-200 text-[#7F48ED] text-xs font-mono uppercase tracking-widest font-bold mb-3">
+              <ClipboardCheck className="w-3.5 h-3.5 shrink-0" />
+              <span>WHAT THE AUDIT ACTUALLY SCORES</span>
+            </div>
+            <h3 className="font-heading font-black text-2xl sm:text-4xl text-[#090D16] tracking-tight leading-tight mb-2">
+              A Real Diagnostic. <span className="text-[#7F48ED]">Not a Sales Pitch.</span>
+            </h3>
+            <p className="text-slate-600 text-xs sm:text-sm leading-relaxed max-w-xl mx-auto">
+              Before recommending any service, we score your entire sales funnel across 4 areas to find where you are losing leads:
+            </p>
+          </MotionWrapper>
+
+          {/* 4 Cards Grid - As Is Cards Only */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+            <MotionWrapper direction="up" delay={0.05} distance={20} className="h-full">
+              <div className="p-6 rounded-3xl bg-white border border-slate-200 shadow-2xs hover:border-[#7F48ED]/40 transition-all flex flex-col justify-between h-full">
+                <div>
+                  <div className="flex items-center gap-2.5 mb-3.5">
+                    <div className="w-8 h-8 rounded-xl bg-purple-50 text-[#7F48ED] flex items-center justify-center shrink-0">
+                      <Globe className="w-4 h-4" />
+                    </div>
+                    <span className="text-[10px] font-mono font-bold text-[#7F48ED] uppercase tracking-wider">
+                      WEBSITE DIAGNOSTIC
+                    </span>
+                  </div>
+                  <h4 className="font-heading font-bold text-lg text-[#090D16] mb-2">
+                    Customer Clarity
+                  </h4>
+                  <p className="text-slate-600 text-xs sm:text-sm leading-relaxed">
+                    We audit your homepage message and layout to find where buyers get confused and leave before contacting you.
+                  </p>
+                </div>
+              </div>
+            </MotionWrapper>
+
+            <MotionWrapper direction="up" delay={0.1} distance={20} className="h-full">
+              <div className="p-6 rounded-3xl bg-white border border-slate-200 shadow-2xs hover:border-[#7F48ED]/40 transition-all flex flex-col justify-between h-full">
+                <div>
+                  <div className="flex items-center gap-2.5 mb-3.5">
+                    <div className="w-8 h-8 rounded-xl bg-purple-50 text-[#7F48ED] flex items-center justify-center shrink-0">
+                      <BarChart3 className="w-4 h-4" />
+                    </div>
+                    <span className="text-[10px] font-mono font-bold text-[#7F48ED] uppercase tracking-wider">
+                      AD SPEND DIAGNOSTIC
+                    </span>
+                  </div>
+                  <h4 className="font-heading font-bold text-lg text-[#090D16] mb-2">
+                    Ad Spend Attribution
+                  </h4>
+                  <p className="text-slate-600 text-xs sm:text-sm leading-relaxed">
+                    We track your Google and Meta ad spend to show which campaigns drive paying customers versus wasted budget.
+                  </p>
+                </div>
+              </div>
+            </MotionWrapper>
+
+            <MotionWrapper direction="up" delay={0.15} distance={20} className="h-full">
+              <div className="p-6 rounded-3xl bg-white border border-slate-200 shadow-2xs hover:border-[#7F48ED]/40 transition-all flex flex-col justify-between h-full">
+                <div>
+                  <div className="flex items-center gap-2.5 mb-3.5">
+                    <div className="w-8 h-8 rounded-xl bg-purple-50 text-[#7F48ED] flex items-center justify-center shrink-0">
+                      <ShieldCheck className="w-4 h-4" />
+                    </div>
+                    <span className="text-[10px] font-mono font-bold text-[#7F48ED] uppercase tracking-wider">
+                      TRUST DIAGNOSTIC
+                    </span>
+                  </div>
+                  <h4 className="font-heading font-bold text-lg text-[#090D16] mb-2">
+                    Social Proof &amp; Reviews
+                  </h4>
+                  <p className="text-slate-600 text-xs sm:text-sm leading-relaxed">
+                    We check your reviews and customer proof to find trust gaps that make high-value prospects hesitate to call.
+                  </p>
+                </div>
+              </div>
+            </MotionWrapper>
+
+            <MotionWrapper direction="up" delay={0.2} distance={20} className="h-full">
+              <div className="p-6 rounded-3xl bg-white border border-slate-200 shadow-2xs hover:border-[#7F48ED]/40 transition-all flex flex-col justify-between h-full">
+                <div>
+                  <div className="flex items-center gap-2.5 mb-3.5">
+                    <div className="w-8 h-8 rounded-xl bg-purple-50 text-[#7F48ED] flex items-center justify-center shrink-0">
+                      <Cpu className="w-4 h-4" />
+                    </div>
+                    <span className="text-[10px] font-mono font-bold text-[#7F48ED] uppercase tracking-wider">
+                      SYSTEMS DIAGNOSTIC
+                    </span>
+                  </div>
+                  <h4 className="font-heading font-bold text-lg text-[#090D16] mb-2">
+                    Response Speed &amp; AI
+                  </h4>
+                  <p className="text-slate-600 text-xs sm:text-sm leading-relaxed">
+                    We test how fast your business follows up with leads and identify where smart AI tools stop lost sales.
+                  </p>
+                </div>
+              </div>
+            </MotionWrapper>
+          </div>
         </div>
       </div>
     </section>

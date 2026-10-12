@@ -50,12 +50,12 @@ export default function BundleCalculator() {
         {/* Top Header */}
         <MotionWrapper direction="up" distance={20} className="flex flex-col lg:flex-row lg:items-end justify-between gap-6 mb-6 sm:mb-8">
           <div className="max-w-xl">
-            <span className="text-xs font-mono uppercase tracking-widest text-[#7F48ED] font-bold block mb-2">
+            <span className="text-xs font-mono uppercase tracking-widest text-[#FF6700] font-bold block mb-2">
               TRANSPARENT PRICING
             </span>
             <h2 className="font-heading font-black text-3xl sm:text-5xl lg:text-6xl text-[#090D16] tracking-tight leading-[1.05]">
               Subscribe. <br />
-              Bundle. <span className="text-[#7F48ED] italic">Save.</span>
+              Bundle. <span className="text-[#FF6700] italic">Save.</span>
             </h2>
             <p className="text-slate-600 text-xs sm:text-sm leading-relaxed mt-2 font-normal">
               Pick any recurring service. Add more to unlock automatic discounts. No contracts. No surprises. Pause or cancel anytime.
@@ -83,7 +83,7 @@ export default function BundleCalculator() {
                     .join("\n- ")}`,
                 })
               }
-              className="inline-flex items-center justify-center gap-1.5 w-full py-3 bg-[#7F48ED] hover:bg-[#6D28D9] text-white font-heading font-bold text-xs uppercase tracking-wider rounded-xl transition-all shadow-xs active:translate-y-0.5 cursor-pointer"
+              className="inline-flex items-center justify-center gap-1.5 w-full py-3 bg-[#FF6700] hover:bg-[#E55C00] text-white font-heading font-bold text-xs uppercase tracking-wider rounded-xl transition-all shadow-xs active:translate-y-0.5 cursor-pointer"
             >
               <span>Lock In Bundle Rate</span>
               <ArrowRight className="w-3.5 h-3.5" />
@@ -103,7 +103,7 @@ export default function BundleCalculator() {
                 distance={45}
                 className={`p-4 sm:p-5 rounded-xl sm:rounded-2xl transition-all ${
                   isActive
-                    ? "bg-white text-slate-950 border-2 border-[#7F48ED] shadow-md ring-4 ring-[#7F48ED]/10 scale-[1.02]"
+                    ? "bg-white text-slate-950 border-2 border-[#FF6700] shadow-md ring-4 ring-[#FF6700]/10 scale-[1.02]"
                     : "bg-white text-[#090D16] shadow-xs border border-slate-200"
                 }`}
               >
@@ -112,7 +112,7 @@ export default function BundleCalculator() {
                 </div>
                 <div
                   className={`font-heading font-black text-2xl sm:text-3xl mb-0.5 ${
-                    isActive ? "text-[#7F48ED]" : "text-[#090D16]"
+                    isActive ? "text-[#FF6700]" : "text-[#090D16]"
                   }`}
                 >
                   {tier.id === "starter" ? "1" : tier.id === "growth" ? "2–3" : tier.id === "scale" ? "4–5" : "6+"}
@@ -124,7 +124,7 @@ export default function BundleCalculator() {
                   className={`inline-flex px-2.5 py-0.5 rounded-full text-[11px] font-bold ${
                     tier.discountPercent === 0
                       ? "bg-slate-100 text-slate-600"
-                      : "bg-[#7F48ED] text-white"
+                      : "bg-[#FF6700] text-white"
                   }`}
                 >
                   {tier.discountBadge}
@@ -148,7 +148,7 @@ export default function BundleCalculator() {
               {count > 0 && (
                 <button
                   onClick={() => setSelectedIds([])}
-                  className="inline-flex items-center gap-1.5 px-3 py-1 rounded-lg bg-[#7F48ED] hover:bg-[#6D28D9] text-white font-heading font-bold text-[10px] sm:text-[11px] uppercase tracking-wider transition-all shadow-xs active:translate-y-0.5 cursor-pointer"
+                  className="inline-flex items-center gap-1.5 px-3 py-1 rounded-lg bg-[#FF6700] hover:bg-[#E55C00] text-white font-heading font-bold text-[10px] sm:text-[11px] uppercase tracking-wider transition-all shadow-xs active:translate-y-0.5 cursor-pointer"
                   title="Clear all selected services"
                 >
                   <RotateCcw className="w-3 h-3" />
@@ -165,7 +165,7 @@ export default function BundleCalculator() {
                   onClick={() => toggleService(service.id)}
                   className={`p-4 rounded-2xl cursor-pointer select-none transition-all duration-150 border flex items-start justify-between gap-4 ${
                     isSelected
-                      ? "bg-purple-50/60 border-[#7F48ED] shadow-xs"
+                      ? "bg-orange-50/60 border-[#FF6700] shadow-xs"
                       : "bg-white border-slate-200 hover:border-slate-300 shadow-xs"
                   }`}
                 >
@@ -173,7 +173,7 @@ export default function BundleCalculator() {
                     <div
                       className={`w-5 h-5 rounded-md border flex items-center justify-center mt-0.5 shrink-0 transition-colors ${
                         isSelected
-                          ? "bg-[#7F48ED] border-[#7F48ED] text-white"
+                          ? "bg-[#FF6700] border-[#FF6700] text-white"
                           : "bg-white border-slate-300 text-transparent"
                       }`}
                     >
@@ -186,7 +186,7 @@ export default function BundleCalculator() {
                           {service.name}
                         </h4>
                         {service.popular && (
-                          <span className="text-[9px] font-bold uppercase px-2 py-0.2 rounded-full bg-[#7F48ED]/10 text-[#7F48ED]">
+                          <span className="text-[9px] font-bold uppercase px-2 py-0.2 rounded-full bg-[#FF6700]/10 text-[#FF6700]">
                             Popular
                           </span>
                         )}
@@ -215,7 +215,7 @@ export default function BundleCalculator() {
             <div className="bg-slate-50 text-slate-900 p-7 sm:p-8 rounded-3xl shadow-lg border border-slate-200">
               <div className="flex items-center justify-between pb-4 border-b border-slate-200 mb-6">
                 <div>
-                  <span className="text-[10px] font-bold uppercase tracking-widest text-[#7F48ED] block mb-1">
+                  <span className="text-[10px] font-bold uppercase tracking-widest text-[#FF6700] block mb-1">
                     LIVE CALCULATION
                   </span>
                   <h3 className="font-heading font-black text-2xl text-slate-950">
@@ -223,7 +223,7 @@ export default function BundleCalculator() {
                   </h3>
                 </div>
                 <div className="text-right">
-                  <span className="font-heading font-black text-3xl text-[#7F48ED]">
+                  <span className="font-heading font-black text-3xl text-[#FF6700]">
                     {count}
                   </span>
                   <span className="text-xs text-slate-500 block">
@@ -262,15 +262,15 @@ export default function BundleCalculator() {
                       <span className="font-mono line-through">${subtotal}/mo</span>
                     </div>
 
-                    <div className="flex justify-between text-[#7F48ED] font-bold">
+                    <div className="flex justify-between text-[#FF6700] font-bold">
                       <span>Bundle Discount ({discountPercent}%)</span>
                       <span className="font-mono">-${discountAmount}/mo</span>
                     </div>
 
                     {annualSavings > 0 && (
-                      <div className="p-3 bg-purple-50 text-slate-900 rounded-xl border border-purple-200/80 flex items-center justify-between text-xs mt-2">
+                      <div className="p-3 bg-orange-50 text-slate-900 rounded-xl border border-orange-200/80 flex items-center justify-between text-xs mt-2">
                         <span className="text-slate-700 font-medium">Annual Savings:</span>
-                        <span className="font-heading font-black text-[#7F48ED] text-sm">
+                        <span className="font-heading font-black text-[#FF6700] text-sm">
                           ${annualSavings.toLocaleString()} / year
                         </span>
                       </div>
@@ -303,9 +303,9 @@ export default function BundleCalculator() {
                           .join("\n- ")}`,
                       })
                     }
-                    className="w-full py-3.5 bg-[#7F48ED] hover:bg-[#6D28D9] text-white font-heading font-bold text-xs uppercase tracking-wider rounded-xl shadow-sm flex items-center justify-center gap-2 transition-all text-center active:translate-y-0.5 cursor-pointer"
+                    className="w-full py-3.5 bg-[#FF6700] hover:bg-[#E55C00] text-white font-heading font-bold text-xs uppercase tracking-wider rounded-xl shadow-sm flex items-center justify-center gap-2 transition-all text-center active:translate-y-0.5 cursor-pointer"
                   >
-                    <span>Lock In This Rate</span>
+                    <span>Book a Strategy Call</span>
                     <ArrowRight className="w-3.5 h-3.5" />
                   </button>
                 </>
