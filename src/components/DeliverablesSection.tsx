@@ -157,16 +157,19 @@ export default function DeliverablesSection() {
             >
               <SpotlightCard
                 spotlightColor="rgba(255,103,0, 0.08)"
-                className="group flex flex-col justify-between rounded-3xl p-7 sm:p-8 bg-white border border-slate-200 shadow-[0_4px_25px_rgba(0,0,0,0.03)] hover:shadow-[0_16px_45px_rgba(0,0,0,0.08)] hover:border-[#FF6700]/40 transition-all duration-300 h-full relative"
+                className="group flex flex-col justify-between rounded-3xl p-6 sm:p-7 xl:p-8 bg-white border border-slate-200 shadow-[0_4px_25px_rgba(0,0,0,0.03)] hover:shadow-[0_16px_45px_rgba(0,0,0,0.08)] hover:border-[#FF6700]/40 transition-all duration-300 h-full relative"
               >
                 {/* Top Brand Accent Bar */}
                 <div className="absolute top-0 left-8 right-8 h-[2px] bg-transparent group-hover:bg-[#FF6700] transition-colors rounded-full" />
 
                 <div>
-                  {/* Category Pill */}
-                  <div className="flex items-center justify-between mb-5">
+                  {/* Category Pill & Starting Rate */}
+                  <div className="flex items-center justify-between gap-2 mb-5">
                     <span className="text-[10px] font-mono uppercase tracking-wider font-bold px-2.5 py-1 rounded-full text-[#FF6700] bg-orange-50 border border-orange-200/60">
                       {pillar.category}
+                    </span>
+                    <span className="text-xs font-heading font-bold text-slate-800 shrink-0">
+                      {pillar.rate}
                     </span>
                   </div>
 
@@ -194,33 +197,29 @@ export default function DeliverablesSection() {
                   </div>
                 </div>
 
-                {/* Footer with Starting Price & Actions */}
-                <div className="pt-4 border-t border-slate-100 flex items-center justify-between gap-3">
-                  <span className="text-xs font-heading font-bold text-slate-900">
-                    {pillar.rate}
-                  </span>
+                {/* Footer with Actions (Uncompressed & Spacious) */}
+                <div className="pt-4 border-t border-slate-100 flex items-center justify-between">
+                  <button
+                    type="button"
+                    onClick={() =>
+                      openContactModal({
+                        intent: "strategy-session",
+                        serviceInterest: pillar.title,
+                        notes: `Interested in ReLaunch Deliverable: ${pillar.title} (${pillar.rate}).`,
+                      })
+                    }
+                    className="inline-flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-[#FF6700] hover:text-[#CC5200] transition-colors cursor-pointer group/btn"
+                  >
+                    <span>Book Strategy Call</span>
+                    <ArrowUpRight className="w-3.5 h-3.5 group-hover/btn:translate-x-0.5 group-hover/btn:-translate-y-0.5 transition-transform" />
+                  </button>
 
-                  <div className="flex items-center gap-2">
-                    <button
-                      onClick={() =>
-                        openContactModal({
-                          intent: "strategy-session",
-                          serviceInterest: pillar.title,
-                          notes: `Interested in ReLaunch Deliverable: ${pillar.title} (${pillar.rate}).`,
-                        })
-                      }
-                      className="inline-flex items-center gap-1 text-[11px] font-bold uppercase tracking-wider text-[#FF6700] hover:text-[#CC5200] hover:bg-orange-50 transition-colors cursor-pointer py-1 px-2.5 rounded-lg"
-                    >
-                      <span>Book Strategy Call</span>
-                      <ArrowUpRight className="w-3.5 h-3.5" />
-                    </button>
-                    <Link
-                      href={pillar.href}
-                      className="inline-flex items-center text-[11px] font-bold uppercase tracking-wider text-slate-400 hover:text-slate-900 transition-colors py-1 px-2 rounded-lg hover:bg-slate-100"
-                    >
-                      <span>Details →</span>
-                    </Link>
-                  </div>
+                  <Link
+                    href={pillar.href}
+                    className="inline-flex items-center text-xs font-bold uppercase tracking-wider text-slate-400 hover:text-slate-900 transition-colors py-1 px-2 rounded-lg hover:bg-slate-50"
+                  >
+                    <span>Details →</span>
+                  </Link>
                 </div>
               </SpotlightCard>
             </MotionWrapper>
