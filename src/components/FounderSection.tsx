@@ -27,9 +27,9 @@ export default function FounderSection() {
         <MotionWrapper
           direction="up"
           distance={20}
-          className="rounded-3xl bg-white border border-slate-200 p-6 sm:p-8 lg:p-10 shadow-[0_4px_30px_rgba(0,0,0,0.03)] relative overflow-hidden"
+          className="relative w-full"
         >
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-10 items-center relative z-10">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-center relative z-10">
             {/* LEFT: Founder Photo (5 cols) */}
             <div className="lg:col-span-5 flex flex-col items-center">
               <div className="relative w-full max-w-sm aspect-square rounded-3xl overflow-hidden shadow-lg border-2 border-white ring-1 ring-slate-200 bg-slate-900 group">
@@ -121,7 +121,7 @@ export default function FounderSection() {
               </div>
 
               {/* Direct Contact Buttons - Purple Theme */}
-              <div className="flex flex-wrap items-center justify-center lg:justify-start gap-3 w-full pt-4 border-t border-slate-200">
+              <div className="flex flex-wrap items-center justify-center lg:justify-start gap-3 w-full pt-2">
                 <a
                   href="tel:4807799875"
                   className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-white hover:bg-slate-50 border border-slate-200 text-xs font-mono font-semibold text-slate-800 transition-colors shadow-2xs"
