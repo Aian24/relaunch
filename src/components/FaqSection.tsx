@@ -25,7 +25,7 @@ export default function FaqSection() {
             Everything You <span className="text-[#7F48ED]">Need to Know.</span>
           </h2>
           <p className="text-slate-600 text-xs sm:text-sm leading-relaxed font-normal">
-            Clear answers on our subscription model, bundle savings, contracts, and delivery.
+            Clear answers on our subscription model, bundle savings, deliverables, and delivery.
           </p>
         </MotionWrapper>
 

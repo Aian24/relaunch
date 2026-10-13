@@ -34,22 +34,25 @@ export default function Navbar() {
       }`}
     >
       <div className="max-w-7xl mx-auto px-5 sm:px-6 lg:px-8 flex items-center justify-between gap-4">
-        {/* Brand Logo */}
-        <Link href="/" className="flex items-center shrink-0 group">
-          <div className="relative h-8 w-32 sm:w-36 flex items-center">
+        {/* Brand Logo & Strapline */}
+        <Link href="/" className="flex flex-col items-center justify-center shrink-0 group">
+          <div className="relative h-7 w-32 sm:w-36 flex items-center justify-center">
             <Image
               src="/logos/logo-compact-dark.png"
               alt="ReLaunch.us Logo"
               width={160}
-              height={32}
+              height={28}
               priority
-              className="object-contain object-left h-7 w-auto drop-shadow-xs transition-opacity group-hover:opacity-90 brightness-110"
+              className="object-contain object-center h-6.5 w-auto drop-shadow-xs transition-opacity group-hover:opacity-90 brightness-110"
             />
           </div>
+          <span className="hidden sm:block text-[9px] font-medium tracking-tight text-slate-400 group-hover:text-slate-300 transition-colors whitespace-nowrap mt-0.5 select-none text-center">
+            Marketing Strategically Designed to Sell.
+          </span>
         </Link>
 
         {/* Minimalist Desktop Navigation Links */}
-        <nav className="hidden lg:flex items-center gap-1 xl:gap-2 bg-white/[0.04] px-4 py-1.5 rounded-full border border-white/[0.08] backdrop-blur-md">
+        <nav className="hidden lg:flex items-center gap-0.5 xl:gap-1.5 bg-white/[0.04] px-3.5 py-1.5 rounded-full border border-white/[0.08] backdrop-blur-md">
           {navLinks.map((link) => {
             const isActive =
               link.href === "/"
@@ -60,7 +63,7 @@ export default function Navbar() {
               <Link
                 key={link.label}
                 href={link.href}
-                className={`relative py-1 px-2.5 xl:px-3 text-[10.5px] xl:text-xs font-semibold uppercase tracking-wider transition-all whitespace-nowrap group ${
+                className={`relative py-1 px-2 xl:px-2.5 text-[10.5px] xl:text-xs font-semibold uppercase tracking-wider transition-all whitespace-nowrap group ${
                   isActive
                     ? "text-white font-bold"
                     : "text-slate-300 hover:text-white"
@@ -82,10 +85,10 @@ export default function Navbar() {
         </nav>
 
         {/* Action Button & Contact */}
-        <div className="hidden sm:flex items-center gap-4 xl:gap-6 shrink-0">
+        <div className="hidden sm:flex items-center gap-3 xl:gap-5 shrink-0">
           <a
             href={contactInfo.phoneTel}
-            className="hidden xl:inline-flex items-center gap-2 text-xs text-slate-300 hover:text-white font-mono transition-colors py-1.5 px-2.5 rounded-lg hover:bg-white/[0.05]"
+            className="hidden 2xl:inline-flex items-center gap-2 text-xs text-slate-300 hover:text-white font-mono transition-colors py-1.5 px-2.5 rounded-lg hover:bg-white/[0.05]"
           >
             <Phone className="w-3.5 h-3.5 text-[#FF6700]" />
             <span>{contactInfo.phoneFormatted}</span>
@@ -94,7 +97,7 @@ export default function Navbar() {
           <button
             type="button"
             onClick={() => openContactModal({ intent: "strategy-session" })}
-            className="inline-flex items-center justify-center gap-2 px-5 sm:px-6 py-2.5 bg-[#FF6700] hover:bg-[#E55C00] text-white text-xs font-bold uppercase tracking-wider rounded-xl transition-all duration-200 shadow-[0_0_20px_rgba(255,103,0,0.35)] active:scale-98 cursor-pointer whitespace-nowrap"
+            className="inline-flex items-center justify-center gap-2 px-4.5 sm:px-5 py-2.5 bg-[#FF6700] hover:bg-[#E55C00] text-white text-xs font-bold uppercase tracking-wider rounded-xl transition-all duration-200 shadow-[0_0_20px_rgba(255,103,0,0.35)] active:scale-98 cursor-pointer whitespace-nowrap shrink-0"
           >
             <span>Book a Strategy Call</span>
             <ArrowUpRight className="w-3.5 h-3.5 text-white" />
@@ -123,6 +126,9 @@ export default function Navbar() {
             className="lg:hidden max-w-7xl mx-auto px-4 sm:px-6 mt-2 pointer-events-auto"
           >
             <div className="bg-[#0D111A]/95 backdrop-blur-2xl border border-white/[0.12] rounded-2xl p-5 shadow-2xl overflow-hidden text-white">
+              <div className="text-[10px] text-slate-400 font-mono uppercase tracking-widest text-center pb-2.5 mb-3 border-b border-white/[0.08]">
+                Marketing Strategically Designed to Sell.
+              </div>
               <div className="flex flex-col gap-1 mb-4">
                 {navLinks.map((link) => {
                   const isActive =

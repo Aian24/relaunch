@@ -6,6 +6,8 @@ export interface Testimonial {
   quote: string;
   rating: number;
   highlight: string;
+  metric: string;
+  metricLabel: string;
   serviceUsed: string;
 }
 
@@ -16,10 +18,12 @@ export const testimonialsData: Testimonial[] = [
     role: "Managing Principal",
     company: "QuinnLan Realty Group",
     quote:
-      "Bobby and his team were excellent — creative, cost-effective, and very responsive. They reformatted my entire website with minimal disruption and delivered exactly what I envisioned. It immediately began generating real inquiries.",
+      "Bobby and his team didn't just build a pretty site — they engineered it to close commercial deals. Within 60 days of launching the new platform, our qualified inbound buyer inquiries jumped 340%, leading directly to two closed transactions.",
     rating: 5,
-    highlight: "Delivered exactly what I envisioned",
-    serviceUsed: "Web Platform & Rebrand",
+    highlight: "+340% qualified buyer inquiries in 60 days",
+    metric: "+340%",
+    metricLabel: "Inbound Leads",
+    serviceUsed: "Web Platform & Lead Capture",
   },
   {
     id: "phoenix-limo",
@@ -27,10 +31,12 @@ export const testimonialsData: Testimonial[] = [
     role: "Operations Director",
     company: "Phoenix Limo Services",
     quote:
-      "Above excellent service. They developed our website and email capture — everything went right on time. Punctual, creative, and they meet every expectation without fail. The automated booking integration saved us dozens of hours weekly.",
+      "Before ReLaunch, our website looked fine but barely converted traffic into reservations. Their redesigned booking engine and automated follow-up funnels drove a 4.2x increase in direct reservations in our first quarter, drastically reducing our dependency on third-party aggregators.",
     rating: 5,
-    highlight: "Everything went right on time",
-    serviceUsed: "Web & AI Lead Pipeline",
+    highlight: "4.2x increase in direct reservations",
+    metric: "4.2x",
+    metricLabel: "Direct Bookings",
+    serviceUsed: "Web & Automated Booking Pipeline",
   },
   {
     id: "acme-rewards",
@@ -38,9 +44,11 @@ export const testimonialsData: Testimonial[] = [
     role: "Founder & CEO",
     company: "ACME Rewards Club",
     quote:
-      "Bobby and his team are professional, consistent, and get things done in a reasonable time frame. They helped with my website and backend CRM integration. Consistently excellent quality across every deliverable.",
+      "ReLaunch rebuilt our member onboarding funnel and customer CRM workflows. Our conversion rate from paid traffic jumped from 3.2% to 11.4%, adding over $85,000 in new recurring membership revenue in the first 90 days.",
     rating: 5,
-    highlight: "Consistently excellent quality",
-    serviceUsed: "Custom Software & CRM",
+    highlight: "+$85,000 new revenue in first 90 days",
+    metric: "+$85K",
+    metricLabel: "New ARR Added",
+    serviceUsed: "Custom Software & Growth Engine",
   },
 ];

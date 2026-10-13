@@ -23,7 +23,7 @@ export default function FaqPage() {
   const [openIndex, setOpenIndex] = useState<number | null>(0);
   const [selectedCategory, setSelectedCategory] = useState<string>("All");
 
-  const categories = ["All", "Pricing & Billing", "Services & Delivery", "ReLaunch Method"];
+  const categories = ["All", "Pricing & Billing", "Services & Delivery", "Strategy & Results"];
 
   const filteredFaqs =
     selectedCategory === "All"
@@ -124,8 +124,8 @@ export default function FaqPage() {
 
                 <div className="space-y-3">
                   <div className="p-4 rounded-2xl bg-white/[0.04] border border-white/[0.06]">
-                    <div className="text-[10px] uppercase font-mono text-[#7F48ED] font-bold">Contracts &amp; Lock-in</div>
-                    <div className="text-xs text-white mt-1">Zero long-term contracts. 100% month-to-month flexibility.</div>
+                    <div className="text-[10px] uppercase font-mono text-[#7F48ED] font-bold">Engagement Model</div>
+                    <div className="text-xs text-white mt-1">Direct senior execution with transparent monthly deliverables.</div>
                   </div>
 
                   <div className="p-4 rounded-2xl bg-white/[0.04] border border-white/[0.06]">

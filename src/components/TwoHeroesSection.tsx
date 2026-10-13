@@ -3,6 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { twoHeroesData } from "@/data/sellingFramework";
+import { useContactModal } from "@/context/ContactModalContext";
 import { motion, AnimatePresence } from "framer-motion";
 import MotionWrapper from "./MotionWrapper";
 import SpotlightCard from "./SpotlightCard";
@@ -17,6 +18,7 @@ import {
 } from "lucide-react";
 
 export default function TwoHeroesSection() {
+  const { openContactModal } = useContactModal();
   const [activeTab, setActiveTab] = useState<"local-business" | "enterprise-tech">(
     "local-business"
   );
@@ -183,22 +185,29 @@ export default function TwoHeroesSection() {
                       <div className="space-y-2.5 mb-6 text-xs text-slate-600">
                         <div className="flex items-start gap-2">
                           <Check className="w-4 h-4 text-[#FF6700] mt-0.5 shrink-0" />
-                          <span>Engineered on the 4-layer selling framework (SB7, Hero&apos;s Journey, Draper)</span>
+                          <span>Strategically engineered to generate tracked calls, leads, and sales</span>
                         </div>
                         <div className="flex items-start gap-2">
                           <Check className="w-4 h-4 text-[#FF6700] mt-0.5 shrink-0" />
-                          <span>Single flexible monthly subscription — pause or cancel anytime</span>
+                          <span>Full-service delivery managed directly by senior strategists</span>
                         </div>
                       </div>
                     </div>
 
-                    <Link
-                      href={activeHero.ctaHref}
-                      className="w-full inline-flex items-center justify-center gap-2 py-3.5 px-6 bg-[#FF6700] hover:bg-[#E55C00] text-white font-heading font-bold text-xs uppercase tracking-wider rounded-xl shadow-[0_0_20px_rgba(255,103,0,0.3)] hover:shadow-[0_0_25px_rgba(255,103,0,0.45)] transition-all text-center active:translate-y-0.5 hover:scale-[1.01]"
+                    <button
+                      type="button"
+                      onClick={() =>
+                        openContactModal({
+                          intent: "strategy-session",
+                          serviceInterest: activeHero.title,
+                          notes: `Inquiry from Two Doors path: ${activeHero.title}`,
+                        })
+                      }
+                      className="w-full inline-flex items-center justify-center gap-2 py-3.5 px-6 bg-[#FF6700] hover:bg-[#E55C00] text-white font-heading font-bold text-xs uppercase tracking-wider rounded-xl shadow-[0_0_20px_rgba(255,103,0,0.3)] hover:shadow-[0_0_25px_rgba(255,103,0,0.45)] transition-all text-center active:translate-y-0.5 hover:scale-[1.01] cursor-pointer"
                     >
                       <span>{activeHero.ctaText}</span>
                       <ArrowRight className="w-3.5 h-3.5" />
-                    </Link>
+                    </button>
                   </SpotlightCard>
                 </motion.div>
               </div>

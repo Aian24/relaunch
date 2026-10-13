@@ -9,7 +9,7 @@ export const heroData = {
   kicker: "Phoenix, AZ · Est. 2004 · Trusted by 1,500+ Businesses",
   headline: "Marketing, AI & Digital Services.",
   subheadline:
-    "Everything your business needs. One subscription. From marketing to AI to web — pick the services that fit, bundle them together, and save. Pause or cancel anytime. No contracts.",
+    "Everything your business needs. One subscription. From marketing to AI to web — pick the services that fit, bundle them together, and drive real sales.",
   primaryCta: {
     label: "Build My Bundle",
     href: "#bundle-builder",
@@ -41,7 +41,7 @@ export const heroData = {
       value: 100,
       suffix: "%",
       label: "Client Ownership",
-      sublabel: "No lock-in, zero contracts",
+      sublabel: "100% asset and code ownership",
     },
   ] as HeroStat[],
   industries: [

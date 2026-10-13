@@ -43,8 +43,8 @@ export const twoHeroesData: HeroPersona[] = [
     internalProblem: "No time, burned by past agencies who sold vanity metrics, unsure what actually works",
     whatIsAtStake: "Losing prime market share to competitors who market better; wasted ad spend",
     successLooksLike: "The phone rings consistently; marketing turns into a predictable profit center",
-    ctaText: "Get Free NIS Marketing Grade",
-    ctaHref: "#nis-grader",
+    ctaText: "Book a Strategy Call",
+    ctaHref: "#contact",
   },
   {
     id: "enterprise-tech",
@@ -58,7 +58,7 @@ export const twoHeroesData: HeroPersona[] = [
     internalProblem: "Needs a builder who understands real business ROI, not just lines of code",
     whatIsAtStake: "Missed operational goals, stalled digital transformation, budget lost to bloated tools",
     successLooksLike: "A custom platform delivered on budget, adopted by users, and supported continuously",
-    ctaText: "Discuss Your Custom Project",
+    ctaText: "Book a Strategy Call",
     ctaHref: "#contact",
   },
 ];
@@ -115,6 +115,6 @@ export const threeStepPlan: PlanStep[] = [
     stepNumber: "03",
     title: "We Launch It & Keep It Selling",
     description: "Your new engine goes live. We manage, optimize, and scale it monthly under your single flexible subscription.",
-    detail: "Clear dashboard reporting in plain business numbers. Pause, upgrade, or cancel anytime.",
+    detail: "Clear dashboard reporting in plain business numbers. Continuous optimization focused on calls, leads, and revenue.",
   },
 ];

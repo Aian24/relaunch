@@ -138,8 +138,8 @@ export default function Hero() {
           transition={{ duration: 0.6, delay: 0.1, ease: [0.16, 1, 0.3, 1] }}
           className="font-heading font-black text-3xl sm:text-5xl md:text-6xl lg:text-7xl xl:text-[80px] tracking-tight leading-[1.06] text-white text-center sm:text-left"
         >
-          <span className="block whitespace-normal sm:whitespace-nowrap">Your Business Deserves</span>
-          <span className="block text-[#FF6700] whitespace-normal sm:whitespace-nowrap">a Full Marketing Team.</span>
+          <span className="block whitespace-normal sm:whitespace-nowrap">Marketing Strategically</span>
+          <span className="block text-[#FF6700] whitespace-normal sm:whitespace-nowrap">Designed to Sell.</span>
         </motion.h1>
 
         {/* Subtitle */}
@@ -149,7 +149,7 @@ export default function Hero() {
           transition={{ duration: 0.6, delay: 0.18, ease: [0.16, 1, 0.3, 1] }}
           className="mt-6 text-slate-300 text-sm sm:text-base md:text-lg max-w-2xl leading-relaxed font-normal mx-auto sm:mx-0 text-center sm:text-left"
         >
-          We handle your marketing, AI, web, and design — bundled into one subscription you can actually afford. You stay focused on running your business. We handle the rest.
+          We strategize, create, and deliver marketing built to sell — and you can see it in your numbers. Most businesses don&apos;t have a marketing problem; they have a selling problem: a website that looks fine but never closes, ads that generate clicks nobody follows up on, content with no plan behind it. Inaction quietly costs you sales — lost leads to competitors, wasted ad spend, and looking less credible than your work deserves. ReLaunch fixes that first.
         </motion.p>
 
         {/* Action Buttons: Always beside each other in mobile view */}

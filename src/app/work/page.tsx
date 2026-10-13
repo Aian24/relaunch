@@ -539,7 +539,7 @@ export default function WorkPage() {
                           }
                           className="inline-flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-[#7F48ED] hover:text-[#6D28D9] transition-colors cursor-pointer group/btn"
                         >
-                          <span>Inquire Now</span>
+                          <span>Book a Strategy Call</span>
                           <ArrowUpRight className="w-3.5 h-3.5 group-hover/btn:translate-x-0.5 group-hover/btn:-translate-y-0.5 transition-transform" />
                         </button>
                       </div>

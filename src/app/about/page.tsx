@@ -55,12 +55,12 @@ export default function AboutPage() {
       highlight: "Zero Hostage Code",
     },
     {
-      numericValue: 0,
-      suffix: "",
-      label: "Contract Lock-In",
-      detail: "Flexible month-to-month plans. Cancel or pause anytime.",
-      icon: Lock,
-      highlight: "Month-to-Month",
+      numericValue: 100,
+      suffix: "%",
+      label: "Senior Execution",
+      detail: "Direct access to veteran strategists — no junior account handoffs.",
+      icon: Users,
+      highlight: "Direct Access",
     },
   ];
 
@@ -90,24 +90,34 @@ export default function AboutPage() {
 
   const evolutionMilestones = [
     {
-      period: "2004 – 2011",
+      period: "2008 – 2011",
       title: "The Founding Era",
-      desc: "Launched in Phoenix with a focus on high-converting websites and foundational brand identities.",
+      desc: "No name yet — we started offering web design services because clients kept asking for help.",
+      benefit: "This is where it started: a direct response to what businesses actually needed.",
     },
     {
-      period: "2012 – 2019",
+      period: "2012 – 2015",
       title: "Omnichannel Growth",
-      desc: "Expanded into bespoke cloud software, full-stack Next.js apps, and multi-channel performance media.",
+      desc: "Operating as Launch A Cloud, we added mobile apps and marketing services.",
+      benefit: "This is why we can build custom software, not just plug in templates.",
     },
     {
-      period: "2020 – 2024",
-      title: "The Product Studio",
-      desc: "Pioneered our agile subscription model—eliminating agency overhead and lengthy retainers.",
+      period: "2015 – 2020",
+      title: "Confessions of a Local Marketer",
+      desc: "Learned what actually makes a small-business site convert, and began generating real results for clients.",
+      benefit: "This is why you get month-to-month flexibility instead of a 12-month contract.",
     },
     {
-      period: "2025 – Present",
+      period: "2021 – 2025",
+      title: "Rebrand to ReLaunch",
+      desc: "Rebranded as ReLaunch to close the exact gap we kept seeing: decent marketing that helps, but doesn't deliver real results.",
+      benefit: "This is why the name is ReLaunch — we exist to relaunch what wasn't working.",
+    },
+    {
+      period: "Present → Future",
       title: "AI & Generative Search",
-      desc: "Integrating autonomous AI agents and Generative Engine Optimization (GEO) to dominate modern search.",
+      desc: "Integrating AI visibility and generative search into how clients get found.",
+      benefit: "This is why your business shows up when people ask AI for a recommendation, not just when they Google you.",
     },
   ];
 
@@ -141,8 +151,8 @@ export default function AboutPage() {
                 transition={{ duration: 0.6, delay: 0.1, ease: [0.16, 1, 0.3, 1] }}
                 className="font-heading font-black text-3xl sm:text-4xl md:text-5xl lg:text-5xl xl:text-6xl tracking-tight leading-[1.08] text-white"
               >
-                <span className="block">Two Decades of</span>
-                <span className="block text-[#7F48ED]">Engineering Impact.</span>
+                <span className="block">Bad Marketing and Broken Operations Don&apos;t Look Broken —</span>
+                <span className="block text-[#7F48ED]">They Just Quietly Cost You Sales.</span>
               </motion.h1>
 
               <motion.p
@@ -151,7 +161,7 @@ export default function AboutPage() {
                 transition={{ duration: 0.7, delay: 0.2, ease: [0.16, 1, 0.3, 1] }}
                 className="mt-6 text-slate-300 text-sm sm:text-base md:text-lg leading-relaxed font-normal max-w-xl"
               >
-                Founded in Phoenix in 2004, ReLaunch replaces bloated agency retainers with senior-level execution, agile speed, and 100% asset autonomy.
+                A website that doesn&apos;t convert. Ads running with no strategy behind them. Software you paid to set up that never got fully connected. None of it looks like a crisis — it just quietly costs you customers every day it goes unfixed. ReLaunch exists to find that gap and close it.
               </motion.p>
 
               <motion.div
@@ -186,8 +196,8 @@ export default function AboutPage() {
                 className="mt-8 flex flex-wrap justify-center sm:justify-start gap-2 sm:gap-4 text-xs text-slate-300 font-medium"
               >
                 <div className="flex items-center gap-1.5 bg-white/[0.05] px-3 py-1.5 rounded-lg border border-white/[0.08]">
-                  <ShieldCheck className="w-4 h-4 text-[#7F48ED]" />
-                  <span>Zero Lock-In</span>
+                  <CheckCircle2 className="w-4 h-4 text-[#7F48ED]" />
+                  <span>Senior Execution</span>
                 </div>
                 <div className="flex items-center gap-1.5 bg-white/[0.05] px-3 py-1.5 rounded-lg border border-white/[0.08]">
                   <Lock className="w-4 h-4 text-[#7F48ED]" />
@@ -272,18 +282,38 @@ export default function AboutPage() {
         </div>
       </section>
 
-      {/* 2. Four Pillars of Trust */}
+      {/* 2. Empathy Section: The Reality Most Business Owners Face */}
+      <section className="py-20 sm:py-28 px-4 sm:px-6 lg:px-8 bg-white border-b border-slate-100 select-none">
+        <div className="max-w-4xl mx-auto text-center">
+          <MotionWrapper direction="up" distance={30} className="max-w-3xl mx-auto">
+            <span className="text-xs font-mono uppercase tracking-widest text-[#7F48ED] font-bold block mb-3">
+              THE REALITY MOST BUSINESS OWNERS FACE
+            </span>
+            <h2 className="font-heading font-black text-3xl sm:text-5xl text-[#090D16] tracking-tight mb-6 leading-tight">
+              We hear the same story on almost every first call.
+            </h2>
+            <p className="text-slate-600 text-base sm:text-lg leading-relaxed mb-6 font-normal">
+              A business owner who invested in the right tools and the right people, hoping it would launch real growth — then got buried running the business, the setup never got finished, and months later they&apos;re still paying for software and services that never actually started working.
+            </p>
+            <p className="text-[#090D16] text-base sm:text-lg font-semibold leading-relaxed">
+              That&apos;s not a failure on your part. It&apos;s what happens when marketing and operations get sold as disconnected pieces instead of one plan — and it&apos;s exactly the gap ReLaunch exists to close.
+            </p>
+          </MotionWrapper>
+        </div>
+      </section>
+
+      {/* 3. Earned Authority Block */}
       <section className="py-20 sm:py-28 px-4 sm:px-6 lg:px-8 bg-white border-b border-slate-100">
         <div className="max-w-7xl mx-auto">
-          <MotionWrapper direction="up" distance={30} className="text-center max-w-2xl mx-auto mb-16">
+          <MotionWrapper direction="up" distance={30} className="text-center max-w-3xl mx-auto mb-16">
             <span className="text-xs font-mono uppercase tracking-widest text-[#7F48ED] font-bold block mb-2">
-              PROVEN RELIABILITY
+              EARNED AUTHORITY · PHOENIX, AZ
             </span>
             <h2 className="font-heading font-black text-3xl sm:text-5xl text-[#090D16] tracking-tight">
-              Numbers Built on 22 Years of Trust.
+              22 Years in Phoenix. Numbers You Can See.
             </h2>
             <p className="mt-4 text-slate-600 text-sm sm:text-base leading-relaxed">
-              Prioritizing client ownership and measurable business revenue across every digital era.
+              No junior handoffs — every account is run by a senior architect, designer, or strategist. You own 100% of what we build: the code, the creative, the accounts. We don&apos;t need lock-in to keep you — you&apos;ll see the results in your numbers, and that&apos;s what keeps you.
             </p>
           </MotionWrapper>
 
@@ -337,10 +367,10 @@ export default function AboutPage() {
               OUR PHILOSOPHY
             </span>
             <h2 className="font-heading font-black text-3xl sm:text-5xl text-[#090D16] tracking-tight">
-              Built to Fix Everything Broken About Agencies.
+              Marketing Strategically Designed to Sell.
             </h2>
             <p className="mt-4 text-slate-600 text-sm sm:text-base leading-relaxed">
-              No bloated retainers, no junior handoffs, and zero hostage code.
+              We strategize, create, and deliver marketing built to sell — and you can see it in your numbers.
             </p>
           </MotionWrapper>
 
@@ -376,37 +406,62 @@ export default function AboutPage() {
       </section>
 
       {/* 4. Streamlined Evolution Timeline */}
-      <section className="py-20 sm:py-24 px-4 sm:px-6 lg:px-8 bg-white border-b border-slate-100">
-        <div className="max-w-7xl mx-auto">
-          <MotionWrapper direction="up" distance={20} className="text-center max-w-2xl mx-auto mb-14">
-            <span className="text-xs font-mono uppercase tracking-widest text-slate-400 font-bold block mb-1">
-              STUDIO EVOLUTION
+      <section className="py-20 sm:py-28 px-4 sm:px-6 lg:px-8 bg-white border-b border-slate-100 select-none">
+        <div className="max-w-5xl mx-auto">
+          <MotionWrapper direction="up" distance={20} className="text-center max-w-2xl mx-auto mb-16">
+            <span className="text-xs font-mono uppercase tracking-widest text-[#7F48ED] font-bold block mb-2">
+              STUDIO EVOLUTION · 22 YEARS
             </span>
-            <h3 className="font-heading font-bold text-2xl text-[#090D16]">
-              22 Years of Continuous Innovation
+            <h3 className="font-heading font-black text-3xl sm:text-4xl text-[#090D16] tracking-tight">
+              22 Years of Continuous Innovation.
             </h3>
+            <p className="mt-3 text-slate-600 text-sm sm:text-base leading-relaxed">
+              Every era of our agency was built in direct response to what business owners actually needed.
+            </p>
           </MotionWrapper>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+          {/* Integrated Timeline Editorial Journey */}
+          <div className="space-y-1">
             {evolutionMilestones.map((item, idx) => (
               <MotionWrapper
                 key={item.period}
                 direction="up"
-                delay={idx * 0.08}
-                distance={20}
-                className="h-full"
+                delay={idx * 0.06}
+                distance={15}
+                className="flex items-start gap-4 sm:gap-6 group"
               >
-                <div className="p-6 rounded-2xl bg-slate-50/70 border border-slate-200/80 flex flex-col justify-between h-full">
-                  <div>
-                    <span className="text-xs font-mono font-bold text-[#7F48ED] tracking-wider uppercase block mb-2">
-                      {item.period}
-                    </span>
-                    <h4 className="font-heading font-bold text-base text-[#090D16] mb-1.5">
-                      {item.title}
-                    </h4>
-                    <p className="text-xs text-slate-600 leading-relaxed">
-                      {item.desc}
-                    </p>
+                {/* Column 1: Dot & Connecting Line (Mathematically Centered) */}
+                <div className="flex flex-col items-center self-stretch shrink-0 w-6 sm:w-7">
+                  <div className="w-5 h-5 sm:w-6 sm:h-6 rounded-full bg-white border-2 border-[#7F48ED] flex items-center justify-center shrink-0 z-10 mt-1 shadow-2xs group-hover:scale-110 transition-transform">
+                    <span className="w-1.5 h-1.5 rounded-full bg-[#7F48ED]" />
+                  </div>
+                  {idx < evolutionMilestones.length - 1 && (
+                    <div className="w-[2px] bg-purple-200/80 grow my-2" />
+                  )}
+                </div>
+
+                {/* Column 2: 2-Column Editorial Content */}
+                <div className="grow min-w-0 pb-8 sm:pb-10 pt-0.5">
+                  <div className="grid grid-cols-1 md:grid-cols-12 gap-2 sm:gap-4 md:gap-8 items-start">
+                    {/* Left: Period & Title */}
+                    <div className="md:col-span-4 space-y-1">
+                      <span className="text-xs font-mono font-bold text-[#7F48ED] tracking-wider uppercase block">
+                        {item.period}
+                      </span>
+                      <h4 className="font-heading font-bold text-lg sm:text-xl text-[#090D16]">
+                        {item.title}
+                      </h4>
+                    </div>
+
+                    {/* Right: Narrative & Benefit */}
+                    <div className="md:col-span-8 space-y-2">
+                      <p className="text-sm sm:text-base text-slate-600 leading-relaxed font-normal">
+                        {item.desc}
+                      </p>
+                      <p className="text-sm sm:text-base font-medium text-[#7F48ED] leading-relaxed">
+                        {item.benefit}
+                      </p>
+                    </div>
                   </div>
                 </div>
               </MotionWrapper>
@@ -415,10 +470,15 @@ export default function AboutPage() {
         </div>
       </section>
 
-      {/* 5. Bottom Call to Action */}
-      <CtaBanner />
+      {/* 5. Standard Global Call to Action Banner */}
+      <CtaBanner
+        badgeText="Ready for Launch · Phoenix, AZ"
+        titleRegular="Here's how we start: a strategy call, a plan built around your business,"
+        titleHighlight="then we build it."
+        description="Book a strategy call to evaluate your current setup and build a marketing plan designed around your business, or explore our real client case studies."
+      />
 
-      {/* 6. Footer */}
+      {/* Footer */}
       <Footer />
       <ScrollToTop />
     </main>

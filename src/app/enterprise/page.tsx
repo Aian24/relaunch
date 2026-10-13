@@ -123,12 +123,12 @@ const caseStudies = [
 
 const engagementOptions = [
   {
-    badge: "Most Popular",
-    title: "Fixed-Scope Project",
-    bestFor: "Best for defined apps, portals, or website builds.",
+    badge: "Fixed-Scope SOW",
+    title: "Milestone-Based Project SOW",
+    bestFor: "Best for defined enterprise apps, portals, or migrations.",
     deliverables: [
-      "Guaranteed delivery date & milestones",
-      "Fixed pricing with zero scope creep",
+      "Fixed-scope Statement of Work (SOW)",
+      "Guaranteed milestone delivery dates",
       "100% source code handover on launch",
     ],
   },
@@ -143,12 +143,12 @@ const engagementOptions = [
     ],
   },
   {
-    badge: "No Contracts",
-    title: "Flexible Monthly Subscription",
+    badge: "Agile Retainer",
+    title: "Dedicated Continuous Engagement",
     bestFor: "Best for continuous improvements & support.",
     deliverables: [
-      "Month-to-month agile flexibility",
-      "Pause or cancel anytime with one click",
+      "Month-to-month sprint agility",
+      "Dynamic backlog prioritization",
       "Fast turnaround on priority tasks",
     ],
   },
@@ -317,7 +317,7 @@ export default function EnterprisePage() {
                         }
                         className="inline-flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-[#FF6700] hover:text-[#E55C00] transition-colors cursor-pointer group/btn"
                       >
-                        <span>Inquire Now</span>
+                        <span>Book a Strategy Call</span>
                         <ArrowUpRight className="w-3.5 h-3.5 group-hover/btn:translate-x-0.5 group-hover/btn:-translate-y-0.5 transition-transform" />
                       </button>
                     </div>
@@ -387,12 +387,79 @@ export default function EnterprisePage() {
                   }
                   className="w-full py-3 bg-[#FF6700] hover:bg-[#E55C00] text-white font-heading font-bold text-xs uppercase tracking-wider rounded-xl transition-all shadow-xs flex items-center justify-center gap-2 cursor-pointer active:translate-y-0.5"
                 >
-                  <span>Get Started</span>
+                  <span>Book a Strategy Call</span>
                   <ArrowUpRight className="w-3.5 h-3.5" />
                 </button>
               </div>
             </MotionWrapper>
           ))}
+        </div>
+      </section>
+
+      {/* Institutional Standards & Enterprise Governance */}
+      <section className="py-20 sm:py-24 px-4 sm:px-6 lg:px-8 bg-white select-none border-t border-slate-100">
+        <div className="max-w-7xl mx-auto">
+          <MotionWrapper direction="up" distance={25} className="text-center max-w-3xl mx-auto mb-14">
+            <span className="text-xs font-mono uppercase tracking-widest text-[#FF6700] font-bold block mb-2">
+              INSTITUTIONAL GOVERNANCE &amp; STANDARDS
+            </span>
+            <h2 className="font-heading font-black text-3xl sm:text-5xl text-[#090D16] tracking-tight leading-tight">
+              Enterprise Compliance. Built In From Day One.
+            </h2>
+            <p className="mt-4 text-slate-600 text-sm sm:text-base leading-relaxed">
+              We design and deliver regulated digital infrastructure that satisfies institutional security, accessibility audits, and formal procurement standards.
+            </p>
+          </MotionWrapper>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            <div className="p-7 rounded-3xl bg-slate-50/70 border border-slate-200/80 hover:border-[#FF6700]/30 transition-all">
+              <div className="w-10 h-10 rounded-xl bg-orange-50 border border-orange-200/60 flex items-center justify-center mb-4 text-[#FF6700]">
+                <ShieldCheck className="w-5 h-5" />
+              </div>
+              <h3 className="font-heading font-bold text-base text-[#090D16] mb-2">
+                SOC2 &amp; Security Audits
+              </h3>
+              <p className="text-xs text-slate-600 leading-relaxed">
+                Bank-grade architecture, data encryption at rest and in transit, and adherence to strict financial institution audits.
+              </p>
+            </div>
+
+            <div className="p-7 rounded-3xl bg-slate-50/70 border border-slate-200/80 hover:border-[#FF6700]/30 transition-all">
+              <div className="w-10 h-10 rounded-xl bg-orange-50 border border-orange-200/60 flex items-center justify-center mb-4 text-[#FF6700]">
+                <CheckCircle2 className="w-5 h-5" />
+              </div>
+              <h3 className="font-heading font-bold text-base text-[#090D16] mb-2">
+                Section 508 / WCAG 2.1 AA
+              </h3>
+              <p className="text-xs text-slate-600 leading-relaxed">
+                Rigorous digital accessibility engineering for municipal records and civic frameworks serving hundreds of thousands of citizens.
+              </p>
+            </div>
+
+            <div className="p-7 rounded-3xl bg-slate-50/70 border border-slate-200/80 hover:border-[#FF6700]/30 transition-all">
+              <div className="w-10 h-10 rounded-xl bg-orange-50 border border-orange-200/60 flex items-center justify-center mb-4 text-[#FF6700]">
+                <Layers className="w-5 h-5" />
+              </div>
+              <h3 className="font-heading font-bold text-base text-[#090D16] mb-2">
+                Fixed-Scope Milestone SOWs
+              </h3>
+              <p className="text-xs text-slate-600 leading-relaxed">
+                Clear Statements of Work with defined milestone deliverables, guaranteed turnaround, and zero budget overruns.
+              </p>
+            </div>
+
+            <div className="p-7 rounded-3xl bg-slate-50/70 border border-slate-200/80 hover:border-[#FF6700]/30 transition-all">
+              <div className="w-10 h-10 rounded-xl bg-orange-50 border border-orange-200/60 flex items-center justify-center mb-4 text-[#FF6700]">
+                <Lock className="w-5 h-5" />
+              </div>
+              <h3 className="font-heading font-bold text-base text-[#090D16] mb-2">
+                100% Code Autonomy
+              </h3>
+              <p className="text-xs text-slate-600 leading-relaxed">
+                Complete intellectual property transfer, automated deployment scripts, and self-hosted cloud infrastructure with zero lock-in.
+              </p>
+            </div>
+          </div>
         </div>
       </section>
 

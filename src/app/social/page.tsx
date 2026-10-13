@@ -98,7 +98,7 @@ export default function SocialPage() {
                 transition={{ duration: 0.7, delay: 0.2, ease: [0.16, 1, 0.3, 1] }}
                 className="mt-6 text-slate-300 text-sm sm:text-base md:text-lg leading-relaxed font-normal max-w-2xl"
               >
-                We create, format, and publish high-quality content across all your channels every month. No overhead, no long-term contracts.
+                We create, format, and publish high-quality content across all your channels every month. Consistent publishing designed to drive brand authority and sales.
               </motion.p>
 
               <motion.div
@@ -160,9 +160,9 @@ export default function SocialPage() {
                   </div>
 
                   <div className="p-3.5 rounded-2xl bg-white/[0.03] border border-white/[0.06]">
-                    <div className="text-[10px] font-mono text-slate-400 uppercase">3. Month-to-Month Freedom</div>
-                    <div className="font-heading font-bold text-white text-sm mt-0.5">Zero Lock-In Contracts</div>
-                    <div className="text-xs text-slate-400 mt-0.5">Pause, upgrade, or cancel anytime with simple 1-click management.</div>
+                    <div className="text-[10px] font-mono text-slate-400 uppercase">3. Strategic Cadence</div>
+                    <div className="font-heading font-bold text-white text-sm mt-0.5">Consistent Revenue-Focused Publishing</div>
+                    <div className="text-xs text-slate-400 mt-0.5">Every piece of content ties back to client acquisition, trust, and conversions.</div>
                   </div>
                 </div>
               </motion.div>
@@ -223,7 +223,7 @@ export default function SocialPage() {
                     href="/pricing"
                     className="inline-flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-[#7F48ED] hover:text-[#6D28D9] transition-colors"
                   >
-                    <span>View Track A Plans</span>
+                    <span>View Pricing</span>
                     <ArrowRight className="w-3.5 h-3.5" />
                   </Link>
                 </div>
@@ -266,7 +266,7 @@ export default function SocialPage() {
                     href="/pricing"
                     className="inline-flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-[#7F48ED] hover:text-[#6D28D9] transition-colors"
                   >
-                    <span>View Track B Plans</span>
+                    <span>View Pricing</span>
                     <ArrowRight className="w-3.5 h-3.5" />
                   </Link>
                 </div>

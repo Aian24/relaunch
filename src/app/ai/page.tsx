@@ -24,6 +24,9 @@ import {
   CheckCircle2,
   ArrowUpRight,
   ArrowRight,
+  Database,
+  Zap,
+  ClipboardCheck,
 } from "lucide-react";
 
 const aiServices = [
@@ -149,7 +152,7 @@ export default function AiPage() {
             AI Solutions Built for Real Business Growth.
           </h2>
           <p className="text-slate-600 text-sm sm:text-base leading-relaxed">
-            Practical AI systems engineered to capture leads, answer customers, and automate workflows.
+            A lot of businesses already own tools that could save them hours a week — they just never got fully connected. Our AI and automation services finish that setup: chatbots, workflows, and dashboards that actually run, instead of sitting half-configured and still being paid for.
           </p>
         </MotionWrapper>
 
@@ -216,6 +219,80 @@ export default function AiPage() {
             </MotionWrapper>
             );
           })}
+        </div>
+      </section>
+
+      {/* 2.5 What Happens During an AI Audit */}
+      <section className="py-16 sm:py-24 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto w-full select-none border-t border-slate-100">
+        <MotionWrapper direction="up" distance={25} className="text-center max-w-3xl mx-auto mb-12 sm:mb-16">
+          <span className="text-xs font-mono uppercase tracking-widest text-[#FF6700] font-bold block mb-2">
+            FREE 15-MINUTE DIAGNOSTIC
+          </span>
+          <h2 className="font-heading font-black text-3xl sm:text-5xl text-[#090D16] tracking-tight leading-tight mb-3">
+            What Happens During an <span className="text-[#FF6700]">AI Audit?</span>
+          </h2>
+          <p className="text-slate-600 text-sm sm:text-base leading-relaxed">
+            Before recommending any software or bot, we review your current tools, staff workflows, and customer follow-up gaps to uncover exactly where you are losing hours and sales.
+          </p>
+        </MotionWrapper>
+
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 sm:gap-8 max-w-5xl mx-auto">
+          <MotionWrapper direction="up" delay={0.05} distance={20} className="h-full">
+            <div className="p-7 rounded-3xl bg-slate-50/70 border border-slate-200/80 hover:border-[#FF6700]/40 transition-all flex flex-col justify-between h-full text-left">
+              <div>
+                <div className="w-10 h-10 rounded-2xl bg-orange-50 border border-orange-200/60 flex items-center justify-center text-[#FF6700] mb-4 shadow-2xs">
+                  <Database className="w-5 h-5" />
+                </div>
+                <div className="text-[10px] font-mono uppercase text-[#FF6700] font-bold mb-1">Step 01 · Tech Stack</div>
+                <h3 className="font-heading font-bold text-lg text-[#090D16] mb-2">Tool Utilization Review</h3>
+                <p className="text-xs sm:text-sm text-slate-600 leading-relaxed">
+                  We inventory the tools you already pay for (CRMs, email platforms, web builders) to find disconnected systems sitting half-used.
+                </p>
+              </div>
+            </div>
+          </MotionWrapper>
+
+          <MotionWrapper direction="up" delay={0.1} distance={20} className="h-full">
+            <div className="p-7 rounded-3xl bg-slate-50/70 border border-slate-200/80 hover:border-[#FF6700]/40 transition-all flex flex-col justify-between h-full text-left">
+              <div>
+                <div className="w-10 h-10 rounded-2xl bg-orange-50 border border-orange-200/60 flex items-center justify-center text-[#FF6700] mb-4 shadow-2xs">
+                  <Zap className="w-5 h-5" />
+                </div>
+                <div className="text-[10px] font-mono uppercase text-[#FF6700] font-bold mb-1">Step 02 · Manual Leaks</div>
+                <h3 className="font-heading font-bold text-lg text-[#090D16] mb-2">Workflow Bottlenecks</h3>
+                <p className="text-xs sm:text-sm text-slate-600 leading-relaxed">
+                  We isolate repetitive manual tasks — copy-pasting data, manual invoice routing, and missed lead calls — that drain staff hours.
+                </p>
+              </div>
+            </div>
+          </MotionWrapper>
+
+          <MotionWrapper direction="up" delay={0.15} distance={20} className="h-full">
+            <div className="p-7 rounded-3xl bg-slate-50/70 border border-slate-200/80 hover:border-[#FF6700]/40 transition-all flex flex-col justify-between h-full text-left">
+              <div>
+                <div className="w-10 h-10 rounded-2xl bg-orange-50 border border-orange-200/60 flex items-center justify-center text-[#FF6700] mb-4 shadow-2xs">
+                  <CheckCircle2 className="w-5 h-5" />
+                </div>
+                <div className="text-[10px] font-mono uppercase text-[#FF6700] font-bold mb-1">Step 03 · Deliverable</div>
+                <h3 className="font-heading font-bold text-lg text-[#090D16] mb-2">1-Page Automation Roadmap</h3>
+                <p className="text-xs sm:text-sm text-slate-600 leading-relaxed">
+                  You walk away with an actionable blueprint showing which workflows can run 24/7 on autopilot and estimated hours saved per week.
+                </p>
+              </div>
+            </div>
+          </MotionWrapper>
+        </div>
+
+        <div className="mt-10 sm:mt-12 text-center">
+          <button
+            type="button"
+            onClick={() => openContactModal({ intent: "ai-audit" })}
+            className="inline-flex items-center justify-center gap-2 px-6 py-3.5 bg-[#FF6700] hover:bg-[#E55C00] text-white font-heading font-bold text-xs uppercase tracking-wider rounded-xl transition-all shadow-sm active:translate-y-0.5 cursor-pointer"
+          >
+            <ClipboardCheck className="w-4 h-4" />
+            <span>Book Your Free AI Audit</span>
+            <ArrowRight className="w-3.5 h-3.5" />
+          </button>
         </div>
       </section>
 

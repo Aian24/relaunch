@@ -36,14 +36,21 @@ export default function TestimonialsSection() {
                 className="bg-white p-6 sm:p-8 rounded-3xl border border-slate-200/80 shadow-[0_4px_25px_rgba(0,0,0,0.03)] flex flex-col justify-between relative hover:shadow-[0_12px_40px_rgba(0,0,0,0.08)] hover:border-[#FF6700]/40 transition-all duration-300 h-full"
               >
                 <div>
-                  {/* 5 Stars */}
-                  <div className="flex items-center gap-1 mb-4">
-                    {[...Array(5)].map((_, i) => (
-                      <Star
-                        key={i}
-                        className="w-3.5 h-3.5 fill-[#FF6700] stroke-[#FF6700]"
-                      />
-                    ))}
+                  {/* Metric Pill + 5 Stars */}
+                  <div className="flex items-center justify-between gap-2 mb-4">
+                    <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-orange-50 border border-orange-200/60 text-[#FF6700]">
+                      <span className="font-heading font-black text-xs sm:text-sm tracking-tight">{testi.metric}</span>
+                      <span className="text-[10px] font-mono uppercase font-semibold text-slate-500">{testi.metricLabel}</span>
+                    </div>
+
+                    <div className="flex items-center gap-1">
+                      {[...Array(5)].map((_, i) => (
+                        <Star
+                          key={i}
+                          className="w-3.5 h-3.5 fill-[#FF6700] stroke-[#FF6700]"
+                        />
+                      ))}
+                    </div>
                   </div>
 
                   <blockquote className="text-xs sm:text-sm text-slate-700 leading-relaxed font-normal italic mb-6">

@@ -242,7 +242,7 @@ export default function NisGraderSection() {
                     }
                     className="px-7 py-3.5 bg-[#FF6700] hover:bg-[#E55C00] text-white font-heading font-bold text-xs uppercase tracking-wider rounded-xl shadow-sm transition-all text-center whitespace-nowrap active:translate-y-0.5"
                   >
-                    <span>Book Free Strategy Call</span>
+                    <span>Book a Strategy Call</span>
                     <ArrowUpRight className="w-3.5 h-3.5" />
                   </button>
                 </div>

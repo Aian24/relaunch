@@ -119,7 +119,7 @@ export const socialData = {
       features: [
         "20 posts + 4 short-form video Reels/month",
         "All 5 social platforms",
-        "StoryBrand SB7 customer journey narrative",
+        "Customer-centric narrative messaging & story framework",
         "Community comment notification triggers",
       ],
       popular: true,

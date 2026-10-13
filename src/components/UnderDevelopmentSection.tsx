@@ -72,7 +72,7 @@ export default function UnderDevelopmentSection({
                 }
                 className="inline-flex items-center justify-center gap-1.5 px-4 py-2 bg-[#090D16] hover:bg-[#FF6700] text-white text-xs font-bold font-heading uppercase tracking-wider rounded-xl transition-all shadow-sm active:translate-y-0.5 cursor-pointer"
               >
-                <span>Book Strategy Call</span>
+                <span>Book a Strategy Call</span>
                 <ArrowRight className="w-3.5 h-3.5" />
               </button>
             </div>

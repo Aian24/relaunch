@@ -73,7 +73,7 @@ export default function ChatAssistant() {
 
     if (q.includes("cost") || q.includes("price") || q.includes("pricing") || q.includes("rate") || q.includes("fee") || q.includes("how much")) {
       return {
-        text: "Our pricing is modular and transparent with zero bloated agency retainers:\n\n• **Starter Services**: Starting from $297/mo\n• **Growth & Performance Retainers**: $790 – $1,200/mo\n• **Custom Software & AI Sprints**: Tailored to scope\n\nBundling multiple disciplines qualifies for 10% to 20% discounts with no long-term lock-in.",
+        text: "Our pricing is modular and transparent with zero bloated agency retainers:\n\n• **Starter Services**: Starting from $297/mo\n• **Growth & Performance Retainers**: $790 – $1,200/mo\n• **Custom Software & AI Sprints**: Tailored to scope\n\nBundling multiple disciplines qualifies for 10% to 20% discounts with transparent monthly pricing.",
         action: { label: "View Pricing Details", href: "#pricing" },
       };
     }

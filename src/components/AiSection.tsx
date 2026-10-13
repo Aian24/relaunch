@@ -148,29 +148,34 @@ export default function AiSection() {
             </span>
           </h2>
           <p className="text-slate-600 text-sm sm:text-base font-normal max-w-2xl mx-auto mt-2 leading-relaxed mb-6">
-            Practical AI systems engineered to capture leads, answer customers, and automate workflows.
+            A lot of businesses already own tools that could save them hours a week — they just never got fully connected. Our AI and automation services finish that setup: chatbots, workflows, and dashboards that actually run, instead of sitting half-configured and still being paid for.
           </p>
 
           <div className="flex flex-wrap items-center justify-center gap-3">
             <button
               type="button"
               onClick={() => openContactModal({ intent: "ai-audit" })}
-              className="inline-flex items-center justify-center gap-2 px-5 py-3 bg-purple-50 hover:bg-purple-100 border border-purple-200 hover:border-purple-300 text-[#7F48ED] hover:text-[#6D28D9] font-heading font-bold text-xs uppercase tracking-wider rounded-xl transition-all shadow-xs whitespace-nowrap active:translate-y-0.5 cursor-pointer"
+              className="inline-flex items-center justify-center gap-2 px-5 py-3 bg-[#7F48ED] hover:bg-[#6D28D9] text-white font-heading font-bold text-xs uppercase tracking-wider rounded-xl transition-all shadow-xs whitespace-nowrap active:translate-y-0.5 cursor-pointer"
             >
-              <ClipboardCheck className="w-3.5 h-3.5 text-[#7F48ED] shrink-0" />
+              <ClipboardCheck className="w-3.5 h-3.5 text-white shrink-0" />
               <span>Book an AI Audit</span>
-              <ArrowRight className="w-3.5 h-3.5 text-[#7F48ED]" />
+              <ArrowRight className="w-3.5 h-3.5 text-white" />
             </button>
 
             <Link
               href="/ai"
-              className="inline-flex items-center justify-center gap-2 px-5 py-3 bg-[#7F48ED] hover:bg-[#6D28D9] text-white font-heading font-bold text-xs uppercase tracking-wider rounded-xl transition-all shadow-[0_4px_20px_rgba(127,72,237,0.25)] whitespace-nowrap active:translate-y-0.5 cursor-pointer"
+              className="inline-flex items-center justify-center gap-2 px-5 py-3 bg-[#7F48ED] hover:bg-[#6D28D9] text-white font-heading font-bold text-xs uppercase tracking-wider rounded-xl transition-all shadow-xs whitespace-nowrap active:translate-y-0.5 cursor-pointer"
             >
               <Rocket className="w-3.5 h-3.5 text-white shrink-0" />
               <span>Explore Full AI Stack</span>
               <ArrowRight className="w-3.5 h-3.5 text-white" />
             </Link>
           </div>
+
+          {/* AI Audit Simple Note */}
+          <p className="mt-4 text-slate-600 text-sm sm:text-base font-normal max-w-xl mx-auto leading-relaxed">
+            A 15-minute diagnostic to find manual tasks and disconnected tools that can run on autopilot.
+          </p>
         </MotionWrapper>
 
         {/* 8 AI Services Grid - Unified Purple Section */}

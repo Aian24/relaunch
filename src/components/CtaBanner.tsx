@@ -6,7 +6,19 @@ import { useContactModal } from "@/context/ContactModalContext";
 import MotionWrapper from "./MotionWrapper";
 import { Phone, Mail, ArrowUpRight, Calendar } from "lucide-react";
 
-export default function CtaBanner() {
+export interface CtaBannerProps {
+  badgeText?: string;
+  titleRegular?: string;
+  titleHighlight?: string;
+  description?: string;
+}
+
+export default function CtaBanner({
+  badgeText = "Ready for Launch · Phoenix, AZ",
+  titleRegular = "Let's build",
+  titleHighlight = "your mission.",
+  description = "Book a strategy call to build your predictable marketing pipeline, or explore our real client case studies.",
+}: CtaBannerProps = {}) {
   const { openContactModal } = useContactModal();
 
   return (
@@ -18,15 +30,15 @@ export default function CtaBanner() {
               <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#FF6700] opacity-75"></span>
               <span className="relative inline-flex rounded-full h-2 w-2 bg-[#FF6700]"></span>
             </span>
-            <span>Ready for Launch · Phoenix, AZ</span>
+            <span>{badgeText}</span>
           </div>
 
           <h2 className="font-heading font-black text-3xl sm:text-5xl lg:text-6xl text-[#090D16] tracking-tight mb-3 leading-tight">
-            Let&apos;s build <span className="text-[#FF6700]">your mission.</span>
+            {titleRegular} <span className="text-[#FF6700]">{titleHighlight}</span>
           </h2>
 
           <p className="text-slate-600 text-xs sm:text-base max-w-xl mx-auto mb-8 leading-relaxed font-normal">
-            Book a strategy call to build your predictable marketing pipeline, or explore our real client case studies.
+            {description}
           </p>
 
           {/* Action Buttons: Unified Primary + Secondary Pair with identical solid orange bg */}

@@ -1,7 +1,7 @@
 export interface FaqItem {
   question: string;
   answer: string;
-  category: "Pricing & Billing" | "Services & Delivery" | "ReLaunch Method";
+  category: "Pricing & Billing" | "Services & Delivery" | "Strategy & Results";
 }
 
 export const faqData: FaqItem[] = [
@@ -18,10 +18,10 @@ export const faqData: FaqItem[] = [
     category: "Pricing & Billing",
   },
   {
-    question: "What is the 'ReLaunch Method' and the 4-layer selling framework?",
+    question: "How do you make sure our marketing actually sells, not just looks nice?",
     answer:
-      "Our strategic framework combines StoryBrand SB7, narrative positioning, and conversion architecture. Every deliverable is engineered to generate calls and qualified leads.",
-    category: "ReLaunch Method",
+      "Every website, campaign, and piece of content is engineered around a clear offer, direct conversion tracking, and measurable business numbers — not just design aesthetics. We identify who buys from you, why they buy, and what stops them, then build your marketing to systematically close that gap and generate tracked calls and sales.",
+    category: "Strategy & Results",
   },
   {
     question: "What is the difference between Track A and Track B for ReLaunch Social?",

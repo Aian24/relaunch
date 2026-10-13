@@ -32,7 +32,7 @@ export default function FounderSection() {
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-center relative z-10">
             {/* LEFT: Founder Photo (5 cols) */}
             <div className="lg:col-span-5 flex flex-col items-center">
-              <div className="relative w-full max-w-sm aspect-square rounded-3xl overflow-hidden shadow-lg border-2 border-white ring-1 ring-slate-200 bg-slate-900 group">
+              <div className="relative w-full max-w-sm aspect-square rounded-3xl overflow-hidden shadow-lg border-2 border-white ring-1 ring-slate-200 bg-slate-100 group">
                 <Image
                   src="/images/bobby-clark.jpg"
                   alt="Robert (Bobby) Clark - Founder of ReLaunch"
@@ -41,21 +41,20 @@ export default function FounderSection() {
                   priority
                   className="object-cover object-top transition-transform duration-700 group-hover:scale-105"
                 />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
+              </div>
 
-                {/* Bottom Photo Label: Simple & Clean */}
-                <div className="absolute bottom-4 left-4 right-4 text-white">
-                  <span className="font-heading font-black text-lg text-white block leading-tight">
-                    Robert &ldquo;Bobby&rdquo; Clark
-                  </span>
-                  <span className="text-xs text-slate-300 font-medium">
-                    Founder of ReLaunch
-                  </span>
-                </div>
+              {/* Name & Title directly under photo - clean & seamless, no gradient */}
+              <div className="mt-4 text-center">
+                <span className="font-heading font-black text-xl text-[#090D16] block leading-tight">
+                  Robert &ldquo;Bobby&rdquo; Clark
+                </span>
+                <span className="text-xs text-slate-500 font-medium block mt-0.5">
+                  Founder &amp; Principal Strategist
+                </span>
               </div>
 
               {/* Location & Years in Business */}
-              <div className="mt-3 flex items-center gap-3 text-xs text-slate-500 font-medium">
+              <div className="mt-2 flex items-center justify-center gap-3 text-xs text-slate-500 font-medium">
                 <span className="inline-flex items-center gap-1 text-[#7F48ED]">
                   <MapPin className="w-3.5 h-3.5" />
                   <span className="text-slate-600">Phoenix, Arizona</span>

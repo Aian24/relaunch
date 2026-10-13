@@ -34,7 +34,7 @@ export default function Footer() {
             </Link>
 
             <p className="text-xs text-slate-400 leading-relaxed max-w-sm font-normal">
-              Brand, digital platforms &amp; AI marketing infrastructure for ambitious companies. Subscription-based. Zero long-term contracts. 100% asset ownership.
+              Marketing Strategically Designed to Sell.
             </p>
 
             <div className="flex items-center gap-2 text-xs font-medium">

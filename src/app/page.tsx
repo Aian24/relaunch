@@ -63,7 +63,7 @@ export default function Home() {
               href="/work"
               className="inline-flex items-center gap-2 text-xs sm:text-sm font-bold uppercase tracking-wider text-[#FF6700] hover:text-[#E55C00] transition-colors group whitespace-nowrap"
             >
-              <span>View Full Case Studies Gallery</span>
+              <span>View Case Studies</span>
               <ArrowRight className="w-4 h-4 group-hover:translate-x-1.5 transition-transform" />
             </Link>
           </MotionWrapper>

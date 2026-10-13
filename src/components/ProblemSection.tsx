@@ -25,7 +25,7 @@ const problems: ProblemCard[] = [
     title: "Outdated Website",
     shortDesc:
       "Buyers check your site before calling. If it looks old or slow, they click away and hire your competitor.",
-    impact: "Lost leads before they ever call",
+    impact: "Lost leads to competitors before they call",
     icon: Globe,
   },
   {
@@ -34,16 +34,16 @@ const problems: ProblemCard[] = [
     title: "Wasted Ad Money",
     shortDesc:
       "Spending money on Google or Meta ads without knowing which clicks actually become paying customers.",
-    impact: "Paying for clicks with zero tracked sales",
+    impact: "Wasted ad spend with zero tracked sales",
     icon: DollarSign,
   },
   {
     number: "03",
-    tag: "SOCIAL",
-    title: "Quiet Social Media",
+    tag: "BRAND",
+    title: "Inconsistent Digital Presence",
     shortDesc:
-      "No posts for weeks makes your company look inactive. New customers want to see proof you are open and active.",
-    impact: "Makes prospects hesitate to trust you",
+      "An outdated or quiet presence makes your company look less credible than the actual quality of your work.",
+    impact: "Looking less credible than the work deserves",
     icon: Share2,
   },
 ];

@@ -142,9 +142,9 @@ export default function ServicesPage() {
       <PageVideoHero
         theme="purple"
         kicker="Full-Scope Capabilities · Est. 2004"
-        titleRegular="Everything Under One Roof."
-        titleHighlight="Our Services."
-        description="Pick the services that fit your business, bundle them into one subscription, and save. Pause or cancel anytime. No contracts."
+        titleRegular="Marketing Strategically"
+        titleHighlight="Designed to Sell."
+        description="We strategize, create, and deliver marketing built to sell — and you can see it in your numbers. Pick the exact capabilities that fit your goals."
         videoSrc="/services2.mp4"
         secondaryVideoSrc="/relaunch-hero2.mp4"
         posterSrc="/hero_frames/frame_000.webp"
@@ -166,7 +166,7 @@ export default function ServicesPage() {
             <span className="block text-[#7F48ED] whitespace-normal sm:whitespace-nowrap">every service.</span>
           </h2>
           <p className="text-slate-600 text-sm sm:text-base leading-relaxed max-w-2xl mx-auto">
-            Mix and match services to fit your growth goals. Bundle to save with zero long-term commitments.
+            Most of what&apos;s broken in a small business&apos;s marketing isn&apos;t visible — a website that looks fine but doesn&apos;t convert, ad spend with no strategy behind it, software that got set up halfway and never fully worked. It quietly costs you sales: lost leads to competitors, wasted ad spend, and looking less credible than your work deserves. Below is the exact set of services we use to find that gap and close it, each one strategically designed to sell, not just to exist.
           </p>
         </MotionWrapper>
 
@@ -256,68 +256,60 @@ export default function ServicesPage() {
         </div>
       </section>
 
-      {/* 2.5 Enterprise & Custom Software Pathway Banner */}
-      <section className="py-10 sm:py-14 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto w-full select-none">
+      {/* 2.5 Enterprise & Custom Software Pathway */}
+      <section className="py-16 sm:py-20 px-4 sm:px-6 lg:px-8 max-w-5xl mx-auto w-full select-none text-center border-t border-slate-100">
         <MotionWrapper direction="up" distance={25}>
-          <div className="relative overflow-hidden rounded-3xl bg-[#07090E] text-white p-8 sm:p-12 border border-white/[0.12] shadow-2xl">
-            <div className="absolute top-0 right-0 w-[500px] h-[350px] bg-[#FF6700]/15 rounded-full blur-[140px] pointer-events-none" />
-            <div className="absolute bottom-0 left-0 w-[500px] h-[350px] bg-[#7F48ED]/15 rounded-full blur-[140px] pointer-events-none" />
+          <div className="space-y-4 max-w-3xl mx-auto">
+            <span className="text-xs font-mono uppercase tracking-widest text-[#7F48ED] font-bold block">
+              ENTERPRISE &amp; CUSTOM SOFTWARE
+            </span>
 
-            <div className="relative z-10 grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
-              <div className="lg:col-span-8 space-y-4">
-                <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-white/[0.08] border border-white/[0.12] text-[#FF6700] text-xs font-mono uppercase tracking-widest font-semibold shadow-xs">
-                  <Building2 className="w-3.5 h-3.5 text-[#FF6700]" />
-                  <span>Enterprise &amp; Civic Architecture Practice</span>
-                </div>
+            <h3 className="font-heading font-black text-2xl sm:text-4xl text-[#090D16] tracking-tight leading-tight">
+              Need Custom Software or Scaled Digital Platforms?
+            </h3>
 
-                <h3 className="font-heading font-black text-2xl sm:text-4xl text-white tracking-tight leading-tight">
-                  Evaluating Custom Software or Enterprise-Scale Systems?
-                </h3>
+            <p className="text-slate-600 text-sm sm:text-base leading-relaxed max-w-2xl mx-auto font-normal">
+              For high-traffic platforms, custom client portals, and bespoke applications requiring dedicated senior engineering pods and complete codebase ownership.
+            </p>
 
-                <p className="text-slate-300 text-sm sm:text-base leading-relaxed max-w-2xl font-normal">
-                  For complex web platforms, municipal entity frameworks, or regulated FinTech systems requiring fixed-scope SOWs, SOC2 compliance, and dedicated senior engineering pods.
-                </p>
-
-                <div className="flex flex-wrap items-center gap-4 pt-2 text-xs text-slate-300 font-medium">
-                  <div className="flex items-center gap-1.5">
-                    <ShieldCheck className="w-4 h-4 text-[#FF6700]" />
-                    <span>Fixed-Scope Milestone SOWs</span>
-                  </div>
-                  <div className="flex items-center gap-1.5">
-                    <ShieldCheck className="w-4 h-4 text-[#FF6700]" />
-                    <span>Section 508 / ADA Compliant</span>
-                  </div>
-                  <div className="flex items-center gap-1.5">
-                    <ShieldCheck className="w-4 h-4 text-[#FF6700]" />
-                    <span>100% Client IP Ownership</span>
-                  </div>
-                </div>
+            <div className="flex flex-wrap items-center justify-center gap-3 sm:gap-6 pt-2 text-xs sm:text-sm text-slate-700 font-medium">
+              <div className="flex items-center gap-1.5">
+                <ShieldCheck className="w-4 h-4 text-[#7F48ED] shrink-0" />
+                <span>Custom Web &amp; Mobile Portals</span>
               </div>
-
-              <div className="lg:col-span-4 flex flex-col sm:flex-row lg:flex-col justify-center items-stretch lg:items-end gap-3.5">
-                <Link
-                  href="/enterprise"
-                  className="inline-flex items-center justify-center gap-2 px-6 py-3.5 bg-[#FF6700] hover:bg-[#E55C00] text-white font-heading font-bold text-xs uppercase tracking-wider rounded-xl transition-all shadow-[0_0_20px_rgba(255,103,0,0.35)] whitespace-nowrap active:scale-98"
-                >
-                  <span>Explore Enterprise Practice</span>
-                  <ArrowUpRight className="w-3.5 h-3.5 text-white" />
-                </Link>
-
-                <button
-                  type="button"
-                  onClick={() =>
-                    openContactModal({
-                      intent: "enterprise-inquiry",
-                      serviceInterest: "Enterprise & Custom Software",
-                      notes: "Inquiring about enterprise software development / RFP review from Services page.",
-                    })
-                  }
-                  className="inline-flex items-center justify-center gap-2 px-6 py-3.5 bg-white/[0.08] hover:bg-white/[0.15] text-white font-heading font-bold text-xs uppercase tracking-wider rounded-xl border border-white/20 transition-all backdrop-blur-md whitespace-nowrap active:scale-98"
-                >
-                  <span>Request Scope Review</span>
-                  <ArrowUpRight className="w-3.5 h-3.5 text-[#FF6700]" />
-                </button>
+              <div className="flex items-center gap-1.5">
+                <ShieldCheck className="w-4 h-4 text-[#7F48ED] shrink-0" />
+                <span>Dedicated Senior Engineering</span>
               </div>
+              <div className="flex items-center gap-1.5">
+                <ShieldCheck className="w-4 h-4 text-[#7F48ED] shrink-0" />
+                <span>100% Code &amp; IP Ownership</span>
+              </div>
+            </div>
+
+            <div className="pt-4 flex flex-row items-center justify-center gap-3 sm:gap-4">
+              <Link
+                href="/enterprise"
+                className="inline-flex items-center justify-center gap-2 px-6 py-3.5 bg-[#7F48ED] hover:bg-[#6D28D9] text-white font-heading font-bold text-xs uppercase tracking-wider rounded-xl transition-all whitespace-nowrap active:scale-98"
+              >
+                <span>Explore Enterprise Practice</span>
+                <ArrowUpRight className="w-3.5 h-3.5 text-white" />
+              </Link>
+
+              <button
+                type="button"
+                onClick={() =>
+                  openContactModal({
+                    intent: "enterprise-inquiry",
+                    serviceInterest: "Enterprise & Custom Software",
+                    notes: "Inquiring about enterprise software development / RFP review from Services page.",
+                  })
+                }
+                className="inline-flex items-center justify-center gap-2 px-6 py-3.5 bg-[#7F48ED] hover:bg-[#6D28D9] text-white font-heading font-bold text-xs uppercase tracking-wider rounded-xl transition-all whitespace-nowrap active:scale-98"
+              >
+                <span>Book a Strategy Call</span>
+                <ArrowUpRight className="w-3.5 h-3.5 text-white" />
+              </button>
             </div>
           </div>
         </MotionWrapper>

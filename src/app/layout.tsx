@@ -8,12 +8,13 @@ export const viewport: Viewport = {
 };
 
 export const metadata: Metadata = {
-  title: "ReLaunch — Marketing, AI & Digital Services | Phoenix, AZ",
+  title: "ReLaunch — Marketing Strategically Designed to Sell | Phoenix, AZ",
   description:
-    "Everything your business needs. One subscription. From marketing to AI to web — pick the services that fit, bundle them together, and save. Pause or cancel anytime. No contracts.",
+    "We strategize, create, and deliver marketing built to sell — and you can see it in your numbers. Full-scope marketing, web, and AI infrastructure from Phoenix, AZ.",
   keywords: [
     "ReLaunch",
     "Marketing Agency Phoenix",
+    "Marketing Strategically Designed to Sell",
     "AI Automation",
     "Web Development",
     "Subscription Marketing",
@@ -25,9 +26,9 @@ export const metadata: Metadata = {
   authors: [{ name: "ReLaunch Marketing & Advertising" }],
   creator: "ReLaunch",
   openGraph: {
-    title: "ReLaunch — Marketing, AI & Digital Services",
+    title: "ReLaunch — Marketing Strategically Designed to Sell",
     description:
-      "Everything your business needs. One subscription. From marketing to AI to web — pick the services that fit, bundle them together, and save. Pause or cancel anytime. No contracts.",
+      "We strategize, create, and deliver marketing built to sell — and you can see it in your numbers.",
     url: "https://relaunch.us",
     siteName: "ReLaunch",
     locale: "en_US",

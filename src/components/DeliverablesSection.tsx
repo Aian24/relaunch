@@ -210,7 +210,7 @@ export default function DeliverablesSection() {
                     }
                     className="inline-flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-[#FF6700] hover:text-[#CC5200] transition-colors cursor-pointer group/btn"
                   >
-                    <span>Book Strategy Call</span>
+                    <span>Book a Strategy Call</span>
                     <ArrowUpRight className="w-3.5 h-3.5 group-hover/btn:translate-x-0.5 group-hover/btn:-translate-y-0.5 transition-transform" />
                   </button>
 
