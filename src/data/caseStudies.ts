@@ -1,178 +1,181 @@
 export interface CaseStudy {
   id: string;
   title: string;
-  category: string;
+  client: string;
+  location: string;
+  category: "Small business" | "Websites & brand" | "Custom software";
   industry: string;
-  description: string;
-  metricLabel: string;
-  metricValue: string;
-  tags: string[];
-  icon: string;
-  bgColor: string;
+  period?: string;
+  headlineNumber: string;
+  hasNumberBadge: boolean;
+  story: string;
+  services: string[];
   image: string;
   displayUrl: string;
   liveUrl?: string;
+  // Compatibility fields for legacy components
+  metricValue: string;
+  metricLabel: string;
+  tags: string[];
+  icon: string;
+  bgColor: string;
+  description: string;
   clientQuote?: string;
 }
 
 export const caseStudiesData: CaseStudy[] = [
   {
-    id: "carmen-hotel",
-    title: "Carmen Hotel & Dining",
-    category: "Hospitality & Luxury Travel",
-    industry: "Hospitality",
-    description: "Complete luxury brand identity overhaul, responsive direct-booking website architecture, and targeted multi-channel ad campaigns.",
-    metricLabel: "Direct Booking Lift",
-    metricValue: "+15%",
-    tags: ["Custom Web Experience", "Direct Booking Engine", "Local Ads Engine", "Social Management"],
-    icon: "Hotel",
-    bgColor: "#090D16",
-    image: "/showcase/carmen_hotel_real_1.jpg",
-    displayUrl: "carmenhotel.com",
-    liveUrl: "https://carmenhotel.com",
-    clientQuote: "ReLaunch transformed our direct booking funnel, reducing OTA reliance by over 60% in year one.",
-  },
-  {
-    id: "golf-central",
-    title: "Golf Central Magazine",
-    category: "Digital Publishing Architecture",
-    industry: "Sports & Media",
-    description: "Custom digital publishing architecture, subscriber paywall engine, and automated interactive issue distribution platform.",
-    metricLabel: "Active Digital Readers",
-    metricValue: "185,000+",
-    tags: ["Publishing Portal", "Next.js", "Paywall Engine", "Interactive Issues"],
-    icon: "Trophy",
-    bgColor: "#090D16",
-    image: "/brands/golf-central.png",
-    displayUrl: "golfcentralmag.com",
-    liveUrl: "https://golfcentralmag.com",
-    clientQuote: "Our readership expanded to 185k+ active monthly users with zero downtime or performance lag.",
-  },
-  {
-    id: "mother-truckin",
-    title: "Mother Truckin Burgers",
-    category: "Food & Hospitality Fleet",
-    industry: "Culinary & Food Truck",
-    description: "Full culinary brand rollout, vehicle fleet wrap design, and geo-targeted social advertising for high-volume burger business.",
-    metricLabel: "Catering Growth",
-    metricValue: "+320%",
-    tags: ["Fleet Wrap", "Culinary Branding", "Social Blitz", "Event Funnels"],
-    icon: "Utensils",
-    bgColor: "#090D16",
-    image: "/showcase/mother_truckin_real_1.png",
-    displayUrl: "mothertruckinburgers.com",
-    clientQuote: "High-energy brand that creates lines around the block and books our trucks weeks in advance.",
-  },
-  {
-    id: "turflife",
-    title: "Turflife Contracting Co.",
-    category: "Sports Lifestyle & Community",
-    industry: "Sports & Lifestyle",
-    description: "Teamed up with Golf Central Magazine's founder to build a national lifestyle movement competing head-to-head with Salt Life.",
-    metricLabel: "Inbound Growth",
-    metricValue: "3.8x",
-    tags: ["Brand Movement", "E-Commerce", "Community", "Lead Automation"],
-    icon: "Trees",
-    bgColor: "#090D16",
-    image: "/showcase/turflife_real_1.png",
-    displayUrl: "turflife.com",
-    liveUrl: "https://turfdistributors.com",
-    clientQuote: "We went from cold calls to 3.8x qualified monthly inbound leads on complete autopilot.",
-  },
-  {
     id: "chicago-dog-42",
     title: "Chicago Dog 42",
-    category: "Food & Beverage Brand Launch",
-    industry: "Food & Beverage",
-    description: "Full omnichannel brand launch from scratch — physical signage, online ordering website, and viral geo-targeted social video ads.",
-    metricLabel: "Expansion Units",
-    metricValue: "3 Units / 5 Concepts",
-    tags: ["Brand Launch", "Social Autopilot", "Online Ordering", "Local Geo-Ads"],
+    client: "Chicago Dog 42",
+    location: "Omaha, NE",
+    industry: "Restaurant",
+    category: "Small business",
+    headlineNumber: "$150K → $450K in revenue, year 1 to year 2",
+    hasNumberBadge: true,
+    metricValue: "$150K → $450K",
+    metricLabel: "Revenue Growth",
+    story:
+      "The owners had a clear vision and brought us in from day one. We handled business development, branding, social media, Facebook ads, video, PR and software. By year 3 it had become a national franchise brand.",
+    description:
+      "The owners had a clear vision and brought us in from day one. We handled business development, branding, social media, Facebook ads, video, PR and software.",
+    services: [
+      "Strategy",
+      "Branding",
+      "Social media",
+      "Paid ads",
+      "Video",
+      "PR",
+      "Software",
+    ],
+    tags: ["Strategy", "Branding", "Social media", "Paid ads"],
     icon: "Utensils",
     bgColor: "#090D16",
     image: "/showcase/chicago_dog_real_1.jpg",
     displayUrl: "chicagodog42.com",
-    clientQuote: "Lines out the door on opening week. Scaled from 1 dying mall spot to 3 locations and 5 food concepts in 18 months.",
   },
   {
     id: "aspiration-bank",
     title: "Aspiration Bank",
-    category: "FinTech & Conversion Funnels",
-    industry: "Finance",
-    description: "Brand positioning strategy, interactive landing page architectures, and automated customer onboarding funnels for sustainable banking.",
-    metricLabel: "Traffic Growth",
-    metricValue: "+340% YoY",
-    tags: ["FinTech UI/UX", "StoryBrand Copy", "Interactive Funnels", "SOC2 Compliant"],
+    client: "Aspiration Bank",
+    location: "National",
+    industry: "Online banking",
+    period: "2015–2017",
+    category: "Websites & brand",
+    headlineNumber: "+200% website traffic, year over year",
+    hasNumberBadge: true,
+    metricValue: "+200%",
+    metricLabel: "Website Traffic YoY",
+    story:
+      "A new values-based bank needed to stand out in a crowded market. We turned loose ideas into one clear brand story and designed and built the website, which drew record traffic and sign-ups after launch.",
+    description:
+      "A new values-based bank needed to stand out in a crowded market. We turned loose ideas into one clear brand story and designed and built the website.",
+    services: ["Brand story", "Web design", "Web development"],
+    tags: ["Brand story", "Web design", "Web development"],
     icon: "Landmark",
     bgColor: "#090D16",
     image: "/showcase/aspiration_real_1.png",
     displayUrl: "aspiration.com",
-    liveUrl: "https://www.aspiration.com",
-    clientQuote: "Record traffic and subscription growth connecting emotionally with customers seeking values-based banking.",
-  },
-  {
-    id: "volcano-forest",
-    title: "Volcano Forest Resort",
-    category: "Eco-Resort & Lodging Experience",
-    industry: "Eco-Tourism",
-    description: "Visual identity design, multi-currency booking engine, and international SEO content marketing strategy.",
-    metricLabel: "Direct Booking Lift",
-    metricValue: "+310%",
-    tags: ["Visual Identity", "Multi-Currency Engine", "Content SEO", "Booking Portal"],
-    icon: "Compass",
-    bgColor: "#090D16",
-    image: "/showcase/volcano_resort_real_1.png",
-    displayUrl: "volcanoforestresort.com",
-    clientQuote: "Our organic Google rankings now drive over 70% of all international bookings.",
   },
   {
     id: "jacksonville",
     title: "City of Jacksonville",
-    category: "Municipal Portal & Communications",
+    client: "City of Jacksonville",
+    location: "Duval County, FL",
     industry: "Government",
-    description: "Enterprise Architectural Software Development and Entity Network Framework system for Duval County property records.",
-    metricLabel: "Citizen Portal Reach",
-    metricValue: "450,000+",
-    tags: ["Civic Web Portal", "Entity Framework", "Public Records", "Cloud Infrastructure"],
+    category: "Custom software",
+    headlineNumber: "Delivered 1 month early · +65% user engagement",
+    hasNumberBadge: true,
+    metricValue: "+65%",
+    metricLabel: "User Engagement",
+    story:
+      "The county's property appraisal system dated back to 1998. We built a modern replacement that staff could use easily and that connects with other county departments. It led to more work with the city.",
+    description:
+      "The county's property appraisal system dated back to 1998. We built a modern replacement that staff could use easily and that connects with other county departments.",
+    services: ["Custom software", "Systems integration"],
+    tags: ["Custom software", "Systems integration", "Civic Portal"],
     icon: "Building2",
     bgColor: "#090D16",
     image: "/showcase/jacksonville_real_1.jpg",
-    displayUrl: "coj.net / jacksonville.gov",
-    liveUrl: "https://coj.net",
-    clientQuote: "Delivered an enterprise public appraisal platform a full month earlier than agreed.",
+    displayUrl: "coj.net",
   },
   {
     id: "swing-perfect",
-    title: "Swing Perfect (Golf Tech)",
-    category: "Mobile App & Proprietary Algorithms",
-    industry: "Sports & Technology",
-    description: "Developed proprietary mobile application interpreting golf handwriting metrics and swing kinematics—rapidly built in 2 months and successfully acquired by Golf Galaxy.",
-    metricLabel: "Acquisition Outcome",
-    metricValue: "Acquired by Golf Galaxy",
-    tags: ["Mobile App", "Golf Tech", "Data Algorithms", "M&A Acquisition"],
+    title: "Swing Perfect",
+    client: "Swing Perfect",
+    location: "National",
+    industry: "Golf technology",
+    category: "Custom software",
+    headlineNumber: "App built in 2 months · Business sold to Golf Galaxy",
+    hasNumberBadge: true,
+    metricValue: "Acquired",
+    metricLabel: "By Golf Galaxy",
+    story:
+      "A golf-industry founder needed an app nobody had built before. We designed and built it for iPhone and Android in 2 months, then supported sales. The business was later sold to Golf Galaxy.",
+    description:
+      "A golf-industry founder needed an app nobody had built before. We designed and built it for iPhone and Android in 2 months, then supported sales.",
+    services: ["Mobile app", "Business consulting", "Design", "Sales support"],
+    tags: ["Mobile app", "Business consulting", "Design"],
     icon: "Trophy",
     bgColor: "#090D16",
     image: "/showcase/swing_perfect_real_1.png",
     displayUrl: "swingperfect.com",
-    clientQuote: "The mobile app was built in 2 months and tested to perfection. The business was acquired by Golf Galaxy.",
+  },
+  {
+    id: "carmen-hotel",
+    title: "Carmen Hotel Collection",
+    client: "Carmen Hotel",
+    location: "Playa del Carmen, Mexico",
+    industry: "Hospitality",
+    period: "2017",
+    category: "Small business",
+    headlineNumber: "6-month social and paid ads program",
+    hasNumberBadge: false, // Per copy doc: Robert to confirm; ship the card without a number badge until then
+    metricValue: "6-month",
+    metricLabel: "Program",
+    story:
+      "The hotel was struggling with low bookings and guest satisfaction. We ran a 6-month social media and paid ads program on Facebook and Instagram, with video, guest-experience consulting and community management. Paid ads drove site traffic and bookings, and real guest content outperformed branded posts.",
+    description:
+      "The hotel was struggling with low bookings and guest satisfaction. We ran a 6-month social media and paid ads program on Facebook and Instagram.",
+    services: ["Social media", "Paid ads", "Video", "Guest experience"],
+    tags: ["Social media", "Paid ads", "Video", "Guest experience"],
+    icon: "Hotel",
+    bgColor: "#090D16",
+    image: "/showcase/carmen_hotel_real_1.jpg",
+    displayUrl: "carmenhotel.com",
+  },
+  {
+    id: "turflife",
+    title: "TurfLife",
+    client: "TurfLife",
+    location: "Winter Springs, FL",
+    industry: "Lifestyle brand",
+    period: "2016–present",
+    category: "Websites & brand",
+    headlineNumber: "Mentioned nationally across the turf industry",
+    hasNumberBadge: true,
+    metricValue: "National",
+    metricLabel: "Brand Movement",
+    story:
+      "The founder of Golf Central Magazine wanted a lifestyle brand to take on the biggest names in the category. We built the brand identity, website and social channels behind \"Protect Your Turf\", now recognized by the turf industry nationwide.",
+    description:
+      "The founder of Golf Central Magazine wanted a lifestyle brand to take on the biggest names in the category. We built the brand identity, website and social channels behind \"Protect Your Turf\".",
+    services: ["Brand identity", "Website", "Social media"],
+    tags: ["Brand identity", "Website", "Social media"],
+    icon: "Trees",
+    bgColor: "#090D16",
+    image: "/showcase/turflife_real_1.png",
+    displayUrl: "turflife.com",
   },
 ];
 
 export const clientLogos = [
   "Aspiration Bank",
   "City of Jacksonville",
-  "Turflife",
+  "TurfLife",
   "Golf Central Magazine",
   "Swing Perfect",
   "Chicago Dog 42",
   "Carmen Hotel",
   "Mother Truckin Burgers",
-  "Flint Creek Precision",
-  "Volcano Glamping Resort",
-  "Lee's Water Service",
-  "Pure Benefits",
-  "West Arms",
-  "Behrens",
-  "La Prima Bella",
-  "Stagton",
 ];

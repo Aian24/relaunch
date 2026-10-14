@@ -1,162 +1,240 @@
 "use client";
 
-import React from "react";
+import React, { useState } from "react";
 import Link from "next/link";
-import { motion } from "framer-motion";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import ScrollToTop from "@/components/ScrollToTop";
+import MotionWrapper from "@/components/MotionWrapper";
 import BundleCalculator from "@/components/BundleCalculator";
-import CtaBanner from "@/components/CtaBanner";
 import { useContactModal } from "@/context/ContactModalContext";
+import { outcomeGroups, bundleDiscounts } from "@/data/offerings";
 import {
-  Layers,
+  ArrowUpRight,
+  ArrowRight,
+  CheckCircle2,
+  HelpCircle,
+  Calendar,
+  Sparkles,
+  ChevronDown,
   ShieldCheck,
-  Lock,
-  RotateCcw,
 } from "lucide-react";
 
 export default function PricingPage() {
   const { openContactModal } = useContactModal();
+  const [showCalculator, setShowCalculator] = useState(false);
+
+  const faqs = [
+    {
+      q: "How do I get started?",
+      a: "Book a free 30-minute strategy call. We'll recommend where to start and send a written plan with prices.",
+    },
+    {
+      q: "Is there a contract?",
+      a: "No. Every service is month-to-month. Pause or cancel anytime.",
+    },
+    {
+      q: "Who owns the work?",
+      a: "You do. Your website, code, designs, ads and accounts are yours from day one.",
+    },
+    {
+      q: "Is ad spend included?",
+      a: "No. Ad budgets are paid directly to Google, Meta or TikTok, so you always see exactly what was spent.",
+    },
+    {
+      q: "Do you work with businesses outside the U.S.?",
+      a: "Yes. We're fully remote and work with clients across the U.S., Canada, the UK and Australia.",
+    },
+  ];
 
   return (
     <main className="min-h-screen flex flex-col bg-white text-[#090D16]">
       <Navbar />
 
-      {/* 1. Pricing Hero: Left = Fonts / Typography, Right = Interactive Bundle Savings Card */}
-      <section className="relative pt-32 sm:pt-40 pb-16 sm:pb-24 px-4 sm:px-6 lg:px-8 bg-[#0A0D14] text-white overflow-hidden select-none">
-        <div className="absolute top-0 right-1/4 w-[700px] h-[500px] bg-[#FF6700]/15 rounded-full blur-[160px] pointer-events-none" />
-        <div className="absolute top-1/4 left-10 w-[600px] h-[500px] bg-[#FF6700]/12 rounded-full blur-[160px] pointer-events-none" />
+      {/* 1. Hero Section */}
+      <section className="relative w-full pt-36 sm:pt-44 pb-14 sm:pb-20 bg-[#07090E] text-white px-4 sm:px-6 lg:px-8 overflow-hidden select-none">
+        <div className="absolute inset-0 w-full h-full overflow-hidden pointer-events-none z-0">
+          <div className="absolute inset-0 bg-[radial-gradient(ellipse_80%_60%_at_50%_-10%,rgba(255,103,0,0.18),transparent_75%)]" />
+          <div className="absolute top-1/4 right-1/4 w-[450px] h-[350px] bg-[#FF6700]/15 rounded-full blur-[140px]" />
+        </div>
 
+        <MotionWrapper direction="up" distance={25} className="relative z-10 max-w-4xl mx-auto text-center">
+          <span className="inline-block text-xs font-mono uppercase tracking-widest text-[#FF6700] font-bold mb-3">
+            PRICING
+          </span>
+          <h1 className="font-heading font-black text-3xl sm:text-5xl lg:text-6xl tracking-tight leading-[1.08] mb-4">
+            Clear monthly pricing. <span className="text-[#FF6700]">No long contracts.</span>
+          </h1>
+          <p className="text-slate-300 text-base sm:text-lg max-w-2xl mx-auto leading-relaxed mb-6">
+            Pick what you need, pause or cancel anytime, and save when you combine services.
+          </p>
+
+          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/[0.08] border border-white/[0.12] text-xs font-mono text-slate-300">
+            <ShieldCheck className="w-3.5 h-3.5 text-[#FF6700]" />
+            <span>Month-to-month · You own everything we make · Bundle and save up to 20%</span>
+          </div>
+        </MotionWrapper>
+      </section>
+
+      {/* 2. Starting Prices (4 Cards) */}
+      <section className="py-16 sm:py-24 px-4 sm:px-6 lg:px-8 bg-slate-50">
         <div className="max-w-7xl mx-auto">
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-center">
-            
-            {/* LEFT COLUMN: Fonts, Badges, Typography & Guarantees */}
-            <div className="lg:col-span-6 flex flex-col justify-center text-center sm:text-left items-center sm:items-start min-w-0">
-              <motion.div
-                initial={{ opacity: 0, y: 14 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
-                className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-white/[0.08] border border-white/[0.12] text-[#FF6700] text-xs font-mono uppercase tracking-widest font-semibold mb-6 shadow-xs whitespace-nowrap"
-              >
-                <span className="w-2 h-2 rounded-full bg-[#FF6700] shrink-0" />
-                <span>Transparent Subscription Pricing</span>
-              </motion.div>
-
-              <motion.h1
-                initial={{ opacity: 0, y: 18 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.6, delay: 0.1, ease: [0.16, 1, 0.3, 1] }}
-                className="font-heading font-black text-3xl sm:text-4xl md:text-5xl lg:text-5xl xl:text-6xl tracking-tight leading-[1.08] text-white"
-              >
-                <span className="block">Build Your Bundle.</span>
-                <span className="block text-[#FF6700]">
-                  Save up to 20%.
-                </span>
-              </motion.h1>
-
-              <motion.p
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.7, delay: 0.2, ease: [0.16, 1, 0.3, 1] }}
-                className="mt-6 text-slate-300 text-sm sm:text-base md:text-lg leading-relaxed font-normal max-w-xl"
-              >
-                Select the services you need today and bundle for compounding savings. No contracts, pause or cancel anytime.
-              </motion.p>
-
-              {/* Guarantees on Left */}
-              <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.7, delay: 0.3, ease: [0.16, 1, 0.3, 1] }}
-                className="mt-8 flex flex-wrap justify-center sm:justify-start gap-2 sm:gap-4 text-xs text-slate-300 font-medium"
-              >
-                <div className="flex items-center gap-1.5 bg-white/[0.05] px-3 py-1.5 rounded-lg border border-white/[0.08]">
-                  <ShieldCheck className="w-4 h-4 text-[#FF6700]" />
-                  <span>Zero Contracts</span>
-                </div>
-                <div className="flex items-center gap-1.5 bg-white/[0.05] px-3 py-1.5 rounded-lg border border-white/[0.08]">
-                  <Lock className="w-4 h-4 text-[#FF6700]" />
-                  <span>100% IP Ownership</span>
-                </div>
-                <div className="flex items-center gap-1.5 bg-white/[0.05] px-3 py-1.5 rounded-lg border border-white/[0.08]">
-                  <RotateCcw className="w-4 h-4 text-[#FF6700]" />
-                  <span>Pause Anytime</span>
-                </div>
-              </motion.div>
-            </div>
-
-            {/* RIGHT COLUMN: Interactive Savings Preview Card */}
-            <div className="lg:col-span-6 relative">
-              <motion.div
-                initial={{ opacity: 0, scale: 0.96, x: 20 }}
-                animate={{ opacity: 1, scale: 1, x: 0 }}
-                transition={{ duration: 0.8, delay: 0.25, ease: [0.16, 1, 0.3, 1] }}
-                className="p-8 sm:p-10 rounded-3xl bg-white/[0.04] border border-white/[0.12] backdrop-blur-xl shadow-2xl relative overflow-hidden"
-              >
-                <div className="flex items-center justify-between pb-4 border-b border-white/[0.08]">
-                  <div className="flex items-center gap-2">
-                    <Layers className="w-4 h-4 text-[#FF6700]" />
-                    <span className="text-xs font-mono uppercase tracking-widest text-[#FF6700] font-bold">
-                      Bundle Discount Tiering
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-16">
+            {outcomeGroups.map((group, idx) => (
+              <MotionWrapper key={group.id} direction="up" delay={idx * 0.08} distance={20}>
+                <div className="h-full flex flex-col justify-between p-7 rounded-3xl bg-white border border-slate-200/90 shadow-xs hover:shadow-md transition-all">
+                  <div>
+                    <span className="text-[10px] font-mono uppercase tracking-wider text-slate-400 font-bold block mb-2">
+                      {group.num} // {group.title}
                     </span>
-                  </div>
-                  <span className="px-2.5 py-1 rounded-full bg-[#FF6700] text-white text-[10px] font-mono font-bold">
-                    Compounding ROI
-                  </span>
-                </div>
 
-                <div className="mt-6 space-y-4">
-                  <div className="flex items-center justify-between p-3.5 rounded-2xl bg-white/[0.04] border border-white/[0.06]">
-                    <div>
-                      <div className="font-heading font-bold text-sm text-white">2–3 Services (Growth)</div>
-                      <div className="text-[11px] text-slate-400">Marketing + Web, or SEO + Ads</div>
+                    <div className="mb-4">
+                      <span className="text-xs text-slate-400 block font-mono">
+                        {group.startingPricePrefix ? "Starting" : "Pricing Model"}
+                      </span>
+                      <div className="font-heading font-black text-2xl sm:text-3xl text-[#090D16]">
+                        {group.startingPricePrefix}
+                        {group.startingPrice}
+                      </div>
                     </div>
-                    <span className="text-sm font-bold text-[#FF6700] font-mono">10% OFF</span>
+
+                    <p className="text-xs sm:text-sm text-slate-600 leading-relaxed mb-6">
+                      {group.priceNote}
+                    </p>
                   </div>
 
-                  <div className="flex items-center justify-between p-3.5 rounded-2xl bg-white/[0.04] border border-white/[0.06]">
-                    <div>
-                      <div className="font-heading font-bold text-sm text-white">4–5 Services (Scale)</div>
-                      <div className="text-[11px] text-slate-400">Full-funnel digital & automated presence</div>
-                    </div>
-                    <span className="text-sm font-bold text-[#FF6700] font-mono">15% OFF</span>
-                  </div>
+                  <div className="pt-4 border-t border-slate-100 flex flex-col gap-2.5">
+                    <button
+                      type="button"
+                      onClick={() => openContactModal({ intent: "strategy-session", serviceInterest: group.title })}
+                      className="w-full inline-flex items-center justify-center gap-2 py-3 rounded-xl bg-[#FF6700] hover:bg-[#E55C00] text-white font-heading font-bold text-xs uppercase tracking-wider transition-all shadow-xs"
+                    >
+                      <span>Book a Strategy Call</span>
+                      <ArrowUpRight className="w-3.5 h-3.5 text-white" />
+                    </button>
 
-                  <div className="flex items-center justify-between p-3.5 rounded-2xl bg-orange-500/10 border border-[#FF6700]/40 shadow-sm">
-                    <div>
-                      <div className="font-heading font-bold text-sm text-white">6+ Services (Mission Control)</div>
-                      <div className="text-[11px] text-slate-300">Complete turnkey growth department</div>
-                    </div>
-                    <span className="text-base font-black text-orange-400 font-mono">20% OFF</span>
+                    <Link
+                      href={group.productHref}
+                      className="text-center text-xs font-semibold text-slate-500 hover:text-[#FF6700] transition-colors py-1"
+                    >
+                      Learn more →
+                    </Link>
                   </div>
                 </div>
+              </MotionWrapper>
+            ))}
+          </div>
 
-                <div className="mt-6 pt-4 border-t border-white/[0.08] text-center">
-                  <a
-                    href="#bundle-builder"
-                    className="inline-flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-[#FF6700] hover:text-white transition-colors"
-                  >
-                    <span>Configure Your Custom Bundle Below ↓</span>
-                  </a>
+          {/* 3. Bundle Discounts Strip & Interactive Calculator Deep Link - White Background as requested */}
+          <MotionWrapper direction="up" distance={20}>
+            <div id="bundle-calculator" className="scroll-mt-24 rounded-3xl bg-white border border-slate-200 text-[#090D16] p-8 sm:p-12 mb-16 relative overflow-hidden shadow-xs">
+              <div className="max-w-3xl mb-8">
+                <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-orange-50 border border-orange-200 text-[#FF6700] text-xs font-mono font-bold uppercase tracking-wider mb-3">
+                  <Sparkles className="w-3.5 h-3.5" />
+                  <span>Bundle &amp; Save</span>
                 </div>
-              </motion.div>
+                <h2 className="font-heading font-black text-2xl sm:text-4xl text-[#090D16] tracking-tight mb-2">
+                  Combine services and save.
+                </h2>
+                <p className="text-slate-600 text-sm sm:text-base leading-relaxed">
+                  2–3 services: <strong>10% off</strong> · 4–5 services: <strong>15% off</strong> · 6 or more: <strong>20% off</strong>. The discount applies to your whole monthly bill.
+                </p>
+              </div>
+
+              <button
+                type="button"
+                onClick={() => setShowCalculator(!showCalculator)}
+                className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-[#FF6700] hover:bg-[#E55C00] text-white font-heading font-bold text-xs uppercase tracking-wider transition-all shadow-[0_4px_15px_rgba(255,103,0,0.25)] cursor-pointer active:scale-98"
+              >
+                <span>{showCalculator ? "Hide Bundle Calculator" : "Build your own bundle →"}</span>
+                <ChevronDown className={`w-3.5 h-3.5 transition-transform ${showCalculator ? "rotate-180" : ""}`} />
+              </button>
+
+              {/* Interactive Calculator Drawer */}
+              {showCalculator && (
+                <div className="mt-8 pt-8 border-t border-slate-200">
+                  <BundleCalculator />
+                </div>
+              )}
             </div>
+          </MotionWrapper>
 
+          {/* 4. Optional Add-On (Social Audit) */}
+          <MotionWrapper direction="up" distance={20}>
+            <div className="p-7 sm:p-9 rounded-3xl bg-white border border-slate-200/90 shadow-xs flex flex-col md:flex-row items-center justify-between gap-6 mb-20">
+              <div>
+                <span className="text-[11px] font-mono uppercase tracking-wider text-[#FF6700] font-bold block mb-1">
+                  OPTIONAL ADD-ON · NO OBLIGATION
+                </span>
+                <h3 className="font-heading font-bold text-xl text-[#090D16] mb-1">
+                  Want a deeper look first?
+                </h3>
+                <p className="text-xs sm:text-sm text-slate-600 max-w-2xl leading-relaxed">
+                  The full ReLaunch Social Audit scores how well your marketing sells and gives you a written list of what to fix first. $495, one time.
+                </p>
+              </div>
+
+              <Link
+                href="/audit"
+                className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-[#FF6700] hover:bg-[#E55C00] text-white font-heading font-bold text-xs uppercase tracking-wider transition-all shadow-[0_4px_15px_rgba(255,103,0,0.25)] whitespace-nowrap shrink-0 cursor-pointer"
+              >
+                <span>Get your free score →</span>
+              </Link>
+            </div>
+          </MotionWrapper>
+
+          {/* 5. Questions (Folded FAQs from /faq) */}
+          <div className="max-w-4xl mx-auto">
+            <MotionWrapper direction="up" distance={20} className="text-center mb-12">
+              <span className="text-xs font-mono uppercase tracking-widest text-[#FF6700] font-bold block mb-2">
+                FAQ
+              </span>
+              <h2 className="font-heading font-black text-2xl sm:text-4xl text-[#090D16] tracking-tight">
+                Frequently Asked Questions
+              </h2>
+            </MotionWrapper>
+
+            <div className="space-y-4">
+              {faqs.map((faq, idx) => (
+                <MotionWrapper key={idx} direction="up" delay={idx * 0.05} distance={15}>
+                  <div className="p-6 rounded-2xl bg-white border border-slate-200/90 shadow-xs">
+                    <h3 className="font-heading font-bold text-base text-[#090D16] mb-2">
+                      {faq.q}
+                    </h3>
+                    <p className="text-xs sm:text-sm text-slate-600 leading-relaxed font-normal">
+                      {faq.a}
+                    </p>
+                  </div>
+                </MotionWrapper>
+              ))}
+            </div>
           </div>
         </div>
       </section>
 
-      {/* 2. Interactive Bundle Builder Component (Pure White) */}
-      <BundleCalculator />
+      {/* 6. Final Call */}
+      <section className="py-20 sm:py-28 px-4 sm:px-6 lg:px-8 bg-white text-center border-t border-slate-100">
+        <MotionWrapper direction="up" distance={20} className="max-w-2xl mx-auto">
+          <h2 className="font-heading font-black text-3xl sm:text-5xl text-[#090D16] tracking-tight mb-4">
+            Get a price built <span className="text-[#FF6700]">around your business.</span>
+          </h2>
+          <p className="text-slate-600 text-sm sm:text-base leading-relaxed mb-8">
+            Tell us what&apos;s going on and we&apos;ll send a written plan with exact prices. No pressure, no obligation.
+          </p>
+          <button
+            type="button"
+            onClick={() => openContactModal({ intent: "strategy-session" })}
+            className="inline-flex items-center justify-center gap-2 px-7 py-3.5 bg-[#FF6700] hover:bg-[#E55C00] text-white font-heading font-bold text-xs sm:text-sm uppercase tracking-wider rounded-xl shadow-[0_4px_20px_rgba(255,103,0,0.25)] transition-all cursor-pointer"
+          >
+            <Calendar className="w-4 h-4 text-white" />
+            <span>Book a Strategy Call</span>
+            <ArrowUpRight className="w-3.5 h-3.5 text-white" />
+          </button>
+        </MotionWrapper>
+      </section>
 
-      {/* 3. Bottom CTA */}
-      <CtaBanner />
-
-      {/* 4. Footer */}
       <Footer />
       <ScrollToTop />
     </main>
   );
 }
-

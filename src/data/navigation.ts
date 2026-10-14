@@ -1,19 +1,33 @@
+export interface NavSubItem {
+  label: string;
+  href: string;
+  description?: string;
+  badge?: string;
+  external?: boolean;
+}
+
 export interface NavLink {
   label: string;
   href: string;
   badge?: string;
+  children?: NavSubItem[];
 }
 
 export const navLinks: NavLink[] = [
-  { label: "Overview", href: "/" },
   { label: "Services", href: "/services" },
-  { label: "AI", href: "/ai" },
+  {
+    label: "Products",
+    href: "/services#products",
+    children: [
+      { label: "AI Recommendations", href: "/ai-recommendations" },
+      { label: "Social Media", href: "/social" },
+      { label: "Studio Video Ads", href: "/studio" },
+      { label: "Social Audit", href: "/audit" },
+    ],
+  },
   { label: "Our Work", href: "/work" },
-  { label: "Enterprise", href: "/enterprise" },
-  { label: "Social", href: "/social" },
   { label: "Pricing", href: "/pricing" },
   { label: "About", href: "/about" },
-  { label: "FAQ", href: "/faq" },
 ];
 
 export const contactInfo = {
@@ -23,6 +37,7 @@ export const contactInfo = {
   email: "care@relaunch.us",
   emailMailto: "mailto:care@relaunch.us",
   location: "Phoenix, Arizona",
-  established: 2004,
-  yearsInBusiness: 22,
+  homeBaseDisclaimer: "Based in Phoenix, AZ · Working with clients everywhere",
+  established: 2008,
+  yearsInBusiness: 18,
 };

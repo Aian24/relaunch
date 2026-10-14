@@ -2,8 +2,8 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { navLinks, contactInfo } from "@/data/navigation";
-import { Phone, Mail, MapPin, ArrowUp } from "lucide-react";
+import { contactInfo } from "@/data/navigation";
+import { Phone, Mail, MapPin, ArrowUp, ArrowUpRight } from "lucide-react";
 
 export default function Footer() {
   const scrollToTop = () => {
@@ -11,13 +11,13 @@ export default function Footer() {
   };
 
   return (
-    <footer className="bg-[#090D16] text-white pt-16 pb-10 select-none border-t border-slate-800/80 overflow-hidden relative">
+    <footer className="bg-[#090D16] text-white pt-16 pb-12 select-none border-t border-slate-800/80 overflow-hidden relative">
       {/* Subtle Purple & Orange Ambient Halo */}
       <div className="absolute top-0 right-1/4 w-[400px] h-[300px] bg-[#7F48ED]/10 rounded-full blur-[120px] pointer-events-none" />
       <div className="absolute top-0 left-10 w-[400px] h-[300px] bg-[#FF6700]/8 rounded-full blur-[120px] pointer-events-none" />
 
       <div className="max-w-7xl mx-auto px-5 sm:px-6 lg:px-8 relative z-10">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-12 gap-8 pb-12 border-b border-slate-800">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-12 gap-8 pb-12 border-b border-slate-800/80">
           {/* Col 1: Brand & Logo */}
           <div className="lg:col-span-4 space-y-4">
             <Link
@@ -33,81 +33,89 @@ export default function Footer() {
               />
             </Link>
 
-            <p className="text-xs text-slate-400 leading-relaxed max-w-sm font-normal">
+            <p className="text-xs text-slate-300 font-semibold leading-relaxed">
               Marketing Strategically Designed to Sell.
             </p>
 
-            <div className="flex items-center gap-2 text-xs font-medium">
-              <MapPin className="w-3.5 h-3.5 text-[#FF6700]" />
-              <span className="text-slate-300">Phoenix, Arizona · Est. 2004</span>
+            <p className="text-xs text-slate-400 leading-relaxed max-w-sm font-normal">
+              We strategize, create, and deliver marketing built to sell — and you can see it in your numbers.
+            </p>
+
+            <div className="flex items-center gap-2 text-xs font-medium text-slate-400 pt-1">
+              <MapPin className="w-3.5 h-3.5 text-[#FF6700] shrink-0" />
+              <span>{contactInfo.homeBaseDisclaimer}</span>
             </div>
           </div>
 
-          {/* Col 2: Capabilities */}
+          {/* Col 2: Services & Outcomes */}
           <div className="lg:col-span-3 space-y-3">
             <h4 className="font-heading font-bold text-xs uppercase tracking-widest text-slate-400">
-              Capabilities
+              Outcomes &amp; Services
             </h4>
             <ul className="space-y-2 text-xs text-slate-300">
               <li>
-                <Link href="/services#brand-strategy" className="hover:text-[#FF6700] transition-colors">
-                  Brand Strategy &amp; Identity
+                <Link href="/services#get-found" className="hover:text-[#FF6700] transition-colors">
+                  Get Found (Local SEO &amp; AI)
                 </Link>
               </li>
               <li>
-                <Link href="/enterprise" className="text-white hover:text-[#FF6700] transition-colors font-medium">
-                  Enterprise &amp; Custom Software →
+                <Link href="/services#get-chosen" className="hover:text-[#FF6700] transition-colors">
+                  Get Chosen (Web &amp; Social)
                 </Link>
               </li>
               <li>
-                <Link href="/services#web-software" className="hover:text-[#7F48ED] transition-colors">
-                  Web Platforms &amp; Software
+                <Link href="/services#get-more-customers" className="hover:text-[#FF6700] transition-colors">
+                  Get More Customers (Ads &amp; Follow-up)
                 </Link>
               </li>
               <li>
-                <Link href="/services#performance-ads" className="hover:text-[#FF6700] transition-colors">
-                  Performance &amp; Paid Media
+                <Link href="/custom-software" className="text-white hover:text-[#FF6700] transition-colors font-medium">
+                  Custom Software &amp; Portals →
                 </Link>
               </li>
               <li>
-                <Link href="/ai" className="text-purple-300 hover:text-[#7F48ED] transition-colors font-medium">
-                  AI Automation &amp; GEO
-                </Link>
-              </li>
-              <li>
-                <Link href="/services#content-video" className="hover:text-[#FF6700] transition-colors">
-                  Content &amp; Video Production
-                </Link>
-              </li>
-              <li>
-                <Link href="/services#local-seo" className="hover:text-[#FF6700] transition-colors">
-                  Local SEO &amp; Authority
+                <Link href="/pricing" className="hover:text-[#FF6700] transition-colors">
+                  Pricing &amp; Bundle Savings
                 </Link>
               </li>
             </ul>
           </div>
 
-          {/* Col 3: Navigation */}
+          {/* Col 3: Products (The ReLaunch Family) */}
           <div className="lg:col-span-2 space-y-3">
             <h4 className="font-heading font-bold text-xs uppercase tracking-widest text-slate-400">
-              Navigation
+              Products
             </h4>
             <ul className="space-y-2 text-xs text-slate-300">
-              {navLinks.map((link) => (
-                <li key={link.label}>
-                  <Link href={link.href} className="hover:text-[#FF6700] transition-colors">
-                    {link.label}
-                  </Link>
-                </li>
-              ))}
+              <li>
+                <Link href="/ai-recommendations" className="hover:text-[#7F48ED] transition-colors">
+                  AI Recommendations
+                </Link>
+              </li>
+              <li>
+                <Link href="/social" className="hover:text-[#FF6700] transition-colors">
+                  ReLaunch Social
+                </Link>
+              </li>
+              <li>
+                <Link href="/studio" className="hover:text-[#FF6700] transition-colors font-medium">
+                  ReLaunch Studio →
+                </Link>
+              </li>
+              <li>
+                <Link href="/audit" className="hover:text-[#7F48ED] transition-colors">
+                  Free Social Audit
+                </Link>
+              </li>
               <li>
                 <a
                   href="https://relaunch-social-orbit.base44.app"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="hover:text-[#FF6700] transition-colors text-[#FF6700] font-semibold"
+                  className="hover:text-[#FF6700] transition-colors text-slate-400 inline-flex items-center gap-1"
                 >
-                  Client Portal ↗
+                  <span>Client Portal</span>
+                  <ArrowUpRight className="w-3 h-3" />
                 </a>
               </li>
             </ul>
@@ -137,9 +145,9 @@ export default function Footer() {
               </a>
 
               <div className="pt-2">
-                <span className="text-[11px] text-slate-500 block">Custom Subscription Pricing</span>
+                <span className="text-[11px] text-slate-500 block">30-Minute Diagnostic</span>
                 <Link href="/pricing" className="text-xs text-[#FF6700] underline hover:text-[#FF6700]">
-                  relaunch.us/pricing
+                  Book a Strategy Call
                 </Link>
               </div>
             </div>
@@ -149,11 +157,11 @@ export default function Footer() {
         {/* Bottom Bar */}
         <div className="pt-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-slate-500">
           <div>
-            © {new Date().getFullYear()} ReLaunch Marketing &amp; Advertising · Phoenix, AZ
+            © {new Date().getFullYear()} ReLaunch. {contactInfo.homeBaseDisclaimer}.
           </div>
 
           <div className="flex items-center gap-6">
-            <span>Built by ReLaunch</span>
+            <span>Month-to-Month · You Own Everything</span>
             <button
               onClick={scrollToTop}
               className="p-2.5 rounded-xl bg-slate-800 hover:bg-[#FF6700] text-white transition-colors cursor-pointer"

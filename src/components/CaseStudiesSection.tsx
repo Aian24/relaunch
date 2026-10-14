@@ -83,7 +83,7 @@ export default function CaseStudiesSection() {
     openContactModal({
       intent: "start-project",
       serviceInterest: study.title,
-      notes: `Interested in achieving results similar to case study: ${study.title} (${study.metricValue} ${study.metricLabel} in ${study.industry}).`,
+      notes: `Interested in achieving results similar to case study: ${study.title} (${study.headlineNumber} in ${study.industry}).`,
     });
   };
 
@@ -131,7 +131,7 @@ export default function CaseStudiesSection() {
               onClick={() => setActiveCategory(cat)}
               className={`px-4 py-2 rounded-xl text-xs font-heading font-bold uppercase tracking-wider transition-all cursor-pointer ${
                 activeCategory === cat
-                  ? "bg-[#090D16] text-white shadow-md"
+                  ? "bg-[#FF6700] text-white shadow-md"
                   : "bg-slate-100 text-slate-600 hover:bg-slate-200/80 hover:text-slate-900 border border-slate-200"
               }`}
             >

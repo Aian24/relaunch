@@ -11,6 +11,21 @@ const nextConfig = {
         destination: "/social",
         permanent: true,
       },
+      {
+        source: "/ai",
+        destination: "/services",
+        permanent: true,
+      },
+      {
+        source: "/faq",
+        destination: "/pricing",
+        permanent: true,
+      },
+      {
+        source: "/enterprise",
+        destination: "/custom-software",
+        permanent: true,
+      },
     ];
   },
 };

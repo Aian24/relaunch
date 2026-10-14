@@ -77,12 +77,12 @@ export default function Work3DShowcase({
           className="bg-slate-900 px-4 py-2.5 flex items-center justify-between border-b border-slate-800 relative z-20"
         >
           <div className="flex items-center gap-1.5">
-            <span className="w-2.5 h-2.5 rounded-full bg-red-500/90" />
-            <span className="w-2.5 h-2.5 rounded-full bg-amber-500/90" />
-            <span className="w-2.5 h-2.5 rounded-full bg-emerald-500/90" />
+            <span className="w-2.5 h-2.5 rounded-full bg-[#FF6700]/90" />
+            <span className="w-2.5 h-2.5 rounded-full bg-[#7F48ED]/90" />
+            <span className="w-2.5 h-2.5 rounded-full bg-white/40" />
           </div>
           <div className="flex items-center gap-1.5 px-3 py-0.5 rounded-md bg-slate-950 border border-slate-800 text-[10px] font-mono text-slate-300 truncate max-w-[200px] shadow-inner">
-            <span className="text-[#2E8B7A]">https://</span>
+            <span className="text-[#7F48ED]">https://</span>
             <span>{displayUrl}</span>
           </div>
           <ExternalLink className="w-3.5 h-3.5 text-slate-400 group-hover:text-[#FF6700] transition-colors" />

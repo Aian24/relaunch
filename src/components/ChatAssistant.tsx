@@ -22,7 +22,9 @@ interface Message {
   time: string;
   action?: {
     label: string;
-    href: string;
+    href?: string;
+    isModal?: boolean;
+    serviceInterest?: string;
   };
 }
 
@@ -30,15 +32,16 @@ const initialMessages: Message[] = [
   {
     id: "welcome",
     sender: "ai",
-    text: "Hi! I'm the **ReLaunch AI Assistant**. How can I help you scale your business today?",
+    text: "Hi! I'm the **ReLaunch Assistant**. We help small businesses get found, get chosen, and get more customers. How can I help you today?",
     time: "Just now",
   },
 ];
 
 const quickPrompts = [
-  "What services do you provide?",
+  "What do you do?",
   "How does pricing work?",
-  "Book a strategy session",
+  "Tell me about ReLaunch Studio",
+  "Book a strategy call",
 ];
 
 export default function ChatAssistant() {
@@ -61,309 +64,259 @@ export default function ChatAssistant() {
     }
   }, [isOpen, messages, isTyping]);
 
-  const generateAnswer = (query: string): { text: string; action?: { label: string; href: string } } => {
+  const generateAnswer = (query: string): { text: string; action?: { label: string; href?: string; isModal?: boolean; serviceInterest?: string } } => {
     const q = query.toLowerCase();
 
-    if (q.includes("service") || q.includes("offer") || q.includes("provide") || q.includes("what do you do") || q.includes("capabilities")) {
+    if (q.includes("service") || q.includes("offer") || q.includes("provide") || q.includes("what do you do") || q.includes("how we help")) {
       return {
-        text: "ReLaunch provides 4 core disciplines:\n\n• **Brand Strategy & Visual Identity**: Market positioning, logos, typography, and design systems.\n• **Web Architecture & Custom Software**: High-speed Next.js platforms, client portals, and SaaS tools.\n• **AI Engineering & Automation**: 24/7 intake agents, autonomous workflows, and CRM synchronization.\n• **Performance Media & Search**: High-ROI Google/Meta advertising and local map-pack dominance.",
-        action: { label: "Explore All Services", href: "#services" },
+        text: "ReLaunch collapses marketing bloat into **four outcome groups**:\n\n1. **Get Found**: Show up on Google, Maps, and in ChatGPT recommendations.\n2. **Get Chosen**: Turn visitors into calls with websites and done-for-you weekly social media.\n3. **Get More Customers**: Managed Google & Meta ads, weekly AI video ads, and instant lead follow-up.\n4. **Build Something Custom**: Web apps, client portals, and integrations you fully own.\n\nEverything is month-to-month, and you own 100% of the work.",
+        action: { label: "Explore Services", href: "/services" },
       };
     }
 
-    if (q.includes("cost") || q.includes("price") || q.includes("pricing") || q.includes("rate") || q.includes("fee") || q.includes("how much")) {
+    if (q.includes("studio") || q.includes("video") || q.includes("tiktok") || q.includes("meta ad")) {
       return {
-        text: "Our pricing is modular and transparent with zero bloated agency retainers:\n\n• **Starter Services**: Starting from $297/mo\n• **Growth & Performance Retainers**: $790 – $1,200/mo\n• **Custom Software & AI Sprints**: Tailored to scope\n\nBundling multiple disciplines qualifies for 10% to 20% discounts with transparent monthly pricing.",
-        action: { label: "View Pricing Details", href: "#pricing" },
+        text: "**ReLaunch Studio** delivers fresh AI video ads for Meta and TikTok every single week, continuously improved from performance data. It ends ad fatigue so your customer acquisition costs stay low.",
+        action: { label: "Learn About ReLaunch Studio", href: "/studio" },
       };
     }
 
-    if (q.includes("book") || q.includes("call") || q.includes("strategy") || q.includes("contact") || q.includes("phone") || q.includes("email") || q.includes("talk") || q.includes("session")) {
+    if (q.includes("social") || q.includes("post") || q.includes("instagram")) {
       return {
-        text: "We'd love to partner with you! You can book a complimentary 15-minute strategy consultation directly:\n\n📞 **Phone**: (480) 779-9875\n✉️ **Email**: care@relaunch.us\n📍 **Studio**: Phoenix, Arizona (Operating since 2004)",
-        action: { label: "Book Strategy Session", href: "#contact" },
+        text: "**ReLaunch Social** is done-for-you weekly social media. We create your posts, you approve them once a month in about 30 minutes, and we publish them to Instagram, Facebook, LinkedIn, TikTok and Google Business.\n\nPlans start at $297/mo (you send photos) or $597/mo (we create everything).",
+        action: { label: "View ReLaunch Social Plans", href: "/social" },
       };
     }
 
-    if (q.includes("software") || q.includes("custom") || q.includes("portal") || q.includes("app")) {
+    if (q.includes("audit") || q.includes("score") || q.includes("free score")) {
       return {
-        text: "Yes! We engineer bespoke web apps, secure client dashboards, and custom database integrations using modern Next.js, React, and TypeScript architecture.",
-        action: { label: "Browse Case Studies", href: "#work" },
+        text: "The **ReLaunch Social Audit** is our free front-door diagnostic. It scores your marketing message, customer journey, persuasion, and consistency in 2 minutes to show where sales are slipping away.",
+        action: { label: "Get Your Free Score", href: "/audit" },
+      };
+    }
+
+    if (q.includes("ai recommendation") || q.includes("chatgpt") || q.includes("gemini") || q.includes("claude") || q.includes("aeo") || q.includes("geo")) {
+      return {
+        text: "**ReLaunch AI Recommendations** gets your business named when prospective customers ask ChatGPT, Gemini, or Claude for the best business like yours in your area.",
+        action: { label: "See AI Recommendations", href: "/ai-recommendations" },
+      };
+    }
+
+    if (q.includes("cost") || q.includes("price") || q.includes("pricing") || q.includes("rate") || q.includes("bundle") || q.includes("how much")) {
+      return {
+        text: "All our core services are transparent and month-to-month with no long contracts:\n\n• **Starting Rates**: Simple modular monthly subscriptions.\n• **Multi-Service Bundle Discounts**: 2–3 services save 10% · 4–5 save 15% · 6 or more save 20%.\n• **Asset Ownership**: You own all websites, code, creative, and accounts from day one.",
+        action: { label: "View Pricing & Bundle Discounts", href: "/pricing" },
+      };
+    }
+
+    if (q.includes("book") || q.includes("call") || q.includes("strategy") || q.includes("contact") || q.includes("phone") || q.includes("email") || q.includes("bobby")) {
+      return {
+        text: "You can book a free 30-minute strategy call with Bobby Clark:\n\n📞 **Phone**: (480) 779-9875\n✉️ **Email**: care@relaunch.us\n🏢 **Home Base**: Phoenix, AZ (Serving clients across U.S., Canada, UK & Australia since 2008)",
+        action: { label: "Book a Strategy Call", isModal: true },
+      };
+    }
+
+    if (q.includes("software") || q.includes("custom") || q.includes("app") || q.includes("portal") || q.includes("enterprise")) {
+      return {
+        text: "When off-the-shelf software doesn't fit, we build custom web apps, client portals, mobile apps, and systems integrations on a fixed plan with set milestone dates. You own every line of code.",
+        action: { label: "See Custom Software", href: "/custom-software" },
       };
     }
 
     return {
-      text: "Thanks for reaching out! ReLaunch is a Phoenix-based digital evolution studio (Est. 2004) specializing in high-speed web architecture, AI systems, and performance marketing. How can we help your business lead?",
-      action: { label: "Book a Strategy Session", href: "#contact" },
+      text: "Thanks for asking! ReLaunch provides marketing strategically designed to sell. We help businesses get found, get chosen, and get paid. Would you like to review our outcome groups or book a strategy call?",
+      action: { label: "Book a Strategy Call", isModal: true },
     };
   };
 
-  const handleSend = (textToSend?: string) => {
-    const text = (textToSend || inputValue).trim();
-    if (!text) return;
+  const handleSend = () => {
+    if (!inputValue.trim()) return;
 
-    const userMessage: Message = {
+    const userText = inputValue;
+    const userMsg: Message = {
       id: Date.now().toString(),
       sender: "user",
-      text,
+      text: userText,
       time: "Just now",
     };
 
-    setMessages((prev) => [...prev, userMessage]);
+    setMessages((prev) => [...prev, userMsg]);
     setInputValue("");
     setIsTyping(true);
 
     setTimeout(() => {
-      const response = generateAnswer(text);
-      const aiMessage: Message = {
+      const { text, action } = generateAnswer(userText);
+      const aiMsg: Message = {
         id: (Date.now() + 1).toString(),
         sender: "ai",
-        text: response.text,
+        text,
         time: "Just now",
-        action: response.action,
+        action,
       };
-
-      setMessages((prev) => [...prev, aiMessage]);
+      setMessages((prev) => [...prev, aiMsg]);
       setIsTyping(false);
     }, 600);
   };
 
-  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === "Enter") {
-      e.preventDefault();
-      handleSend();
-    }
-  };
-
-  const resetChat = () => {
-    setMessages(initialMessages);
+  const handlePromptClick = (prompt: string) => {
+    setInputValue(prompt);
   };
 
   return (
     <>
-      {/* Floating Toggle Launcher Button */}
-      <AnimatePresence>
-        {!isOpen && (
-          <motion.div
-            key="chat-launcher-btn"
-            initial={{ opacity: 0, scale: 0.8, y: 10 }}
-            animate={{ opacity: 1, scale: 1, y: 0 }}
-            exit={{ opacity: 0, scale: 0.8, y: 10 }}
-            transition={{ duration: 0.2, ease: "easeOut" }}
-            style={{
-              willChange: "transform, opacity",
-              transform: "translateZ(0)",
-              marginBottom: "max(0px, env(safe-area-inset-bottom, 0px))",
-              marginRight: "max(0px, env(safe-area-inset-right, 0px))",
-            }}
-            className="fixed bottom-10 right-6 sm:bottom-12 sm:right-8 z-50"
-          >
-            <button
-              onClick={() => setIsOpen(true)}
-              aria-label="Open ReLaunch AI Assistant"
-              className="group relative flex items-center gap-2 sm:gap-2.5 px-4 py-2.5 sm:px-5 sm:py-3 bg-white hover:bg-orange-50/80 text-slate-900 rounded-full shadow-xl hover:shadow-[0_4px_20px_rgba(255,103,0,0.2)] border border-slate-200/90 hover:border-orange-300 transition-all duration-300 hover:scale-105 active:scale-95 cursor-pointer"
-            >
-              {/* Clean Status Dot */}
-              <span className="relative flex h-2 sm:h-2.5 w-2 sm:w-2.5 ml-0.5">
-                <span className="relative inline-flex rounded-full h-2 sm:h-2.5 w-2 sm:w-2.5 bg-[#FF6700]" />
-              </span>
-
-              <Bot className="w-4 h-4 sm:w-5 sm:h-5 text-[#FF6700] ml-0.5" />
-              <span className="font-heading font-black text-[11px] sm:text-xs uppercase tracking-wider pr-0.5 sm:pr-1 ml-0.5 text-slate-900">
-                ReLaunch AI
-              </span>
-
+      {/* Floating Chat Trigger Button */}
+      <div className="fixed bottom-6 right-6 z-40 select-none">
+        <button
+          type="button"
+          onClick={() => setIsOpen(!isOpen)}
+          aria-label="Toggle AI assistant chat"
+          className="relative p-4 rounded-full bg-[#7F48ED] hover:bg-[#6C34DE] text-white shadow-[0_8px_30px_rgba(127,72,237,0.4)] border border-white/[0.2] transition-all hover:scale-105 active:scale-95 cursor-pointer flex items-center justify-center group"
+        >
+          {isOpen ? (
+            <X className="w-6 h-6 text-white" />
+          ) : (
+            <>
+              <MessageSquare className="w-6 h-6 text-white group-hover:rotate-6 transition-transform" />
               {hasUnread && (
-                <span className="absolute -top-1 right-0 flex h-4 w-4 items-center justify-center rounded-full bg-[#FF6700] text-[9px] font-black text-white shadow-xs">
-                  1
-                </span>
+                <span className="absolute top-0 right-0 w-3.5 h-3.5 rounded-full bg-[#FF6700] border-2 border-[#7F48ED] animate-pulse" />
               )}
-            </button>
-          </motion.div>
-        )}
-      </AnimatePresence>
+            </>
+          )}
+        </button>
+      </div>
 
-      {/* Expanded Chat Assistant Window */}
+      {/* Chat Window Panel */}
       <AnimatePresence>
         {isOpen && (
           <motion.div
-            key="chat-assistant-window"
-            initial={{ opacity: 0, scale: 0.95, y: 16 }}
-            animate={{ opacity: 1, scale: 1, y: 0 }}
-            exit={{ opacity: 0, scale: 0.95, y: 16 }}
-            transition={{ duration: 0.22, ease: [0.16, 1, 0.3, 1] }}
-            style={{
-              willChange: "transform, opacity",
-              transform: "translateZ(0)",
-              marginBottom: "max(0px, env(safe-area-inset-bottom, 0px))",
-              marginRight: "max(0px, env(safe-area-inset-right, 0px))",
-            }}
-            className="fixed bottom-10 right-4 sm:bottom-12 sm:right-8 z-50 w-[calc(100vw-2rem)] sm:w-[400px] h-[560px] max-h-[82vh] bg-white text-slate-900 rounded-3xl shadow-2xl border border-slate-200 flex flex-col overflow-hidden mr-1 sm:mr-0"
-            data-lenis-prevent="true"
-            onWheel={(e) => e.stopPropagation()}
-            onTouchMove={(e) => e.stopPropagation()}
+            initial={{ opacity: 0, y: 20, scale: 0.95 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: 20, scale: 0.95 }}
+            transition={{ duration: 0.2 }}
+            className="fixed bottom-24 right-4 sm:right-6 w-[calc(100vw-2rem)] sm:w-[400px] h-[520px] max-h-[80vh] rounded-3xl bg-[#0D111A]/95 backdrop-blur-2xl border border-white/[0.15] shadow-2xl flex flex-col overflow-hidden z-50 text-white"
           >
             {/* Header */}
-            <div className="p-4 bg-slate-50 border-b border-slate-100 flex items-center justify-between">
+            <div className="p-4 bg-white/[0.04] border-b border-white/[0.08] flex items-center justify-between">
               <div className="flex items-center gap-3">
-                <div className="w-9 h-9 rounded-xl bg-[#FF6700] flex items-center justify-center shadow-xs">
-                  <Bot className="w-5 h-5 text-white" />
+                <div className="w-8 h-8 rounded-xl bg-orange-500/20 border border-orange-500/30 flex items-center justify-center">
+                  <Bot className="w-4 h-4 text-[#FF6700]" />
                 </div>
                 <div>
-                  <div className="flex items-center gap-2">
-                    <h3 className="font-heading font-black text-sm text-slate-900">
+                  <h3 className="font-heading font-bold text-xs uppercase tracking-wider text-white">
                     ReLaunch Assistant
                   </h3>
-                  <span className="inline-flex items-center px-1.5 py-0.5 rounded-full text-[9px] font-bold bg-orange-50 text-[#FF6700] border border-orange-200/80">
-                    AI Active
+                  <span className="text-[10px] text-[#A78BFA] font-mono flex items-center gap-1">
+                    <span className="w-1.5 h-1.5 rounded-full bg-[#7F48ED]" />
+                    Online · Ask anything
                   </span>
                 </div>
-                <p className="text-[11px] text-slate-500">
-                  Phoenix, AZ · Instant Answers
-                </p>
               </div>
-            </div>
-
-            <div className="flex items-center gap-1">
-              <button
-                onClick={resetChat}
-                title="Reset conversation"
-                className="p-2 rounded-lg text-slate-400 hover:text-slate-900 hover:bg-slate-200/60 transition-colors cursor-pointer"
-              >
-                <RotateCcw className="w-4 h-4" />
-              </button>
 
               <button
+                type="button"
                 onClick={() => setIsOpen(false)}
-                title="Close chat"
-                className="p-2 rounded-lg text-slate-400 hover:text-slate-900 hover:bg-slate-200/60 transition-colors cursor-pointer"
+                className="p-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-white/[0.08] transition-colors"
               >
                 <X className="w-4 h-4" />
               </button>
             </div>
-          </div>
 
-          {/* Messages Feed */}
-          <div
-            data-lenis-prevent="true"
-            onWheel={(e) => e.stopPropagation()}
-            onTouchMove={(e) => e.stopPropagation()}
-            className="flex-1 p-4 overflow-y-auto space-y-3.5 text-xs overscroll-contain touch-pan-y bg-white"
-          >
-            {messages.map((msg) => (
-              <div
-                key={msg.id}
-                className={`flex gap-2.5 ${
-                  msg.sender === "user" ? "justify-end" : "justify-start"
-                }`}
-              >
-                {msg.sender === "ai" && (
-                  <div className="w-7 h-7 rounded-lg bg-[#FF6700] text-white flex items-center justify-center shrink-0 mt-0.5">
-                    <Sparkles className="w-3.5 h-3.5" />
-                  </div>
-                )}
-
+            {/* Messages Scroll Area */}
+            <div className="flex-1 overflow-y-auto p-4 space-y-3.5 text-xs">
+              {messages.map((msg) => (
                 <div
-                  className={`max-w-[82%] p-3.5 rounded-2xl ${
-                    msg.sender === "user"
-                      ? "bg-[#FF6700] text-white font-medium rounded-tr-none"
-                      : "bg-slate-50 border border-slate-200/80 text-slate-800 rounded-tl-none shadow-xs"
+                  key={msg.id}
+                  className={`flex flex-col ${
+                    msg.sender === "user" ? "items-end" : "items-start"
                   }`}
                 >
-                  <div className="whitespace-pre-line leading-relaxed">
-                    {msg.text}
+                  <div
+                    className={`p-3.5 rounded-2xl max-w-[85%] leading-relaxed ${
+                      msg.sender === "user"
+                        ? "bg-[#FF6700] text-white rounded-br-xs"
+                        : "bg-white/[0.07] border border-white/[0.08] text-slate-200 rounded-bl-xs"
+                    }`}
+                  >
+                    <p className="whitespace-pre-line font-normal">{msg.text}</p>
+
+                    {msg.action && (
+                      <div className="mt-3 pt-2.5 border-t border-white/[0.1]">
+                        {msg.action.isModal ? (
+                          <button
+                            type="button"
+                            onClick={() => {
+                              setIsOpen(false);
+                              openContactModal({ intent: "strategy-session", serviceInterest: msg.action?.serviceInterest });
+                            }}
+                            className="inline-flex items-center gap-1.5 text-xs font-bold text-[#FF6700] hover:underline"
+                          >
+                            <span>{msg.action.label}</span>
+                            <ArrowUpRight className="w-3.5 h-3.5" />
+                          </button>
+                        ) : (
+                          <a
+                            href={msg.action.href}
+                            onClick={() => setIsOpen(false)}
+                            className="inline-flex items-center gap-1.5 text-xs font-bold text-[#FF6700] hover:underline"
+                          >
+                            <span>{msg.action.label}</span>
+                            <ArrowUpRight className="w-3.5 h-3.5" />
+                          </a>
+                        )}
+                      </div>
+                    )}
                   </div>
-
-                  {msg.action && (
-                    <button
-                      type="button"
-                      onClick={() => {
-                        setIsOpen(false);
-                        if (msg.action?.href === "#contact") {
-                          openContactModal({ intent: "strategy-session" });
-                        } else if (msg.action?.href === "#ai-audit") {
-                          openContactModal({ intent: "ai-audit" });
-                        } else if (msg.action?.href === "#start-project") {
-                          openContactModal({ intent: "start-project" });
-                        } else if (msg.action?.href.startsWith("#")) {
-                          const id = msg.action.href.replace("#", "");
-                          const el = document.getElementById(id);
-                          if (el) {
-                            el.scrollIntoView({ behavior: "smooth" });
-                          }
-                        }
-                      }}
-                      className="mt-3 inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white hover:bg-[#FF6700] text-slate-800 hover:text-white font-heading font-bold text-[11px] uppercase tracking-wider transition-colors border border-slate-200 hover:border-[#FF6700] text-center shadow-xs cursor-pointer"
-                    >
-                      <span>{msg.action.label}</span>
-                      <ArrowUpRight className="w-3 h-3" />
-                    </button>
-                  )}
+                  <span className="text-[10px] text-slate-500 font-mono mt-1 px-1">
+                    {msg.time}
+                  </span>
                 </div>
+              ))}
 
-                {msg.sender === "user" && (
-                  <div className="w-7 h-7 rounded-lg bg-slate-100 text-slate-600 flex items-center justify-center shrink-0 mt-0.5">
-                    <User className="w-3.5 h-3.5" />
-                  </div>
-                )}
-              </div>
-            ))}
-
-            {isTyping && (
-              <div className="flex gap-2.5 justify-start">
-                <div className="w-7 h-7 rounded-lg bg-[#FF6700] text-white flex items-center justify-center shrink-0 mt-0.5">
-                  <Sparkles className="w-3.5 h-3.5" />
+              {isTyping && (
+                <div className="flex items-center gap-1.5 p-3 rounded-2xl bg-white/[0.07] w-16">
+                  <span className="w-1.5 h-1.5 rounded-full bg-slate-400 animate-bounce" />
+                  <span className="w-1.5 h-1.5 rounded-full bg-slate-400 animate-bounce delay-150" />
+                  <span className="w-1.5 h-1.5 rounded-full bg-slate-400 animate-bounce delay-300" />
                 </div>
-                <div className="p-3 rounded-2xl bg-slate-50 border border-slate-200 text-slate-400 rounded-tl-none flex items-center gap-1.5">
-                  <span className="w-1.5 h-1.5 rounded-full bg-[#FF6700] animate-bounce" />
-                  <span className="w-1.5 h-1.5 rounded-full bg-[#FF6700] animate-bounce [animation-delay:0.2s]" />
-                  <span className="w-1.5 h-1.5 rounded-full bg-[#FF6700] animate-bounce [animation-delay:0.4s]" />
-                </div>
-              </div>
-            )}
-            <div ref={messagesEndRef} />
-          </div>
+              )}
+              <div ref={messagesEndRef} />
+            </div>
 
-          {/* Quick Prompts Carousel */}
-          <div className="px-3 py-2 bg-slate-50 border-t border-slate-100 overflow-x-auto flex gap-1.5 scrollbar-none">
-            {quickPrompts.map((prompt) => (
-              <button
-                key={prompt}
-                onClick={() => handleSend(prompt)}
-                className="px-2.5 py-1 rounded-lg bg-white hover:bg-[#FF6700] text-slate-700 hover:text-white border border-slate-200 hover:border-[#FF6700] text-[10px] font-semibold whitespace-nowrap transition-colors cursor-pointer shrink-0 shadow-xs"
-              >
-                {prompt}
-              </button>
-            ))}
-          </div>
+            {/* Quick Prompts */}
+            <div className="px-3 py-2 border-t border-white/[0.06] flex items-center gap-1.5 overflow-x-auto">
+              {quickPrompts.map((prompt) => (
+                <button
+                  key={prompt}
+                  type="button"
+                  onClick={() => handlePromptClick(prompt)}
+                  className="px-2.5 py-1 rounded-lg bg-white/[0.05] hover:bg-white/[0.1] border border-white/[0.08] text-[10px] text-slate-300 hover:text-white whitespace-nowrap cursor-pointer transition-colors"
+                >
+                  {prompt}
+                </button>
+              ))}
+            </div>
 
-          {/* Input Bar */}
-          <div className="p-3 bg-slate-50 border-t border-slate-100">
-            <div className="relative flex items-center">
+            {/* Input Bar */}
+            <div className="p-3 bg-white/[0.04] border-t border-white/[0.08] flex items-center gap-2">
               <input
                 type="text"
+                placeholder="Ask about services, pricing, or Bobby..."
                 value={inputValue}
                 onChange={(e) => setInputValue(e.target.value)}
-                onKeyDown={handleKeyDown}
-                placeholder="Ask about bundles, pricing, services..."
-                className="w-full py-2.5 pl-3.5 pr-11 bg-white text-slate-900 placeholder-slate-400 rounded-xl text-xs border border-slate-200 focus:outline-none focus:border-[#FF6700] transition-colors"
+                onKeyDown={(e) => e.key === "Enter" && handleSend()}
+                className="flex-1 px-3.5 py-2.5 rounded-xl bg-white/[0.06] border border-white/[0.1] text-xs text-white placeholder-slate-400 focus:outline-none focus:border-[#FF6700]"
               />
               <button
-                onClick={() => handleSend()}
-                disabled={!inputValue.trim()}
-                className={`absolute right-1.5 p-1.5 rounded-lg transition-all ${
-                  inputValue.trim()
-                    ? "bg-[#FF6700] text-white hover:bg-[#E55C00] cursor-pointer"
-                    : "text-slate-300 cursor-not-allowed"
-                }`}
+                type="button"
+                onClick={handleSend}
+                className="p-2.5 rounded-xl bg-[#FF6700] hover:bg-[#E55C00] text-white transition-colors cursor-pointer"
               >
                 <Send className="w-3.5 h-3.5" />
               </button>
             </div>
-          </div>
-        </motion.div>
-      )}
-    </AnimatePresence>
-  </>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </>
   );
 }

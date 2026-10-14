@@ -14,10 +14,10 @@ export interface CtaBannerProps {
 }
 
 export default function CtaBanner({
-  badgeText = "Ready for Launch · Phoenix, AZ",
-  titleRegular = "Let's build",
-  titleHighlight = "your mission.",
-  description = "Book a strategy call to build your predictable marketing pipeline, or explore our real client case studies.",
+  badgeText = "30-MINUTE STRATEGY CALL · FREE",
+  titleRegular = "Find out where you're",
+  titleHighlight = "losing sales.",
+  description = "Book a free 30-minute strategy call. You'll leave with a clear next step, whether you hire us or not.",
 }: CtaBannerProps = {}) {
   const { openContactModal } = useContactModal();
 
@@ -37,16 +37,16 @@ export default function CtaBanner({
             {titleRegular} <span className="text-[#FF6700]">{titleHighlight}</span>
           </h2>
 
-          <p className="text-slate-600 text-xs sm:text-base max-w-xl mx-auto mb-8 leading-relaxed font-normal">
+          <p className="text-slate-600 text-sm sm:text-base max-w-xl mx-auto mb-8 leading-relaxed font-normal">
             {description}
           </p>
 
-          {/* Action Buttons: Unified Primary + Secondary Pair with identical solid orange bg */}
+          {/* Action Buttons */}
           <div className="flex flex-wrap items-center justify-center gap-3.5 mb-8">
             <button
               type="button"
               onClick={() => openContactModal({ intent: "strategy-session" })}
-              className="inline-flex items-center justify-center gap-2 px-6 py-3.5 bg-[#FF6700] hover:bg-[#E55C00] text-white font-heading font-bold text-xs uppercase tracking-wider rounded-xl shadow-[0_4px_20px_rgba(255,103,0,0.25)] transition-all active:translate-y-0.5 whitespace-nowrap cursor-pointer hover:scale-102"
+              className="inline-flex items-center justify-center gap-2 px-7 py-3.5 bg-[#FF6700] hover:bg-[#E55C00] text-white font-heading font-bold text-xs uppercase tracking-wider rounded-xl shadow-[0_4px_20px_rgba(255,103,0,0.25)] transition-all active:translate-y-0.5 whitespace-nowrap cursor-pointer hover:scale-102"
             >
               <Calendar className="w-4 h-4 text-white shrink-0" />
               <span>Book a Strategy Call</span>
@@ -55,9 +55,9 @@ export default function CtaBanner({
 
             <Link
               href="/work"
-              className="inline-flex items-center justify-center gap-2 px-6 py-3.5 bg-[#FF6700] hover:bg-[#E55C00] text-white font-heading font-bold text-xs uppercase tracking-wider rounded-xl shadow-[0_4px_20px_rgba(255,103,0,0.25)] transition-all active:translate-y-0.5 whitespace-nowrap cursor-pointer hover:scale-102"
+              className="inline-flex items-center justify-center gap-2 px-6 py-3.5 bg-[#7F48ED] hover:bg-[#6C34DE] text-white font-heading font-bold text-xs uppercase tracking-wider rounded-xl shadow-[0_4px_20px_rgba(127,72,237,0.25)] transition-all active:translate-y-0.5 whitespace-nowrap cursor-pointer hover:scale-102"
             >
-              <span>View Case Studies</span>
+              <span>See our work</span>
               <ArrowUpRight className="w-3.5 h-3.5 text-white" />
             </Link>
           </div>

@@ -555,9 +555,9 @@ export default function ContactModal() {
 
             <a
               href="mailto:care@relaunch.us"
-              className="flex items-center justify-center sm:justify-start gap-1.5 text-xs font-semibold text-slate-700 hover:text-emerald-600 transition-colors"
+              className="flex items-center justify-center sm:justify-start gap-1.5 text-xs font-semibold text-slate-700 hover:text-[#7F48ED] transition-colors"
             >
-              <Mail className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
+              <Mail className="w-3.5 h-3.5 text-[#7F48ED] shrink-0" />
               <span>care@relaunch.us</span>
             </a>
 

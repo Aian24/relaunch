@@ -28,41 +28,51 @@ interface BrandsHelpedSectionProps {
   variant?: "dark" | "light";
   className?: string;
   showTitle?: boolean;
+  themeColor?: "purple" | "orange";
 }
 
 export default function BrandsHelpedSection({
   variant = "dark",
   className = "",
   showTitle = true,
+  themeColor = "purple",
 }: BrandsHelpedSectionProps) {
   const isDark = variant === "dark";
+  const isPurple = themeColor === "purple";
+  const accentText = isPurple ? "text-[#7F48ED]" : "text-[#FF6700]";
+  const accentBg = isPurple ? "bg-[#7F48ED]" : "bg-[#FF6700]";
+  const badgeClasses = isPurple
+    ? "border-purple-200/80 bg-purple-50 text-[#7F48ED]"
+    : "border-orange-200/80 bg-orange-50 text-[#FF6700]";
 
   return (
     <section
       className={`relative w-full overflow-hidden select-none py-14 sm:py-16 ${
         isDark
           ? "bg-[#090D16] text-white border-y border-slate-800"
-          : "bg-slate-50 text-[#090D16] border-y border-slate-200"
+          : "bg-white text-[#090D16] border-y border-slate-200"
       } ${className}`}
     >
-      {/* Ambient Radial Accent Glow with Logo Purple & Phoenix Orange */}
+      {/* Ambient Radial Accent Glow */}
       <div
         className={`absolute inset-0 pointer-events-none ${
           isDark
-            ? "bg-[radial-gradient(ellipse_60%_50%_at_50%_50%,rgba(127,72,237,0.12),transparent_70%)]"
-            : "bg-[radial-gradient(ellipse_60%_50%_at_50%_50%,rgba(127,72,237,0.06),transparent_70%)]"
+            ? isPurple
+              ? "bg-[radial-gradient(ellipse_60%_50%_at_50%_50%,rgba(127,72,237,0.12),transparent_70%)]"
+              : "bg-[radial-gradient(ellipse_60%_50%_at_50%_50%,rgba(255,103,0,0.12),transparent_70%)]"
+            : isPurple
+              ? "bg-[radial-gradient(ellipse_60%_50%_at_50%_50%,rgba(127,72,237,0.06),transparent_70%)]"
+              : "bg-[radial-gradient(ellipse_60%_50%_at_50%_50%,rgba(255,103,0,0.06),transparent_70%)]"
         }`}
       />
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mb-8 text-center relative z-10">
         {showTitle && (
           <MotionWrapper direction="up" distance={20}>
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-[10px] sm:text-[11px] font-mono uppercase tracking-[0.2em] font-bold mb-3 shadow-xs border transition-colors border-purple-200/60 bg-purple-50/50">
-              <span
-                className="w-1.5 h-1.5 rounded-full bg-[#7F48ED]"
-              />
-              <span className={isDark ? "text-purple-300" : "text-[#7F48ED]"}>
-                PROVEN CLIENT IMPACT · EST. 2004
+            <div className={`inline-flex items-center gap-2 px-3.5 py-1 rounded-full text-[10px] sm:text-[11px] font-mono uppercase tracking-[0.2em] font-bold mb-3 shadow-xs border ${badgeClasses}`}>
+              <span className={`w-1.5 h-1.5 rounded-full ${accentBg}`} />
+              <span>
+                PROVEN CLIENT IMPACT · EST. 2008
               </span>
             </div>
 
@@ -71,7 +81,7 @@ export default function BrandsHelpedSection({
                 isDark ? "text-white" : "text-[#090D16]"
               }`}
             >
-              The Brands We&apos;ve <span className="text-[#7F48ED]">Helped.</span>
+              The Brands We&apos;ve <span className={accentText}>Helped.</span>
             </h2>
             <p
               className={`text-xs sm:text-sm max-w-2xl mx-auto mt-2 leading-relaxed ${
@@ -89,12 +99,12 @@ export default function BrandsHelpedSection({
         {/* Left & Right Gradient Masks */}
         <div
           className={`absolute left-0 top-0 bottom-0 w-16 sm:w-32 z-10 pointer-events-none bg-gradient-to-r ${
-            isDark ? "from-[#090D16] to-transparent" : "from-slate-50 to-transparent"
+            isDark ? "from-[#090D16] to-transparent" : "from-white to-transparent"
           }`}
         />
         <div
           className={`absolute right-0 top-0 bottom-0 w-16 sm:w-32 z-10 pointer-events-none bg-gradient-to-l ${
-            isDark ? "from-[#090D16] to-transparent" : "from-slate-50 to-transparent"
+            isDark ? "from-[#090D16] to-transparent" : "from-white to-transparent"
           }`}
         />
 
@@ -107,7 +117,7 @@ export default function BrandsHelpedSection({
                 className={`group flex flex-col items-center justify-center p-3 sm:p-4 rounded-2xl transition-all duration-300 hover:scale-105 border border-transparent ${
                   isDark
                     ? "hover:border-[#7F48ED]/30 hover:bg-[#7F48ED]/5"
-                    : "hover:border-slate-300 hover:bg-white"
+                    : "hover:border-slate-300 hover:bg-slate-50"
                 }`}
                 title={brand.name}
               >
@@ -143,7 +153,7 @@ export default function BrandsHelpedSection({
                 className={`group flex flex-col items-center justify-center p-3 sm:p-4 rounded-2xl transition-all duration-300 hover:scale-105 border border-transparent ${
                   isDark
                     ? "hover:border-[#7F48ED]/30 hover:bg-[#7F48ED]/5"
-                    : "hover:border-slate-300 hover:bg-white"
+                    : "hover:border-slate-300 hover:bg-slate-50"
                 }`}
                 title={brand.name}
               >
