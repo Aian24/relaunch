@@ -54,12 +54,23 @@ export default function ServicesPage() {
     <main className="min-h-screen flex flex-col bg-white text-[#090D16]">
       <Navbar />
 
-      {/* 1. Hero Section */}
+      {/* 1. Hero Section with Cinematic Background Video */}
       <section className="relative w-full pt-36 sm:pt-44 pb-14 sm:pb-20 bg-[#07090E] text-white px-4 sm:px-6 lg:px-8 overflow-hidden select-none">
         <div className="absolute inset-0 w-full h-full overflow-hidden pointer-events-none z-0">
-          <div className="absolute inset-0 bg-[radial-gradient(ellipse_80%_60%_at_50%_-10%,rgba(255,103,0,0.18),transparent_75%)]" />
-          <div className="absolute top-1/4 right-1/4 w-[450px] h-[350px] bg-[#FF6700]/12 rounded-full blur-[140px]" />
-          <div className="absolute bottom-10 left-10 w-[450px] h-[350px] bg-[#FF6700]/10 rounded-full blur-[140px]" />
+          <video
+            src="/services2.mp4"
+            autoPlay
+            muted
+            loop
+            playsInline
+            onLoadedMetadata={(e) => {
+              e.currentTarget.playbackRate = 0.7;
+            }}
+            className="absolute inset-0 w-full h-full object-cover opacity-100"
+          />
+          <div className="absolute inset-0 bg-gradient-to-b from-[#07090E]/75 via-[#07090E]/40 to-[#07090E]" />
+          <div className="absolute top-1/4 right-1/4 w-[450px] h-[350px] bg-[#FF6700]/15 rounded-full blur-[140px]" />
+          <div className="absolute bottom-10 left-10 w-[450px] h-[350px] bg-[#FF6700]/20 rounded-full blur-[140px]" />
         </div>
 
         <MotionWrapper direction="up" distance={25} className="relative z-10 max-w-4xl mx-auto text-center">
