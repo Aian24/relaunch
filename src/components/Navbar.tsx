@@ -7,7 +7,7 @@ import { usePathname } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import { navLinks, contactInfo } from "@/data/navigation";
 import { useContactModal } from "@/context/ContactModalContext";
-import { Menu, X, ArrowUpRight, Phone, ChevronDown, Sparkles } from "lucide-react";
+import { Menu, X, ArrowUpRight, Phone, ChevronDown } from "lucide-react";
 
 export default function Navbar() {
   const { openContactModal } = useContactModal();

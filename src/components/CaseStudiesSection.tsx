@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import Image from "next/image";
+import Link from "next/link";
 import { caseStudiesData, clientLogos, CaseStudy } from "@/data/caseStudies";
 import { useContactModal } from "@/context/ContactModalContext";
 import { useScrollContext } from "./SmoothScrollProvider";
@@ -445,16 +446,26 @@ export default function CaseStudiesSection() {
                     </div>
                   )}
 
-                  <motion.button
-                    whileHover={{ scale: 1.03 }}
-                    whileTap={{ scale: 0.97 }}
-                    type="button"
-                    onClick={() => handleStartSimilarProject(activeStudy)}
-                    className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-6 py-3 bg-[#FF6700] hover:bg-[#E55C00] text-white font-heading font-bold text-xs uppercase tracking-wider rounded-xl transition-all shadow-md active:translate-y-0.5 cursor-pointer"
-                  >
-                    <span>Start Similar Project</span>
-                    <ArrowRight className="w-4 h-4" />
-                  </motion.button>
+                  <div className="flex flex-col sm:flex-row items-center gap-2.5 w-full sm:w-auto">
+                    <Link
+                      href={`/work/${activeStudy.slug}`}
+                      className="w-full sm:w-auto inline-flex items-center justify-center gap-1.5 px-5 py-3 bg-slate-100 hover:bg-slate-200 text-slate-800 font-heading font-bold text-xs uppercase tracking-wider rounded-xl transition-all"
+                    >
+                      <span>Full Case Study Page</span>
+                      <ArrowUpRight className="w-4 h-4" />
+                    </Link>
+
+                    <motion.button
+                      whileHover={{ scale: 1.03 }}
+                      whileTap={{ scale: 0.97 }}
+                      type="button"
+                      onClick={() => handleStartSimilarProject(activeStudy)}
+                      className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-6 py-3 bg-[#FF6700] hover:bg-[#E55C00] text-white font-heading font-bold text-xs uppercase tracking-wider rounded-xl transition-all shadow-md active:translate-y-0.5 cursor-pointer"
+                    >
+                      <span>Start Similar Project</span>
+                      <ArrowRight className="w-4 h-4" />
+                    </motion.button>
+                  </div>
                 </motion.div>
               </div>
             </motion.div>

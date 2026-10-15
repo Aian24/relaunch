@@ -2,6 +2,7 @@
 
 import React, { useState } from "react";
 import Image from "next/image";
+import Link from "next/link";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import ScrollToTop from "@/components/ScrollToTop";
@@ -10,7 +11,7 @@ import { useContactModal } from "@/context/ContactModalContext";
 import { caseStudiesData } from "@/data/caseStudies";
 import { testimonialsData } from "@/data/testimonials";
 import BrandsHelpedSection from "@/components/BrandsHelpedSection";
-import { ArrowUpRight, Quote, Calendar, MapPin, Tag } from "lucide-react";
+import { ArrowUpRight, ArrowRight, Quote, Calendar, MapPin, Tag } from "lucide-react";
 
 export default function WorkPage() {
   const { openContactModal } = useContactModal();
@@ -44,9 +45,10 @@ export default function WorkPage() {
             onLoadedMetadata={(e) => {
               e.currentTarget.playbackRate = 0.7;
             }}
-            className="absolute inset-0 w-full h-full object-cover opacity-100"
+            className="absolute inset-0 w-full h-full object-cover opacity-60"
           />
-          <div className="absolute inset-0 bg-gradient-to-b from-[#07090E]/75 via-[#07090E]/40 to-[#07090E]" />
+          <div className="absolute inset-0 bg-gradient-to-b from-[#07090E]/80 via-[#07090E]/50 to-[#07090E]" />
+          <div className="absolute inset-0 bg-[radial-gradient(ellipse_80%_60%_at_50%_-10%,rgba(127,72,237,0.22),transparent_75%)]" />
           <div className="absolute top-1/4 right-1/4 w-[450px] h-[350px] bg-[#7F48ED]/20 rounded-full blur-[140px]" />
         </div>
 
@@ -87,32 +89,32 @@ export default function WorkPage() {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             {filteredStudies.map((item, idx) => (
               <MotionWrapper key={item.id} direction="up" delay={idx * 0.08} distance={20}>
-                <div className="h-full flex flex-col justify-between rounded-3xl bg-white border border-slate-200/90 overflow-hidden shadow-xs hover:shadow-md hover:border-slate-300 transition-all">
+                <div className="h-full flex flex-col justify-between rounded-3xl bg-white border border-slate-200/90 overflow-hidden shadow-xs hover:shadow-xl hover:border-[#7F48ED]/50 transition-all group">
                   <div>
-                    {/* Image Header */}
-                    <div className="relative aspect-[16/10] overflow-hidden bg-slate-900">
+                    {/* Image Header with Clickable Link */}
+                    <Link href={`/work/${item.slug}`} className="block relative aspect-[16/10] overflow-hidden bg-slate-900">
                       <Image
                         src={item.image}
                         alt={item.title}
                         fill
-                        className="object-cover"
+                        className="object-cover group-hover:scale-105 transition-transform duration-500"
                       />
                       <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/25 to-transparent" />
                       <div className="absolute bottom-3 left-4 right-4">
-                        <div className="flex items-center gap-1.5 text-[10px] font-mono uppercase tracking-wider text-[#7F48ED] font-bold">
-                          <MapPin className="w-3 h-3" />
+                        <div className="flex items-center gap-1.5 text-[10px] font-mono uppercase tracking-wider font-bold text-[#A78BFA]">
+                          <MapPin className="w-3 h-3 text-[#A78BFA]" />
                           <span>{item.location} · {item.industry}</span>
                         </div>
-                        <h3 className="font-heading font-bold text-xl text-white mt-0.5">
+                        <h3 className="font-heading font-bold text-xl text-white mt-0.5 group-hover:text-[#A78BFA] transition-colors">
                           {item.title}
                         </h3>
                       </div>
-                    </div>
+                    </Link>
 
                     <div className="p-6">
                       {/* Metric Line / Badge */}
                       {item.hasNumberBadge && (
-                        <div className="inline-block px-3 py-1 rounded-full bg-purple-50 border border-purple-200 text-[#7F48ED] text-xs font-mono font-bold mb-3">
+                        <div className="inline-block px-3 py-1 rounded-full text-xs font-mono font-bold mb-3 border bg-purple-50 border-purple-200 text-[#7F48ED]">
                           {item.headlineNumber}
                         </div>
                       )}
@@ -136,13 +138,20 @@ export default function WorkPage() {
                     </div>
                   </div>
 
-                  <div className="px-6 pb-6 pt-0">
+                  <div className="px-6 pb-6 pt-0 flex items-center justify-between border-t border-slate-50 pt-4">
+                    <Link
+                      href={`/work/${item.slug}`}
+                      className="inline-flex items-center gap-1.5 text-xs font-bold text-[#7F48ED] hover:text-[#6C34DE] group-hover:underline"
+                    >
+                      <span>Read the story →</span>
+                    </Link>
+
                     <button
                       type="button"
                       onClick={() => openContactModal({ intent: "strategy-session", serviceInterest: item.title })}
-                      className="inline-flex items-center gap-1 text-xs font-bold text-[#7F48ED] hover:text-[#6C34DE]"
+                      className="text-[11px] font-semibold text-slate-400 hover:text-slate-700 transition-colors"
                     >
-                      <span>Read the story &amp; ask how →</span>
+                      Ask How
                     </button>
                   </div>
                 </div>
