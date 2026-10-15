@@ -12,9 +12,9 @@ import {
   ArrowRight,
   CheckCircle2,
   Calendar,
-  Sparkles,
   Camera,
   Layers,
+  Palette,
   Clock,
   ShieldCheck,
 } from "lucide-react";
@@ -165,7 +165,7 @@ export default function SocialPage() {
               <div className="h-full p-8 rounded-3xl bg-white border border-slate-200 shadow-xs flex flex-col justify-between">
                 <div>
                   <div className="w-10 h-10 rounded-2xl bg-orange-50 border border-orange-200 flex items-center justify-center mb-4">
-                    <Sparkles className="w-5 h-5 text-[#FF6700]" />
+                    <Palette className="w-5 h-5 text-[#FF6700]" />
                   </div>
                   <h3 className="font-heading font-black text-xl text-[#090D16] mb-2">
                     We create everything

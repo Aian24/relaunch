@@ -19,13 +19,13 @@ export const navLinks: NavLink[] = [
     label: "Products",
     href: "/services#products",
     children: [
-      { label: "AI Recommendations", href: "/ai-recommendations" },
-      { label: "Social Media", href: "/social" },
-      { label: "Studio Video Ads", href: "/studio" },
-      { label: "Social Audit", href: "/audit" },
+      { label: "ReLaunch Social Audit", href: "/audit" },
+      { label: "ReLaunch AI Recommendations", href: "/ai-recommendations" },
+      { label: "ReLaunch Social", href: "/social" },
+      { label: "ReLaunch Studio", href: "/studio" },
     ],
   },
-  { label: "Our Work", href: "/work" },
+  { label: "Work", href: "/work" },
   { label: "Pricing", href: "/pricing" },
   { label: "About", href: "/about" },
 ];

@@ -83,7 +83,7 @@ export default function FounderSection() {
                 onClick={() => openContactModal({ intent: "strategy-session" })}
                 className="inline-flex items-center justify-center gap-2 px-6 py-3.5 rounded-xl bg-[#7F48ED] hover:bg-[#6C34DE] text-white font-heading font-bold text-xs uppercase tracking-wider transition-all duration-200 shadow-md cursor-pointer active:scale-98"
               >
-                <span>Book a Strategy Call with Bobby</span>
+                <span>Book a Strategy Call</span>
                 <ArrowUpRight className="w-4 h-4 text-white" />
               </button>
             </div>

@@ -118,19 +118,39 @@ export default function Navbar() {
                         transition={{ duration: 0.15 }}
                         className="absolute left-1/2 -translate-x-1/2 top-full mt-2 w-56 p-1.5 rounded-2xl bg-[#090D16]/95 backdrop-blur-2xl border border-white/[0.12] shadow-2xl z-50 flex flex-col gap-0.5"
                       >
-                        {link.children?.map((child) => (
-                          <Link
-                            key={child.label}
-                            href={child.href}
-                            onClick={() => setProductsDropdownOpen(false)}
-                            className="flex items-center justify-between px-3.5 py-2.5 rounded-xl hover:bg-white/[0.08] transition-all text-left group/item cursor-pointer"
-                          >
-                            <span className="text-xs font-semibold text-slate-200 group-hover/item:text-[#FF6700] transition-colors">
-                              {child.label}
-                            </span>
-                            <ArrowUpRight className="w-3.5 h-3.5 text-slate-500 group-hover/item:text-[#FF6700] group-hover/item:translate-x-0.5 group-hover/item:-translate-y-0.5 transition-all opacity-40 group-hover/item:opacity-100" />
-                          </Link>
-                        ))}
+                        {link.children?.map((child) => {
+                          const isExternal = child.external || child.href.startsWith("http");
+                          if (isExternal) {
+                            return (
+                              <a
+                                key={child.label}
+                                href={child.href}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                onClick={() => setProductsDropdownOpen(false)}
+                                className="flex items-center justify-between px-3.5 py-2.5 rounded-xl hover:bg-white/[0.08] transition-all text-left group/item cursor-pointer"
+                              >
+                                <span className="text-xs font-semibold text-slate-200 group-hover/item:text-[#FF6700] transition-colors">
+                                  {child.label}
+                                </span>
+                                <ArrowUpRight className="w-3.5 h-3.5 text-slate-500 group-hover/item:text-[#FF6700] group-hover/item:translate-x-0.5 group-hover/item:-translate-y-0.5 transition-all opacity-40 group-hover/item:opacity-100" />
+                              </a>
+                            );
+                          }
+                          return (
+                            <Link
+                              key={child.label}
+                              href={child.href}
+                              onClick={() => setProductsDropdownOpen(false)}
+                              className="flex items-center justify-between px-3.5 py-2.5 rounded-xl hover:bg-white/[0.08] transition-all text-left group/item cursor-pointer"
+                            >
+                              <span className="text-xs font-semibold text-slate-200 group-hover/item:text-[#FF6700] transition-colors">
+                                {child.label}
+                              </span>
+                              <ArrowUpRight className="w-3.5 h-3.5 text-slate-500 group-hover/item:text-[#FF6700] group-hover/item:translate-x-0.5 group-hover/item:-translate-y-0.5 transition-all opacity-40 group-hover/item:opacity-100" />
+                            </Link>
+                          );
+                        })}
                       </motion.div>
                     )}
                   </AnimatePresence>
@@ -230,17 +250,35 @@ export default function Navbar() {
                           {link.label}
                         </div>
                         <div className="pl-3 flex flex-col gap-1 border-l-2 border-white/[0.08] ml-4">
-                          {link.children?.map((child) => (
-                            <Link
-                              key={child.label}
-                              href={child.href}
-                              onClick={() => setMobileMenuOpen(false)}
-                              className="px-3 py-2 text-xs font-semibold rounded-lg text-slate-200 hover:bg-white/[0.08] hover:text-[#FF6700] transition-colors flex items-center justify-between"
-                            >
-                              <span>{child.label}</span>
-                              <ArrowUpRight className="w-3.5 h-3.5 text-slate-500" />
-                            </Link>
-                          ))}
+                          {link.children?.map((child) => {
+                            const isExternal = child.external || child.href.startsWith("http");
+                            if (isExternal) {
+                              return (
+                                <a
+                                  key={child.label}
+                                  href={child.href}
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                  onClick={() => setMobileMenuOpen(false)}
+                                  className="px-3 py-2 text-xs font-semibold rounded-lg text-slate-200 hover:bg-white/[0.08] hover:text-[#FF6700] transition-colors flex items-center justify-between"
+                                >
+                                  <span>{child.label}</span>
+                                  <ArrowUpRight className="w-3.5 h-3.5 text-slate-500" />
+                                </a>
+                              );
+                            }
+                            return (
+                              <Link
+                                key={child.label}
+                                href={child.href}
+                                onClick={() => setMobileMenuOpen(false)}
+                                className="px-3 py-2 text-xs font-semibold rounded-lg text-slate-200 hover:bg-white/[0.08] hover:text-[#FF6700] transition-colors flex items-center justify-between"
+                              >
+                                <span>{child.label}</span>
+                                <ArrowUpRight className="w-3.5 h-3.5 text-slate-500" />
+                              </Link>
+                            );
+                          })}
                         </div>
                       </div>
                     );

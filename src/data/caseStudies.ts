@@ -114,7 +114,7 @@ export const caseStudiesData: CaseStudy[] = [
       { src: "/showcase/chicago_dog_real_3.png", alt: "Chicago Dogs 42 social ads creative", caption: "High-converting paid Facebook campaigns" },
       { src: "/showcase/chicago_dog.jpg", alt: "Chicago Dogs 42 interior ambiance", caption: "Modern 1950s diner brand experience" },
     ],
-    displayUrl: "https://www.relaunch.us/chicago-dog-42/",
+    displayUrl: "chicagodog42.com",
     liveUrl: "https://chicagodog42.com",
     statHighlights: [
       { label: "1st Year Revenue", value: "$150,000", description: "Initial baseline during launch period" },
@@ -184,7 +184,7 @@ export const caseStudiesData: CaseStudy[] = [
       { src: "/showcase/carmen_hotel_real_3.png", alt: "Carmen Hotel social media advertising", caption: "Direct booking Instagram & Facebook ad sets" },
       { src: "/showcase/carmen_hotel_real_4.png", alt: "Carmen Hotel engagement analytics", caption: "+10,000 new verified traveler followers" },
     ],
-    displayUrl: "https://www.relaunch.us/carmen-hotel/",
+    displayUrl: "carmenhotel.com",
     liveUrl: "https://carmenhotel.com",
     statHighlights: [
       { label: "Lift in Bookings", value: "15%", description: "Lift in direct online reservations" },
@@ -248,7 +248,7 @@ export const caseStudiesData: CaseStudy[] = [
       { src: "/showcase/jacksonville_real_2.png", alt: "Jacksonville civic software architecture", caption: "Robust Entity Network Framework backend" },
       { src: "/showcase/jacksonville_real_4.png", alt: "Municipal interface responsive design", caption: "Mobile-responsive citizen records portal" },
     ],
-    displayUrl: "https://www.relaunch.us/property-appraiser/",
+    displayUrl: "propertyappraiser.gov",
     liveUrl: "https://coj.net",
     statHighlights: [
       { label: "Delivery", value: "1 Month Early", description: "Delivered a month earlier than agreed" },
@@ -312,7 +312,7 @@ export const caseStudiesData: CaseStudy[] = [
       { src: "/showcase/aspiration_real_3.png", alt: "Aspiration Bank mobile banking interface", caption: "Sleek mobile responsive customer onboarding" },
       { src: "/showcase/aspiration_real_4.png", alt: "Aspiration Bank card lifestyle showcase", caption: "Plant-based debit card product launch showcase" },
     ],
-    displayUrl: "https://www.relaunch.us/aspiration-bank/",
+    displayUrl: "aspiration.com",
     liveUrl: "https://aspiration.com",
     statHighlights: [
       { label: "YoY Traffic", value: "200%", description: "Increased traffic year-over-year" },
@@ -376,7 +376,7 @@ export const caseStudiesData: CaseStudy[] = [
       { src: "/showcase/turflife_real_2.png", alt: "TurfLife social media campaign", caption: "National community campaign across turf industries" },
       { src: "/showcase/turflife_real_3.png", alt: "TurfLife brand showcase in Golf Central Magazine", caption: "Southeastern magazine feature syndication" },
     ],
-    displayUrl: "https://www.relaunch.us/turflife-2/",
+    displayUrl: "turflife.com",
     liveUrl: "https://turflife.com",
     statHighlights: [
       { label: "Status", value: "Since 2016", description: "On-Going national movement" },
@@ -442,7 +442,7 @@ export const caseStudiesData: CaseStudy[] = [
       { src: "/showcase/swing_perfect_real_3.png", alt: "Swing Perfect golf analytics dashboard", caption: "Personalized player swing improvement metrics" },
       { src: "/showcase/swing_perfect_real_4.png", alt: "Swing Perfect device mockup", caption: "Real-time range and clubhouse diagnostic tools" },
     ],
-    displayUrl: "https://www.relaunch.us/swing-perfect/",
+    displayUrl: "swingperfect.com",
     liveUrl: "https://swingperfect.com",
     statHighlights: [
       { label: "Client Satisfaction", value: "100%", description: "100% Client Satisfaction & Usage" },

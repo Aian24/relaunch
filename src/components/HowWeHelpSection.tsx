@@ -60,11 +60,11 @@ export default function HowWeHelpSection() {
                   </p>
 
                   {/* You get line */}
-                  <div className="p-3.5 rounded-2xl bg-slate-50 border border-slate-200/80 mb-6">
-                    <span className="text-[11px] font-mono uppercase tracking-wider text-slate-500 font-bold block mb-1">
+                  <div className="p-3.5 sm:p-4 rounded-2xl bg-slate-50 border border-slate-200/80 mb-6 text-xs sm:text-sm leading-relaxed">
+                    <span className="text-[11px] font-mono uppercase tracking-wider text-slate-500 font-bold mr-2 inline">
                       You get:
                     </span>
-                    <span className="text-xs text-slate-700 leading-snug block font-medium">
+                    <span className="text-slate-700 font-medium inline">
                       {group.homepageYouGet}
                     </span>
                   </div>

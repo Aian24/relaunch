@@ -205,46 +205,155 @@ export default function AboutPage() {
       </section>
 
       {/* 5. How We Got Here (Timeline) */}
-      <section className="py-16 sm:py-24 px-4 sm:px-6 lg:px-8 bg-slate-50 border-t border-slate-200">
-        <div className="max-w-4xl mx-auto">
-          <MotionWrapper direction="up" distance={20} className="text-center mb-14">
-            <span className="text-xs font-mono uppercase tracking-widest text-[#7F48ED] font-bold block mb-2">
+      <section className="py-8 sm:py-12 px-4 sm:px-6 lg:px-8 bg-slate-50 border-t border-slate-200">
+        <div className="max-w-5xl mx-auto">
+          <MotionWrapper direction="up" distance={20} className="text-center mb-7">
+            <span className="text-xs font-mono uppercase tracking-widest text-[#7F48ED] font-bold block mb-1">
               TIMELINE
             </span>
-            <h2 className="font-heading font-black text-2xl sm:text-4xl text-[#090D16] tracking-tight">
+            <h2 className="font-heading font-black text-2xl sm:text-3xl text-[#090D16] tracking-tight">
               How we got here.
             </h2>
           </MotionWrapper>
 
-          <div className="space-y-6">
-            {timelineSteps.map((step, idx) => (
-              <MotionWrapper key={step.year} direction="up" delay={idx * 0.08} distance={20}>
-                <div className="p-6 sm:p-7 rounded-3xl bg-white border border-slate-200/90 shadow-xs flex flex-col sm:flex-row items-start gap-4 sm:gap-6">
-                  <div className="px-3.5 py-1.5 rounded-xl bg-purple-50 border border-purple-200 text-[#7F48ED] font-heading font-black text-base shrink-0">
-                    {step.year}
-                  </div>
-                  <div>
-                    <h3 className="font-heading font-bold text-lg text-[#090D16] mb-1">
-                      {step.title}
-                    </h3>
-                    <p className="text-xs sm:text-sm text-slate-600 leading-relaxed mb-2 font-normal">
-                      {step.desc}
-                    </p>
-                    <p className="text-xs text-slate-500 font-mono">
-                      <span className="text-[#7F48ED] font-bold">Why it matters:</span> {step.whyItMatters}
-                    </p>
-                  </div>
-                </div>
-              </MotionWrapper>
-            ))}
+          {/* Timeline Spine & Nodes */}
+          <div className="relative">
+            {/* Desktop Center Vertical Spine */}
+            <div className="hidden md:block absolute top-5 bottom-5 left-1/2 -translate-x-1/2 w-0.5 bg-gradient-to-b from-[#7F48ED]/30 via-[#7F48ED] to-[#7F48ED]/30" />
+
+            {/* Mobile Left Vertical Spine */}
+            <div className="md:hidden absolute top-5 bottom-5 left-4 w-0.5 bg-gradient-to-b from-[#7F48ED]/30 via-[#7F48ED] to-[#7F48ED]/30" />
+
+            {/* Timeline Steps */}
+            <div className="space-y-2.5 sm:space-y-3">
+              {timelineSteps.map((step, idx) => {
+                const isEven = idx % 2 === 0;
+                return (
+                  <MotionWrapper key={step.year} direction="up" delay={idx * 0.04} distance={10}>
+                    <div className="relative group">
+                      {/* Desktop Center Node */}
+                      <div className="hidden md:flex absolute left-1/2 -translate-x-1/2 top-1/2 -translate-y-1/2 z-20 items-center justify-center pointer-events-none">
+                        {step.year === "Today" ? (
+                          <div className="relative flex items-center justify-center">
+                            <span className="animate-ping absolute inline-flex h-4 w-4 rounded-full bg-[#7F48ED]/40" />
+                            <div className="w-3 h-3 rounded-full bg-[#7F48ED] border border-white shadow-xs" />
+                          </div>
+                        ) : (
+                          <div className="w-2.5 h-2.5 rounded-full bg-white border-2 border-[#7F48ED] shadow-xs group-hover:bg-[#7F48ED] transition-colors" />
+                        )}
+                      </div>
+
+                      {/* Mobile Left Node */}
+                      <div className="md:hidden absolute left-4 -translate-x-1/2 top-1/2 -translate-y-1/2 z-20 flex items-center justify-center pointer-events-none">
+                        {step.year === "Today" ? (
+                          <div className="relative flex items-center justify-center">
+                            <span className="animate-ping absolute inline-flex h-3.5 w-3.5 rounded-full bg-[#7F48ED]/40" />
+                            <div className="w-2.5 h-2.5 rounded-full bg-[#7F48ED] border border-white shadow-xs" />
+                          </div>
+                        ) : (
+                          <div className="w-2 h-2 rounded-full bg-white border-2 border-[#7F48ED] shadow-xs" />
+                        )}
+                      </div>
+
+                      {/* Alternating 2-Column Grid on Desktop */}
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-0 items-center">
+                        {isEven ? (
+                          /* Even index: Card on Left */
+                          <>
+                            <div className="relative pl-8 md:pl-0 md:pr-7">
+                              {/* Connector line to center on desktop */}
+                              <div className="hidden md:block absolute right-0 top-1/2 -translate-y-1/2 w-7 h-px bg-purple-200 group-hover:bg-[#7F48ED] transition-colors" />
+
+                              <div className="px-4 py-3 sm:px-5 sm:py-3 rounded-xl bg-white border border-slate-200/90 shadow-xs hover:shadow-md hover:border-[#7F48ED]/40 transition-all duration-200">
+                                <div className="flex flex-col sm:flex-row sm:items-baseline justify-between gap-1 sm:gap-3 mb-1">
+                                  <div className="flex items-center gap-2 shrink-0">
+                                    <span
+                                      className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[10px] font-mono font-bold uppercase tracking-wider ${
+                                        step.year === "Today"
+                                          ? "bg-[#7F48ED] text-white shadow-xs"
+                                          : "bg-purple-50 text-[#7F48ED] border border-purple-200"
+                                      }`}
+                                    >
+                                      {step.year === "Today" && (
+                                        <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+                                      )}
+                                      {step.year}
+                                    </span>
+                                    <h3 className="font-heading font-bold text-xs sm:text-sm text-[#090D16]">
+                                      {step.title}
+                                    </h3>
+                                  </div>
+                                  <p className="text-xs text-slate-600 font-normal sm:text-right leading-tight">
+                                    {step.desc}
+                                  </p>
+                                </div>
+
+                                <div className="text-[11px] text-slate-500 leading-tight pt-1 border-t border-slate-100 flex items-center gap-1.5">
+                                  <span className="text-[#7F48ED] font-bold font-mono uppercase text-[10px] shrink-0">
+                                    Why it matters:
+                                  </span>
+                                  <span className="truncate sm:whitespace-normal">{step.whyItMatters}</span>
+                                </div>
+                              </div>
+                            </div>
+                            <div className="hidden md:block" />
+                          </>
+                        ) : (
+                          /* Odd index: Card on Right */
+                          <>
+                            <div className="hidden md:block" />
+                            <div className="relative pl-8 md:pl-7 md:pr-0">
+                              {/* Connector line to center on desktop */}
+                              <div className="hidden md:block absolute left-0 top-1/2 -translate-y-1/2 w-7 h-px bg-purple-200 group-hover:bg-[#7F48ED] transition-colors" />
+
+                              <div className="px-4 py-3 sm:px-5 sm:py-3 rounded-xl bg-white border border-slate-200/90 shadow-xs hover:shadow-md hover:border-[#7F48ED]/40 transition-all duration-200">
+                                <div className="flex flex-col sm:flex-row sm:items-baseline justify-between gap-1 sm:gap-3 mb-1">
+                                  <div className="flex items-center gap-2 shrink-0">
+                                    <span
+                                      className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[10px] font-mono font-bold uppercase tracking-wider ${
+                                        step.year === "Today"
+                                          ? "bg-[#7F48ED] text-white shadow-xs"
+                                          : "bg-purple-50 text-[#7F48ED] border border-purple-200"
+                                      }`}
+                                    >
+                                      {step.year === "Today" && (
+                                        <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+                                      )}
+                                      {step.year}
+                                    </span>
+                                    <h3 className="font-heading font-bold text-xs sm:text-sm text-[#090D16]">
+                                      {step.title}
+                                    </h3>
+                                  </div>
+                                  <p className="text-xs text-slate-600 font-normal sm:text-right leading-tight">
+                                    {step.desc}
+                                  </p>
+                                </div>
+
+                                <div className="text-[11px] text-slate-500 leading-tight pt-1 border-t border-slate-100 flex items-center gap-1.5">
+                                  <span className="text-[#7F48ED] font-bold font-mono uppercase text-[10px] shrink-0">
+                                    Why it matters:
+                                  </span>
+                                  <span className="truncate sm:whitespace-normal">{step.whyItMatters}</span>
+                                </div>
+                              </div>
+                            </div>
+                          </>
+                        )}
+                      </div>
+                    </div>
+                  </MotionWrapper>
+                );
+              })}
+            </div>
           </div>
 
           {/* Proof Strip under timeline */}
           <MotionWrapper direction="up" distance={15}>
-            <div className="mt-12 p-6 rounded-3xl bg-slate-50 border border-slate-200 text-[#090D16] flex flex-col sm:flex-row items-center justify-between gap-4 text-center sm:text-left">
+            <div className="mt-6 p-3.5 sm:p-4 rounded-xl bg-white border border-slate-200/90 shadow-xs flex flex-col sm:flex-row items-center justify-between gap-3 text-center sm:text-left">
               <div>
-                <span className="text-xs font-mono uppercase text-slate-500 font-bold block mb-0.5">Defensible Track Record</span>
-                <span className="font-heading font-black text-lg text-[#090D16]">
+                <span className="text-[11px] font-mono uppercase text-slate-500 font-bold block mb-0.5">Defensible Track Record</span>
+                <span className="font-heading font-bold text-xs sm:text-sm text-[#090D16]">
                   1,500+ projects · 480+ campaigns · clients in 4 countries
                 </span>
               </div>

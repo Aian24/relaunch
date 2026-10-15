@@ -86,7 +86,7 @@ export default function CustomSoftwarePage() {
     },
     {
       client: "Swing Perfect",
-      title: "Mobile app & kinematics",
+      title: "Mobile app & motion analysis",
       metric: "Built in 2 months · Sold to Golf Galaxy",
       story:
         "A first-of-its-kind golf app for iPhone and Android, built in 2 months. The business was later sold to Golf Galaxy.",

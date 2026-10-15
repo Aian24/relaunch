@@ -3,7 +3,7 @@
 import React from "react";
 import MotionWrapper from "@/components/MotionWrapper";
 import { useContactModal } from "@/context/ContactModalContext";
-import { ArrowUpRight, PhoneCall, FileText, Rocket } from "lucide-react";
+import { ArrowUpRight, PhoneCall, FileText, CheckCircle2 } from "lucide-react";
 
 export default function HowItWorksSection() {
   const { openContactModal } = useContactModal();
@@ -12,20 +12,20 @@ export default function HowItWorksSection() {
     {
       step: "01",
       title: "Strategy call.",
-      body: "30 minutes, free. We look at your website, ads and reviews and show you where sales are slipping away.",
+      body: "30 minutes. We find where you're losing sales.",
       icon: <PhoneCall className="w-5 h-5 text-[#7F48ED]" />,
     },
     {
       step: "02",
       title: "Your plan.",
-      body: "A written plan: what to fix first, what it costs, and what you should see change.",
+      body: "A written plan: what to fix first, what it costs, what you'll see.",
       icon: <FileText className="w-5 h-5 text-[#7F48ED]" />,
     },
     {
       step: "03",
-      title: "We build it and run it.",
-      body: "You get a monthly report in plain numbers. Month-to-month, and you own everything we make.",
-      icon: <Rocket className="w-5 h-5 text-[#7F48ED]" />,
+      title: "We build and run it.",
+      body: "Monthly report in your numbers. Month-to-month. You own everything.",
+      icon: <CheckCircle2 className="w-5 h-5 text-[#7F48ED]" />,
     },
   ];
 

@@ -131,11 +131,11 @@ export const socialData = {
       track: "Track B (Full Done-For-You)",
       postsPerMonth: "Daily posts + 8 video ads/month",
       platforms: ["Instagram", "Facebook", "LinkedIn", "TikTok", "Google Business"],
-      description: "Omnipresent market dominance. Daily creative batches, video ads, and priority production.",
+      description: "Complete multi-channel coverage. Daily creative batches, video ads, and priority production.",
       features: [
         "Daily custom creative + 8 video ads/mo",
         "Omni-channel distribution",
-        "Social Savannah AI video ad production",
+        "ReLaunch Studio AI video ad production",
         "Dedicated creative director review",
       ],
     },

@@ -17,7 +17,7 @@ import {
   Video,
   Code2,
   Calendar,
-  Sparkles,
+  Tag,
 } from "lucide-react";
 
 const iconsMap: Record<string, React.ReactNode> = {
@@ -115,6 +115,18 @@ export default function ServicesPage() {
       {/* 2. The 4 Outcome Groups */}
       <section className="py-16 sm:py-24 px-4 sm:px-6 lg:px-8 bg-slate-50">
         <div className="max-w-6xl mx-auto space-y-16 sm:space-y-24">
+          {/* Pain-led Intro */}
+          <MotionWrapper direction="up" distance={20} className="max-w-3xl mx-auto text-center">
+            <span className="text-xs font-mono uppercase tracking-widest text-[#FF6700] font-bold block mb-2">
+              THE REAL PROBLEM
+            </span>
+            <h2 className="font-heading font-black text-2xl sm:text-4xl lg:text-5xl text-[#090D16] tracking-tight mb-3">
+              Find the leak. <span className="text-[#FF6700]">Close the gap.</span>
+            </h2>
+            <p className="text-base sm:text-lg text-slate-600 max-w-2xl mx-auto leading-relaxed font-normal">
+              Most marketing looks fine on the outside, but quietly fails to close sales. We find where you&apos;re losing customers and fix that first.
+            </p>
+          </MotionWrapper>
           {outcomeGroups.map((group, idx) => (
             <MotionWrapper
               key={group.id}
@@ -215,7 +227,7 @@ export default function ServicesPage() {
         <MotionWrapper direction="up" distance={20} className="max-w-5xl mx-auto flex flex-col md:flex-row items-center justify-between gap-6 text-center md:text-left">
           <div>
             <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-orange-50 border border-orange-200 text-[#FF6700] text-xs font-mono font-bold uppercase tracking-wider mb-2">
-              <Sparkles className="w-3.5 h-3.5" />
+              <Tag className="w-3.5 h-3.5" />
               <span>Multi-Service Discount</span>
             </div>
             <h3 className="font-heading font-bold text-xl sm:text-2xl text-[#090D16]">

@@ -134,7 +134,7 @@ export default function AdminAnalyticsDashboard({
       id: "LEAD-1094",
       client: "Apex Orthodontics & Dental",
       contact: "Dr. Julian Vance",
-      packageTier: "Mission Control (6 Services)",
+      packageTier: "Turnkey Department (6 Services)",
       monthlyValue: "$2,890 / month",
       status: "signed",
       statusLabel: "Signed & Active",
@@ -804,8 +804,8 @@ export default function AdminAnalyticsDashboard({
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-5">
           {[
             {
-              id: "mission-control",
-              name: "Mission Control (All-in-One Team)",
+              id: "turnkey-department",
+              name: "Turnkey Department (All-in-One Team)",
               clients: 8,
               revenue: "$19,780 / mo",
               share: "41% of total income",

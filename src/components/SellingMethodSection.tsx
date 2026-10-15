@@ -85,7 +85,7 @@ export default function SellingMethodSection() {
               &ldquo;Standard for every deliverable: it must name the customer&apos;s problem, present the client as the answer, and ask for an action. Anything that doesn&apos;t sell doesn&apos;t ship.&rdquo;
             </blockquote>
             <p className="text-xs text-slate-500 font-medium">
-              — ReLaunch Operating Principle since 2004 · Phoenix, Arizona
+              — ReLaunch Operating Principle since 2008
             </p>
           </SpotlightCard>
         </MotionWrapper>

@@ -23,14 +23,11 @@ import {
 } from "lucide-react";
 
 const serviceOptions = [
-  "Enterprise & Custom Software",
-  "Marketing & Advertising",
-  "Brand & Design",
-  "AI Services (AEO/GEO)",
-  "Web & App Development",
-  "Video & Content",
-  "Email & SMS",
-  "A full bundle",
+  "Get Found (Local SEO & AI Recommendations)",
+  "Get Chosen (Website, Brand & Social)",
+  "Get More Customers (Ads, Video & Follow-up)",
+  "Build Something Custom (Web Apps, Portals)",
+  "Full Turnkey Department (All Services)",
   "Not sure yet",
 ];
 
@@ -253,7 +250,7 @@ export default function ContactModal() {
               <span>
                 {activeTab === "calendar"
                   ? "GOOGLE CALENDAR STRATEGY SESSION"
-                  : "LET'S BUILD YOUR MISSION"}
+                  : "30-MINUTE STRATEGY CALL"}
               </span>
             </div>
             <h3 className="font-heading font-black text-lg sm:text-2xl text-slate-950 tracking-tight leading-tight">
@@ -563,7 +560,7 @@ export default function ContactModal() {
 
             <div className="flex items-center justify-center sm:justify-start gap-1.5 text-xs text-slate-500">
               <MapPin className="w-3.5 h-3.5 text-slate-400 shrink-0" />
-              <span>Phoenix, AZ · Est. 2004</span>
+              <span>Fully Remote · Since 2008</span>
             </div>
           </div>
         </div>

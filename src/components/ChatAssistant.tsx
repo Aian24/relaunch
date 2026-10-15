@@ -7,7 +7,6 @@ import {
   MessageSquare,
   X,
   Send,
-  Sparkles,
   Bot,
   RotateCcw,
   ArrowUpRight,
@@ -104,7 +103,7 @@ export default function ChatAssistant() {
 
     if (q.includes("cost") || q.includes("price") || q.includes("pricing") || q.includes("rate") || q.includes("bundle") || q.includes("how much")) {
       return {
-        text: "All our core services are transparent and month-to-month with no long contracts:\n\n• **Starting Rates**: Simple modular monthly subscriptions.\n• **Multi-Service Bundle Discounts**: 2–3 services save 10% · 4–5 save 15% · 6 or more save 20%.\n• **Asset Ownership**: You own all websites, code, creative, and accounts from day one.",
+        text: "Our pricing is transparent and month-to-month with no long contracts:\n\n• **Get Found**: From $497/mo (Local SEO & AI Recommendations)\n• **Get Chosen**: From $297/mo (Website care, brand & ReLaunch Social)\n• **Get More Customers**: From $797/mo (Managed ads, AI video ads & instant follow-up)\n• **Build Something Custom**: Quote-only (Web apps, portals, automations)\n\n**Bundle Discounts**: 2–3 services save 10% · 4–5 save 15% · 6 or more save 20%. You own 100% of everything.",
         action: { label: "View Pricing & Bundle Discounts", href: "/pricing" },
       };
     }

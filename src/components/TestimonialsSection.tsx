@@ -3,7 +3,7 @@
 import { testimonialsData } from "@/data/testimonials";
 import MotionWrapper from "./MotionWrapper";
 import SpotlightCard from "./SpotlightCard";
-import { Star } from "lucide-react";
+import { CheckCircle2 } from "lucide-react";
 
 export default function TestimonialsSection() {
   return (
@@ -12,7 +12,7 @@ export default function TestimonialsSection() {
         {/* Header with Scroll Up Reveal */}
         <MotionWrapper direction="up" distance={30} className="text-center max-w-3xl mx-auto mb-14 sm:mb-16">
           <span className="text-xs font-mono uppercase tracking-widest text-[#FF6700] font-bold block mb-2">
-            CLIENT VOICES · 22+ YEARS OF TRUST
+            CLIENT VOICES · 18 YEARS OF RESULTS
           </span>
           <h2 className="font-heading font-black text-3xl sm:text-5xl lg:text-6xl text-[#090D16] tracking-tight leading-[1.05] mb-3">
             Real businesses. <span className="text-[#FF6700] italic">Real outcomes.</span>
@@ -36,20 +36,16 @@ export default function TestimonialsSection() {
                 className="bg-white p-6 sm:p-8 rounded-3xl border border-slate-200/80 shadow-[0_4px_25px_rgba(0,0,0,0.03)] flex flex-col justify-between relative hover:shadow-[0_12px_40px_rgba(0,0,0,0.08)] hover:border-[#FF6700]/40 transition-all duration-300 h-full"
               >
                 <div>
-                  {/* Metric Pill + 5 Stars */}
+                  {/* Metric Pill + Verified Badge */}
                   <div className="flex items-center justify-between gap-2 mb-4">
                     <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-orange-50 border border-orange-200/60 text-[#FF6700]">
                       <span className="font-heading font-black text-xs sm:text-sm tracking-tight">{testi.metric}</span>
                       <span className="text-[10px] font-mono uppercase font-semibold text-slate-500">{testi.metricLabel}</span>
                     </div>
 
-                    <div className="flex items-center gap-1">
-                      {[...Array(5)].map((_, i) => (
-                        <Star
-                          key={i}
-                          className="w-3.5 h-3.5 fill-[#FF6700] stroke-[#FF6700]"
-                        />
-                      ))}
+                    <div className="flex items-center gap-1 text-[11px] font-mono font-bold text-[#FF6700]">
+                      <CheckCircle2 className="w-3.5 h-3.5 text-[#FF6700]" />
+                      <span>Verified Client</span>
                     </div>
                   </div>
 

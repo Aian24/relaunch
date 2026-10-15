@@ -16,12 +16,10 @@ import {
   Clock,
   DollarSign,
   Layers,
-  Sparkles,
   ShieldCheck,
   ChevronDown,
 } from "lucide-react";
 
-const STUDIO_URL = "https://studio.relaunch.us";
 const STUDIO_CTA = "Start with ReLaunch Studio";
 const ACCENT = "#7F48ED";
 
@@ -142,16 +140,15 @@ export default function StudioPage() {
               </p>
 
               <div className="flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-3.5">
-                <a
-                  href={STUDIO_URL}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-7 py-3.5 rounded-xl text-white font-heading font-bold text-xs uppercase tracking-wider transition-all shadow-lg active:scale-98"
+                <button
+                  type="button"
+                  onClick={() => openContactModal({ intent: "strategy-session", serviceInterest: "ReLaunch Studio" })}
+                  className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-7 py-3.5 rounded-xl text-white font-heading font-bold text-xs uppercase tracking-wider transition-all shadow-lg active:scale-98 cursor-pointer"
                   style={{ backgroundColor: ACCENT }}
                 >
                   <span>{STUDIO_CTA}</span>
                   <ArrowUpRight className="w-4 h-4 text-white" />
-                </a>
+                </button>
 
                 <button
                   type="button"
@@ -277,16 +274,13 @@ export default function StudioPage() {
           </div>
 
           <MotionWrapper direction="up" distance={20} className="text-center">
-            <a
-              href={STUDIO_URL}
-              target="_blank"
-              rel="noopener noreferrer"
+            <Link
+              href="/pricing"
               className="inline-flex items-center justify-center gap-2 px-7 py-3.5 rounded-xl text-white font-heading font-bold text-xs uppercase tracking-wider transition-all shadow-md"
               style={{ backgroundColor: ACCENT }}
             >
-              <span>{STUDIO_CTA}</span>
-              <ArrowUpRight className="w-4 h-4 text-white" />
-            </a>
+              <span>View Pricing &amp; Bundles →</span>
+            </Link>
           </MotionWrapper>
         </div>
       </section>
@@ -389,16 +383,14 @@ export default function StudioPage() {
           </p>
 
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-            <a
-              href={STUDIO_URL}
-              target="_blank"
-              rel="noopener noreferrer"
+            <Link
+              href="/pricing"
               className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-7 py-3.5 rounded-xl text-white font-heading font-bold text-xs uppercase tracking-wider transition-all shadow-md"
               style={{ backgroundColor: ACCENT }}
             >
-              <span>{STUDIO_CTA}</span>
-              <ArrowUpRight className="w-4 h-4 text-white" />
-            </a>
+              <span>View Plans &amp; Pricing</span>
+              <ArrowRight className="w-4 h-4 text-white" />
+            </Link>
 
             <button
               type="button"

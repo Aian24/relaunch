@@ -65,7 +65,7 @@ export const twoHeroesData: HeroPersona[] = [
 
 export const sellingFrameworkLayers: SellingLayer[] = [
   {
-    layer: "StoryBrand SB7 Framework",
+    layer: "Clarified Message Framework",
     weight: 35,
     weightPercent: "35%",
     role: "Positions customer as the hero, defines their urgent problem, establishes ReLaunch as guide with a clear plan and direct call to action.",
@@ -81,7 +81,7 @@ export const sellingFrameworkLayers: SellingLayer[] = [
     color: "#090D16",
   },
   {
-    layer: "Draper Emotional Principles",
+    layer: "Persuasion & Desire Principles",
     weight: 25,
     weightPercent: "25%",
     role: "One big emotional idea per campaign; captures attention immediately by selling the feeling and business outcome, not a sterile feature checklist.",

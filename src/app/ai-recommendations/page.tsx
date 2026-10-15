@@ -12,15 +12,12 @@ import {
   ArrowRight,
   CheckCircle2,
   Calendar,
-  Sparkles,
   Bot,
   Search,
   TrendingUp,
   FileText,
   ShieldCheck,
 } from "lucide-react";
-
-const AI_SUBDOMAIN_URL = "https://ai.relaunch.us";
 
 export default function AiRecommendationsPage() {
   const { openContactModal } = useContactModal();
@@ -52,7 +49,7 @@ export default function AiRecommendationsPage() {
     {
       title: "Build your reputation online",
       desc: "We get your business mentioned on the high-authority sites and knowledge graphs AI tools trust.",
-      icon: Sparkles,
+      icon: ShieldCheck,
     },
     {
       title: "Track it every month",
@@ -128,15 +125,14 @@ export default function AiRecommendationsPage() {
           </p>
 
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-            <a
-              href={AI_SUBDOMAIN_URL}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-flex items-center justify-center gap-2 px-7 py-3.5 rounded-xl bg-[#7F48ED] hover:bg-[#6C34DE] text-white font-heading font-bold text-xs uppercase tracking-wider transition-all shadow-md active:scale-98"
+            <button
+              type="button"
+              onClick={() => openContactModal({ intent: "strategy-session", serviceInterest: "AI Recommendations" })}
+              className="inline-flex items-center justify-center gap-2 px-7 py-3.5 rounded-xl bg-[#7F48ED] hover:bg-[#6C34DE] text-white font-heading font-bold text-xs uppercase tracking-wider transition-all shadow-md active:scale-98 cursor-pointer"
             >
               <span>Get started</span>
               <ArrowUpRight className="w-4 h-4 text-white" />
-            </a>
+            </button>
 
             <button
               type="button"
@@ -158,8 +154,11 @@ export default function AiRecommendationsPage() {
           <h2 className="font-heading font-black text-2xl sm:text-4xl text-[#090D16] tracking-tight mb-4">
             Your customers stopped scrolling search results.
           </h2>
-          <p className="text-slate-600 text-base sm:text-lg leading-relaxed">
+          <p className="text-slate-600 text-base sm:text-lg leading-relaxed mb-4">
             More and more people ask an AI assistant for a recommendation and go with what it says. AI tools pull their answers from what the web says about you: your listings, your reviews, your website and other sites that mention you. If that picture is thin or inconsistent, you don&apos;t make the list. Your competitor does.
+          </p>
+          <p className="text-slate-500 text-sm sm:text-base leading-relaxed">
+            A lot of businesses already own tools that could save them hours a week — they just never got fully connected. We finish that setup: optimizing what AI tools read about you and ensuring your systems actually drive sales, instead of sitting half-configured and still being paid for.
           </p>
         </MotionWrapper>
       </section>
@@ -168,7 +167,7 @@ export default function AiRecommendationsPage() {
       <section className="py-16 sm:py-20 px-4 sm:px-6 lg:px-8 bg-slate-50 border-y border-slate-200">
         <div className="max-w-5xl mx-auto">
           <MotionWrapper direction="up" distance={20} className="text-center max-w-2xl mx-auto mb-12">
-            <span className="text-xs font-mono uppercase tracking-widest text-[#FF6700] font-bold block mb-2">
+            <span className="text-xs font-mono uppercase tracking-widest text-[#7F48ED] font-bold block mb-2">
               OUR PLAYBOOK
             </span>
             <h2 className="font-heading font-black text-2xl sm:text-4xl text-[#090D16] tracking-tight">
@@ -200,7 +199,7 @@ export default function AiRecommendationsPage() {
       <section id="how-it-works" className="py-16 sm:py-24 px-4 sm:px-6 lg:px-8 bg-white scroll-mt-20">
         <div className="max-w-5xl mx-auto">
           <MotionWrapper direction="up" distance={20} className="text-center max-w-2xl mx-auto mb-14">
-            <span className="text-xs font-mono uppercase tracking-widest text-[#FF6700] font-bold block mb-2">
+            <span className="text-xs font-mono uppercase tracking-widest text-[#7F48ED] font-bold block mb-2">
               EXECUTION STEPS
             </span>
             <h2 className="font-heading font-black text-2xl sm:text-4xl text-[#090D16] tracking-tight">
@@ -240,14 +239,12 @@ export default function AiRecommendationsPage() {
                   Each plan includes a one-time setup fee and a monthly optimization retainer.
                 </p>
               </div>
-              <a
-                href={AI_SUBDOMAIN_URL}
-                target="_blank"
-                rel="noopener noreferrer"
+              <Link
+                href="/pricing"
                 className="inline-flex items-center gap-1.5 px-6 py-3 rounded-xl bg-[#7F48ED] hover:bg-[#6C34DE] text-white font-heading font-bold text-xs uppercase tracking-wider transition-all shadow-[0_4px_15px_rgba(127,72,237,0.25)] whitespace-nowrap shrink-0"
               >
                 <span>See plans &amp; pricing →</span>
-              </a>
+              </Link>
             </div>
           </MotionWrapper>
         </div>
@@ -257,7 +254,7 @@ export default function AiRecommendationsPage() {
       <section className="py-16 sm:py-24 px-4 sm:px-6 lg:px-8 bg-slate-50 border-t border-slate-200">
         <div className="max-w-3xl mx-auto">
           <MotionWrapper direction="up" distance={20} className="text-center mb-12">
-            <span className="text-xs font-mono uppercase tracking-widest text-[#FF6700] font-bold block mb-2">
+            <span className="text-xs font-mono uppercase tracking-widest text-[#7F48ED] font-bold block mb-2">
               FAQ
             </span>
             <h2 className="font-heading font-black text-2xl sm:text-4xl text-[#090D16] tracking-tight">
@@ -293,15 +290,13 @@ export default function AiRecommendationsPage() {
           </p>
 
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-            <a
-              href={AI_SUBDOMAIN_URL}
-              target="_blank"
-              rel="noopener noreferrer"
+            <Link
+              href="/pricing"
               className="inline-flex items-center justify-center gap-2 px-7 py-3.5 rounded-xl bg-[#7F48ED] hover:bg-[#6C34DE] text-white font-heading font-bold text-xs uppercase tracking-wider transition-all shadow-md"
             >
-              <span>Get started</span>
-              <ArrowUpRight className="w-4 h-4 text-white" />
-            </a>
+              <span>View plans &amp; pricing</span>
+              <ArrowRight className="w-4 h-4 text-white" />
+            </Link>
 
             <button
               type="button"

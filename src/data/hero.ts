@@ -6,24 +6,24 @@ export interface HeroStat {
 }
 
 export const heroData = {
-  kicker: "Phoenix, AZ · Est. 2004 · Trusted by 1,500+ Businesses",
-  headline: "Marketing, AI & Digital Services.",
+  kicker: "Helping small businesses since 2008 · U.S., Canada, UK & Australia",
+  headline: "Marketing Strategically Designed to Sell.",
   subheadline:
-    "Everything your business needs. One subscription. From marketing to AI to web — pick the services that fit, bundle them together, and drive real sales.",
+    "We strategize, create, and deliver marketing built to sell — and you can see it in your numbers.",
   primaryCta: {
-    label: "Build My Bundle",
-    href: "#bundle-builder",
+    label: "Book a Strategy Call",
+    href: "/pricing",
   },
   secondaryCta: {
     label: "See Our Work",
-    href: "#work",
+    href: "/work",
   },
   stats: [
     {
-      value: 20,
-      suffix: "+",
+      value: 18,
+      suffix: " years",
       label: "Years in Business",
-      sublabel: "Operating in Phoenix since 2004",
+      sublabel: "Helping businesses grow since 2008",
     },
     {
       value: 1500,

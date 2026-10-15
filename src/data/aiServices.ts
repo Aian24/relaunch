@@ -43,7 +43,7 @@ export const aiPillarsData: AiServicePillar[] = [
   },
   {
     id: "content-creative",
-    icon: "Sparkles",
+    icon: "FileText",
     title: "AI Content & Creative",
     description: "Train AI on your brand voice and generate on-brand content at high scale.",
     features: [

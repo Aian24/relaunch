@@ -296,7 +296,7 @@ export default function Ai3DVisual({
               style={{ transform: "translateZ(45px)" }}
               className="absolute -bottom-1 -left-1 bg-white/95 px-2 py-0.5 rounded-full border border-blue-200 shadow-md text-[9px] font-mono font-bold text-blue-800 z-20"
             >
-              SOC2 · ENTERPRISE
+              SECURE · CUSTOM
             </motion.div>
           </div>
         );

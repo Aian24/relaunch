@@ -11,7 +11,7 @@ import {
   ArrowRight,
   CheckCircle2,
   Calendar,
-  Sparkles,
+  Target,
   Search,
   FileText,
   BarChart3,
@@ -73,7 +73,7 @@ export default function AuditPage() {
     {
       title: "Your persuasion",
       desc: "Do your headlines, offers and calls to action give people a reason to act now?",
-      icon: Sparkles,
+      icon: Target,
     },
     {
       title: "Your consistency",

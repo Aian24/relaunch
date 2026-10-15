@@ -74,10 +74,10 @@ export default function Hero() {
           </Link>
         </div>
 
-        {/* Trust Micro-line */}
+        {/* Trust Line */}
         <div className="flex items-center justify-center gap-2 text-xs text-slate-400 font-mono">
           <ShieldCheck className="w-3.5 h-3.5 text-[#7F48ED]" />
-          <span>30-minute diagnostic · Free written plan · Month-to-month</span>
+          <span>Helping small businesses since 2008 · U.S., Canada, UK &amp; Australia · (480) 779-9875</span>
         </div>
       </MotionWrapper>
     </section>

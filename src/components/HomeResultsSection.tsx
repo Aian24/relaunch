@@ -120,7 +120,7 @@ export default function HomeResultsSection() {
             href="/work"
             className="inline-flex items-center gap-2 text-xs sm:text-sm font-bold uppercase tracking-wider text-[#FF6700] hover:text-[#E55C00] transition-colors group"
           >
-            <span>See all our work</span>
+            <span>See all work</span>
             <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
           </Link>
         </div>

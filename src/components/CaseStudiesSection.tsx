@@ -234,7 +234,7 @@ export default function CaseStudiesSection() {
           className="mt-12 p-6 bg-slate-50 rounded-3xl border border-slate-200 text-center"
         >
           <div className="text-[11px] font-bold uppercase tracking-widest text-slate-500 mb-4">
-            Trusted by 1,500+ Businesses Nationwide Since 2004
+            Trusted by 1,500+ Businesses Nationwide Since 2008
           </div>
           <div className="flex flex-wrap items-center justify-center gap-2 max-w-5xl mx-auto">
             {clientLogos.map((logo) => (

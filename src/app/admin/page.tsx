@@ -9,7 +9,7 @@ import {
   Eye,
   EyeOff,
   ArrowRight,
-  Sparkles,
+  CheckCircle2,
   LogOut,
   Users,
   Calendar,
@@ -529,7 +529,7 @@ export default function AdminPortal() {
             }}
             className="fixed top-5 right-5 z-[100] px-4 py-3 rounded-2xl border text-xs font-semibold shadow-2xl flex items-center gap-2.5 backdrop-blur-xl"
           >
-            <Sparkles style={{ color: theme.secondary }} className="w-4 h-4" />
+            <CheckCircle2 style={{ color: theme.secondary }} className="w-4 h-4" />
             <span>{toastMessage}</span>
           </motion.div>
         )}

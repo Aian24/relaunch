@@ -57,12 +57,12 @@ const aiServices: AiServiceItem[] = [
   {
     id: "automation-workflows",
     title: "Automation & Workflows",
-    category: "Make, n8n & CRM",
+    category: "Make & CRM",
     icon: Workflow,
     deliverables: [
       "Lead follow-up automation",
       "CRM data synchronization",
-      "Custom Make & n8n builds",
+      "Custom workflow builds",
     ],
   },
   {

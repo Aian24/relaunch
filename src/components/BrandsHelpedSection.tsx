@@ -28,6 +28,7 @@ interface BrandsHelpedSectionProps {
   variant?: "dark" | "light";
   className?: string;
   showTitle?: boolean;
+  showStats?: boolean;
   themeColor?: "purple" | "orange";
 }
 
@@ -35,6 +36,7 @@ export default function BrandsHelpedSection({
   variant = "dark",
   className = "",
   showTitle = true,
+  showStats = true,
   themeColor = "purple",
 }: BrandsHelpedSectionProps) {
   const isDark = variant === "dark";
@@ -49,8 +51,8 @@ export default function BrandsHelpedSection({
     <section
       className={`relative w-full overflow-hidden select-none py-14 sm:py-16 ${
         isDark
-          ? "bg-[#090D16] text-white border-y border-slate-800"
-          : "bg-white text-[#090D16] border-y border-slate-200"
+          ? "bg-[#090D16] text-white"
+          : "bg-white text-[#090D16]"
       } ${className}`}
     >
       {/* Ambient Radial Accent Glow */}
@@ -182,6 +184,28 @@ export default function BrandsHelpedSection({
           </div>
         </div>
       </div>
+
+      {/* Defensible Stat Numbers Strip */}
+      {showStats && (
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-6 pt-4 relative z-10">
+          <div className="flex flex-wrap items-center justify-center gap-6 sm:gap-14 text-center">
+            <div className="flex items-center gap-2.5">
+              <span className={`font-heading font-black text-2xl sm:text-3xl ${isDark ? "text-white" : "text-[#090D16]"}`}>1,500+</span>
+              <span className={`text-xs font-mono uppercase tracking-wider ${isDark ? "text-slate-400" : "text-slate-500"} font-semibold`}>projects delivered</span>
+            </div>
+            <span className={`hidden sm:inline ${isDark ? "text-slate-700" : "text-slate-300"}`}>•</span>
+            <div className="flex items-center gap-2.5">
+              <span className="font-heading font-black text-2xl sm:text-3xl text-[#FF6700]">18 years</span>
+              <span className={`text-xs font-mono uppercase tracking-wider ${isDark ? "text-slate-400" : "text-slate-500"} font-semibold`}>in business</span>
+            </div>
+            <span className={`hidden sm:inline ${isDark ? "text-slate-700" : "text-slate-300"}`}>•</span>
+            <div className="flex items-center gap-2.5">
+              <span className={`font-heading font-black text-2xl sm:text-3xl ${isDark ? "text-white" : "text-[#090D16]"}`}>480+</span>
+              <span className={`text-xs font-mono uppercase tracking-wider ${isDark ? "text-slate-400" : "text-slate-500"} font-semibold`}>campaigns launched</span>
+            </div>
+          </div>
+        </div>
+      )}
     </section>
   );
 }

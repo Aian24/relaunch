@@ -8,8 +8,8 @@ export interface GraderPillar {
 
 export const nisGraderPillars: GraderPillar[] = [
   {
-    id: "storybrand",
-    name: "Customer-Centric Clarity (SB7)",
+    id: "clarity",
+    name: "Customer-Centric Clarity",
     weight: "35%",
     question: "Within 5 seconds on your homepage, is it instantly obvious what problem you solve and what the user must do next?",
     options: [
@@ -30,7 +30,7 @@ export const nisGraderPillars: GraderPillar[] = [
     ],
   },
   {
-    id: "draper_emotion",
+    id: "persuasive_emotion",
     name: "Emotional Hook & Differentiation",
     weight: "25%",
     question: "Does your marketing sell one compelling big idea, or is it just a boring checklist of services like all your local competitors?",

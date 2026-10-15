@@ -54,8 +54,8 @@ export const bundleTiers: BundleTier[] = [
     highlighted: false,
   },
   {
-    id: "mission-control",
-    name: "Mission Control",
+    id: "turnkey",
+    name: "Turnkey Department",
     countLabel: "6+ Services",
     minServices: 6,
     maxServices: 99,

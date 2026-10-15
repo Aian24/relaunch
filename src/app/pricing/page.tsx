@@ -15,7 +15,7 @@ import {
   CheckCircle2,
   HelpCircle,
   Calendar,
-  Sparkles,
+  Tag,
   ChevronDown,
   ShieldCheck,
 } from "lucide-react";
@@ -130,7 +130,7 @@ export default function PricingPage() {
             <div id="bundle-calculator" className="scroll-mt-24 rounded-3xl bg-white border border-slate-200 text-[#090D16] p-8 sm:p-12 mb-16 relative overflow-hidden shadow-xs">
               <div className="max-w-3xl mb-8">
                 <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-orange-50 border border-orange-200 text-[#FF6700] text-xs font-mono font-bold uppercase tracking-wider mb-3">
-                  <Sparkles className="w-3.5 h-3.5" />
+                  <Tag className="w-3.5 h-3.5" />
                   <span>Bundle &amp; Save</span>
                 </div>
                 <h2 className="font-heading font-black text-2xl sm:text-4xl text-[#090D16] tracking-tight mb-2">
