@@ -23,17 +23,17 @@ import {
 } from "lucide-react";
 
 const iconsMap: Record<string, React.ReactNode> = {
-  "get-found": <Search className="w-6 h-6 text-[#FF6700]" />,
-  "get-chosen": <Palette className="w-6 h-6 text-[#FF6700]" />,
-  "get-more-customers": <Video className="w-6 h-6 text-[#FF6700]" />,
-  "build-custom": <Code2 className="w-6 h-6 text-[#FF6700]" />,
+  "get-found": <Search className="w-6 h-6 text-[#FF6700] group-hover:text-white transition-colors duration-200" />,
+  "get-chosen": <Palette className="w-6 h-6 text-[#FF6700] group-hover:text-white transition-colors duration-200" />,
+  "get-more-customers": <Video className="w-6 h-6 text-[#FF6700] group-hover:text-white transition-colors duration-200" />,
+  "build-custom": <Code2 className="w-6 h-6 text-[#FF6700] group-hover:text-white transition-colors duration-200" />,
 };
 
-const imagesMap: Record<string, string> = {
-  "get-found": "/images/service-ai.jpg",
-  "get-chosen": "/images/service-brand.jpg",
-  "get-more-customers": "/images/service-marketing.jpg",
-  "build-custom": "/images/service-web.jpg",
+const pillarMap: Record<string, string> = {
+  "get-found": "Search & AI Visibility",
+  "get-chosen": "Brand & Reputation",
+  "get-more-customers": "Paid Ads & Conversion",
+  "build-custom": "Custom Engineering",
 };
 
 export default function ServicesPage() {
@@ -144,84 +144,102 @@ export default function ServicesPage() {
             >
               <div
                 id={group.id}
-                className="scroll-mt-24 p-8 sm:p-12 rounded-3xl bg-white border border-slate-200/90 shadow-sm"
+                className="group relative scroll-mt-24 p-8 sm:p-12 rounded-3xl bg-white border border-slate-200/90 hover:border-[#FF6700]/60 shadow-[0_4px_24px_rgba(0,0,0,0.03),0_10px_30px_rgba(0,0,0,0.04)] hover:shadow-[0_20px_50px_rgba(255,103,0,0.10)] transition-all duration-300 overflow-hidden"
               >
+                {/* Top Orange Accent Line */}
+                <div className="absolute top-0 inset-x-0 h-1.5 bg-[#FF6700]" />
+
                 <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-start">
-                  {/* Left Header & Problem (7 cols) */}
+                  {/* Left Column: Solution Identity, Problem & What We Do (7 cols) */}
                   <div className="lg:col-span-7">
-                    <div className="flex items-center gap-3 mb-3">
-                      <div className="w-10 h-10 rounded-2xl bg-slate-100 flex items-center justify-center">
+                    {/* Pillar Badge & Icon (No Numbers / Steps) */}
+                    <div className="flex items-center justify-between gap-3 mb-5">
+                      <div className="w-12 h-12 rounded-2xl bg-orange-50 border border-orange-200/80 flex items-center justify-center group-hover:bg-[#FF6700] group-hover:border-[#FF6700] transition-all duration-300 shadow-xs">
                         {iconsMap[group.id]}
                       </div>
-                      <span className="text-xs font-mono uppercase tracking-widest text-slate-400 font-bold">
-                        OUTCOME {group.num}
+                      <span className="inline-flex items-center px-3.5 py-1.5 rounded-full bg-slate-100/90 border border-slate-200/70 text-[11px] font-mono uppercase tracking-wider text-slate-600 font-bold group-hover:bg-orange-50 group-hover:border-orange-200/80 group-hover:text-[#FF6700] transition-colors duration-200">
+                        {pillarMap[group.id] || "Growth Solution"}
                       </span>
                     </div>
 
-                    <h2 className="font-heading font-black text-2xl sm:text-4xl text-[#090D16] tracking-tight mb-2">
+                    <h2 className="font-heading font-black text-2xl sm:text-4xl text-[#090D16] tracking-tight mb-3 group-hover:text-[#FF6700] transition-colors">
                       {group.title}
                     </h2>
-                    <p className="text-sm sm:text-base font-semibold text-[#FF6700] mb-4">
+
+                    <p className="text-sm sm:text-base font-semibold text-[#FF6700] mb-3">
                       {group.problem}
                     </p>
+
                     <p className="text-slate-600 text-sm sm:text-base leading-relaxed mb-6 font-normal">
                       {group.whatWeDo}
                     </p>
 
-                    {/* Deliverables List */}
-                    <div className="space-y-2.5 pt-2 mb-6">
-                      <span className="text-xs font-mono uppercase tracking-wider text-slate-500 font-bold block mb-2">
-                        What you get:
+                    {/* What You Get / Deliverables Checklist */}
+                    <div className="space-y-3 pt-2">
+                      <span className="text-xs font-mono uppercase tracking-wider text-slate-500 font-bold block">
+                        Included Deliverables:
                       </span>
-                      {group.deliverables.map((item) => (
-                        <div key={item} className="flex items-start gap-2.5 text-xs sm:text-sm text-slate-700">
-                          <CheckCircle2 className="w-4 h-4 text-[#FF6700] shrink-0 mt-0.5" />
-                          <span>{item}</span>
-                        </div>
-                      ))}
-                    </div>
-
-                    {/* Product Link & Price */}
-                    <div className="pt-4 border-t border-slate-100 flex flex-wrap items-center justify-between gap-4">
-                      <Link
-                        href={group.productHref}
-                        className="inline-flex items-center gap-1.5 text-sm font-bold text-[#FF6700] hover:text-[#E55C00] transition-colors group"
-                      >
-                        <span>{group.productCtaLabel}</span>
-                      </Link>
-
-                      <div className="text-right">
-                        <span className="text-xs text-slate-400 block font-mono">Starting Price</span>
-                        <span className="font-heading font-black text-lg text-[#090D16]">
-                          {group.startingPricePrefix}
-                          {group.startingPrice}
-                        </span>
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                        {group.deliverables.map((item) => (
+                          <div
+                            key={item}
+                            className="flex items-start gap-2.5 text-xs sm:text-[13px] text-slate-700 bg-slate-50/80 p-3 rounded-xl border border-slate-100/90 hover:border-orange-200/60 transition-colors"
+                          >
+                            <CheckCircle2 className="w-4 h-4 text-[#FF6700] shrink-0 mt-0.5" />
+                            <span className="font-medium leading-snug">{item}</span>
+                          </div>
+                        ))}
                       </div>
                     </div>
                   </div>
 
-                  {/* Right Card / Summary Panel (5 cols) */}
-                  <div className="lg:col-span-5 bg-slate-50 p-6 sm:p-8 rounded-2xl border border-slate-200 flex flex-col justify-between h-full">
+                  {/* Right Column: Pricing & Conversion Card (5 cols) */}
+                  <div className="lg:col-span-5 bg-slate-50/90 p-6 sm:p-8 rounded-2xl border border-slate-200/90 flex flex-col justify-between h-full">
                     <div>
-                      <span className="text-[10px] font-mono uppercase tracking-wider text-slate-400 font-bold block mb-1">
-                        The Promise
+                      <span className="text-[10px] font-mono uppercase tracking-wider text-slate-400 font-bold block mb-3">
+                        Core Commitment
                       </span>
-                      <blockquote className="text-sm font-semibold text-slate-800 leading-snug mb-4">
+
+                      <blockquote className="text-base sm:text-lg font-heading font-bold text-slate-900 leading-snug mb-4">
                         &ldquo;{group.promise}&rdquo;
                       </blockquote>
+
                       <p className="text-xs text-slate-500 leading-relaxed mb-6">
-                        Every service engagement is month-to-month. You own 100% of the code, designs, and assets we build.
+                        Every service engagement is month-to-month. You own 100% of the code, designs, and marketing assets we build.
                       </p>
+
+                      {/* Prominent Price Box */}
+                      <div className="p-4 rounded-xl bg-white border border-slate-200/90 shadow-xs mb-6 flex items-baseline justify-between">
+                        <div>
+                          <span className="text-[11px] font-mono text-slate-400 uppercase tracking-wider block">Investment:</span>
+                          <span className="text-[11px] text-slate-500 font-medium">Month-to-month retainer</span>
+                        </div>
+                        <div className="text-right">
+                          <span className="font-heading font-black text-xl sm:text-2xl text-[#090D16]">
+                            {group.startingPricePrefix || ""}{group.startingPrice}
+                          </span>
+                        </div>
+                      </div>
                     </div>
 
-                    <button
-                      type="button"
-                      onClick={() => openContactModal({ intent: "strategy-session", serviceInterest: group.title })}
-                      className="w-full inline-flex items-center justify-center gap-2 py-3.5 rounded-xl bg-[#FF6700] hover:bg-[#E55C00] text-white font-heading font-bold text-xs uppercase tracking-wider transition-all shadow-[0_4px_15px_rgba(255,103,0,0.25)] cursor-pointer active:scale-98"
-                    >
-                      <span>Inquire About {group.title}</span>
-                      <ArrowUpRight className="w-3.5 h-3.5 text-white" />
-                    </button>
+                    <div className="space-y-3">
+                      <button
+                        type="button"
+                        onClick={() => openContactModal({ intent: "strategy-session", serviceInterest: group.title })}
+                        className="w-full inline-flex items-center justify-center gap-2 py-3.5 px-6 rounded-xl bg-[#FF6700] hover:bg-[#E55C00] text-white font-heading font-bold text-xs uppercase tracking-wider transition-all shadow-[0_4px_16px_rgba(255,103,0,0.3)] hover:shadow-[0_6px_24px_rgba(255,103,0,0.4)] cursor-pointer active:scale-98 group/btn"
+                      >
+                        <span>Inquire About {group.title}</span>
+                        <ArrowUpRight className="w-4 h-4 text-white transition-transform group-hover/btn:translate-x-0.5 group-hover/btn:-translate-y-0.5" />
+                      </button>
+
+                      <Link
+                        href={group.productHref}
+                        className="w-full inline-flex items-center justify-center gap-1.5 py-2.5 text-xs font-bold text-slate-600 hover:text-[#FF6700] transition-colors group/link"
+                      >
+                        <span>Explore full {group.productName} scope</span>
+                        <ArrowRight className="w-3.5 h-3.5 text-[#FF6700] transition-transform group-hover/link:translate-x-1" />
+                      </Link>
+                    </div>
                   </div>
                 </div>
               </div>
