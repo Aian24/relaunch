@@ -7,6 +7,7 @@ import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import ScrollToTop from "@/components/ScrollToTop";
 import MotionWrapper from "@/components/MotionWrapper";
+import HeroScrollIndicator from "@/components/HeroScrollIndicator";
 import { useContactModal } from "@/context/ContactModalContext";
 import { companyCreds } from "@/data/offerings";
 import {
@@ -82,37 +83,40 @@ export default function AboutPage() {
     <main className="min-h-screen flex flex-col bg-white text-[#090D16]">
       <Navbar />
 
-      {/* 1. Hero Section */}
-      <section className="relative w-full pt-36 sm:pt-44 pb-14 sm:pb-20 bg-[#07090E] text-white px-4 sm:px-6 lg:px-8 overflow-hidden select-none">
+      {/* 1. Hero Section (Full Screen) */}
+      <section className="relative w-full min-h-[92vh] sm:min-h-screen flex flex-col justify-center items-center pt-32 sm:pt-36 pb-20 sm:pb-24 bg-[#07090E] text-white px-4 sm:px-6 lg:px-8 overflow-hidden select-none">
         <div className="absolute inset-0 w-full h-full overflow-hidden pointer-events-none z-0">
           <div className="absolute inset-0 bg-[radial-gradient(ellipse_80%_60%_at_50%_-10%,rgba(127,72,237,0.18),transparent_75%)]" />
-          <div className="absolute top-1/4 right-1/4 w-[450px] h-[350px] bg-[#7F48ED]/20 rounded-full blur-[140px]" />
+          <div className="absolute top-1/4 right-1/4 w-[500px] h-[400px] bg-[#7F48ED]/20 rounded-full blur-[140px]" />
         </div>
 
-        <MotionWrapper direction="up" distance={25} className="relative z-10 max-w-4xl mx-auto text-center">
-          <span className="inline-block text-xs font-mono uppercase tracking-widest text-[#7F48ED] font-bold mb-3">
+        <MotionWrapper direction="up" distance={25} className="relative z-10 max-w-4xl mx-auto text-center my-auto">
+          <span className="inline-block text-xs font-mono uppercase tracking-widest text-[#7F48ED] font-bold mb-4 px-3 py-1 rounded-full bg-[#7F48ED]/10 border border-[#7F48ED]/20 backdrop-blur-xs">
             ABOUT RELAUNCH
           </span>
-          <h1 className="font-heading font-black text-3xl sm:text-5xl lg:text-6xl tracking-tight leading-[1.08] mb-4">
+          <h1 className="font-heading font-black text-4xl sm:text-6xl lg:text-7xl tracking-tight leading-[1.05] mb-5">
             Bad marketing doesn&apos;t look broken. <span className="text-[#7F48ED]">It just quietly costs you sales.</span>
           </h1>
-          <p className="text-slate-300 text-base sm:text-lg max-w-2xl mx-auto leading-relaxed mb-8">
+          <p className="text-slate-300 text-base sm:text-xl max-w-2xl mx-auto leading-relaxed mb-10">
             A website that doesn&apos;t convert. Ads with no plan behind them. Software you paid for that never got fully set up. We exist to find those gaps and close them.
           </p>
 
           <button
             type="button"
             onClick={() => openContactModal({ intent: "strategy-session" })}
-            className="inline-flex items-center justify-center gap-2 px-7 py-3.5 rounded-xl bg-[#7F48ED] hover:bg-[#6C34DE] text-white font-heading font-bold text-xs uppercase tracking-wider transition-all shadow-[0_0_20px_rgba(127,72,237,0.35)] cursor-pointer active:scale-98"
+            className="inline-flex items-center justify-center gap-2 px-8 py-4 rounded-xl bg-[#7F48ED] hover:bg-[#6C34DE] text-white font-heading font-bold text-xs sm:text-sm uppercase tracking-wider transition-all shadow-[0_0_30px_rgba(127,72,237,0.4)] cursor-pointer active:scale-98"
           >
             <span>Book a Strategy Call</span>
             <ArrowUpRight className="w-4 h-4 text-white" />
           </button>
         </MotionWrapper>
+
+        {/* Scroll Indicator */}
+        <HeroScrollIndicator targetId="about-story" accentColor="#7F48ED" />
       </section>
 
       {/* 2. Empathy Story Section */}
-      <section className="py-16 sm:py-24 px-4 sm:px-6 lg:px-8 bg-white">
+      <section id="about-story" className="py-16 sm:py-24 px-4 sm:px-6 lg:px-8 bg-white">
         <MotionWrapper direction="up" distance={20} className="max-w-3xl mx-auto">
           <span className="text-xs font-mono uppercase tracking-widest text-slate-400 font-bold block mb-3 text-center sm:text-left">
             THE REAL PROBLEM

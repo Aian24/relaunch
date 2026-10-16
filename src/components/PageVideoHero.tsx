@@ -171,9 +171,11 @@ export default function PageVideoHero({
           />
         )}
 
-        {/* Subtle Vignette for Foreground Text Legibility */}
-        <div className="absolute inset-0 bg-gradient-to-r from-[#07090E]/90 via-[#07090E]/60 to-[#07090E]/20" />
-        <div className="absolute inset-0 bg-gradient-to-t from-[#07090E] via-transparent to-[#07090E]/50" />
+        {/* Crisp balanced overlay: reduced black so video is luminous & HD */}
+        <div className="absolute inset-0 bg-gradient-to-r from-[#07090E]/60 via-[#07090E]/30 to-transparent" />
+        <div className="absolute inset-0 bg-gradient-to-t from-[#07090E]/70 via-transparent to-[#07090E]/35" />
+        {/* Targeted Center Radial Scrim: lightened to eliminate heavy black fog */}
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_80%_70%_at_50%_50%,rgba(7,9,14,0.40)_0%,rgba(7,9,14,0.15)_60%,transparent_100%)] pointer-events-none" />
 
         {/* Ambient Glows */}
         <div
@@ -185,13 +187,13 @@ export default function PageVideoHero({
 
       {/* 2. Main Hero Content - Center-aligned on mobile, left-aligned on sm+ */}
       <div className="relative z-10 max-w-7xl mx-auto w-full text-center sm:text-left flex flex-col items-center sm:items-start my-auto">
-        {/* Minimalist Kicker Badge */}
+        {/* Minimalist Kicker Badge with Frosted Glass */}
         <motion.div
           initial={{ opacity: 0, y: 14 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
-          className={`inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-white/[0.08] border border-white/[0.12] text-xs font-mono uppercase tracking-widest font-semibold mb-6 shadow-xs whitespace-nowrap mx-auto sm:mx-0 ${
-            isPurple ? "text-[#7F48ED]" : "text-[#FF6700]"
+          className={`inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/[0.08] hover:bg-white/[0.12] border text-xs font-mono uppercase tracking-widest font-semibold mb-6 shadow-[0_4px_24px_rgba(0,0,0,0.25)] backdrop-blur-xl whitespace-nowrap mx-auto sm:mx-0 transition-all ${
+            isPurple ? "text-[#7F48ED] border-[#7F48ED]/50" : "text-[#FF6700] border-[#FF6700]/50"
           }`}
         >
           <span
@@ -209,12 +211,14 @@ export default function PageVideoHero({
           initial={{ opacity: 0, y: 18 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, delay: 0.1, ease: [0.16, 1, 0.3, 1] }}
-          className="font-heading font-black text-3xl sm:text-5xl md:text-6xl lg:text-7xl xl:text-[80px] tracking-tight leading-[1.06] text-white max-w-4xl text-center sm:text-left"
+          className="font-heading font-black text-3xl sm:text-5xl md:text-6xl lg:text-7xl xl:text-[80px] tracking-tight leading-[1.06] text-white max-w-4xl text-center sm:text-left drop-shadow-[0_4px_24px_rgba(0,0,0,0.95)]"
         >
           <span className="block whitespace-normal sm:whitespace-nowrap">{titleRegular}</span>
           <span
             className={`block whitespace-normal sm:whitespace-nowrap ${
-              isPurple ? "text-[#7F48ED]" : "text-[#FF6700]"
+              isPurple
+                ? "text-[#7F48ED] drop-shadow-[0_4px_24px_rgba(127,72,237,0.45)]"
+                : "text-[#FF6700] drop-shadow-[0_4px_24px_rgba(255,103,0,0.45)]"
             }`}
           >
             {titleHighlight}
@@ -226,7 +230,7 @@ export default function PageVideoHero({
           initial={{ opacity: 0, y: 18 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, delay: 0.2, ease: [0.16, 1, 0.3, 1] }}
-          className="mt-5 sm:mt-6 text-slate-300 text-sm sm:text-base md:text-lg max-w-2xl leading-relaxed font-normal mx-auto sm:mx-0 text-center sm:text-left"
+          className="mt-5 sm:mt-6 text-white/95 text-sm sm:text-base md:text-lg max-w-2xl leading-relaxed font-medium mx-auto sm:mx-0 text-center sm:text-left drop-shadow-[0_2px_12px_rgba(0,0,0,0.95)]"
         >
           {description}
         </motion.p>
@@ -254,7 +258,7 @@ export default function PageVideoHero({
           <button
             type="button"
             onClick={() => handleScrollToTarget(effectiveExploreTarget)}
-            className="flex-1 sm:flex-initial inline-flex items-center justify-center gap-1.5 sm:gap-2 px-3.5 sm:px-6 py-3 sm:py-3.5 rounded-xl bg-white/[0.08] hover:bg-white/[0.15] border border-white/20 text-white font-heading font-bold text-[11px] sm:text-sm uppercase tracking-wider transition-all duration-200 backdrop-blur-md cursor-pointer whitespace-nowrap"
+            className="flex-1 sm:flex-initial inline-flex items-center justify-center gap-1.5 sm:gap-2 px-3.5 sm:px-6 py-3 sm:py-3.5 rounded-xl bg-white/[0.08] hover:bg-white/[0.18] border border-white/20 hover:border-white/45 text-white font-heading font-bold text-[11px] sm:text-sm uppercase tracking-wider transition-all duration-300 backdrop-blur-xl shadow-[0_8px_32px_rgba(0,0,0,0.3)] hover:shadow-[0_8px_32px_rgba(255,255,255,0.1)] cursor-pointer whitespace-nowrap"
           >
             <span>{effectiveExploreText}</span>
             <ArrowUpRight

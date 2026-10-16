@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import Navbar from "@/components/Navbar";
@@ -11,11 +11,28 @@ import { useContactModal } from "@/context/ContactModalContext";
 import { caseStudiesData } from "@/data/caseStudies";
 import { testimonialsData } from "@/data/testimonials";
 import BrandsHelpedSection from "@/components/BrandsHelpedSection";
+import HeroScrollIndicator from "@/components/HeroScrollIndicator";
 import { ArrowUpRight, ArrowRight, Quote, Calendar, MapPin, Tag } from "lucide-react";
+
+const WORK_VIDEOS = ["/ourworknew.mp4", "/ourworknew2.mp4"];
 
 export default function WorkPage() {
   const { openContactModal } = useContactModal();
   const [selectedFilter, setSelectedFilter] = useState<string>("All");
+  const [activeVideoIdx, setActiveVideoIdx] = useState(0);
+  const videoRefs = [useRef<HTMLVideoElement>(null), useRef<HTMLVideoElement>(null)];
+
+  useEffect(() => {
+    const currentRef = videoRefs[activeVideoIdx].current;
+    if (currentRef) {
+      currentRef.playbackRate = 0.75;
+      currentRef.play().catch(() => {});
+    }
+  }, [activeVideoIdx]);
+
+  const handleEnded = () => {
+    setActiveVideoIdx((prev) => (prev + 1) % WORK_VIDEOS.length);
+  };
 
   const filterTabs = [
     "All",
@@ -33,59 +50,72 @@ export default function WorkPage() {
     <main className="min-h-screen flex flex-col bg-white text-[#090D16]">
       <Navbar />
 
-      {/* 1. Hero Section with Cinematic Background Video */}
-      <section className="relative w-full pt-36 sm:pt-44 pb-14 sm:pb-20 bg-[#07090E] text-white px-4 sm:px-6 lg:px-8 overflow-hidden select-none">
+      {/* 1. Hero Section with Cinematic Background Video (Full Screen) */}
+      <section className="relative w-full min-h-[92vh] sm:min-h-screen flex flex-col justify-center items-center pt-32 sm:pt-36 pb-20 sm:pb-24 bg-[#07090E] text-white px-4 sm:px-6 lg:px-8 overflow-hidden select-none">
         <div className="absolute inset-0 w-full h-full overflow-hidden pointer-events-none z-0">
-          <video
-            src="/ourwork.mp4"
-            autoPlay
-            muted
-            loop
-            playsInline
-            onLoadedMetadata={(e) => {
-              e.currentTarget.playbackRate = 0.7;
-            }}
-            className="absolute inset-0 w-full h-full object-cover opacity-60"
-          />
-          <div className="absolute inset-0 bg-gradient-to-b from-[#07090E]/80 via-[#07090E]/50 to-[#07090E]" />
-          <div className="absolute inset-0 bg-[radial-gradient(ellipse_80%_60%_at_50%_-10%,rgba(127,72,237,0.22),transparent_75%)]" />
-          <div className="absolute top-1/4 right-1/4 w-[450px] h-[350px] bg-[#7F48ED]/20 rounded-full blur-[140px]" />
+          {WORK_VIDEOS.map((src, idx) => (
+            <video
+              key={src}
+              ref={videoRefs[idx]}
+              src={src}
+              autoPlay={idx === 0}
+              muted
+              playsInline
+              onEnded={handleEnded}
+              onLoadedMetadata={(e) => {
+                e.currentTarget.playbackRate = 0.75;
+              }}
+              className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-1000 ${
+                activeVideoIdx === idx ? "opacity-85 z-1" : "opacity-0 z-0"
+              }`}
+            />
+          ))}
+          {/* Crisp balanced overlay: reduced black so video is luminous & HD */}
+          <div className="absolute inset-0 bg-gradient-to-b from-[#07090E]/30 via-transparent to-[#07090E]/65 z-2" />
+          {/* Targeted Center Radial Scrim: lightened to eliminate heavy black fog */}
+          <div className="absolute inset-0 bg-[radial-gradient(ellipse_80%_70%_at_50%_50%,rgba(7,9,14,0.40)_0%,rgba(7,9,14,0.15)_60%,transparent_100%)] z-2 pointer-events-none" />
+          <div className="absolute inset-0 bg-[radial-gradient(ellipse_80%_60%_at_50%_-10%,rgba(127,72,237,0.22),transparent_75%)] z-2" />
+          <div className="absolute top-1/4 right-1/4 w-[500px] h-[400px] bg-[#7F48ED]/20 rounded-full blur-[140px] z-2" />
         </div>
 
-        <MotionWrapper direction="up" distance={25} className="relative z-10 max-w-4xl mx-auto text-center">
-          <span className="inline-block text-xs font-mono uppercase tracking-widest text-[#7F48ED] font-bold mb-3">
+        <MotionWrapper direction="up" distance={25} className="relative z-10 max-w-4xl mx-auto text-center my-auto flex flex-col items-center">
+          <span className="inline-block text-xs font-mono uppercase tracking-widest text-[#7F48ED] font-bold mb-4 px-4 py-1.5 rounded-full bg-white/[0.08] hover:bg-white/[0.12] border border-[#7F48ED]/50 backdrop-blur-xl shadow-[0_4px_24px_rgba(0,0,0,0.25)] transition-all">
             OUR WORK
           </span>
-          <h1 className="font-heading font-black text-3xl sm:text-5xl lg:text-6xl tracking-tight leading-[1.08] mb-4">
-            Results you can <span className="text-[#7F48ED]">see.</span>
+          <h1 className="font-heading font-black text-4xl sm:text-6xl lg:text-7xl tracking-tight leading-[1.05] mb-5 drop-shadow-[0_4px_24px_rgba(0,0,0,0.95)]">
+            Results you can <span className="text-[#7F48ED] drop-shadow-[0_4px_24px_rgba(127,72,237,0.45)]">see.</span>
           </h1>
-          <p className="text-slate-300 text-base sm:text-lg max-w-2xl mx-auto leading-relaxed mb-8">
+          <p className="text-white/95 text-base sm:text-xl max-w-2xl mx-auto leading-relaxed drop-shadow-[0_2px_12px_rgba(0,0,0,0.95)] font-medium">
             Real businesses, real numbers. From a hot dog restaurant to a city records system, here&apos;s what changed after we got to work.
           </p>
-
-          {/* Filter Tabs */}
-          <div className="flex flex-wrap items-center justify-center gap-2 text-xs font-semibold">
-            {filterTabs.map((tab) => (
-              <button
-                key={tab}
-                type="button"
-                onClick={() => setSelectedFilter(tab)}
-                className={`px-4 py-2 rounded-xl transition-all cursor-pointer ${
-                  selectedFilter === tab
-                    ? "bg-[#7F48ED] text-white shadow-md font-bold"
-                    : "bg-white/[0.08] text-slate-300 hover:bg-white/[0.15] hover:text-white"
-                }`}
-              >
-                {tab}
-              </button>
-            ))}
-          </div>
         </MotionWrapper>
+
+        {/* Scroll Indicator */}
+        <HeroScrollIndicator targetId="work-grid" accentColor="#7F48ED" />
       </section>
 
       {/* 2. Verified Case Studies Grid */}
-      <section className="py-16 sm:py-24 px-4 sm:px-6 lg:px-8 bg-slate-50">
+      <section id="work-grid" className="py-16 sm:py-24 px-4 sm:px-6 lg:px-8 bg-slate-50">
         <div className="max-w-7xl mx-auto">
+          {/* Filter Tabs in Body */}
+          <div className="flex flex-wrap items-center justify-center gap-2 mb-12 sm:mb-16">
+            <div className="inline-flex flex-wrap items-center justify-center gap-1.5 p-1.5 rounded-2xl bg-white border border-slate-200/80 shadow-xs">
+              {filterTabs.map((tab) => (
+                <button
+                  key={tab}
+                  type="button"
+                  onClick={() => setSelectedFilter(tab)}
+                  className={`px-4 py-2 rounded-xl text-xs sm:text-sm font-semibold transition-all cursor-pointer ${
+                    selectedFilter === tab
+                      ? "bg-[#7F48ED] text-white shadow-xs font-bold"
+                      : "text-slate-600 hover:text-slate-900 hover:bg-slate-100"
+                  }`}
+                >
+                  {tab}
+                </button>
+              ))}
+            </div>
+          </div>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             {filteredStudies.map((item, idx) => (
               <MotionWrapper key={item.id} direction="up" delay={idx * 0.08} distance={20}>

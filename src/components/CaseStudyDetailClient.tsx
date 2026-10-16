@@ -7,6 +7,7 @@ import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import ScrollToTop from "@/components/ScrollToTop";
 import MotionWrapper from "@/components/MotionWrapper";
+import HeroScrollIndicator from "@/components/HeroScrollIndicator";
 import { useContactModal } from "@/context/ContactModalContext";
 import { CaseStudy } from "@/data/caseStudies";
 import {
@@ -49,8 +50,8 @@ export default function CaseStudyDetailClient({
     <main className="min-h-screen flex flex-col bg-white text-[#090D16]">
       <Navbar />
 
-      {/* 1. Hero Section (Clean dark banner; video ONLY if present on relaunch.us e.g. Carmen Hotel; no book buttons in hero) */}
-      <section className="relative w-full pt-36 sm:pt-44 pb-14 sm:pb-20 bg-[#07090E] text-white px-4 sm:px-6 lg:px-8 overflow-hidden select-none">
+      {/* 1. Hero Section (Full Screen) */}
+      <section className="relative w-full min-h-[92vh] sm:min-h-screen flex flex-col justify-center items-center pt-32 sm:pt-36 pb-20 sm:pb-24 bg-[#07090E] text-white px-4 sm:px-6 lg:px-8 overflow-hidden select-none">
         <div className="absolute inset-0 w-full h-full overflow-hidden pointer-events-none z-0">
           {study.heroVideo && (
             <>
@@ -60,21 +61,24 @@ export default function CaseStudyDetailClient({
                 muted
                 loop
                 playsInline
-                className="absolute inset-0 w-full h-full object-cover opacity-45"
+                className="absolute inset-0 w-full h-full object-cover opacity-85 brightness-105"
               />
-              <div className="absolute inset-0 bg-gradient-to-b from-[#07090E]/80 via-[#07090E]/55 to-[#07090E]" />
+              {/* Crisp balanced overlay: reduced black so video is luminous & HD */}
+              <div className="absolute inset-0 bg-gradient-to-b from-[#07090E]/30 via-transparent to-[#07090E]/65" />
+              {/* Targeted Center Radial Scrim: lightened to eliminate heavy black fog */}
+              <div className="absolute inset-0 bg-[radial-gradient(ellipse_80%_70%_at_50%_50%,rgba(7,9,14,0.40)_0%,rgba(7,9,14,0.15)_60%,transparent_100%)] pointer-events-none" />
             </>
           )}
           <div className="absolute inset-0 bg-[radial-gradient(ellipse_80%_60%_at_50%_-10%,rgba(127,72,237,0.18),transparent_75%)]" />
-          <div className="absolute top-1/4 right-1/4 w-[450px] h-[350px] bg-[#7F48ED]/15 rounded-full blur-[140px]" />
+          <div className="absolute top-1/4 right-1/4 w-[500px] h-[400px] bg-[#7F48ED]/15 rounded-full blur-[140px]" />
         </div>
 
-        <MotionWrapper direction="up" distance={25} className="relative z-10 max-w-4xl mx-auto text-center">
+        <MotionWrapper direction="up" distance={25} className="relative z-10 max-w-4xl mx-auto text-center my-auto flex flex-col items-center">
           {/* Breadcrumb back to all work */}
           <div className="mb-4">
             <Link
               href="/work"
-              className="inline-flex items-center gap-1.5 text-xs font-mono uppercase tracking-wider text-slate-400 hover:text-white transition-colors"
+              className="inline-flex items-center gap-1.5 text-xs font-mono uppercase tracking-wider text-slate-200 hover:text-white px-3.5 py-1.5 rounded-full bg-white/[0.08] hover:bg-white/[0.16] border border-white/20 backdrop-blur-xl shadow-sm transition-all"
             >
               <ArrowLeft className="w-3.5 h-3.5" />
               <span>Back to all work</span>
@@ -82,30 +86,30 @@ export default function CaseStudyDetailClient({
           </div>
 
           {/* Category Tag */}
-          <span className="inline-block text-xs font-mono uppercase tracking-widest text-[#7F48ED] font-bold mb-3">
+          <span className="inline-block text-xs font-mono uppercase tracking-widest text-[#7F48ED] font-bold mb-3 px-4 py-1.5 rounded-full bg-white/[0.08] hover:bg-white/[0.12] border border-[#7F48ED]/50 backdrop-blur-xl shadow-[0_4px_24px_rgba(0,0,0,0.25)] transition-all">
             CASE STUDY · {study.category}
           </span>
 
           {/* Heading */}
-          <h1 className="font-heading font-black text-3xl sm:text-5xl lg:text-6xl tracking-tight leading-[1.08] mb-4">
+          <h1 className="font-heading font-black text-3xl sm:text-5xl lg:text-6xl tracking-tight leading-[1.08] mb-4 drop-shadow-[0_4px_24px_rgba(0,0,0,0.95)]">
             {study.title}
           </h1>
 
           {/* Subtitle / Description */}
-          <p className="text-slate-300 text-base sm:text-lg max-w-2xl mx-auto leading-relaxed mb-6">
+          <p className="text-white/95 text-base sm:text-lg max-w-2xl mx-auto leading-relaxed mb-6 drop-shadow-[0_2px_12px_rgba(0,0,0,0.95)] font-medium">
             {study.description}
           </p>
 
           {/* Headline Metric Callout Pill */}
           {study.hasNumberBadge && (
-            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/[0.08] border border-white/[0.12] text-purple-300 text-xs sm:text-sm font-mono font-bold">
+            <div className="inline-flex items-center gap-2 px-5 py-2 rounded-full bg-white/[0.08] border border-[#7F48ED]/50 backdrop-blur-xl shadow-lg text-purple-200 text-xs sm:text-sm font-mono font-bold">
               <TrendingUp className="w-4 h-4 text-[#7F48ED]" />
               <span>{study.headlineNumber}</span>
             </div>
           )}
 
           {/* Location & Industry Meta */}
-          <div className="flex items-center justify-center gap-3 mt-6 text-xs font-mono text-slate-400">
+          <div className="inline-flex flex-wrap items-center justify-center gap-3 mt-6 text-xs font-mono text-slate-200 px-4 sm:px-6 py-2 rounded-full bg-white/[0.07] border border-white/20 backdrop-blur-xl shadow-md mx-auto">
             <span className="flex items-center gap-1">
               <MapPin className="w-3.5 h-3.5 text-[#7F48ED]" />
               {study.location}
@@ -130,12 +134,15 @@ export default function CaseStudyDetailClient({
             )}
           </div>
         </MotionWrapper>
+
+        {/* Scroll Indicator */}
+        <HeroScrollIndicator targetId="case-study-details" accentColor="#7F48ED" />
       </section>
 
       {/* 2. Alternating Zigzag Layout: Each detail paired directly with an authentic image (No numbers) */}
 
       {/* ROW 1: Image Left, Details Right (The Challenge) */}
-      <section className="py-16 sm:py-24 px-4 sm:px-6 lg:px-8 bg-slate-50 border-t border-slate-200">
+      <section id="case-study-details" className="py-16 sm:py-24 px-4 sm:px-6 lg:px-8 bg-slate-50 border-t border-slate-200">
         <div className="max-w-7xl mx-auto">
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-14 items-center">
             

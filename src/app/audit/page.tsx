@@ -5,6 +5,7 @@ import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import ScrollToTop from "@/components/ScrollToTop";
 import MotionWrapper from "@/components/MotionWrapper";
+import HeroScrollIndicator from "@/components/HeroScrollIndicator";
 import { useContactModal } from "@/context/ContactModalContext";
 import {
   ArrowUpRight,
@@ -104,21 +105,21 @@ export default function AuditPage() {
     <main className="min-h-screen flex flex-col bg-white text-[#090D16]">
       <Navbar />
 
-      {/* 1. Hero Section */}
-      <section className="relative w-full pt-36 sm:pt-44 pb-14 sm:pb-20 bg-[#07090E] text-white px-4 sm:px-6 lg:px-8 overflow-hidden select-none">
+      {/* 1. Hero Section (Full Screen) */}
+      <section className="relative w-full min-h-[92vh] sm:min-h-screen flex flex-col justify-center items-center pt-32 sm:pt-36 pb-20 sm:pb-24 bg-[#07090E] text-white px-4 sm:px-6 lg:px-8 overflow-hidden select-none">
         <div className="absolute inset-0 w-full h-full overflow-hidden pointer-events-none z-0">
           <div className="absolute inset-0 bg-[radial-gradient(ellipse_80%_60%_at_50%_-10%,rgba(255,103,0,0.18),transparent_75%)]" />
-          <div className="absolute top-1/4 right-1/4 w-[450px] h-[350px] bg-[#FF6700]/20 rounded-full blur-[140px]" />
+          <div className="absolute top-1/4 right-1/4 w-[500px] h-[400px] bg-[#FF6700]/20 rounded-full blur-[140px]" />
         </div>
 
-        <MotionWrapper direction="up" distance={25} className="relative z-10 max-w-4xl mx-auto text-center">
-          <span className="inline-block text-xs font-mono uppercase tracking-widest text-[#FF6700] font-bold mb-3">
+        <MotionWrapper direction="up" distance={25} className="relative z-10 max-w-4xl mx-auto text-center my-auto">
+          <span className="inline-block text-xs font-mono uppercase tracking-widest text-[#FF6700] font-bold mb-4 px-3 py-1 rounded-full bg-[#FF6700]/10 border border-[#FF6700]/20 backdrop-blur-xs">
             RELAUNCH SOCIAL AUDIT · FREE DIAGNOSTIC
           </span>
-          <h1 className="font-heading font-black text-3xl sm:text-5xl lg:text-6xl tracking-tight leading-[1.08] mb-4">
+          <h1 className="font-heading font-black text-4xl sm:text-6xl lg:text-7xl tracking-tight leading-[1.05] mb-5">
             How well does your <span className="text-[#FF6700]">marketing sell?</span>
           </h1>
-          <p className="text-slate-300 text-base sm:text-lg max-w-2xl mx-auto leading-relaxed mb-8">
+          <p className="text-slate-300 text-base sm:text-xl max-w-2xl mx-auto leading-relaxed mb-8">
             Get a free score in a few minutes. See exactly where your website, social media and reviews are losing customers, and what to fix first.
           </p>
 
@@ -206,10 +207,13 @@ export default function AuditPage() {
             )}
           </div>
         </MotionWrapper>
+
+        {/* Scroll Indicator */}
+        <HeroScrollIndicator targetId="audit-reality" accentColor="#FF6700" />
       </section>
 
       {/* 2. Why a Score */}
-      <section className="py-16 sm:py-24 px-4 sm:px-6 lg:px-8 bg-white">
+      <section id="audit-reality" className="py-16 sm:py-24 px-4 sm:px-6 lg:px-8 bg-white">
         <MotionWrapper direction="up" distance={20} className="max-w-3xl mx-auto text-center sm:text-left">
           <span className="text-xs font-mono uppercase tracking-widest text-slate-400 font-bold block mb-2">
             THE REALITY CHECK

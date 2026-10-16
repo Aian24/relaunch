@@ -6,6 +6,7 @@ import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import ScrollToTop from "@/components/ScrollToTop";
 import MotionWrapper from "@/components/MotionWrapper";
+import HeroScrollIndicator from "@/components/HeroScrollIndicator";
 import { useContactModal } from "@/context/ContactModalContext";
 import {
   ArrowUpRight,
@@ -112,17 +113,17 @@ export default function StudioPage() {
     <main className="min-h-screen flex flex-col bg-white text-[#090D16]">
       <Navbar />
 
-      {/* 1. Hero Section */}
-      <section className="relative w-full pt-36 sm:pt-44 pb-14 sm:pb-20 bg-[#07090E] text-white px-4 sm:px-6 lg:px-8 overflow-hidden select-none">
+      {/* 1. Hero Section (Full Screen) */}
+      <section className="relative w-full min-h-[92vh] sm:min-h-screen flex flex-col justify-center items-center pt-32 sm:pt-36 pb-20 sm:pb-24 bg-[#07090E] text-white px-4 sm:px-6 lg:px-8 overflow-hidden select-none">
         <div className="absolute inset-0 w-full h-full overflow-hidden pointer-events-none z-0">
           <div className="absolute inset-0 bg-[radial-gradient(ellipse_80%_60%_at_50%_-10%,rgba(127,72,237,0.18),transparent_75%)]" />
           <div
-            className="absolute top-1/4 right-1/4 w-[450px] h-[350px] rounded-full blur-[140px] pointer-events-none"
+            className="absolute top-1/4 right-1/4 w-[500px] h-[400px] rounded-full blur-[140px] pointer-events-none"
             style={{ backgroundColor: `${ACCENT}20` }}
           />
         </div>
 
-        <MotionWrapper direction="up" distance={25} className="relative z-10 max-w-5xl mx-auto">
+        <MotionWrapper direction="up" distance={25} className="relative z-10 max-w-5xl mx-auto w-full my-auto">
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-center">
             {/* Left Column (7 cols) */}
             <div className="lg:col-span-7 text-center lg:text-left">
@@ -207,10 +208,13 @@ export default function StudioPage() {
             </div>
           </div>
         </MotionWrapper>
+
+        {/* Scroll Indicator */}
+        <HeroScrollIndicator targetId="studio-problem" accentColor={ACCENT} />
       </section>
 
       {/* 2. Problem Section */}
-      <section className="py-16 sm:py-24 px-4 sm:px-6 lg:px-8 bg-white">
+      <section id="studio-problem" className="py-16 sm:py-24 px-4 sm:px-6 lg:px-8 bg-white">
         <div className="max-w-6xl mx-auto">
           <MotionWrapper direction="up" distance={20} className="text-center max-w-2xl mx-auto mb-14">
             <span

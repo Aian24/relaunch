@@ -6,6 +6,7 @@ import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import ScrollToTop from "@/components/ScrollToTop";
 import MotionWrapper from "@/components/MotionWrapper";
+import HeroScrollIndicator from "@/components/HeroScrollIndicator";
 import { useContactModal } from "@/context/ContactModalContext";
 import {
   ArrowUpRight,
@@ -82,8 +83,8 @@ export default function SocialPage() {
     <main className="min-h-screen flex flex-col bg-white text-[#090D16]">
       <Navbar />
 
-      {/* 1. Hero Section with Cinematic Background Video */}
-      <section className="relative w-full pt-36 sm:pt-44 pb-14 sm:pb-20 bg-[#07090E] text-white px-4 sm:px-6 lg:px-8 overflow-hidden select-none">
+      {/* 1. Hero Section with Cinematic Background Video (Full Screen) */}
+      <section className="relative w-full min-h-[92vh] sm:min-h-screen flex flex-col justify-center items-center pt-32 sm:pt-36 pb-20 sm:pb-24 bg-[#07090E] text-white px-4 sm:px-6 lg:px-8 overflow-hidden select-none">
         <div className="absolute inset-0 w-full h-full overflow-hidden pointer-events-none z-0">
           <video
             src="/relaunch-hero2.mp4"
@@ -92,22 +93,25 @@ export default function SocialPage() {
             loop
             playsInline
             onLoadedMetadata={(e) => {
-              e.currentTarget.playbackRate = 0.7;
+              e.currentTarget.playbackRate = 0.75;
             }}
             className="absolute inset-0 w-full h-full object-cover opacity-100"
           />
-          <div className="absolute inset-0 bg-gradient-to-b from-[#07090E]/75 via-[#07090E]/40 to-[#07090E]" />
-          <div className="absolute top-1/4 right-1/4 w-[450px] h-[350px] bg-[#FF6700]/20 rounded-full blur-[140px]" />
+          {/* Crisp balanced overlay: reduced black so video is luminous & HD */}
+          <div className="absolute inset-0 bg-gradient-to-b from-[#07090E]/30 via-transparent to-[#07090E]/65 z-1" />
+          {/* Targeted Center Radial Scrim: lightened to eliminate heavy black fog */}
+          <div className="absolute inset-0 bg-[radial-gradient(ellipse_80%_70%_at_50%_50%,rgba(7,9,14,0.40)_0%,rgba(7,9,14,0.15)_60%,transparent_100%)] z-1 pointer-events-none" />
+          <div className="absolute top-1/4 right-1/4 w-[500px] h-[400px] bg-[#FF6700]/20 rounded-full blur-[140px] z-1" />
         </div>
 
-        <MotionWrapper direction="up" distance={25} className="relative z-10 max-w-4xl mx-auto text-center">
-          <span className="inline-block text-xs font-mono uppercase tracking-widest text-[#FF6700] font-bold mb-3">
+        <MotionWrapper direction="up" distance={25} className="relative z-10 max-w-4xl mx-auto text-center my-auto flex flex-col items-center">
+          <span className="inline-block text-xs font-mono uppercase tracking-widest text-[#FF6700] font-bold mb-4 px-4 py-1.5 rounded-full bg-white/[0.08] hover:bg-white/[0.12] border border-[#FF6700]/50 backdrop-blur-xl shadow-[0_4px_24px_rgba(0,0,0,0.25)] transition-all">
             RELAUNCH SOCIAL · DONE-FOR-YOU SOCIAL MEDIA
           </span>
-          <h1 className="font-heading font-black text-3xl sm:text-5xl lg:text-6xl tracking-tight leading-[1.08] mb-4">
-            Your social media, handled. <span className="text-[#FF6700]">Every week.</span>
+          <h1 className="font-heading font-black text-4xl sm:text-6xl lg:text-7xl tracking-tight leading-[1.05] mb-5 drop-shadow-[0_4px_24px_rgba(0,0,0,0.95)]">
+            Your social media, handled. <span className="text-[#FF6700] drop-shadow-[0_4px_24px_rgba(255,103,0,0.45)]">Every week.</span>
           </h1>
-          <p className="text-slate-300 text-base sm:text-lg max-w-2xl mx-auto leading-relaxed mb-8">
+          <p className="text-white/95 text-base sm:text-xl max-w-2xl mx-auto leading-relaxed mb-10 drop-shadow-[0_2px_12px_rgba(0,0,0,0.95)] font-medium">
             We create your posts, you approve them once a month, and we publish them to Instagram, Facebook, LinkedIn, TikTok and Google Business. About 30 minutes a month of your time.
           </p>
 
@@ -116,7 +120,7 @@ export default function SocialPage() {
               href={PORTAL_CHECKOUT_URL}
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex items-center justify-center gap-2 px-7 py-3.5 rounded-xl bg-[#FF6700] hover:bg-[#E55C00] text-white font-heading font-bold text-xs uppercase tracking-wider transition-all shadow-md active:scale-98"
+              className="inline-flex items-center justify-center gap-2 px-7 py-3.5 rounded-xl bg-[#FF6700] hover:bg-[#E55C00] text-white font-heading font-bold text-xs uppercase tracking-wider transition-all shadow-[0_0_20px_rgba(255,103,0,0.35)] active:scale-98"
             >
               <span>Choose a plan</span>
               <ArrowUpRight className="w-4 h-4 text-white" />
@@ -125,12 +129,15 @@ export default function SocialPage() {
             <button
               type="button"
               onClick={handleScrollToHow}
-              className="inline-flex items-center justify-center gap-2 px-6 py-3.5 rounded-xl bg-white/[0.08] hover:bg-white/[0.15] border border-white/20 text-white font-heading font-bold text-xs uppercase tracking-wider transition-all cursor-pointer"
+              className="inline-flex items-center justify-center gap-2 px-6 py-3.5 rounded-xl bg-white/[0.08] hover:bg-white/[0.18] border border-white/20 hover:border-white/45 text-white font-heading font-bold text-xs uppercase tracking-wider transition-all duration-300 backdrop-blur-xl shadow-[0_8px_32px_rgba(0,0,0,0.3)] hover:shadow-[0_8px_32px_rgba(255,255,255,0.1)] cursor-pointer"
             >
               <span>See how it works ↓</span>
             </button>
           </div>
         </MotionWrapper>
+
+        {/* Scroll Indicator */}
+        <HeroScrollIndicator targetId="how-it-works" accentColor="#FF6700" />
       </section>
 
       {/* 2. The Problem */}

@@ -14,6 +14,7 @@ export interface OutcomeGroup {
   productCtaLabel: string;
   homepageCardBody: string;
   homepageYouGet: string;
+  homepageDeliverables?: string[];
 }
 
 export interface ReLaunchProduct {
@@ -51,16 +52,21 @@ export const outcomeGroups: OutcomeGroup[] = [
     productHref: "/ai-recommendations",
     productCtaLabel: "Start with ReLaunch AI Recommendations, from $497/mo →",
     homepageCardBody:
-      "Customers can't buy from you if they can't find you. We put you on Google, Maps, and in ChatGPT's answers.",
+      "Get found by ready-to-buy customers across Google, Apple Maps, and ChatGPT.",
     homepageYouGet:
-      "optimized listings, review requests, a monthly visibility report.",
+      "optimized listings, automated review requests, and monthly AI visibility tracking.",
+    homepageDeliverables: [
+      "Optimized Google Business Profile & directories",
+      "Automated 5-star review collection after every job",
+      "Monthly local SEO & ChatGPT visibility tracking",
+    ],
   },
   {
     id: "get-chosen",
     num: "02",
     title: "Get Chosen",
     promise: "Look like the best choice the moment they find you.",
-    problem: "Buyers check you out before they call.",
+    problem: "Buyers check you out before they ever call.",
     whatWeDo:
       "We make your website, brand and social media look like the obvious choice.",
     deliverables: [
@@ -76,16 +82,21 @@ export const outcomeGroups: OutcomeGroup[] = [
     productHref: "/social",
     productCtaLabel: "Start with ReLaunch Social, from $297/mo →",
     homepageCardBody:
-      "Buyers check you out before they call. We make your website, brand and social media look like the obvious choice.",
+      "Look like the premier choice with a modern website and weekly done-for-you social content.",
     homepageYouGet:
-      "a site built to convert and posts every week you approve once a month.",
+      "a conversion-focused website, brand kit, and weekly social content on autopilot.",
+    homepageDeliverables: [
+      "Conversion-focused website & brand kit",
+      "12–20+ monthly social posts (one-click approval)",
+      "Managed hosting, updates, and maintenance",
+    ],
   },
   {
     id: "get-more-customers",
     num: "03",
     title: "Get More Customers",
     promise: "Turn clicks and calls into paying customers.",
-    problem: "Clicks aren't customers.",
+    problem: "Clicks and impressions aren't paying customers.",
     whatWeDo:
       "We run your ads and make sure every lead gets an answer fast.",
     deliverables: [
@@ -101,16 +112,21 @@ export const outcomeGroups: OutcomeGroup[] = [
     productHref: "/studio",
     productCtaLabel: "Start with ReLaunch Studio, from $797/mo →",
     homepageCardBody:
-      "Clicks aren't customers. We run your ads and make sure every lead gets an answer fast.",
+      "Turn clicks into paying customers with targeted ads and instant lead follow-up.",
     homepageYouGet:
-      "managed Google & Meta ads, instant follow-up, fresh AI video ads every week, cost-per-customer reporting.",
+      "managed Google & Meta ads, instant follow-up, fresh AI video ads every week, and transparent cost-per-lead reporting.",
+    homepageDeliverables: [
+      "Managed Google & Meta ad campaigns",
+      "Fresh AI video creatives every week",
+      "Instant SMS/chat response so zero leads slip away",
+    ],
   },
   {
     id: "build-custom",
     num: "04",
     title: "Build Something Custom",
     promise: "Software that fits how your business runs.",
-    problem: "When off-the-shelf doesn't fit.",
+    problem: "Off-the-shelf software forces your business into someone else's limits.",
     whatWeDo:
       "We build the app, portal or integration your business runs on.",
     deliverables: [
@@ -124,11 +140,16 @@ export const outcomeGroups: OutcomeGroup[] = [
     priceNote: "Fixed scope, milestone dates, you own the code",
     productName: "Custom Software",
     productHref: "/custom-software",
-    productCtaLabel: "Custom quote →",
+    productCtaLabel: "Request a Custom Software Quote →",
     homepageCardBody:
-      "When off-the-shelf doesn't fit. We build the app, portal or integration your business runs on.",
+      "Custom web portals, internal tools, and automations built for your exact workflow.",
     homepageYouGet:
-      "a fixed-scope plan, milestone dates, and you own the code.",
+      "a fixed-scope roadmap, milestone delivery dates, and 100% full intellectual property ownership.",
+    homepageDeliverables: [
+      "Custom web apps, portals & system integrations",
+      "Guaranteed fixed-scope milestones & delivery",
+      "100% full source code and IP ownership",
+    ],
   },
 ];
 

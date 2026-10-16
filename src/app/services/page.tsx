@@ -8,6 +8,8 @@ import ScrollToTop from "@/components/ScrollToTop";
 import MotionWrapper from "@/components/MotionWrapper";
 import { useContactModal } from "@/context/ContactModalContext";
 import { outcomeGroups, bundleDiscounts } from "@/data/offerings";
+import BrandsHelpedSection from "@/components/BrandsHelpedSection";
+import HeroScrollIndicator from "@/components/HeroScrollIndicator";
 import {
   ArrowUpRight,
   ArrowRight,
@@ -54,8 +56,8 @@ export default function ServicesPage() {
     <main className="min-h-screen flex flex-col bg-white text-[#090D16]">
       <Navbar />
 
-      {/* 1. Hero Section with Cinematic Background Video */}
-      <section className="relative w-full pt-36 sm:pt-44 pb-14 sm:pb-20 bg-[#07090E] text-white px-4 sm:px-6 lg:px-8 overflow-hidden select-none">
+      {/* 1. Hero Section with Cinematic Background Video (Full Screen) */}
+      <section className="relative w-full min-h-[92vh] sm:min-h-screen flex flex-col justify-center items-center pt-32 sm:pt-36 pb-20 sm:pb-24 bg-[#07090E] text-white px-4 sm:px-6 lg:px-8 overflow-hidden select-none">
         <div className="absolute inset-0 w-full h-full overflow-hidden pointer-events-none z-0">
           <video
             src="/services2.mp4"
@@ -64,23 +66,26 @@ export default function ServicesPage() {
             loop
             playsInline
             onLoadedMetadata={(e) => {
-              e.currentTarget.playbackRate = 0.7;
+              e.currentTarget.playbackRate = 0.75;
             }}
             className="absolute inset-0 w-full h-full object-cover opacity-100"
           />
-          <div className="absolute inset-0 bg-gradient-to-b from-[#07090E]/75 via-[#07090E]/40 to-[#07090E]" />
-          <div className="absolute top-1/4 right-1/4 w-[450px] h-[350px] bg-[#FF6700]/15 rounded-full blur-[140px]" />
-          <div className="absolute bottom-10 left-10 w-[450px] h-[350px] bg-[#FF6700]/20 rounded-full blur-[140px]" />
+          {/* Crisp balanced overlay: reduced black so video is luminous & HD */}
+          <div className="absolute inset-0 bg-gradient-to-b from-[#07090E]/30 via-transparent to-[#07090E]/65 z-1" />
+          {/* Targeted Center Radial Scrim: lightened to eliminate heavy black fog */}
+          <div className="absolute inset-0 bg-[radial-gradient(ellipse_80%_70%_at_50%_50%,rgba(7,9,14,0.40)_0%,rgba(7,9,14,0.15)_60%,transparent_100%)] z-1 pointer-events-none" />
+          <div className="absolute top-1/4 right-1/4 w-[500px] h-[400px] bg-[#FF6700]/15 rounded-full blur-[140px] z-1" />
+          <div className="absolute bottom-12 left-10 w-[500px] h-[400px] bg-[#FF6700]/20 rounded-full blur-[140px] z-1" />
         </div>
 
-        <MotionWrapper direction="up" distance={25} className="relative z-10 max-w-4xl mx-auto text-center">
-          <span className="inline-block text-xs font-mono uppercase tracking-widest text-[#FF6700] font-bold mb-3">
+        <MotionWrapper direction="up" distance={25} className="relative z-10 max-w-4xl mx-auto text-center my-auto flex flex-col items-center">
+          <span className="inline-block text-xs font-mono uppercase tracking-widest text-[#FF6700] font-bold mb-4 px-4 py-1.5 rounded-full bg-white/[0.08] hover:bg-white/[0.12] border border-[#FF6700]/50 backdrop-blur-xl shadow-[0_4px_24px_rgba(0,0,0,0.25)] transition-all">
             WHAT WE DO
           </span>
-          <h1 className="font-heading font-black text-3xl sm:text-5xl lg:text-6xl tracking-tight leading-[1.08] mb-4">
-            Everything you need to <span className="text-[#FF6700]">get found,</span> get chosen and get paid.
+          <h1 className="font-heading font-black text-4xl sm:text-6xl lg:text-7xl tracking-tight leading-[1.05] mb-5 drop-shadow-[0_4px_24px_rgba(0,0,0,0.95)]">
+            Everything you need to <span className="text-[#FF6700] drop-shadow-[0_4px_24px_rgba(255,103,0,0.45)]">get found,</span> get chosen and get paid.
           </h1>
-          <p className="text-slate-300 text-base sm:text-lg max-w-2xl mx-auto leading-relaxed mb-8">
+          <p className="text-white/95 text-base sm:text-xl max-w-2xl mx-auto leading-relaxed mb-10 drop-shadow-[0_2px_12px_rgba(0,0,0,0.95)] font-medium">
             Four ways we help. Start with the one that&apos;s costing you the most, and add more when you&apos;re ready.
           </p>
 
@@ -95,25 +100,28 @@ export default function ServicesPage() {
             </button>
           </div>
 
-          {/* Jump Links */}
+          {/* Jump Links with Frosted Glass Buttons */}
           <div className="flex flex-wrap items-center justify-center gap-2 sm:gap-3 text-xs font-semibold text-slate-300">
-            <span className="text-slate-500 font-mono text-[11px] uppercase mr-1">Jump to:</span>
+            <span className="text-slate-400 font-mono text-[11px] uppercase mr-1">Jump to:</span>
             {outcomeGroups.map((group) => (
               <button
                 key={group.id}
                 type="button"
                 onClick={() => handleScrollToAnchor(group.id)}
-                className="px-3 py-1.5 rounded-lg bg-white/[0.08] hover:bg-white/[0.15] border border-white/[0.1] text-slate-200 hover:text-white transition-all cursor-pointer"
+                className="px-3.5 py-1.5 rounded-lg bg-white/[0.08] hover:bg-white/[0.18] border border-white/20 hover:border-white/40 text-slate-200 hover:text-white transition-all shadow-md cursor-pointer backdrop-blur-xl"
               >
                 {group.title}
               </button>
             ))}
           </div>
         </MotionWrapper>
+
+        {/* Scroll Indicator */}
+        <HeroScrollIndicator targetId="services-body" accentColor="#FF6700" />
       </section>
 
       {/* 2. The 4 Outcome Groups */}
-      <section className="py-16 sm:py-24 px-4 sm:px-6 lg:px-8 bg-slate-50">
+      <section id="services-body" className="py-16 sm:py-24 px-4 sm:px-6 lg:px-8 bg-slate-50">
         <div className="max-w-6xl mx-auto space-y-16 sm:space-y-24">
           {/* Pain-led Intro */}
           <MotionWrapper direction="up" distance={20} className="max-w-3xl mx-auto text-center">
