@@ -8,6 +8,7 @@ import Footer from "@/components/Footer";
 import ScrollToTop from "@/components/ScrollToTop";
 import MotionWrapper from "@/components/MotionWrapper";
 import HeroScrollIndicator from "@/components/HeroScrollIndicator";
+import InteractiveAuditScanner from "@/components/InteractiveAuditScanner";
 import { useContactModal } from "@/context/ContactModalContext";
 import {
   ArrowUpRight,
@@ -24,7 +25,7 @@ import {
   X as XIcon,
 } from "lucide-react";
 
-/* The free score runs on the audit tool's own subdomain. */
+/* The free score runs natively on Vercel and standalone on IONOS VPS. */
 
 export default function AuditPage() {
   const { openContactModal } = useContactModal();
@@ -74,40 +75,51 @@ export default function AuditPage() {
       <Navbar />
 
       {/* 1. Hero Section (Full Screen) */}
-      <section className="relative w-full min-h-[92vh] sm:min-h-screen flex flex-col justify-center items-center pt-32 sm:pt-36 pb-20 sm:pb-24 bg-[#07090E] text-white px-4 sm:px-6 lg:px-8 overflow-hidden select-none">
+      <section className="relative w-full min-h-[85vh] sm:min-h-[90vh] flex flex-col justify-center items-center pt-32 sm:pt-36 pb-20 sm:pb-24 bg-[#07090E] text-white px-4 sm:px-6 lg:px-8 overflow-hidden select-none">
         <div className="absolute inset-0 w-full h-full overflow-hidden pointer-events-none z-0">
-          <div className="absolute inset-0 bg-[radial-gradient(ellipse_80%_60%_at_50%_-10%,rgba(255,103,0,0.18),transparent_75%)]" />
-          <div className="absolute top-1/4 right-1/4 w-[500px] h-[400px] bg-[#FF6700]/20 rounded-full blur-[140px]" />
+          <div className="absolute inset-0 bg-[radial-gradient(ellipse_80%_60%_at_50%_-10%,rgba(127,72,237,0.22),transparent_75%)]" />
+          <div className="absolute top-1/4 right-1/4 w-[500px] h-[400px] bg-[#FF6700]/15 rounded-full blur-[140px]" />
+          <div className="absolute bottom-1/4 left-1/4 w-[500px] h-[400px] bg-[#7F48ED]/20 rounded-full blur-[140px]" />
         </div>
 
         <MotionWrapper direction="up" distance={25} className="relative z-10 max-w-4xl mx-auto text-center my-auto">
-          <span className="inline-block text-xs font-mono uppercase tracking-widest text-[#FF6700] font-bold mb-4 px-3 py-1 rounded-full bg-[#FF6700]/10 border border-[#FF6700]/20 backdrop-blur-xs">
+          <span className="inline-block text-xs font-mono uppercase tracking-widest text-[#FF6700] font-bold mb-4 px-3 py-1 rounded-full bg-[#FF6700]/10 border border-[#FF6700]/25 backdrop-blur-xs">
             RELAUNCH SOCIAL AUDIT · FREE DIAGNOSTIC
           </span>
           <h1 className="font-heading font-black text-4xl sm:text-6xl lg:text-7xl tracking-tight leading-[1.05] mb-5">
             How well does your <span className="text-[#FF6700]">marketing sell?</span>
           </h1>
           <p className="text-slate-300 text-base sm:text-xl max-w-2xl mx-auto leading-relaxed mb-8">
-            Get a free score showing where your website, social media and reviews are losing customers, and what to fix first.
+            Get an instant score showing where your website is losing customers, and what to fix first.
           </p>
 
           <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
-            <ProductCta link={productLinks.audit} className="inline-flex items-center justify-center gap-2 px-7 py-3.5 rounded-xl bg-[#FF6700] hover:bg-[#E55C00] text-white font-heading font-black text-xs sm:text-sm uppercase tracking-wider transition-all shadow-[0_0_20px_rgba(255,103,0,0.35)]" />
+            <a
+              href="#scanner"
+              className="inline-flex items-center justify-center gap-2 px-8 py-4 rounded-full bg-[#FF6700] hover:bg-[#E55C00] text-white font-heading font-black text-xs sm:text-sm uppercase tracking-wider transition-all shadow-[0_4px_24px_rgba(255,103,0,0.35)] hover:scale-102"
+            >
+              Scan My Website Now →
+            </a>
             <a
               href="#how-it-works"
-              className="inline-flex items-center justify-center gap-2 px-6 py-3.5 rounded-xl border border-white/[0.15] bg-white/[0.05] hover:bg-white/[0.1] text-slate-200 font-heading font-bold text-xs sm:text-sm uppercase tracking-wider transition-all"
+              className="inline-flex items-center justify-center gap-2 px-7 py-4 rounded-full border border-white/[0.18] bg-white/[0.05] hover:bg-white/[0.12] text-white font-heading font-bold text-xs sm:text-sm uppercase tracking-wider transition-all"
             >
               See how it works
             </a>
           </div>
-          <p className="mt-4 text-xs text-slate-400">Free · No obligation</p>
+          <p className="mt-4 text-xs text-slate-400">100% Free · Instant automated analysis</p>
         </MotionWrapper>
 
         {/* Scroll Indicator */}
-        <HeroScrollIndicator targetId="audit-reality" accentColor="#FF6700" />
+        <HeroScrollIndicator targetId="scanner" accentColor="#FF6700" />
       </section>
 
-      {/* 2. Why a Score */}
+      {/* 2. Interactive Live NIS Scanner Tool */}
+      <section id="scanner" className="scroll-mt-24 py-14 sm:py-20 px-4 sm:px-6 lg:px-8 bg-slate-50 border-b border-slate-200">
+        <InteractiveAuditScanner />
+      </section>
+
+      {/* 3. Why a Score */}
       <section id="audit-reality" className="py-16 sm:py-24 px-4 sm:px-6 lg:px-8 bg-white">
         <MotionWrapper direction="up" distance={20} className="max-w-3xl mx-auto text-center sm:text-left">
           <span className="text-xs font-mono uppercase tracking-widest text-slate-400 font-bold block mb-2">

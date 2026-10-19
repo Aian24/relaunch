@@ -27,7 +27,7 @@ export const productLinks = {
     formTopic: "ReLaunch Studio",
   },
   audit: {
-    liveUrl: null, // planned: "https://audit.relaunch.us"
+    liveUrl: "/audit#scanner", // Native Vercel scanner on /audit#scanner
     liveLabel: "Get my free score",
     pendingLabel: "Get my free review",
     formTopic: "Social Audit",

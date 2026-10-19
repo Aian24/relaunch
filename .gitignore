@@ -40,3 +40,11 @@ scratch/
 *.pdf
 /*.mp4
 
+# local audit runtime & instructions
+relaunch-audit/node_modules/
+relaunch-audit/.env
+relaunch-audit/leads.csv
+relaunch-audit.zip
+DEVELOPER_INSTRUCTIONS.md
+scripts/temp_*
+

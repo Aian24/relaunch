@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Free Marketing Audit — ReLaunch</title>
+<meta name="description" content="Get a free Narrative Intelligence Score: see where your website is losing customers and exactly what to fix first."/>
+<meta name="theme-color" content="#FF6700"/>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet"/>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --ink:#090D16;
+  --slate:#475569;
+  --mist:#94A3B8;
+  --off:#F8FAFC;
+  --line:#E2E8F0;
+  --orange:#FF6700;
+  --orange2:#E65C00;
+  --purple:#7F48ED;
+  --purple2:#6B38D8;
+  --dark:#07090E;
+  --dark-card:#090D16;
+}
+body{font-family:'Poppins',sans-serif;color:var(--ink);background:#fff;-webkit-font-smoothing:antialiased;line-height:1.6}
+.wrap{max-width:860px;margin:0 auto;padding:56px 24px 90px}
+.eyebrow{font-size:11px;font-weight:700;letter-spacing:.18em;text-transform:uppercase;color:var(--orange);margin-bottom:14px}
+h1{font-size:clamp(34px,6vw,56px);font-weight:900;letter-spacing:-.03em;line-height:1.05;margin-bottom:18px;color:var(--ink)}
+h1 em{font-style:italic;color:var(--purple)}
+.lede{font-size:clamp(15px,2vw,18px);font-weight:400;color:var(--slate);max-width:640px;margin-bottom:38px}
+.card{background:var(--off);border:1px solid var(--line);border-radius:22px;padding:32px}
+label{display:block;font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--slate);margin:0 0 7px}
+input{width:100%;font-family:inherit;font-size:15px;color:var(--ink);background:#fff;border:2px solid var(--line);border-radius:12px;padding:14px 16px;margin-bottom:18px;outline:none;transition:all .18s}
+input:focus{border-color:var(--purple);box-shadow:0 0 0 3px rgba(127,72,237,.15)}
+.row{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;font-family:inherit;font-size:14px;font-weight:700;letter-spacing:.02em;border:0;border-radius:50px;padding:16px 30px;cursor:pointer;text-decoration:none;transition:all .2s}
+.btn-orange{background:var(--orange);color:#fff;box-shadow:0 6px 20px rgba(255,103,0,.32);width:100%}
+.btn-orange:hover{background:var(--orange2);transform:translateY(-1px);box-shadow:0 8px 24px rgba(255,103,0,.40)}
+.btn-orange:disabled{opacity:.6;cursor:not-allowed;transform:none}
+.btn-purple{background:var(--purple);color:#fff;box-shadow:0 6px 20px rgba(127,72,237,.32)}
+.btn-purple:hover{background:var(--purple2);transform:translateY(-1px);box-shadow:0 8px 24px rgba(127,72,237,.40)}
+.fine{font-size:12px;color:var(--mist);text-align:center;margin-top:14px}
+.err{display:none;background:rgba(255,103,0,.08);border:1.5px solid var(--orange);color:var(--orange2);border-radius:12px;padding:12px 16px;font-size:14px;font-weight:600;margin-bottom:16px}
+.spin{display:none;text-align:center;padding:50px 0;color:var(--slate)}
+.spin.on{display:block}
+.loader{width:46px;height:46px;border:4px solid var(--line);border-top-color:var(--purple);border-right-color:var(--orange);border-radius:50%;margin:0 auto 18px;animation:sp .9s linear infinite}
+@keyframes sp{to{transform:rotate(360deg)}}
+#report{display:none}
+#report.on{display:block;animation:fade .5s ease}
+@keyframes fade{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+.score-hero{text-align:center;padding:38px 24px;background:var(--dark);border:1px solid rgba(255,255,255,.08);border-radius:24px;color:#fff;position:relative;overflow:hidden;box-shadow:0 24px 50px rgba(0,0,0,.4)}
+.score-hero::before{content:'';position:absolute;inset:0;background:radial-gradient(circle at 80% 20%,rgba(127,72,237,.38),transparent 60%);pointer-events:none}
+.score-hero::after{content:'';position:absolute;inset:0;background:radial-gradient(circle at 20% 80%,rgba(255,103,0,.28),transparent 60%);pointer-events:none}
+.ring{position:relative;width:190px;height:190px;margin:8px auto 12px;z-index:1}
+.ring svg{transform:rotate(-90deg)}
+.ring .num{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center}
+.ring .num b{font-size:56px;font-weight:900;line-height:1}
+.ring .num span{font-size:12px;color:rgba(255,255,255,.65);font-weight:500;letter-spacing:.05em;text-transform:uppercase;margin-top:2px}
+.band{position:relative;z-index:1;font-size:12px;font-weight:800;letter-spacing:.16em;text-transform:uppercase;display:inline-block;padding:7px 18px;border-radius:50px;margin-top:6px;color:#fff;box-shadow:0 4px 16px rgba(0,0,0,.3)}
+.band-note{position:relative;z-index:1;color:rgba(255,255,255,.85);font-size:15px;max-width:480px;margin:16px auto 0;font-weight:400;line-height:1.55}
+.layers{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin:28px 0}
+.layer{background:var(--off);border:1px solid var(--line);border-radius:16px;padding:18px 20px;transition:all .2s}
+.layer:hover{border-color:rgba(127,72,237,.3)}
+.layer .lh{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:10px}
+.layer .ln{font-size:13px;font-weight:700;color:var(--ink)}
+.layer .lv{font-size:16px;font-weight:900}
+.bar{height:8px;background:var(--line);border-radius:50px;overflow:hidden}
+.bar i{display:block;height:100%;border-radius:50px;width:0;transition:width 1.2s cubic-bezier(.22,1,.36,1)}
+.sec-h{font-size:22px;font-weight:900;letter-spacing:-.02em;margin:36px 0 16px;color:var(--ink)}
+.opp-card{background:var(--off);border:1px solid var(--line);border-left:5px solid var(--purple);border-radius:18px;padding:22px 24px;box-shadow:0 2px 10px rgba(0,0,0,.03)}
+.opp-card p{font-size:15px;color:var(--slate);line-height:1.6;margin:0;font-weight:450}
+.fix{display:flex;gap:16px;padding:18px 0;border-top:1px solid var(--line)}
+.fix:first-of-type{border-top:0}
+.fix-n{flex-shrink:0;width:32px;height:32px;border-radius:10px;background:var(--orange);color:#fff;font-weight:800;font-size:14px;display:flex;align-items:center;justify-content:center;box-shadow:0 3px 10px rgba(255,103,0,.25)}
+.fix-n.alt{background:var(--purple);box-shadow:0 3px 10px rgba(127,72,237,.25)}
+.fix-b strong{display:block;font-size:15px;font-weight:700;margin-bottom:4px;color:var(--ink)}
+.fix-b span{font-size:14px;color:var(--slate);line-height:1.55}
+.fix-b .sc{font-size:12px;font-weight:700;color:var(--purple);margin-left:4px}
+.hook{background:linear-gradient(135deg,rgba(127,72,237,.06),rgba(255,103,0,.06));border:1px solid rgba(127,72,237,.22);border-radius:22px;padding:28px;margin:34px 0 24px}
+.hook p{font-size:17px;font-weight:600;color:var(--ink);margin-bottom:20px;line-height:1.55}
+.cta-row{display:flex;gap:14px;flex-wrap:wrap}
+.cta-row .btn{flex:1;min-width:200px}
+.mini{font-size:12px;color:var(--mist);margin-top:10px;line-height:1.5}
+@media(max-width:620px){.row,.layers{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <!-- FORM -->
+  <div id="intro">
+    <div class="eyebrow">ReLaunch Marketing Audit · Free</div>
+    <h1>How well does your marketing <em>actually sell?</em></h1>
+    <p class="lede">Get your free Narrative Intelligence Score in under a minute. We analyze your website the way a buyer reads it — and show you exactly where you're losing customers and what to fix first.</p>
+    <div class="card">
+      <div class="err" id="err"></div>
+      <form id="form">
+        <div class="row">
+          <div><label>Your Name</label><input name="name" placeholder="Jane Smith" autocomplete="name"/></div>
+          <div><label>Business Name</label><input name="business" placeholder="Jane's Bakery" autocomplete="organization"/></div>
+        </div>
+        <label>Work Email *</label><input name="email" type="email" required placeholder="jane@business.com" autocomplete="email"/>
+        <label>Website URL *</label><input name="website" required placeholder="yourbusiness.com" autocomplete="url"/>
+        <button class="btn btn-orange" type="submit" id="go">Get My Free Score →</button>
+        <div class="fine">Free · No obligation · Your report is generated instantly</div>
+      </form>
+    </div>
+  </div>
+
+  <!-- LOADING -->
+  <div class="spin" id="spin">
+    <div class="loader"></div>
+    <div style="font-weight:600;font-size:16px;color:var(--ink)">Reading your site the way a customer would…</div>
+    <div style="font-size:13px;color:var(--mist);margin-top:6px">Scoring message, story, emotion and voice</div>
+  </div>
+
+  <!-- REPORT -->
+  <div id="report"></div>
+
+</div>
+
+<script>
+(function(){
+  // ====== CONFIG — set these for the live site ======
+  var BOOKING_URL = 'https://relaunch.us/contact'; // Fallback until Robert provides Google Calendar schedule URL
+  var API = '/api/audit';
+  // ===================================================
+
+  var form = document.getElementById('form'),
+      intro = document.getElementById('intro'),
+      spin = document.getElementById('spin'),
+      report = document.getElementById('report'),
+      errBox = document.getElementById('err'),
+      go = document.getElementById('go');
+
+  // STRICT RE-LAUNCH THEME: Purple (#7F48ED) & Orange (#FF6700) only
+  var BAND_COLOR = {
+    Strong: '#7F48ED',      // Signature Purple
+    Developing: '#FF6700',  // Signature Orange
+    Weak: '#9353FF',        // Electric Violet
+    Critical: '#E65C00'     // Deep Orange
+  };
+
+  function barColor(v){
+    // High performing = Brand Purple; Opportunities = Brand Orange
+    return v >= 70 ? '#7F48ED' : '#FF6700';
+  }
+
+  function showErr(m){ errBox.textContent=m; errBox.style.display='block'; }
+  function hideErr(){ errBox.style.display='none'; }
+
+  form.addEventListener('submit', function(e){
+    e.preventDefault(); hideErr();
+    var fd=new FormData(form), payload={};
+    fd.forEach(function(v,k){ payload[k]=v.trim(); });
+    go.disabled=true; go.textContent='Analyzing…';
+    intro.style.display='none'; spin.classList.add('on');
+
+    fetch(API,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)})
+      .then(function(r){ return r.json().then(function(j){ return {ok:r.ok,j:j}; }); })
+      .then(function(res){
+        spin.classList.remove('on');
+        if(!res.ok){ intro.style.display='block'; go.disabled=false; go.textContent='Get My Free Score →'; showErr(res.j.error||'Something went wrong. Try again.'); return; }
+        render(res.j, payload);
+      })
+      .catch(function(){
+        spin.classList.remove('on'); intro.style.display='block'; go.disabled=false; go.textContent='Get My Free Score →';
+        showErr('Network error. Please try again.');
+      });
+  });
+
+  function render(d, p){
+    var C = BAND_COLOR[d.band] || '#FF6700';
+    var circ = 2*Math.PI*80;
+    var L = d.layers, names = {storybrand:'StoryBrand Clarity',herosJourney:'Transformation Story',draper:'Emotional Pull',archetype:'Brand Voice'};
+    var layersHtml = Object.keys(L).map(function(k){
+      var col = barColor(L[k]);
+      return '<div class="layer"><div class="lh"><span class="ln">'+names[k]+'</span><span class="lv" style="color:'+col+'">'+L[k]+'</span></div>'
+           + '<div class="bar"><i data-w="'+L[k]+'" style="background:'+col+'"></i></div></div>';
+    }).join('');
+
+    var fixesHtml = d.fixes.map(function(f,i){
+      var isAlt = (i % 2 === 1) ? ' alt' : '';
+      return '<div class="fix"><div class="fix-n'+isAlt+'">'+(i+1)+'</div><div class="fix-b"><strong>'+f.area+' <span class="sc">· '+f.score+'/100</span></strong><span>'+f.fix+'</span></div></div>';
+    }).join('');
+
+    var hello = p.name ? p.name.split(' ')[0]+', here’s' : 'Here’s';
+
+    report.innerHTML =
+      '<div class="eyebrow">Your Narrative Intelligence Score</div>'
+    + '<h1 style="font-size:clamp(26px,4vw,38px)">'+hello+' how your marketing <span style="color:#7F48ED">scores.</span></h1>'
+    + '<p class="lede" style="margin-bottom:26px">Analyzed: <strong>'+(p.website||'')+'</strong></p>'
+    + '<div class="score-hero">'
+      + '<div class="ring">'
+        + '<svg width="190" height="190">'
+          + '<defs>'
+            + '<linearGradient id="scoreRingGrad" x1="0%" y1="0%" x2="100%" y2="100%">'
+              + '<stop offset="0%" stop-color="#FF6700"/>'
+              + '<stop offset="100%" stop-color="#7F48ED"/>'
+            + '</linearGradient>'
+          + '</defs>'
+          + '<circle cx="95" cy="95" r="80" fill="none" stroke="rgba(255,255,255,.12)" stroke-width="12"/>'
+          + '<circle id="arc" cx="95" cy="95" r="80" fill="none" stroke="url(#scoreRingGrad)" stroke-width="12" stroke-linecap="round" stroke-dasharray="'+circ+'" stroke-dashoffset="'+circ+'"/>'
+        + '</svg>'
+        + '<div class="num"><b id="bignum">0</b><span>out of 100</span></div>'
+      + '</div>'
+      + '<div class="band" style="background:'+C+'">'+d.band+'</div>'
+      + '<p class="band-note">'+d.bandNote+'</p>'
+    + '</div>'
+    + '<div class="layers">'+layersHtml+'</div>'
+    + '<div class="sec-h">Your biggest opportunity: <span style="color:#7F48ED">'+d.weakest.area+'</span></div>'
+    + '<div class="opp-card"><p>'+d.weakest.fix+'</p></div>'
+    + '<div class="sec-h">What to fix first</div>'
+    + fixesHtml
+    + '<div class="hook"><p>'+d.salesHook+'</p>'
+      + '<div class="cta-row"><a class="btn btn-orange" href="'+BOOKING_URL+'" target="_blank" rel="noopener">Book My Free Strategy Call →</a>'
+      + '<a class="btn btn-purple" href="https://relaunch.us/pricing">See Pricing</a></div>'
+      + '<div class="mini">On the call we’ll walk your report line by line and map the fastest wins — whether you hire us or not.</div></div>';
+
+    report.classList.add('on');
+    window.scrollTo({top:0,behavior:'smooth'});
+
+    // animate ring + number + bars
+    var arc=document.getElementById('arc'), big=document.getElementById('bignum');
+    requestAnimationFrame(function(){
+      arc.style.transition='stroke-dashoffset 1.3s cubic-bezier(.25,.46,.45,.94)';
+      arc.style.strokeDashoffset = circ*(1-d.overall/100);
+    });
+    var start=null;
+    function tick(ts){ if(!start)start=ts; var pr=Math.min((ts-start)/1300,1); big.textContent=Math.round(pr*d.overall); if(pr<1)requestAnimationFrame(tick); }
+    requestAnimationFrame(tick);
+    report.querySelectorAll('.bar i').forEach(function(i){ setTimeout(function(){ i.style.width=i.dataset.w+'%'; },200); });
+  }
+})();
+</script>
+</body>
+</html>

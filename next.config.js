@@ -34,6 +34,14 @@ const nextConfig = {
         source: "/swing-perfect",
         destination: "/work/swing-perfect",
       },
+      {
+        source: "/audit-tool",
+        destination: "http://127.0.0.1:3001/audit.html",
+      },
+      {
+        source: "/audit.html",
+        destination: "http://127.0.0.1:3001/audit.html",
+      },
     ];
   },
   async redirects() {
