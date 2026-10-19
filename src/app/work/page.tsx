@@ -13,18 +13,18 @@ import BrandsHelpedSection from "@/components/BrandsHelpedSection";
 import HeroScrollIndicator from "@/components/HeroScrollIndicator";
 import { ArrowUpRight, Calendar, MapPin } from "lucide-react";
 
-const WORK_VIDEOS = ["/ourworknew.mp4", "/ourworknew2.mp4"];
+const WORK_VIDEOS = ["/videos/work-hero-reel.mp4"];
 
 export default function WorkPage() {
   const { openContactModal } = useContactModal();
   const [selectedFilter, setSelectedFilter] = useState<string>("All");
   const [activeVideoIdx, setActiveVideoIdx] = useState(0);
-  const videoRefs = [useRef<HTMLVideoElement>(null), useRef<HTMLVideoElement>(null)];
+  const videoRefs = [useRef<HTMLVideoElement>(null)];
 
   useEffect(() => {
-    const currentRef = videoRefs[activeVideoIdx].current;
+    const currentRef = videoRefs[activeVideoIdx]?.current;
     if (currentRef) {
-      currentRef.playbackRate = 0.75;
+      currentRef.playbackRate = 0.9;
       currentRef.play().catch(() => {});
     }
   }, [activeVideoIdx]);
@@ -57,12 +57,13 @@ export default function WorkPage() {
               key={src}
               ref={videoRefs[idx]}
               src={src}
-              autoPlay={idx === 0}
+              autoPlay
               muted
+              loop
               playsInline
               onEnded={handleEnded}
               onLoadedMetadata={(e) => {
-                e.currentTarget.playbackRate = 0.75;
+                e.currentTarget.playbackRate = 0.9;
               }}
               className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-1000 ${
                 activeVideoIdx === idx ? "opacity-85 z-1" : "opacity-0 z-0"

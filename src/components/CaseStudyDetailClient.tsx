@@ -22,12 +22,21 @@ import {
   Globe,
   Layers,
   Video,
+  Quote,
 } from "lucide-react";
 
 interface CaseStudyDetailClientProps {
   study: CaseStudy;
   nextStudy?: CaseStudy;
   prevStudy?: CaseStudy;
+}
+
+function getYouTubeId(url?: string): string | null {
+  if (!url) return null;
+  const match = url.match(/(?:youtu\.be\/|youtube\.com\/(?:embed\/|v\/|watch\?v=|watch\?.+&v=))([\w-]{11})/);
+  if (match) return match[1];
+  if (url.length === 11 && !url.includes('/') && !url.includes('.')) return url;
+  return null;
 }
 
 export default function CaseStudyDetailClient({
@@ -37,6 +46,10 @@ export default function CaseStudyDetailClient({
 }: CaseStudyDetailClientProps) {
   const { openContactModal } = useContactModal();
   const [selectedGalleryImage, setSelectedGalleryImage] = useState<string | null>(null);
+
+  // Detect YouTube IDs
+  const heroYtId = getYouTubeId(study.heroVideo);
+  const bodyYtId = getYouTubeId(study.bodyVideo);
 
   // Safe access to images
   const img1 = study.galleryImages?.[0] || { src: study.image, alt: study.title, caption: "Project Overview" };
@@ -52,20 +65,34 @@ export default function CaseStudyDetailClient({
       <section className="relative w-full min-h-[92vh] sm:min-h-screen flex flex-col justify-center items-center pt-32 sm:pt-36 pb-20 sm:pb-24 bg-[#07090E] text-white px-4 sm:px-6 lg:px-8 overflow-hidden select-none">
         <div className="absolute inset-0 w-full h-full overflow-hidden pointer-events-none z-0">
           {study.heroVideo && (
-            <>
-              <video
-                src={study.heroVideo}
-                autoPlay
-                muted
-                loop
-                playsInline
-                className="absolute inset-0 w-full h-full object-cover opacity-85 brightness-105"
-              />
-              {/* Crisp balanced overlay: reduced black so video is luminous & HD */}
-              <div className="absolute inset-0 bg-gradient-to-b from-[#07090E]/30 via-transparent to-[#07090E]/65" />
-              {/* Targeted Center Radial Scrim: lightened to eliminate heavy black fog */}
-              <div className="absolute inset-0 bg-[radial-gradient(ellipse_80%_70%_at_50%_50%,rgba(7,9,14,0.40)_0%,rgba(7,9,14,0.15)_60%,transparent_100%)] pointer-events-none" />
-            </>
+            heroYtId ? (
+              <>
+                <iframe
+                  src={`https://www.youtube.com/embed/${heroYtId}?autoplay=1&mute=1&controls=0&loop=1&playlist=${heroYtId}&playsinline=1&rel=0&modestbranding=1&enablejsapi=1`}
+                  title={`${study.title} Hero Video`}
+                  className="absolute top-1/2 left-1/2 w-[177.77777778vh] min-w-full min-h-[56.25vw] h-full -translate-x-1/2 -translate-y-1/2 pointer-events-none opacity-85 brightness-105 border-0"
+                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                />
+                {/* Crisp balanced overlay */}
+                <div className="absolute inset-0 bg-gradient-to-b from-[#07090E]/30 via-transparent to-[#07090E]/65" />
+                <div className="absolute inset-0 bg-[radial-gradient(ellipse_80%_70%_at_50%_50%,rgba(7,9,14,0.40)_0%,rgba(7,9,14,0.15)_60%,transparent_100%)] pointer-events-none" />
+              </>
+            ) : (
+              <>
+                <video
+                  src={study.heroVideo}
+                  autoPlay
+                  muted
+                  loop
+                  playsInline
+                  className="absolute inset-0 w-full h-full object-cover opacity-85 brightness-105"
+                />
+                {/* Crisp balanced overlay: reduced black so video is luminous & HD */}
+                <div className="absolute inset-0 bg-gradient-to-b from-[#07090E]/30 via-transparent to-[#07090E]/65" />
+                {/* Targeted Center Radial Scrim: lightened to eliminate heavy black fog */}
+                <div className="absolute inset-0 bg-[radial-gradient(ellipse_80%_70%_at_50%_50%,rgba(7,9,14,0.40)_0%,rgba(7,9,14,0.15)_60%,transparent_100%)] pointer-events-none" />
+              </>
+            )
           )}
           <div className="absolute inset-0 bg-[radial-gradient(ellipse_80%_60%_at_50%_-10%,rgba(127,72,237,0.18),transparent_75%)]" />
           <div className="absolute top-1/4 right-1/4 w-[500px] h-[400px] bg-[#7F48ED]/15 rounded-full blur-[140px]" />
@@ -478,6 +505,172 @@ export default function CaseStudyDetailClient({
           </div>
         </div>
       </section>
+
+      {/* Print & Stadium Poster Campaign Deliverables */}
+      {study.printDeliverables && study.printDeliverables.length > 0 && (
+        <section className="py-16 sm:py-24 px-4 sm:px-6 lg:px-8 bg-white border-t border-slate-100">
+          <div className="max-w-7xl mx-auto">
+            <MotionWrapper direction="up" distance={20} className="max-w-3xl mb-12">
+              <span className="text-xs font-mono uppercase tracking-widest text-[#7F48ED] font-bold block mb-2">
+                PRINT &amp; ARENA MARKETING
+              </span>
+              <h2 className="font-heading font-black text-2xl sm:text-4xl text-[#090D16] tracking-tight leading-[1.1] mb-3">
+                Ralston Arena 22&times;28 Graphics &amp; Menu Signage
+              </h2>
+              <p className="text-sm sm:text-base text-slate-600 leading-relaxed">
+                Large-format 22&times;28 arena concourse posters and digital menu graphics engineered for high-visibility foot traffic in Ralston Arena Section 113.
+              </p>
+            </MotionWrapper>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+              {study.printDeliverables.map((item, idx) => (
+                <MotionWrapper key={item.title} direction="up" delay={idx * 0.08} distance={20}>
+                  <div
+                    onClick={() => setSelectedGalleryImage(item.src)}
+                    className="group flex flex-col h-full rounded-2xl bg-white border border-slate-200/90 shadow-sm hover:border-[#7F48ED]/60 overflow-hidden cursor-zoom-in transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_12px_30px_rgba(127,72,237,0.12)]"
+                  >
+                    <div className="relative aspect-[22/28] w-full bg-slate-50 border-b border-slate-100 overflow-hidden">
+                      <Image
+                        src={item.src}
+                        alt={item.title}
+                        fill
+                        className="object-cover group-hover:scale-105 transition-transform duration-500"
+                      />
+                      <div className="absolute inset-0 bg-black/5 group-hover:bg-transparent transition-colors" />
+                      <div className="absolute top-3 right-3 px-2 py-1 rounded bg-black/75 backdrop-blur-md text-[10px] font-mono text-white/95">
+                        22 &times; 28&quot;
+                      </div>
+                    </div>
+                    <div className="p-4 flex flex-col flex-1 justify-between bg-white">
+                      <div>
+                        <h3 className="font-heading font-bold text-sm sm:text-base text-[#090D16] group-hover:text-[#7F48ED] transition-colors">
+                          {item.title}
+                        </h3>
+                        {item.subtitle && (
+                          <p className="text-xs text-slate-500 mt-1 leading-relaxed">
+                            {item.subtitle}
+                          </p>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                </MotionWrapper>
+              ))}
+            </div>
+          </div>
+        </section>
+      )}
+
+      {/* Video Content & Social Media Campaigns */}
+      {study.campaignVideos && study.campaignVideos.length > 0 && (
+        <section className="py-16 sm:py-24 px-4 sm:px-6 lg:px-8 bg-slate-50 border-t border-slate-200">
+          <div className="max-w-7xl mx-auto">
+            <MotionWrapper direction="up" distance={20} className="max-w-3xl mb-12">
+              <span className="text-xs font-mono uppercase tracking-widest text-[#7F48ED] font-bold block mb-2">
+                VIDEO CREATION &amp; SOCIAL CONTENT
+              </span>
+              <h2 className="font-heading font-black text-2xl sm:text-4xl text-[#090D16] tracking-tight leading-[1.1] mb-3">
+                Viral Social Content &amp; Food Truck Expansion
+              </h2>
+              <p className="text-sm sm:text-base text-slate-600 leading-relaxed">
+                ReLaunch produced on-location video reels for TikTok, Instagram, and local PR campaigns, driving buzz for new food concepts and food truck pop-ups.
+              </p>
+            </MotionWrapper>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+              {study.campaignVideos.map((video, idx) => (
+                <MotionWrapper key={video.title} direction="up" delay={idx * 0.08} distance={20}>
+                  <div className="flex flex-col h-full rounded-2xl bg-white border border-slate-200 shadow-sm overflow-hidden group hover:border-[#7F48ED]/50 transition-all">
+                    <div className="relative aspect-[9/16] w-full bg-black overflow-hidden flex items-center justify-center">
+                      <video
+                        src={video.src}
+                        controls
+                        playsInline
+                        preload="metadata"
+                        className="w-full h-full object-cover"
+                      />
+                    </div>
+                    <div className="p-4 flex flex-col flex-1 justify-between bg-white">
+                      <div>
+                        <h3 className="font-heading font-bold text-sm text-[#090D16]">
+                          {video.title}
+                        </h3>
+                        {video.caption && (
+                          <p className="text-xs text-slate-500 mt-1 leading-relaxed">
+                            {video.caption}
+                          </p>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                </MotionWrapper>
+              ))}
+            </div>
+
+            {study.secondaryQuote && (
+              <MotionWrapper direction="up" distance={20} className="mt-12">
+                <div className="p-6 sm:p-8 rounded-2xl bg-white border border-purple-200 shadow-xs flex items-start gap-4">
+                  <Quote className="w-5 h-5 text-[#7F48ED] shrink-0 mt-1" />
+                  <div>
+                    <blockquote className="text-sm sm:text-base text-slate-800 font-medium italic">
+                      &ldquo;{study.secondaryQuote}&rdquo;
+                    </blockquote>
+                    <span className="text-[11px] font-mono uppercase tracking-wider text-[#7F48ED] font-bold block mt-2">
+                      Project Philosophy · ReLaunch Agency
+                    </span>
+                  </div>
+                </div>
+              </MotionWrapper>
+            )}
+          </div>
+        </section>
+      )}
+
+      {/* Brand Identity & Concepts Suite */}
+      {study.identityAssets && study.identityAssets.length > 0 && (
+        <section className="py-16 sm:py-24 px-4 sm:px-6 lg:px-8 bg-white border-t border-slate-200">
+          <div className="max-w-7xl mx-auto">
+            <MotionWrapper direction="up" distance={20} className="max-w-3xl mb-12">
+              <span className="text-xs font-mono uppercase tracking-widest text-[#7F48ED] font-bold block mb-2">
+                BRAND IDENTITY &amp; SUB-BRANDS
+              </span>
+              <h2 className="font-heading font-black text-2xl sm:text-4xl text-[#090D16] tracking-tight leading-[1.1] mb-3">
+                Logos, Retro Diner Badges &amp; Spin-off Concepts
+              </h2>
+              <p className="text-sm sm:text-base text-slate-600 leading-relaxed">
+                Official splatter badges, 1950s diner emblems, and the spin-off Mother Truckin&apos; burger &amp; dog food truck identity.
+              </p>
+            </MotionWrapper>
+
+            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4 sm:gap-6">
+              {study.identityAssets.map((asset, idx) => (
+                <MotionWrapper key={asset.name} direction="up" delay={idx * 0.05} distance={15}>
+                  <div
+                    onClick={() => setSelectedGalleryImage(asset.src)}
+                    className={`group flex flex-col items-center justify-center p-6 rounded-2xl border transition-all cursor-zoom-in text-center hover:scale-105 ${
+                      asset.bgDark
+                        ? "bg-[#090D16] border-slate-800 text-white"
+                        : "bg-slate-50 border-slate-200 text-slate-900"
+                    }`}
+                  >
+                    <div className="relative w-28 h-28 mb-3 flex items-center justify-center">
+                      <Image
+                        src={asset.src}
+                        alt={asset.name}
+                        fill
+                        className="object-contain p-2"
+                      />
+                    </div>
+                    <span className="text-xs font-medium line-clamp-2">
+                      {asset.name}
+                    </span>
+                  </div>
+                </MotionWrapper>
+              ))}
+            </div>
+          </div>
+        </section>
+      )}
 
       {/* Lightbox Modal for gallery zoom */}
       {selectedGalleryImage && (

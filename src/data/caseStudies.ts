@@ -42,6 +42,12 @@ export interface CaseStudy {
   description: string;
   clientQuote?: string;
 
+  // Optional: extended media and quotes from live relaunch.us site
+  secondaryQuote?: string;
+  campaignVideos?: { title: string; src: string; caption?: string }[];
+  printDeliverables?: { title: string; src: string; subtitle?: string }[];
+  identityAssets?: { name: string; src: string; bgDark?: boolean }[];
+
   // Optional: a row of brands shown on the case page (used for multi-brand projects)
   brandShowcase?: {
     name: string;
@@ -111,11 +117,100 @@ export const caseStudiesData: CaseStudy[] = [
     icon: "Utensils",
     bgColor: "#090D16",
     image: "/showcase/chicago_dog_real_1.jpg",
+    secondaryQuote:
+      "It pays to help the little guy. This project is the prime example of this. Hard-work and dedication will always bear great fruit.",
     galleryImages: [
-      { src: "/showcase/chicago_dog_real_1.jpg", alt: "Chicago Dogs 42 storefront and diners", caption: "Flagship Omaha diner location" },
-      { src: "/showcase/chicago_dog_real_2.png", alt: "Chicago Dogs 42 menu and digital ordering", caption: "Custom digital menu & campaign graphics" },
-      { src: "/showcase/chicago_dog_real_3.png", alt: "Chicago Dogs 42 social ads creative", caption: "Paid Facebook campaign creative" },
-      { src: "/showcase/chicago_dog.jpg", alt: "Chicago Dogs 42 interior ambiance", caption: "Modern 1950s diner brand experience" },
+      {
+        src: "/showcase/chicago_dog_real_1.jpg",
+        alt: "Chicago Dogs 42 Omaha diner location counter and dining room",
+        caption: "Flagship Omaha diner interior & ordering counter",
+      },
+      {
+        src: "/showcase/chicago_dog_splatter_logo.png",
+        alt: "Chicago Dogs 42 official splatter brand logo",
+        caption: "Official Chicago Dogs 42 splatter brand identity",
+      },
+      {
+        src: "/showcase/chicago_dog_social_post.png",
+        alt: "Chicago Dogs 42 digital touch-screen ordering app",
+        caption: "Custom touch-screen ordering kiosk software & eat-in app",
+      },
+      {
+        src: "/showcase/chicago_dog_website_hero.png",
+        alt: "Chicago Dogs 42 original website and online ordering on chicagodog42.com",
+        caption: "Official responsive website & online ordering design (chicagodog42.com)",
+      },
+    ],
+    printDeliverables: [
+      {
+        title: "Fresh, Healthy & Fast",
+        src: "/showcase/chicago_dog_menu_poster_1.png",
+        subtitle: "Ralston Arena Section 113 poster featuring Chicago style dogs & gyros",
+      },
+      {
+        title: "Italian Beef & Sausage",
+        src: "/showcase/chicago_dog_menu_poster_2.png",
+        subtitle: "Ralston Arena Section 113 poster featuring slow-roasted Italian beef",
+      },
+      {
+        title: "Juicy Grilled Bratwurst",
+        src: "/showcase/chicago_dog_menu_poster_3.png",
+        subtitle: "Ralston Arena Section 113 poster featuring authentic grilled bratwurst",
+      },
+      {
+        title: "Good Food Brings People Together",
+        src: "/showcase/chicago_dog_menu_poster_4.png",
+        subtitle: "Ralston Arena Section 113 brand experience & community poster",
+      },
+    ],
+    campaignVideos: [
+      {
+        title: "Another Day, Another Food Truck!",
+        src: "/videos/chicago-dog-insta.mp4",
+        caption: "Food truck launch and community customer engagement reel",
+      },
+      {
+        title: "Social Video Campaign 01",
+        src: "/videos/chicago-dog-social-1.mp4",
+        caption: "Organic short-form video featuring menu favorites and diner atmosphere",
+      },
+      {
+        title: "Social Video Campaign 02",
+        src: "/videos/chicago-dog-social-2.mp4",
+        caption: "Customer reactions and viral TikTok/Reels promotional clips",
+      },
+      {
+        title: "Social Video Campaign 03",
+        src: "/videos/chicago-dog-social-3.mp4",
+        caption: "Behind-the-scenes authentic Chicago recipes & food prep",
+      },
+    ],
+    identityAssets: [
+      {
+        name: "CD42 Splatter Logo (Color)",
+        src: "/showcase/chicago_dog_splatter_color.png",
+        bgDark: false,
+      },
+      {
+        name: "CD42 Splatter Badge (Black)",
+        src: "/showcase/chicago_dog_splatter_logo.png",
+        bgDark: false,
+      },
+      {
+        name: "1950s Diner Heritage Badge (Black)",
+        src: "/showcase/chicago_dog_badge_black.png",
+        bgDark: false,
+      },
+      {
+        name: "1950s Diner Heritage Badge (White)",
+        src: "/showcase/chicago_dog_badge_white.png",
+        bgDark: true,
+      },
+      {
+        name: "Mother Truckin' Food Truck Brand",
+        src: "/showcase/chicago_dog_mother_truckin.png",
+        bgDark: false,
+      },
     ],
     displayUrl: "chicagodog42.com",
     statHighlights: [
@@ -348,6 +443,7 @@ export const caseStudiesData: CaseStudy[] = [
     slug: "turflife-2",
     aliases: ["turflife", "turflife-2"],
     themeColor: "purple",
+    heroVideo: "https://www.youtube.com/watch?v=sAaj9437aOg",
     title: "Turflife",
     subtitle: "Build a lifestyle brand for the turf industry",
     client: "Terrie Purdum",
@@ -392,7 +488,7 @@ export const caseStudiesData: CaseStudy[] = [
       { src: "/showcase/turflife_real_2.png", alt: "TurfLife social media campaign", caption: "National community campaign across turf industries" },
       { src: "/showcase/turflife_real_3.png", alt: "TurfLife brand showcase in Golf Central Magazine", caption: "Southeastern magazine feature syndication" },
     ],
-    displayUrl: "turflife.com",
+    displayUrl: "turflifeclub.com",
     statHighlights: [
       { label: "Status", value: "Since 2016", description: "On-Going national movement" },
       { label: "Recognition", value: "Nationwide", description: "Recognized by the turf industry nationwide" },
