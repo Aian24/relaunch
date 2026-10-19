@@ -83,7 +83,7 @@ export default function ServicesPage() {
             WHAT WE DO
           </span>
           <h1 className="font-heading font-black text-4xl sm:text-6xl lg:text-7xl tracking-tight leading-[1.05] mb-5 drop-shadow-[0_4px_24px_rgba(0,0,0,0.95)]">
-            Everything you need to <span className="text-[#FF6700] drop-shadow-[0_4px_24px_rgba(255,103,0,0.45)]">get found,</span> get chosen and get paid.
+            Everything you need to <span className="text-[#FF6700] drop-shadow-[0_4px_24px_rgba(255,103,0,0.45)]">get found,</span> get chosen and get more customers.
           </h1>
           <p className="text-white/95 text-base sm:text-xl max-w-2xl mx-auto leading-relaxed mb-10 drop-shadow-[0_2px_12px_rgba(0,0,0,0.95)] font-medium">
             Four ways we help. Start with the one that&apos;s costing you the most, and add more when you&apos;re ready.
@@ -228,7 +228,7 @@ export default function ServicesPage() {
                         onClick={() => openContactModal({ intent: "strategy-session", serviceInterest: group.title })}
                         className="w-full inline-flex items-center justify-center gap-2 py-3.5 px-6 rounded-xl bg-[#FF6700] hover:bg-[#E55C00] text-white font-heading font-bold text-xs uppercase tracking-wider transition-all shadow-[0_4px_16px_rgba(255,103,0,0.3)] hover:shadow-[0_6px_24px_rgba(255,103,0,0.4)] cursor-pointer active:scale-98 group/btn"
                       >
-                        <span>Inquire About {group.title}</span>
+                        <span>Ask About {group.title}</span>
                         <ArrowUpRight className="w-4 h-4 text-white transition-transform group-hover/btn:translate-x-0.5 group-hover/btn:-translate-y-0.5" />
                       </button>
 

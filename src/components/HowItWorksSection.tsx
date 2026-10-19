@@ -70,7 +70,7 @@ export default function HowItWorksSection() {
           <button
             type="button"
             onClick={() => openContactModal({ intent: "strategy-session" })}
-            className="inline-flex items-center justify-center gap-2 px-7 py-3.5 rounded-xl bg-[#7F48ED] hover:bg-[#6C34DE] text-white font-heading font-bold text-xs sm:text-sm uppercase tracking-wider transition-all duration-200 shadow-[0_0_20px_rgba(127,72,237,0.35)] cursor-pointer active:scale-98"
+            className="inline-flex items-center justify-center gap-2 px-7 py-3.5 rounded-xl bg-[#FF6700] hover:bg-[#E55C00] text-white font-heading font-bold text-xs sm:text-sm uppercase tracking-wider transition-all duration-200 shadow-[0_0_20px_rgba(255,103,0,0.35)] cursor-pointer active:scale-98"
           >
             <span>Book a Strategy Call</span>
             <ArrowUpRight className="w-4 h-4 text-white" />

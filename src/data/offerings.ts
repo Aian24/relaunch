@@ -147,7 +147,7 @@ export const outcomeGroups: OutcomeGroup[] = [
       "a fixed-scope roadmap, milestone delivery dates, and 100% full intellectual property ownership.",
     homepageDeliverables: [
       "Custom web apps, portals & system integrations",
-      "Guaranteed fixed-scope milestones & delivery",
+      "Fixed-scope milestones & delivery dates",
       "100% full source code and IP ownership",
     ],
   },
@@ -163,6 +163,7 @@ export const productsData: ReLaunchProduct[] = [
     serviceGroup: "Get Found",
     serviceGroupId: "get-found",
     href: "/ai-recommendations",
+    externalUrl: "https://recommend.relaunch.us",
     badge: "New",
     roleOnSite: "Featured product; own landing page",
   },
@@ -198,6 +199,7 @@ export const productsData: ReLaunchProduct[] = [
     serviceGroup: "Front door to all four",
     serviceGroupId: "get-found",
     href: "/audit",
+    externalUrl: "https://audit.relaunch.us",
     roleOnSite: "Free score lead magnet leading to the strategy call",
   },
 ];
@@ -232,14 +234,11 @@ export const companyCreds = {
   phoneTel: "tel:4807799875",
   email: "care@relaunch.us",
   emailMailto: "mailto:care@relaunch.us",
-  founder: {
-    name: "Robert “Bobby” Clark",
-    shortName: "Bobby Clark",
-    title: "Founder",
+  // No founder name or photo on the site for now (by request).
+  team: {
     experienceYears: 18,
-    photo: "/images/bobby-clark.jpg",
-    headline: "You'll talk to me, not an account manager.",
-    bio: "I'm Bobby Clark. I've spent 18 years helping small businesses across the U.S., Canada, the UK and Australia get found, get chosen and get paid. When you work with ReLaunch, you work directly with me and our senior team.",
+    headline: "You'll work with senior people, not an account manager.",
+    bio: "For 18 years we've helped small businesses across the U.S., Canada, the UK and Australia get found, get chosen and win more customers. When you work with ReLaunch, you work directly with our senior team.",
     promises: [
       {
         title: "Senior team only",
@@ -265,11 +264,11 @@ export const companyCreds = {
     },
     fullAudit: {
       name: "Full audit",
-      price: "$495, one time",
+      price: "$497, one time",
       deliverable:
         "A written report: score by area, every gap we found, and a prioritized fix list",
       channels: "Website, social media, Google profile and reviews",
-      nextStep: "Walk-through call with Bobby",
+      nextStep: "Walk-through call with our team",
     },
   },
 };

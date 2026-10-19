@@ -15,10 +15,8 @@ import {
   ArrowUpRight,
   ArrowRight,
   CheckCircle2,
-  ExternalLink,
   TrendingUp,
   X,
-  Globe,
   Quote,
 } from "lucide-react";
 
@@ -429,22 +427,9 @@ export default function CaseStudiesSection() {
                   transition={{ duration: 0.35, delay: 0.26 }}
                   className="pt-4 border-t border-slate-200 flex flex-col sm:flex-row items-center justify-between gap-3"
                 >
-                  {activeStudy.liveUrl ? (
-                    <a
-                      href={activeStudy.liveUrl}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="inline-flex items-center gap-1.5 text-xs font-bold text-[#090D16] hover:text-[#FF6700] transition-colors"
-                    >
-                      <Globe className="w-4 h-4 text-[#2E8B7A]" />
-                      <span>Visit Live Website ({activeStudy.displayUrl})</span>
-                      <ExternalLink className="w-3.5 h-3.5 text-slate-400" />
-                    </a>
-                  ) : (
-                    <div className="text-xs text-slate-500">
-                      Phoenix, AZ · Enterprise Delivery
-                    </div>
-                  )}
+                  <div className="text-xs text-slate-500">
+                    Fully remote · Since 2008
+                  </div>
 
                   <div className="flex flex-col sm:flex-row items-center gap-2.5 w-full sm:w-auto">
                     <Link

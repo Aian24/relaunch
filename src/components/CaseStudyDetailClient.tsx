@@ -16,9 +16,7 @@ import {
   ArrowUpRight,
   Calendar,
   CheckCircle2,
-  ExternalLink,
   MapPin,
-  Quote,
   TrendingUp,
   X,
   Globe,
@@ -118,26 +116,81 @@ export default function CaseStudyDetailClient({
             <span>{study.industry}</span>
             <span>·</span>
             <span>{study.timeline}</span>
-            {study.liveUrl && (
-              <>
-                <span>·</span>
-                <a
-                  href={study.liveUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="inline-flex items-center gap-1 text-[#7F48ED] hover:underline"
-                >
-                  <span>Visit site</span>
-                  <ExternalLink className="w-3 h-3" />
-                </a>
-              </>
-            )}
           </div>
         </MotionWrapper>
 
         {/* Scroll Indicator */}
         <HeroScrollIndicator targetId="case-study-details" accentColor="#7F48ED" />
       </section>
+
+      {/* 1b. Brand showcase (multi-brand projects only) */}
+      {study.brandShowcase && study.brandShowcase.length > 0 && (
+        <section className="py-16 sm:py-24 px-4 sm:px-6 lg:px-8 bg-white border-t border-slate-200">
+          <div className="max-w-7xl mx-auto">
+            <MotionWrapper direction="up" distance={20} className="max-w-2xl mb-10 sm:mb-14">
+              <span className="text-xs font-mono uppercase tracking-widest text-[#7F48ED] font-bold block mb-2">
+                THE BRANDS
+              </span>
+              <h2 className="font-heading font-black text-3xl sm:text-5xl text-[#090D16] tracking-tight leading-[1.08]">
+                {study.brandShowcase.length} brands. Each with its own personality.
+              </h2>
+            </MotionWrapper>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 lg:gap-8">
+              {study.brandShowcase.map((brand, idx) => (
+                <MotionWrapper key={brand.name} direction="up" delay={idx * 0.06} distance={20} className="h-full">
+                  <article className="h-full flex flex-col rounded-3xl border border-slate-200 bg-white overflow-hidden">
+                    <div
+                      className={`relative h-56 sm:h-64 flex items-center justify-center p-6 border-b border-slate-200 ${
+                        brand.logoOnDark ? "bg-[#111111]" : "bg-white"
+                      }`}
+                    >
+                      <div className="relative w-full h-full">
+                        <Image src={brand.logo} alt={`${brand.name} logo`} fill className="object-contain" />
+                      </div>
+                    </div>
+
+                    <div className="p-6 sm:p-7 flex flex-col gap-4 flex-1">
+                      <div>
+                        <div className="text-[11px] font-mono uppercase tracking-widest text-slate-500 mb-1">{brand.kind}</div>
+                        <h3 className="font-heading font-black text-xl sm:text-2xl text-[#090D16]">{brand.name}</h3>
+                        <p className="mt-2 text-sm text-slate-600 leading-relaxed">{brand.summary}</p>
+                      </div>
+
+                      <div className="flex flex-wrap gap-2">
+                        {brand.made.map((m) => (
+                          <span
+                            key={m}
+                            className="px-2.5 py-1 rounded-full bg-[#7F48ED]/10 text-[#7F48ED] text-[11px] font-bold"
+                          >
+                            {m}
+                          </span>
+                        ))}
+                      </div>
+
+                      {brand.samples.length > 0 && (
+                        <div className="grid grid-cols-4 gap-2 mt-auto pt-2">
+                          {brand.samples.slice(0, 4).map((s) => (
+                            <button
+                              key={s.src}
+                              type="button"
+                              onClick={() => setSelectedGalleryImage(s.src)}
+                              className="relative aspect-square rounded-xl overflow-hidden bg-slate-100 border border-slate-200 cursor-zoom-in hover:border-[#7F48ED]/50 transition-colors"
+                              aria-label={`View ${s.alt}`}
+                            >
+                              <Image src={s.src} alt={s.alt} fill className="object-cover" />
+                            </button>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                  </article>
+                </MotionWrapper>
+              ))}
+            </div>
+          </div>
+        </section>
+      )}
 
       {/* 2. Alternating Zigzag Layout: Each detail paired directly with an authentic image (No numbers) */}
 
@@ -190,7 +243,7 @@ export default function CaseStudyDetailClient({
                   THE CHALLENGE
                 </span>
                 <h2 className="font-heading font-black text-2xl sm:text-3xl text-[#090D16] tracking-tight mb-4">
-                  The Problem &amp; Market Context
+                  The challenge
                 </h2>
                 <p className="text-sm sm:text-base text-slate-600 leading-relaxed font-normal mb-6">
                   {study.challenge}
@@ -224,7 +277,7 @@ export default function CaseStudyDetailClient({
                   OUR STRATEGY
                 </span>
                 <h2 className="font-heading font-black text-2xl sm:text-3xl text-[#090D16] tracking-tight mb-4">
-                  The Approach &amp; Execution Roadmap
+                  What we did
                 </h2>
                 <p className="text-sm sm:text-base text-slate-600 leading-relaxed font-normal mb-6">
                   {study.strategy}
@@ -236,7 +289,7 @@ export default function CaseStudyDetailClient({
                     STRATEGIC SCOPE
                   </span>
                   <p className="text-xs sm:text-sm text-slate-700 font-medium">
-                    Full lifecycle partnership from day one across creative, paid acquisition, and technology.
+                    One team handled the work from planning through launch.
                   </p>
                 </div>
               </MotionWrapper>
@@ -340,7 +393,7 @@ export default function CaseStudyDetailClient({
                   THE RESULTS
                 </span>
                 <h2 className="font-heading font-black text-2xl sm:text-3xl text-[#090D16] tracking-tight mb-4">
-                  Measurable Business Impact
+                  What changed
                 </h2>
                 <p className="text-sm sm:text-base text-slate-600 leading-relaxed font-normal mb-6">
                   {study.resultsNarrative}
@@ -362,7 +415,7 @@ export default function CaseStudyDetailClient({
         </div>
       </section>
 
-      {/* ROW 4: Deliverables Left, Testimonial & 4th Image Right */}
+      {/* ROW 4: Deliverables Left, 4th Image Right */}
       <section className="py-16 sm:py-24 px-4 sm:px-6 lg:px-8 bg-white border-t border-slate-100">
         <div className="max-w-7xl mx-auto">
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-14 items-start">
@@ -374,10 +427,10 @@ export default function CaseStudyDetailClient({
                   SERVICES PROVIDED
                 </span>
                 <h2 className="font-heading font-black text-2xl sm:text-3xl text-[#090D16] tracking-tight mb-3">
-                  Scope of Services Provided
+                  What we delivered
                 </h2>
                 <p className="text-xs sm:text-sm text-slate-500 mb-6">
-                  The complete suite of agency solutions executed for {study.client}.
+                  Everything we handled for {study.title}.
                 </p>
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
@@ -394,30 +447,8 @@ export default function CaseStudyDetailClient({
               </MotionWrapper>
             </div>
 
-            {/* Testimonial & 4th Image (Right 6 cols) */}
+            {/* 4th Image (Right 6 cols) */}
             <div className="lg:col-span-6 space-y-6">
-              {/* Testimonial */}
-              {study.testimonialQuote && (
-                <MotionWrapper direction="up" delay={0.08} distance={20}>
-                  <div className="p-6 sm:p-8 rounded-3xl bg-purple-50/60 border border-purple-200 shadow-xs">
-                    <Quote className="w-8 h-8 text-[#7F48ED] opacity-60 mb-3" />
-                    <blockquote className="text-xs sm:text-sm text-slate-800 leading-relaxed font-normal mb-4">
-                      &ldquo;{study.testimonialQuote.quote}&rdquo;
-                    </blockquote>
-                    <div className="pt-3 border-t border-purple-200/60">
-                      <div className="font-heading font-bold text-sm text-[#090D16]">
-                        {study.testimonialQuote.author}
-                      </div>
-                      {study.testimonialQuote.role && (
-                        <div className="text-xs text-[#7F48ED] font-mono mt-0.5">
-                          {study.testimonialQuote.role}
-                        </div>
-                      )}
-                    </div>
-                  </div>
-                </MotionWrapper>
-              )}
-
               {/* 4th Image Card */}
               {img4 && (
                 <MotionWrapper direction="up" delay={0.14} distance={20}>
@@ -516,14 +547,14 @@ export default function CaseStudyDetailClient({
       {/* 4. Final Call to Action */}
       <section className="py-20 sm:py-28 px-4 sm:px-6 lg:px-8 bg-white text-center border-t border-slate-100">
         <MotionWrapper direction="up" distance={20} className="max-w-2xl mx-auto">
-          <span className="text-xs font-mono uppercase tracking-widest text-[#7F48ED] font-bold block mb-3">
-            START YOUR STORY
+          <span className="text-xs font-mono uppercase tracking-widest text-[#FF6700] font-bold block mb-3">
+            NEXT STEP
           </span>
           <h2 className="font-heading font-black text-3xl sm:text-5xl text-[#090D16] tracking-tight mb-4">
-            Ready to engineer <span className="text-[#7F48ED]">real results?</span>
+            Want results like <span className="text-[#FF6700]">these?</span>
           </h2>
           <p className="text-slate-600 text-sm sm:text-base leading-relaxed mb-8">
-            Whether scaling a franchise, launching a disruptive platform, or overhauling enterprise software, our team delivers.
+            Book a free 30-minute strategy call. We&apos;ll show you where you&apos;re losing customers and what to fix first.
           </p>
           <button
             type="button"
@@ -534,7 +565,7 @@ export default function CaseStudyDetailClient({
                 notes: `Inquiry after reviewing ${study.title} case study.`,
               })
             }
-            className="inline-flex items-center justify-center gap-2 px-7 py-3.5 bg-[#7F48ED] hover:bg-[#6C34DE] shadow-[0_4px_20px_rgba(127,72,237,0.25)] text-white font-heading font-bold text-xs sm:text-sm uppercase tracking-wider rounded-xl transition-all cursor-pointer hover:scale-105"
+            className="inline-flex items-center justify-center gap-2 px-7 py-3.5 bg-[#FF6700] hover:bg-[#E55C00] shadow-[0_4px_20px_rgba(255,103,0,0.25)] text-white font-heading font-bold text-xs sm:text-sm uppercase tracking-wider rounded-xl transition-all cursor-pointer hover:scale-105"
           >
             <Calendar className="w-4 h-4 text-white" />
             <span>Book a Strategy Call</span>

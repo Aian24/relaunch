@@ -74,7 +74,7 @@ export default function BrandsHelpedSection({
             <div className={`inline-flex items-center gap-2 px-3.5 py-1 rounded-full text-[10px] sm:text-[11px] font-mono uppercase tracking-[0.2em] font-bold mb-3 shadow-xs border ${badgeClasses}`}>
               <span className={`w-1.5 h-1.5 rounded-full ${accentBg}`} />
               <span>
-                PROVEN CLIENT IMPACT · EST. 2008
+                PROVEN CLIENT IMPACT · SINCE 2008
               </span>
             </div>
 
@@ -90,7 +90,7 @@ export default function BrandsHelpedSection({
                 isDark ? "text-slate-400" : "text-slate-600"
               }`}
             >
-              From ambitious startups and regional staples to multi-location enterprises.
+              From single-location shops to franchise brands, hotels and a city government.
             </p>
           </MotionWrapper>
         )}

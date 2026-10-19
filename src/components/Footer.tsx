@@ -3,12 +3,11 @@
 import Image from "next/image";
 import Link from "next/link";
 import { contactInfo } from "@/data/navigation";
-import { Phone, Mail, MapPin, ArrowUp, ArrowUpRight } from "lucide-react";
+import { useContactModal } from "@/context/ContactModalContext";
+import { Phone, Mail, MapPin, ArrowUpRight } from "lucide-react";
 
 export default function Footer() {
-  const scrollToTop = () => {
-    window.scrollTo({ top: 0, behavior: "smooth" });
-  };
+  const { openContactModal } = useContactModal();
 
   return (
     <footer className="bg-[#090D16] text-white pt-16 pb-12 select-none border-t border-slate-800/80 overflow-hidden relative">
@@ -146,9 +145,13 @@ export default function Footer() {
 
               <div className="pt-2">
                 <span className="text-[11px] text-slate-500 block">30-Minute Diagnostic</span>
-                <Link href="/pricing" className="text-xs text-[#FF6700] underline hover:text-[#FF6700]">
+                <button
+                  type="button"
+                  onClick={() => openContactModal({ intent: "strategy-session" })}
+                  className="text-xs text-[#FF6700] underline hover:text-[#FF6700] cursor-pointer"
+                >
                   Book a Strategy Call
-                </Link>
+                </button>
               </div>
             </div>
           </div>
@@ -157,18 +160,11 @@ export default function Footer() {
         {/* Bottom Bar */}
         <div className="pt-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-slate-500">
           <div>
-            © {new Date().getFullYear()} ReLaunch. {contactInfo.homeBaseDisclaimer}.
+            © {new Date().getFullYear()} ReLaunch.
           </div>
 
           <div className="flex items-center gap-6">
             <span>Month-to-Month · You Own Everything</span>
-            <button
-              onClick={scrollToTop}
-              className="p-2.5 rounded-xl bg-slate-800 hover:bg-[#FF6700] text-white transition-colors cursor-pointer"
-              aria-label="Scroll to top"
-            >
-              <ArrowUp className="w-4 h-4" />
-            </button>
           </div>
         </div>
       </div>

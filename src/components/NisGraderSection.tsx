@@ -236,7 +236,7 @@ export default function NisGraderSection() {
                     onClick={() =>
                       openContactModal({
                         intent: "strategy-session",
-                        serviceInterest: "A full bundle",
+                        serviceInterest: "A bundle of services",
                         notes: `NIS Diagnostic Grader Result: ${totalScore}/100 (${gradeInfo.grade} Grade - ${gradeInfo.label}). Requesting audit walkthrough.`,
                       })
                     }

@@ -174,7 +174,7 @@ export default function PricingPage() {
                   Want a deeper look first?
                 </h3>
                 <p className="text-xs sm:text-sm text-slate-600 max-w-2xl leading-relaxed">
-                  The full ReLaunch Social Audit scores how well your marketing sells and gives you a written list of what to fix first. $495, one time.
+                  The full ReLaunch Social Audit scores how well your marketing sells and gives you a written list of what to fix first. $497, one time.
                 </p>
               </div>
 

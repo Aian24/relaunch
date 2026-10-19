@@ -74,7 +74,7 @@ export default function BundleCalculator() {
               onClick={() =>
                 openContactModal({
                   intent: "bundle-inquiry",
-                  serviceInterest: "A full bundle",
+                  serviceInterest: "A bundle of services",
                   notes: `Configured bundle with ${count} services ($${finalMonthlyPrice.toLocaleString()}/mo):\n- ${selectedIds
                     .map(
                       (id) =>
@@ -293,7 +293,7 @@ export default function BundleCalculator() {
                     onClick={() =>
                       openContactModal({
                         intent: "bundle-inquiry",
-                        serviceInterest: "A full bundle",
+                        serviceInterest: "A bundle of services",
                         notes: `Configured bundle with ${count} services ($${finalMonthlyPrice.toLocaleString()}/mo):\n- ${selectedIds
                           .map(
                             (id) =>

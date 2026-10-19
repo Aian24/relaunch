@@ -1,7 +1,9 @@
 "use client";
 
-import React, { useState } from "react";
+import React from "react";
 import Navbar from "@/components/Navbar";
+import ProductCta from "@/components/ProductCta";
+import { productLinks } from "@/data/productLinks";
 import Footer from "@/components/Footer";
 import ScrollToTop from "@/components/ScrollToTop";
 import MotionWrapper from "@/components/MotionWrapper";
@@ -22,44 +24,10 @@ import {
   X as XIcon,
 } from "lucide-react";
 
+/* The free score runs on the audit tool's own subdomain. */
+
 export default function AuditPage() {
   const { openContactModal } = useContactModal();
-  const [websiteUrl, setWebsiteUrl] = useState("");
-  const [businessName, setBusinessName] = useState("");
-  const [email, setEmail] = useState("");
-  const [submitted, setSubmitted] = useState(false);
-  const [loading, setLoading] = useState(false);
-  const [calculatedScore, setCalculatedScore] = useState<{
-    overall: number;
-    message: number;
-    journey: number;
-    persuasion: number;
-    consistency: number;
-    weakestArea: string;
-  } | null>(null);
-
-  const handleStartAudit = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!websiteUrl || !email) return;
-
-    setLoading(true);
-    setTimeout(() => {
-      // Deterministic calculation based on input length
-      const seed = (websiteUrl.length * 7 + email.length * 3) % 25;
-      const score = 62 + seed;
-      setCalculatedScore({
-        overall: score,
-        message: Math.max(55, score - 6),
-        journey: Math.min(88, score + 4),
-        persuasion: Math.max(50, score - 11),
-        consistency: Math.min(92, score + 2),
-        weakestArea: "Persuasion & Call-to-Action Friction",
-      });
-      setLoading(false);
-      setSubmitted(true);
-    }, 1200);
-  };
-
   const scoreCriteria = [
     {
       title: "Your message",
@@ -86,8 +54,8 @@ export default function AuditPage() {
   const steps = [
     {
       step: "01",
-      title: "Enter your website & social links",
-      desc: "Takes about two minutes. Tell us which channels you want evaluated.",
+      title: "Share your website & social links",
+      desc: "Tell us which channels you want scored. It only takes a couple of minutes.",
     },
     {
       step: "02",
@@ -120,92 +88,19 @@ export default function AuditPage() {
             How well does your <span className="text-[#FF6700]">marketing sell?</span>
           </h1>
           <p className="text-slate-300 text-base sm:text-xl max-w-2xl mx-auto leading-relaxed mb-8">
-            Get a free score in a few minutes. See exactly where your website, social media and reviews are losing customers, and what to fix first.
+            Get a free score showing where your website, social media and reviews are losing customers, and what to fix first.
           </p>
 
-          {/* Interactive Diagnostic Form */}
-          <div className="max-w-xl mx-auto p-6 sm:p-8 rounded-3xl bg-white/[0.05] border border-white/[0.12] backdrop-blur-xl shadow-2xl text-left">
-            {!submitted ? (
-              <form onSubmit={handleStartAudit} className="space-y-4">
-                <div>
-                  <label className="text-xs font-mono uppercase tracking-wider text-slate-300 font-bold block mb-1.5">
-                    Website URL
-                  </label>
-                  <input
-                    type="text"
-                    required
-                    placeholder="https://yourbusiness.com"
-                    value={websiteUrl}
-                    onChange={(e) => setWebsiteUrl(e.target.value)}
-                    className="w-full px-4 py-3 rounded-xl bg-white/[0.08] border border-white/[0.15] text-white placeholder-slate-400 text-sm focus:outline-none focus:border-[#FF6700]"
-                  />
-                </div>
-
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  <div>
-                    <label className="text-xs font-mono uppercase tracking-wider text-slate-300 font-bold block mb-1.5">
-                      Business Name
-                    </label>
-                    <input
-                      type="text"
-                      placeholder="e.g. Acme Services"
-                      value={businessName}
-                      onChange={(e) => setBusinessName(e.target.value)}
-                      className="w-full px-4 py-3 rounded-xl bg-white/[0.08] border border-white/[0.15] text-white placeholder-slate-400 text-sm focus:outline-none focus:border-[#FF6700]"
-                    />
-                  </div>
-                  <div>
-                    <label className="text-xs font-mono uppercase tracking-wider text-slate-300 font-bold block mb-1.5">
-                      Email for Report
-                    </label>
-                    <input
-                      type="email"
-                      required
-                      placeholder="you@company.com"
-                      value={email}
-                      onChange={(e) => setEmail(e.target.value)}
-                      className="w-full px-4 py-3 rounded-xl bg-white/[0.08] border border-white/[0.15] text-white placeholder-slate-400 text-sm focus:outline-none focus:border-[#FF6700]"
-                    />
-                  </div>
-                </div>
-
-                <button
-                  type="submit"
-                  disabled={loading}
-                  className="w-full mt-2 py-3.5 rounded-xl bg-[#FF6700] hover:bg-[#E55C00] text-white font-heading font-black text-xs uppercase tracking-wider transition-all shadow-[0_0_20px_rgba(255,103,0,0.35)] cursor-pointer disabled:opacity-50"
-                >
-                  {loading ? "Analyzing Website & Scoring Message..." : "Get My Free Score →"}
-                </button>
-              </form>
-            ) : (
-              <div className="text-center py-4">
-                <div className="w-14 h-14 rounded-full bg-[#FF6700]/20 text-[#FF6700] border border-[#FF6700]/30 flex items-center justify-center mx-auto mb-3">
-                  <span className="font-heading font-black text-xl">{calculatedScore?.overall}/100</span>
-                </div>
-                <h3 className="font-heading font-bold text-lg text-white mb-1">
-                  Preliminary Marketing Score
-                </h3>
-                <p className="text-xs text-slate-300 mb-4">
-                  Weakest area detected: <strong className="text-amber-400">{calculatedScore?.weakestArea}</strong>
-                </p>
-
-                <div className="grid grid-cols-2 gap-2 text-left mb-6 text-xs text-slate-300 bg-white/[0.04] p-3 rounded-xl border border-white/[0.08]">
-                  <div>Message Clarity: <strong className="text-white">{calculatedScore?.message}/100</strong></div>
-                  <div>Customer Journey: <strong className="text-white">{calculatedScore?.journey}/100</strong></div>
-                  <div>Persuasion / CTA: <strong className="text-amber-400">{calculatedScore?.persuasion}/100</strong></div>
-                  <div>Story Consistency: <strong className="text-white">{calculatedScore?.consistency}/100</strong></div>
-                </div>
-
-                <button
-                  type="button"
-                  onClick={() => openContactModal({ intent: "strategy-session", serviceInterest: "Social Audit Review" })}
-                  className="w-full py-3 rounded-xl bg-[#FF6700] hover:bg-[#E55C00] text-white font-heading font-bold text-xs uppercase tracking-wider transition-all shadow-md cursor-pointer"
-                >
-                  Review Fix List on Strategy Call →
-                </button>
-              </div>
-            )}
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
+            <ProductCta link={productLinks.audit} className="inline-flex items-center justify-center gap-2 px-7 py-3.5 rounded-xl bg-[#FF6700] hover:bg-[#E55C00] text-white font-heading font-black text-xs sm:text-sm uppercase tracking-wider transition-all shadow-[0_0_20px_rgba(255,103,0,0.35)]" />
+            <a
+              href="#how-it-works"
+              className="inline-flex items-center justify-center gap-2 px-6 py-3.5 rounded-xl border border-white/[0.15] bg-white/[0.05] hover:bg-white/[0.1] text-slate-200 font-heading font-bold text-xs sm:text-sm uppercase tracking-wider transition-all"
+            >
+              See how it works
+            </a>
           </div>
+          <p className="mt-4 text-xs text-slate-400">Free · No obligation</p>
         </MotionWrapper>
 
         {/* Scroll Indicator */}
@@ -284,7 +179,7 @@ export default function AuditPage() {
                 <tr>
                   <td className="p-4 sm:p-5 font-medium text-slate-500">Price</td>
                   <td className="p-4 sm:p-5 font-bold text-[#090D16]">Free</td>
-                  <td className="p-4 sm:p-5 font-bold text-[#FF6700]">$495, one time</td>
+                  <td className="p-4 sm:p-5 font-bold text-[#FF6700]">$497, one time</td>
                 </tr>
                 <tr>
                   <td className="p-4 sm:p-5 font-medium text-slate-500">What you get</td>
@@ -299,7 +194,7 @@ export default function AuditPage() {
                 <tr>
                   <td className="p-4 sm:p-5 font-medium text-slate-500">Next step</td>
                   <td className="p-4 sm:p-5 text-slate-600">Upgrade or book a call</td>
-                  <td className="p-4 sm:p-5 text-slate-700 font-medium">Walk-through call with Bobby</td>
+                  <td className="p-4 sm:p-5 text-slate-700 font-medium">Walk-through call with our team</td>
                 </tr>
               </tbody>
             </table>
@@ -308,14 +203,14 @@ export default function AuditPage() {
       </section>
 
       {/* 5. How It Works */}
-      <section className="py-16 sm:py-20 px-4 sm:px-6 lg:px-8 bg-slate-50 border-t border-slate-200">
+      <section id="how-it-works" className="scroll-mt-24 py-16 sm:py-20 px-4 sm:px-6 lg:px-8 bg-slate-50 border-t border-slate-200">
         <div className="max-w-5xl mx-auto">
           <MotionWrapper direction="up" distance={20} className="text-center max-w-2xl mx-auto mb-12">
             <span className="text-xs font-mono uppercase tracking-widest text-[#FF6700] font-bold block mb-2">
               HOW IT WORKS
             </span>
             <h2 className="font-heading font-black text-2xl sm:text-4xl text-[#090D16] tracking-tight">
-              Three steps. Two minutes.
+              Three simple steps.
             </h2>
           </MotionWrapper>
 
@@ -346,19 +241,13 @@ export default function AuditPage() {
             Find out what your marketing <span className="text-[#FF6700]">is really saying.</span>
           </h2>
           <p className="text-slate-600 text-sm sm:text-base leading-relaxed mb-8">
-            It&apos;s free and takes a couple of minutes. You&apos;ll know exactly where to start.
+            It&apos;s free, and you&apos;ll know exactly where to start.
           </p>
 
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-            <button
-              type="button"
-              onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
-              className="inline-flex items-center justify-center gap-2 px-7 py-3.5 rounded-xl bg-[#FF6700] hover:bg-[#E55C00] text-white font-heading font-black text-xs uppercase tracking-wider transition-all shadow-[0_4px_20px_rgba(255,103,0,0.35)] cursor-pointer"
-            >
-              <span>Get my free score</span>
-              <ArrowUpRight className="w-4 h-4 text-white" />
-            </button>
+            <ProductCta link={productLinks.audit} className="inline-flex items-center justify-center gap-2 px-7 py-3.5 rounded-xl bg-[#FF6700] hover:bg-[#E55C00] text-white font-heading font-black text-xs uppercase tracking-wider transition-all shadow-[0_4px_20px_rgba(255,103,0,0.35)]" />
 
+            {productLinks.audit.liveUrl && (
             <button
               type="button"
               onClick={() => openContactModal({ intent: "strategy-session", serviceInterest: "Social Audit" })}
@@ -367,6 +256,7 @@ export default function AuditPage() {
               <Calendar className="w-4 h-4 text-[#FF6700]" />
               <span>Book a Strategy Call</span>
             </button>
+            )}
           </div>
         </MotionWrapper>
       </section>

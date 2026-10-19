@@ -83,7 +83,7 @@ export default function ReLaunchSocialSection() {
                       notes: "Interested in getting started with ReLaunch Social Autopilot.",
                     })
                   }
-                  className="w-full inline-flex items-center justify-center gap-2 px-5 py-3 bg-[#7F48ED] hover:bg-[#6D28D9] text-white font-heading font-bold text-xs uppercase tracking-wider rounded-xl shadow-xs transition-all active:translate-y-0.5 whitespace-nowrap cursor-pointer"
+                  className="w-full inline-flex items-center justify-center gap-2 px-5 py-3 bg-[#FF6700] hover:bg-[#E55C00] text-white font-heading font-bold text-xs uppercase tracking-wider rounded-xl shadow-xs transition-all active:translate-y-0.5 whitespace-nowrap cursor-pointer"
                 >
                   <span>Book a Strategy Call</span>
                   <ArrowRight className="w-3.5 h-3.5" />

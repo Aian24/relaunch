@@ -9,11 +9,12 @@ export const viewport: Viewport = {
 
 export const metadata: Metadata = {
   metadataBase: new URL("https://relaunch.us"),
-  title: "ReLaunch — Marketing Strategically Designed to Sell | Phoenix, AZ",
+  title: "ReLaunch — Marketing Strategically Designed to Sell",
   description:
-    "We strategize, create, and deliver marketing built to sell — and you can see it in your numbers. Full-scope marketing, web, and AI infrastructure from Phoenix, AZ.",
+    "We strategize, create, and deliver marketing built to sell — and you can see it in your numbers. Marketing, websites, ads and custom software for small businesses across the U.S., Canada, the UK and Australia.",
   keywords: [
     "ReLaunch",
+    "Small Business Marketing Agency",
     "Marketing Agency Phoenix",
     "Marketing Strategically Designed to Sell",
     "AI Automation",

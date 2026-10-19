@@ -1,7 +1,6 @@
 "use client";
 
 import React from "react";
-import Image from "next/image";
 import Link from "next/link";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
@@ -9,7 +8,6 @@ import ScrollToTop from "@/components/ScrollToTop";
 import MotionWrapper from "@/components/MotionWrapper";
 import HeroScrollIndicator from "@/components/HeroScrollIndicator";
 import { useContactModal } from "@/context/ContactModalContext";
-import { companyCreds } from "@/data/offerings";
 import {
   ArrowUpRight,
   ArrowRight,
@@ -26,7 +24,7 @@ export default function AboutPage() {
   const workingPrinciples = [
     {
       title: "Senior team only",
-      desc: "You work directly with Bobby and experienced builders. No hand-offs to junior staff.",
+      desc: "You work directly with our senior team. No hand-offs to junior staff.",
       icon: Users,
     },
     {
@@ -104,7 +102,7 @@ export default function AboutPage() {
           <button
             type="button"
             onClick={() => openContactModal({ intent: "strategy-session" })}
-            className="inline-flex items-center justify-center gap-2 px-8 py-4 rounded-xl bg-[#7F48ED] hover:bg-[#6C34DE] text-white font-heading font-bold text-xs sm:text-sm uppercase tracking-wider transition-all shadow-[0_0_30px_rgba(127,72,237,0.4)] cursor-pointer active:scale-98"
+            className="inline-flex items-center justify-center gap-2 px-8 py-4 rounded-xl bg-[#FF6700] hover:bg-[#E55C00] text-white font-heading font-bold text-xs sm:text-sm uppercase tracking-wider transition-all shadow-[0_0_30px_rgba(255,103,0,0.4)] cursor-pointer active:scale-98"
           >
             <span>Book a Strategy Call</span>
             <ArrowUpRight className="w-4 h-4 text-white" />
@@ -169,41 +167,20 @@ export default function AboutPage() {
         </div>
       </section>
 
-      {/* 4. Meet the Founder */}
+      {/* 4. Why we exist */}
       <section className="py-16 sm:py-24 px-4 sm:px-6 lg:px-8 bg-white">
-        <MotionWrapper direction="up" distance={20} className="max-w-5xl mx-auto">
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-center">
-            <div className="lg:col-span-5 flex flex-col items-center">
-              <div className="relative w-full max-w-sm aspect-square rounded-3xl overflow-hidden shadow-md border-2 border-slate-100">
-                <Image
-                  src={companyCreds.founder.photo}
-                  alt={companyCreds.founder.name}
-                  fill
-                  className="object-cover object-top"
-                />
-              </div>
-              <div className="mt-4 text-center">
-                <span className="font-heading font-black text-xl text-[#090D16] block">
-                  {companyCreds.founder.name}
-                </span>
-                <span className="text-xs text-slate-500 font-medium">Founder</span>
-              </div>
-            </div>
-
-            <div className="lg:col-span-7">
-              <span className="text-xs font-mono uppercase tracking-widest text-slate-400 font-bold block mb-2">
-                FOUNDER NOTE
-              </span>
-              <h2 className="font-heading font-black text-2xl sm:text-4xl text-[#090D16] tracking-tight mb-4">
-                Marketing is only worth paying for if it sells.
-              </h2>
-              <p className="text-slate-600 text-sm sm:text-base leading-relaxed mb-6">
-                I started building websites for small businesses in 2008 because owners kept asking for help. Since then I&apos;ve built apps, run campaigns and fixed a lot of marketing that wasn&apos;t working. The lesson has stayed the same: marketing is only worth paying for if it sells.
-              </p>
-              <div className="p-4 rounded-2xl bg-slate-50 border border-slate-200 text-xs text-slate-600">
-                <strong>Direct contact:</strong> Work directly with Bobby and senior builders. No account managers in between.
-              </div>
-            </div>
+        <MotionWrapper direction="up" distance={20} className="max-w-3xl mx-auto text-center">
+          <span className="text-xs font-mono uppercase tracking-widest text-slate-400 font-bold block mb-2">
+            WHY WE EXIST
+          </span>
+          <h2 className="font-heading font-black text-2xl sm:text-4xl text-[#090D16] tracking-tight mb-4">
+            Marketing is only worth paying for if it sells.
+          </h2>
+          <p className="text-slate-600 text-sm sm:text-base leading-relaxed mb-6">
+            We started building websites for small businesses in 2008 because owners kept asking for help. Since then we&apos;ve built apps, run campaigns and fixed a lot of marketing that wasn&apos;t working. The lesson has stayed the same: marketing is only worth paying for if it sells.
+          </p>
+          <div className="inline-block p-4 rounded-2xl bg-slate-50 border border-slate-200 text-xs text-slate-600">
+            <strong>Direct contact:</strong> Work directly with our senior team. No account managers in between.
           </div>
         </MotionWrapper>
       </section>
@@ -292,11 +269,11 @@ export default function AboutPage() {
                                   </p>
                                 </div>
 
-                                <div className="text-[11px] text-slate-500 leading-tight pt-1 border-t border-slate-100 flex items-center gap-1.5">
+                                <div className="text-[11px] text-slate-500 leading-tight pt-1 border-t border-slate-100 flex items-start gap-1.5">
                                   <span className="text-[#7F48ED] font-bold font-mono uppercase text-[10px] shrink-0">
                                     Why it matters:
                                   </span>
-                                  <span className="truncate sm:whitespace-normal">{step.whyItMatters}</span>
+                                  <span>{step.whyItMatters}</span>
                                 </div>
                               </div>
                             </div>
@@ -334,11 +311,11 @@ export default function AboutPage() {
                                   </p>
                                 </div>
 
-                                <div className="text-[11px] text-slate-500 leading-tight pt-1 border-t border-slate-100 flex items-center gap-1.5">
+                                <div className="text-[11px] text-slate-500 leading-tight pt-1 border-t border-slate-100 flex items-start gap-1.5">
                                   <span className="text-[#7F48ED] font-bold font-mono uppercase text-[10px] shrink-0">
                                     Why it matters:
                                   </span>
-                                  <span className="truncate sm:whitespace-normal">{step.whyItMatters}</span>
+                                  <span>{step.whyItMatters}</span>
                                 </div>
                               </div>
                             </div>
@@ -356,7 +333,7 @@ export default function AboutPage() {
           <MotionWrapper direction="up" distance={15}>
             <div className="mt-6 p-3.5 sm:p-4 rounded-xl bg-white border border-slate-200/90 shadow-xs flex flex-col sm:flex-row items-center justify-between gap-3 text-center sm:text-left">
               <div>
-                <span className="text-[11px] font-mono uppercase text-slate-500 font-bold block mb-0.5">Defensible Track Record</span>
+                <span className="text-[11px] font-mono uppercase text-slate-500 font-bold block mb-0.5">Track Record</span>
                 <span className="font-heading font-bold text-xs sm:text-sm text-[#090D16]">
                   1,500+ projects · 480+ campaigns · clients in 4 countries
                 </span>
@@ -379,12 +356,12 @@ export default function AboutPage() {
             Let&apos;s find what&apos;s <span className="text-[#7F48ED]">costing you sales.</span>
           </h2>
           <p className="text-slate-600 text-sm sm:text-base leading-relaxed mb-8">
-            Book a free 30-minute call with Bobby. You&apos;ll leave with a clear next step, whether you hire us or not.
+            Book a free 30-minute strategy call. You&apos;ll leave with a clear next step, whether you hire us or not.
           </p>
           <button
             type="button"
             onClick={() => openContactModal({ intent: "strategy-session" })}
-            className="inline-flex items-center justify-center gap-2 px-7 py-3.5 bg-[#7F48ED] hover:bg-[#6C34DE] text-white font-heading font-bold text-xs sm:text-sm uppercase tracking-wider rounded-xl shadow-[0_4px_20px_rgba(127,72,237,0.25)] transition-all cursor-pointer"
+            className="inline-flex items-center justify-center gap-2 px-7 py-3.5 bg-[#FF6700] hover:bg-[#E55C00] text-white font-heading font-bold text-xs sm:text-sm uppercase tracking-wider rounded-xl shadow-[0_4px_20px_rgba(255,103,0,0.25)] transition-all cursor-pointer"
           >
             <Calendar className="w-4 h-4 text-white" />
             <span>Book a Strategy Call</span>

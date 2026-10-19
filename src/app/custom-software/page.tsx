@@ -84,6 +84,7 @@ export default function CustomSoftwarePage() {
       story:
         "Replaced a system from 1998 with modern software that connects to other county departments. Delivered one month early, with user engagement up 65%.",
       image: "/showcase/jacksonville_real_1.jpg",
+      href: "/work/property-appraiser",
     },
     {
       client: "Swing Perfect",
@@ -92,14 +93,7 @@ export default function CustomSoftwarePage() {
       story:
         "A first-of-its-kind golf app for iPhone and Android, built in 2 months. The business was later sold to Golf Galaxy.",
       image: "/showcase/swing_perfect_real_1.png",
-    },
-    {
-      client: "Aspiration Bank",
-      title: "Website & conversion funnels",
-      metric: "+200% traffic YoY",
-      story:
-        "Designed and built the site for a new online bank. Traffic grew 200% year over year.",
-      image: "/showcase/aspiration_real_1.png",
+      href: "/work/swing-perfect",
     },
   ];
 
@@ -169,7 +163,7 @@ export default function CustomSoftwarePage() {
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
             <button
               type="button"
-              onClick={() => openContactModal({ intent: "strategy-session", serviceInterest: "Custom Software" })}
+              onClick={() => openContactModal({ intent: "strategy-session", serviceInterest: "Build Something Custom" })}
               className="inline-flex items-center justify-center gap-2 px-7 py-3.5 rounded-xl bg-[#FF6700] hover:bg-[#E55C00] text-white font-heading font-bold text-xs uppercase tracking-wider transition-all shadow-md cursor-pointer active:scale-98"
             >
               <span>Book a Strategy Call</span>
@@ -251,7 +245,7 @@ export default function CustomSoftwarePage() {
             </h2>
           </MotionWrapper>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-5xl mx-auto">
             {flagshipProjects.map((proj, idx) => (
               <MotionWrapper key={proj.client} direction="up" delay={idx * 0.1} distance={20}>
                 <div className="h-full rounded-3xl border border-slate-200 overflow-hidden shadow-xs bg-white flex flex-col justify-between">
@@ -286,10 +280,10 @@ export default function CustomSoftwarePage() {
 
                   <div className="px-6 pb-6 pt-0">
                     <Link
-                      href="/work"
+                      href={proj.href}
                       className="inline-flex items-center gap-1 text-xs font-bold text-[#FF6700] hover:underline"
                     >
-                      <span>Read case details →</span>
+                      <span>Read the case study →</span>
                     </Link>
                   </div>
                 </div>
@@ -372,7 +366,7 @@ export default function CustomSoftwarePage() {
           </p>
           <button
             type="button"
-            onClick={() => openContactModal({ intent: "strategy-session", serviceInterest: "Custom Software" })}
+            onClick={() => openContactModal({ intent: "strategy-session", serviceInterest: "Build Something Custom" })}
             className="inline-flex items-center justify-center gap-2 px-7 py-3.5 bg-[#FF6700] hover:bg-[#E55C00] text-white font-heading font-bold text-xs sm:text-sm uppercase tracking-wider rounded-xl shadow-[0_4px_20px_rgba(255,103,0,0.35)] transition-all cursor-pointer"
           >
             <Calendar className="w-4 h-4 text-white" />

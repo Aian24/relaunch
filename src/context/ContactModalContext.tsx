@@ -31,7 +31,7 @@ export function ContactModalProvider({ children }: { children: ReactNode }) {
   const [isOpen, setIsOpen] = useState(false);
   const [options, setOptions] = useState<ContactModalOptions>({
     intent: "strategy-session",
-    serviceInterest: "A full bundle",
+    serviceInterest: "Not sure yet",
   });
 
   const openContactModal = useCallback((newOptions?: ContactModalOptions) => {

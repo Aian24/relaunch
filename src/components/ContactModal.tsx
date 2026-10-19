@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from "react";
 import { useContactModal } from "@/context/ContactModalContext";
 import { useScrollContext } from "./SmoothScrollProvider";
-import { showSuccessSwal } from "@/utils/alerts";
+import { showErrorSwal, showSuccessSwal } from "@/utils/alerts";
 import CustomSelect from "./CustomSelect";
 import CustomDatePicker from "./CustomDatePicker";
 import { motion, AnimatePresence } from "framer-motion";
@@ -23,12 +23,16 @@ import {
 } from "lucide-react";
 
 const serviceOptions = [
-  "Get Found (Local SEO & AI Recommendations)",
-  "Get Chosen (Website, Brand & Social)",
-  "Get More Customers (Ads, Video & Follow-up)",
-  "Build Something Custom (Web Apps, Portals)",
-  "Full Turnkey Department (All Services)",
   "Not sure yet",
+  "Get Found",
+  "Get Chosen",
+  "Get More Customers",
+  "Build Something Custom",
+  "AI Recommendations",
+  "ReLaunch Social",
+  "ReLaunch Studio",
+  "Social Audit",
+  "A bundle of services",
 ];
 
 const availableTimeSlots = [
@@ -44,15 +48,14 @@ export default function ContactModal() {
   const { isOpen, options, closeContactModal } = useContactModal();
   const { stopScroll, startScroll } = useScrollContext();
 
-  const [activeTab, setActiveTab] = useState<"form" | "ai-audit" | "calendar">(
-    "form"
-  );
+  const [activeTab, setActiveTab] = useState<"form" | "calendar">("calendar");
+  const [website, setWebsite] = useState(""); // honeypot: real visitors never fill this
   const [formData, setFormData] = useState({
     name: "",
     email: "",
     phone: "",
     business: "",
-    interest: "A full bundle",
+    interest: "Not sure yet",
     message: "",
     preferredDate: "",
     preferredTime: "10:00 AM MST",
@@ -62,19 +65,12 @@ export default function ContactModal() {
   // Sync options when modal opens
   useEffect(() => {
     if (isOpen) {
-      if (options.intent === "ai-audit") {
-        setActiveTab("ai-audit");
-        setFormData((prev) => ({
-          ...prev,
-          interest: "AI Services (AEO/GEO)",
-          message: options.notes || "I'd like to book an AI readiness audit for our business workflows.",
-        }));
-      } else if (options.intent === "strategy-session") {
+      if (options.intent === "strategy-session" || options.intent === "ai-audit") {
         setActiveTab("calendar");
         setFormData((prev) => ({
           ...prev,
-          interest: options.serviceInterest || "A full bundle",
-          message: options.notes || "Booking a free strategy session to discuss marketing growth.",
+          interest: options.serviceInterest || "Not sure yet",
+          message: options.notes || "",
         }));
       } else if (options.intent === "start-project") {
         setActiveTab("form");
@@ -95,7 +91,7 @@ export default function ContactModal() {
         if (options.serviceInterest) {
           setFormData((prev) => ({
             ...prev,
-            interest: options.serviceInterest || "A full bundle",
+            interest: options.serviceInterest || "Not sure yet",
           }));
         }
         if (options.notes) {
@@ -142,72 +138,56 @@ export default function ContactModal() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (isSubmitting) return;
     setIsSubmitting(true);
 
-    // Simulate instant Google Calendar session confirmation
-    setTimeout(async () => {
+    try {
+      const res = await fetch("/api/contact", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          type: activeTab === "calendar" ? "strategy-call" : "message",
+          ...formData,
+          website,
+          page: typeof window !== "undefined" ? window.location.pathname : "",
+        }),
+      });
+      if (!res.ok) throw new Error(`Request failed (${res.status})`);
+
       setIsSubmitting(false);
       closeContactModal();
 
       if (activeTab === "calendar") {
         await showSuccessSwal(
-          "Google Calendar Session Confirmed!",
-          `Thanks, ${formData.name || "friend"}! Your strategy session is locked in for <strong>${formData.preferredDate || "your chosen date"} at ${formData.preferredTime}</strong>.<br><br>We sent an instant Google Calendar invite and Google Meet link to <strong>${formData.email}</strong>.`,
-          `<strong>Focus:</strong> ${formData.interest} · <strong>Phone:</strong> ${formData.phone || "On file"}`
-        );
-      } else if (activeTab === "ai-audit") {
-        await showSuccessSwal(
-          "AI Audit Request Received!",
-          `Thanks, ${formData.name || "friend"}! Our AI architecture team is reviewing ${formData.business || "your company"}'s profile. We will email your diagnostic roadmap to ${formData.email} within 1 business day.`,
-          `<strong>Priority Track:</strong> AI & Automation Readiness · Phoenix, AZ`
+          "Request received!",
+          `Thanks, ${formData.name || "there"}! We got your strategy call request${formData.preferredDate ? ` for <strong>${formData.preferredDate} at ${formData.preferredTime}</strong>` : ""}.<br><br>We'll email <strong>${formData.email}</strong> within one business day to confirm the time.`,
+          `<strong>Topic:</strong> ${formData.interest}`
         );
       } else {
         await showSuccessSwal(
-          "Message Received!",
-          `Thanks, ${formData.name || "friend"}! Your message is on its way. Our Phoenix team will reply to ${formData.email} within one business day.`,
-          `<strong>Target Interest:</strong> ${formData.interest}`
+          "Message sent!",
+          `Thanks, ${formData.name || "there"}! We'll reply to <strong>${formData.email}</strong> within one business day.`,
+          `<strong>Topic:</strong> ${formData.interest}`
         );
       }
 
-      // Sync lead into ReLaunch Studio Admin Leads Storage
-      try {
-        const existingLeads = JSON.parse(localStorage.getItem("relaunch_admin_leads") || "[]");
-        const newLeadEntry = {
-          id: `LEAD-${Math.floor(1000 + Math.random() * 9000)}`,
-          name: formData.name || "Website Visitor",
-          email: formData.email,
-          phone: formData.phone || "N/A",
-          business: formData.business || "New Client",
-          service: formData.interest,
-          intent: activeTab === "calendar" ? "strategy-session" : activeTab === "ai-audit" ? "ai-audit" : "general",
-          date: new Date().toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" }) + " " + new Date().toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit" }),
-          status: activeTab === "calendar" ? "scheduled" : "new",
-          budget: "$3,000 – $5,000 / mo",
-          notes: activeTab === "calendar" ? `Booked Strategy Session for ${formData.preferredDate || "Selected Date"} at ${formData.preferredTime}. Message: ${formData.message || "None provided"}` : formData.message || "Inbound inquiry via website modal.",
-          priority: "high",
-          bookingDate: formData.preferredDate || "",
-          bookingTime: formData.preferredTime || "10:00 AM MST",
-          meetLink: activeTab === "calendar" ? `https://meet.google.com/rel-${Math.random().toString(36).substring(2, 7)}` : undefined,
-          emailSubject: activeTab === "calendar" ? `Strategy Session Booking: ${formData.name}` : `Inbound Inquiry: ${formData.interest}`,
-          isRead: false,
-        };
-        localStorage.setItem("relaunch_admin_leads", JSON.stringify([newLeadEntry, ...existingLeads]));
-      } catch (err) {
-        console.error("Failed to sync lead to admin storage", err);
-      }
-
-      // Reset form
       setFormData({
         name: "",
         email: "",
         phone: "",
         business: "",
-        interest: "A full bundle",
+        interest: "Not sure yet",
         message: "",
         preferredDate: "",
         preferredTime: "10:00 AM MST",
       });
-    }, 450);
+    } catch (err) {
+      setIsSubmitting(false);
+      await showErrorSwal(
+        "That didn't go through",
+        "Your request couldn't be sent. Please try again, or call (480) 779-9875 or email care@relaunch.us."
+      );
+    }
   };
 
   return (
@@ -249,21 +229,19 @@ export default function ContactModal() {
               <span className="w-1.5 h-1.5 rounded-full bg-[#7F48ED]" />
               <span>
                 {activeTab === "calendar"
-                  ? "GOOGLE CALENDAR STRATEGY SESSION"
-                  : "30-MINUTE STRATEGY CALL"}
+                  ? "FREE 30-MINUTE STRATEGY CALL"
+                  : "CONTACT RELAUNCH"}
               </span>
             </div>
             <h3 className="font-heading font-black text-lg sm:text-2xl text-slate-950 tracking-tight leading-tight">
               {activeTab === "calendar"
-                ? "Grab a time that works."
-                : activeTab === "ai-audit"
-                ? "Request Your AI Readiness Audit"
-                : "Tell Us About Your Business"}
+                ? "Pick a time that works."
+                : "Tell us about your business."}
             </h3>
             <p className="text-slate-500 text-[11px] sm:text-xs mt-0.5 max-w-lg font-normal">
               {activeTab === "calendar"
-                ? "Pick a slot below — you'll get an instant Google Calendar confirmation."
-                : "No pressure, no fluff. Just a clear roadmap tailored to your growth goals."}
+                ? "Choose a preferred day and time. We'll email you within one business day to confirm."
+                : "Send us a note and we'll reply within one business day."}
             </p>
           </div>
 
@@ -288,27 +266,12 @@ export default function ContactModal() {
             }`}
           >
             <Send className={`w-3.5 h-3.5 ${activeTab === "form" ? "text-[#7F48ED]" : "text-slate-400"}`} />
-            <span>Send a Message / Start Project</span>
+            <span>Send a message</span>
             {activeTab === "form" && (
               <span className="absolute bottom-0 left-0 right-0 h-0.5 bg-[#7F48ED]" />
             )}
           </button>
 
-          <button
-            type="button"
-            onClick={() => setActiveTab("ai-audit")}
-            className={`relative py-2.5 sm:py-3 text-xs sm:text-sm font-bold flex items-center gap-2 transition-colors cursor-pointer whitespace-nowrap ${
-              activeTab === "ai-audit"
-                ? "text-[#7F48ED]"
-                : "text-slate-500 hover:text-[#090D16]"
-            }`}
-          >
-            <Bot className={`w-3.5 h-3.5 ${activeTab === "ai-audit" ? "text-[#7F48ED]" : "text-slate-400"}`} />
-            <span>Book an AI Audit</span>
-            {activeTab === "ai-audit" && (
-              <span className="absolute bottom-0 left-0 right-0 h-0.5 bg-[#7F48ED]" />
-            )}
-          </button>
 
           <button
             type="button"
@@ -320,7 +283,7 @@ export default function ContactModal() {
             }`}
           >
             <Calendar className={`w-3.5 h-3.5 ${activeTab === "calendar" ? "text-[#7F48ED]" : "text-slate-400"}`} />
-            <span>Live Calendar Slot</span>
+            <span>Request a strategy call</span>
             {activeTab === "calendar" && (
               <span className="absolute bottom-0 left-0 right-0 h-0.5 bg-[#7F48ED]" />
             )}
@@ -335,6 +298,17 @@ export default function ContactModal() {
           className="p-4 sm:p-5 overflow-y-auto overscroll-contain flex-1 min-h-0 touch-pan-y"
         >
           <form onSubmit={handleSubmit} className="space-y-3">
+            {/* Honeypot: hidden from people, catches spam bots */}
+            <input
+              type="text"
+              name="website"
+              tabIndex={-1}
+              autoComplete="off"
+              value={website}
+              onChange={(e) => setWebsite(e.target.value)}
+              className="hidden"
+              aria-hidden="true"
+            />
             {/* 2-Column Row: Name & Email */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <div>
@@ -419,7 +393,7 @@ export default function ContactModal() {
               <div className="p-3 sm:p-4 bg-orange-50/70 rounded-2xl border border-[#FF6700]/30 space-y-2.5">
                 <div className="flex items-center justify-between">
                   <span className="text-xs font-bold text-slate-900">
-                    Instant Google Calendar Confirmation (30 Min)
+                    Preferred time (30 minutes)
                   </span>
                   <span className="text-[9.5px] font-mono font-bold uppercase tracking-wider px-2 py-0.5 rounded-full bg-[#FF6700] text-white">
                     Free Session
@@ -448,7 +422,7 @@ export default function ContactModal() {
                   {/* Time Dropdown */}
                   <div>
                     <label className="block text-[10.5px] font-bold uppercase tracking-wider text-slate-700 mb-1">
-                      Select Time (MST)
+                      Time (Arizona, MST)
                     </label>
                     <CustomSelect
                       name="preferredTime"
@@ -468,7 +442,7 @@ export default function ContactModal() {
                 {/* Quick-Click Orange Time Slot Chips */}
                 <div>
                   <div className="text-[9.5px] font-bold uppercase text-slate-600 mb-1">
-                    Or Pick A Quick Available Time:
+                    Quick pick:
                   </div>
                   <div className="grid grid-cols-3 sm:grid-cols-6 gap-1.5">
                     {availableTimeSlots.map((slot) => {
@@ -501,9 +475,7 @@ export default function ContactModal() {
             {/* Message / Goals */}
             <div>
               <label className="block text-[10.5px] font-bold uppercase tracking-wider text-slate-700 mb-1">
-                {activeTab === "ai-audit"
-                  ? "Tell us about your current tools or bottlenecks"
-                  : "Message / Goals"}
+                What's going on? (optional)
               </label>
               <textarea
                 rows={2}
@@ -523,15 +495,13 @@ export default function ContactModal() {
                 className="w-full flex items-center justify-center gap-2 px-5 py-3 bg-[#FF6700] hover:bg-[#E55C00] disabled:opacity-60 text-white font-heading font-bold text-xs uppercase tracking-wider rounded-xl transition-all shadow-[0_4px_20px_rgba(255,103,0,0.25)] active:translate-y-0.5 cursor-pointer"
               >
                 {isSubmitting ? (
-                  <span>Reserving Your Slot...</span>
+                  <span>Sending...</span>
                 ) : (
                   <>
                     <span>
                       {activeTab === "calendar"
-                        ? "Confirm Google Calendar Session Booking"
-                        : activeTab === "ai-audit"
-                        ? "Submit AI Audit Request"
-                        : "Send Message / Start Project"}
+                        ? "Request my strategy call"
+                        : "Send message"}
                     </span>
                     <ArrowRight className="w-4 h-4" />
                   </>

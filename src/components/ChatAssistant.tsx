@@ -110,7 +110,7 @@ export default function ChatAssistant() {
 
     if (q.includes("book") || q.includes("call") || q.includes("strategy") || q.includes("contact") || q.includes("phone") || q.includes("email") || q.includes("bobby")) {
       return {
-        text: "You can book a free 30-minute strategy call with Bobby Clark:\n\n📞 **Phone**: (480) 779-9875\n✉️ **Email**: care@relaunch.us\n🏢 **Home Base**: Phoenix, AZ (Serving clients across U.S., Canada, UK & Australia since 2008)",
+        text: "You can book a free 30-minute strategy call with our team:\n\n📞 **Phone**: (480) 779-9875\n✉️ **Email**: care@relaunch.us\n🌎 **Fully remote**: Serving clients across the U.S., Canada, UK & Australia since 2008",
         action: { label: "Book a Strategy Call", isModal: true },
       };
     }
@@ -123,7 +123,7 @@ export default function ChatAssistant() {
     }
 
     return {
-      text: "Thanks for asking! ReLaunch provides marketing strategically designed to sell. We help businesses get found, get chosen, and get paid. Would you like to review our outcome groups or book a strategy call?",
+      text: "Thanks for asking! ReLaunch provides marketing strategically designed to sell. We help businesses get found, get chosen, and win more customers. Would you like to review our outcome groups or book a strategy call?",
       action: { label: "Book a Strategy Call", isModal: true },
     };
   };
@@ -299,7 +299,7 @@ export default function ChatAssistant() {
             <div className="p-3 bg-white/[0.04] border-t border-white/[0.08] flex items-center gap-2">
               <input
                 type="text"
-                placeholder="Ask about services, pricing, or Bobby..."
+                placeholder="Ask about services or pricing..."
                 value={inputValue}
                 onChange={(e) => setInputValue(e.target.value)}
                 onKeyDown={(e) => e.key === "Enter" && handleSend()}

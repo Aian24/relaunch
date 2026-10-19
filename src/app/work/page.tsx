@@ -9,10 +9,9 @@ import ScrollToTop from "@/components/ScrollToTop";
 import MotionWrapper from "@/components/MotionWrapper";
 import { useContactModal } from "@/context/ContactModalContext";
 import { caseStudiesData } from "@/data/caseStudies";
-import { testimonialsData } from "@/data/testimonials";
 import BrandsHelpedSection from "@/components/BrandsHelpedSection";
 import HeroScrollIndicator from "@/components/HeroScrollIndicator";
-import { ArrowUpRight, ArrowRight, Quote, Calendar, MapPin, Tag } from "lucide-react";
+import { ArrowUpRight, Calendar, MapPin } from "lucide-react";
 
 const WORK_VIDEOS = ["/ourworknew.mp4", "/ourworknew2.mp4"];
 
@@ -86,7 +85,7 @@ export default function WorkPage() {
             Results you can <span className="text-[#7F48ED] drop-shadow-[0_4px_24px_rgba(127,72,237,0.45)]">see.</span>
           </h1>
           <p className="text-white/95 text-base sm:text-xl max-w-2xl mx-auto leading-relaxed drop-shadow-[0_2px_12px_rgba(0,0,0,0.95)] font-medium">
-            Real businesses, real numbers. From a hot dog restaurant to a city records system, here&apos;s what changed after we got to work.
+            Real businesses, real work. From a hot dog restaurant to a city records system, here&apos;s what we built and what changed.
           </p>
         </MotionWrapper>
 
@@ -178,10 +177,10 @@ export default function WorkPage() {
 
                     <button
                       type="button"
-                      onClick={() => openContactModal({ intent: "strategy-session", serviceInterest: item.title })}
+                      onClick={() => openContactModal({ intent: "strategy-session", serviceInterest: "Not sure yet" })}
                       className="text-[11px] font-semibold text-slate-400 hover:text-slate-700 transition-colors"
                     >
-                      Ask How
+                      Book a call
                     </button>
                   </div>
                 </div>
@@ -194,43 +193,6 @@ export default function WorkPage() {
       {/* Brands Helped Infinite Scrolling Logo Marquee */}
       <BrandsHelpedSection variant="light" className="bg-white" />
 
-      {/* 3. What Clients Say */}
-      <section className="py-16 sm:py-24 px-4 sm:px-6 lg:px-8 bg-white border-t border-slate-100">
-        <div className="max-w-7xl mx-auto">
-          <MotionWrapper direction="up" distance={20} className="text-center max-w-2xl mx-auto mb-14">
-            <span className="text-xs font-mono uppercase tracking-widest text-[#7F48ED] font-bold block mb-2">
-              CLIENT TESTIMONIALS
-            </span>
-            <h2 className="font-heading font-black text-3xl sm:text-5xl text-[#090D16] tracking-tight leading-[1.1]">
-              What clients say.
-            </h2>
-          </MotionWrapper>
-
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 lg:gap-8">
-            {testimonialsData.map((t, idx) => (
-              <MotionWrapper key={t.id} direction="up" delay={idx * 0.1} distance={20}>
-                <div className="h-full flex flex-col justify-between p-7 rounded-3xl bg-slate-50 border border-slate-200/90">
-                  <div>
-                    <Quote className="w-8 h-8 text-[#7F48ED]/40 mb-4" />
-                    <blockquote className="text-xs sm:text-sm text-slate-700 leading-relaxed font-normal mb-4">
-                      &ldquo;{t.quote}&rdquo;
-                    </blockquote>
-                  </div>
-
-                  <div className="pt-4 border-t border-slate-200">
-                    <div className="font-heading font-bold text-sm text-[#090D16]">
-                      {t.name}
-                    </div>
-                    <div className="text-xs text-slate-500">
-                      {t.role}, {t.company}
-                    </div>
-                  </div>
-                </div>
-              </MotionWrapper>
-            ))}
-          </div>
-        </div>
-      </section>
 
       {/* 4. Final Call */}
       <section className="py-20 sm:py-28 px-4 sm:px-6 lg:px-8 bg-slate-50 text-center border-t border-slate-200">
@@ -244,7 +206,7 @@ export default function WorkPage() {
           <button
             type="button"
             onClick={() => openContactModal({ intent: "strategy-session" })}
-            className="inline-flex items-center justify-center gap-2 px-7 py-3.5 bg-[#7F48ED] hover:bg-[#6C34DE] text-white font-heading font-bold text-xs sm:text-sm uppercase tracking-wider rounded-xl shadow-[0_4px_20px_rgba(127,72,237,0.25)] transition-all cursor-pointer"
+            className="inline-flex items-center justify-center gap-2 px-7 py-3.5 bg-[#FF6700] hover:bg-[#E55C00] text-white font-heading font-bold text-xs sm:text-sm uppercase tracking-wider rounded-xl shadow-[0_4px_20px_rgba(255,103,0,0.25)] transition-all cursor-pointer"
           >
             <Calendar className="w-4 h-4 text-white" />
             <span>Book a Strategy Call</span>

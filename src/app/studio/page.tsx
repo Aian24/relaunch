@@ -3,6 +3,8 @@
 import React from "react";
 import Link from "next/link";
 import Navbar from "@/components/Navbar";
+import ProductCta from "@/components/ProductCta";
+import { productLinks } from "@/data/productLinks";
 import Footer from "@/components/Footer";
 import ScrollToTop from "@/components/ScrollToTop";
 import MotionWrapper from "@/components/MotionWrapper";
@@ -93,7 +95,7 @@ export default function StudioPage() {
   const faqs = [
     {
       q: "Do I have to appear on camera?",
-      a: "No. We can create completely AI-generated and motion-designed video ads. If you do have your own b-roll, product clips, or footage, we can seamlessly blend it in.",
+      a: "No. We can create completely AI-generated and motion-designed video ads. If you do have your own b-roll, product clips, or footage, we can blend it in.",
     },
     {
       q: "How does AI disclosure work with Meta and TikTok?",
@@ -137,7 +139,7 @@ export default function StudioPage() {
                 Fresh video ads. <span style={{ color: ACCENT }}>Every week.</span>
               </h1>
               <p className="text-slate-300 text-base sm:text-lg max-w-xl leading-relaxed mb-8">
-                New AI video ads for Meta and TikTok every week, improved from what performed. Never let ad fatigue kill your sales again.
+                New AI video ads for Meta and TikTok every week, improved from what performed.
               </p>
 
               <div className="flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-3.5">
@@ -278,13 +280,7 @@ export default function StudioPage() {
           </div>
 
           <MotionWrapper direction="up" distance={20} className="text-center">
-            <Link
-              href="/pricing"
-              className="inline-flex items-center justify-center gap-2 px-7 py-3.5 rounded-xl text-white font-heading font-bold text-xs uppercase tracking-wider transition-all shadow-md"
-              style={{ backgroundColor: ACCENT }}
-            >
-              <span>View Pricing &amp; Bundles →</span>
-            </Link>
+            <ProductCta link={productLinks.studio} className="inline-flex items-center justify-center gap-2 px-7 py-3.5 rounded-xl text-white font-heading font-bold text-xs uppercase tracking-wider transition-all shadow-md" style={{ backgroundColor: ACCENT }} />
           </MotionWrapper>
         </div>
       </section>
@@ -300,7 +296,7 @@ export default function StudioPage() {
               PRODUCTION PROCESS
             </span>
             <h2 className="font-heading font-black text-2xl sm:text-4xl text-[#090D16] tracking-tight">
-              Four steps. Continuous results.
+              Four steps. New ads every week.
             </h2>
           </MotionWrapper>
 
@@ -383,19 +379,13 @@ export default function StudioPage() {
             Stop losing leads to <span style={{ color: ACCENT }}>ad fatigue.</span>
           </h2>
           <p className="text-slate-600 text-sm sm:text-base leading-relaxed mb-8">
-            Get your first batch of fresh video ads running this week, or talk with us about full-funnel management.
+            Book a free strategy call and we&apos;ll plan your first month of video ads.
           </p>
 
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-            <Link
-              href="/pricing"
-              className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-7 py-3.5 rounded-xl text-white font-heading font-bold text-xs uppercase tracking-wider transition-all shadow-md"
-              style={{ backgroundColor: ACCENT }}
-            >
-              <span>View Plans &amp; Pricing</span>
-              <ArrowRight className="w-4 h-4 text-white" />
-            </Link>
+            <ProductCta link={productLinks.studio} className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-7 py-3.5 rounded-xl text-white font-heading font-bold text-xs uppercase tracking-wider transition-all shadow-md" style={{ backgroundColor: ACCENT }} />
 
+            {productLinks.studio.liveUrl && (
             <button
               type="button"
               onClick={() => openContactModal({ intent: "strategy-session", serviceInterest: "ReLaunch Studio" })}
@@ -404,6 +394,7 @@ export default function StudioPage() {
               <Calendar className="w-4 h-4 text-[#7F48ED]" />
               <span>Book a Strategy Call</span>
             </button>
+            )}
           </div>
         </MotionWrapper>
       </section>

@@ -3,6 +3,8 @@
 import React from "react";
 import Link from "next/link";
 import Navbar from "@/components/Navbar";
+import ProductCta from "@/components/ProductCta";
+import { productLinks } from "@/data/productLinks";
 import Footer from "@/components/Footer";
 import ScrollToTop from "@/components/ScrollToTop";
 import MotionWrapper from "@/components/MotionWrapper";
@@ -62,8 +64,8 @@ export default function AiRecommendationsPage() {
   const steps = [
     {
       step: "01",
-      title: "Sign up online",
-      desc: "Pick a 3, 6 or 9-month plan and tell us about your business and market.",
+      title: "Book a strategy call",
+      desc: "Tell us about your business and market, and pick a 3, 6 or 9-month plan.",
     },
     {
       step: "02",
@@ -132,7 +134,7 @@ export default function AiRecommendationsPage() {
             <button
               type="button"
               onClick={() => openContactModal({ intent: "strategy-session", serviceInterest: "AI Recommendations" })}
-              className="inline-flex items-center justify-center gap-2 px-7 py-3.5 rounded-xl bg-[#7F48ED] hover:bg-[#6C34DE] text-white font-heading font-bold text-xs uppercase tracking-wider transition-all shadow-[0_0_20px_rgba(127,72,237,0.35)] active:scale-98 cursor-pointer"
+              className="inline-flex items-center justify-center gap-2 px-7 py-3.5 rounded-xl bg-[#FF6700] hover:bg-[#E55C00] text-white font-heading font-bold text-xs uppercase tracking-wider transition-all shadow-[0_0_20px_rgba(255,103,0,0.35)] active:scale-98 cursor-pointer"
             >
               <span>Get started</span>
               <ArrowUpRight className="w-4 h-4 text-white" />
@@ -246,12 +248,7 @@ export default function AiRecommendationsPage() {
                   Each plan includes a one-time setup fee and a monthly optimization retainer.
                 </p>
               </div>
-              <Link
-                href="/pricing"
-                className="inline-flex items-center gap-1.5 px-6 py-3 rounded-xl bg-[#7F48ED] hover:bg-[#6C34DE] text-white font-heading font-bold text-xs uppercase tracking-wider transition-all shadow-[0_4px_15px_rgba(127,72,237,0.25)] whitespace-nowrap shrink-0"
-              >
-                <span>See plans &amp; pricing →</span>
-              </Link>
+              <ProductCta link={productLinks.aiRecommendations} className="inline-flex items-center gap-1.5 px-6 py-3 rounded-xl bg-[#7F48ED] hover:bg-[#6C34DE] text-white font-heading font-bold text-xs uppercase tracking-wider transition-all shadow-[0_4px_15px_rgba(127,72,237,0.25)] whitespace-nowrap shrink-0" />
             </div>
           </MotionWrapper>
         </div>
@@ -293,18 +290,13 @@ export default function AiRecommendationsPage() {
             Be the business <span className="text-[#7F48ED]">AI recommends.</span>
           </h2>
           <p className="text-slate-600 text-sm sm:text-base leading-relaxed mb-8">
-            Sign up online in a few minutes. Questions first? Book a free strategy call.
+            Book a free strategy call. We&apos;ll walk you through the plans and what to expect.
           </p>
 
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-            <Link
-              href="/pricing"
-              className="inline-flex items-center justify-center gap-2 px-7 py-3.5 rounded-xl bg-[#7F48ED] hover:bg-[#6C34DE] text-white font-heading font-bold text-xs uppercase tracking-wider transition-all shadow-md"
-            >
-              <span>View plans &amp; pricing</span>
-              <ArrowRight className="w-4 h-4 text-white" />
-            </Link>
+            <ProductCta link={productLinks.aiRecommendations} className="inline-flex items-center justify-center gap-2 px-7 py-3.5 rounded-xl bg-[#7F48ED] hover:bg-[#6C34DE] text-white font-heading font-bold text-xs uppercase tracking-wider transition-all shadow-md" />
 
+            {productLinks.aiRecommendations.liveUrl && (
             <button
               type="button"
               onClick={() => openContactModal({ intent: "strategy-session", serviceInterest: "AI Recommendations" })}
@@ -313,6 +305,7 @@ export default function AiRecommendationsPage() {
               <Calendar className="w-4 h-4 text-[#7F48ED]" />
               <span>Book a Strategy Call</span>
             </button>
+            )}
           </div>
         </MotionWrapper>
       </section>

@@ -4,12 +4,12 @@ import React from "react";
 import Image from "next/image";
 import Link from "next/link";
 import MotionWrapper from "@/components/MotionWrapper";
-import { ArrowRight, Quote } from "lucide-react";
+import { ArrowRight } from "lucide-react";
 
 export default function HomeResultsSection() {
   const cards = [
     {
-      client: "Chicago Dog 42",
+      client: "Chicago Dogs 42",
       slug: "chicago-dog-42",
       industry: "Restaurant",
       number: "$150K → $450K revenue",
@@ -17,12 +17,12 @@ export default function HomeResultsSection() {
       image: "/showcase/chicago_dog_real_1.jpg",
     },
     {
-      client: "Aspiration Bank",
-      slug: "aspiration-bank",
-      industry: "Online banking",
-      number: "+200% website traffic",
-      story: "A new brand story and website that tripled traffic year over year.",
-      image: "/showcase/aspiration_real_1.png",
+      client: "City of Jacksonville",
+      slug: "property-appraiser",
+      industry: "Government software",
+      number: "Delivered 1 month early",
+      story: "Replaced the county's 1998 property appraisal system. Delivered a month early, with user engagement up 65%.",
+      image: "/showcase/jacksonville_real_1.jpg",
     },
     {
       client: "Swing Perfect",
@@ -46,7 +46,7 @@ export default function HomeResultsSection() {
             Results you can <span className="text-[#FF6700]">see.</span>
           </h2>
           <p className="text-slate-600 text-sm sm:text-base">
-            Real clients. Real numbers. No mockups.
+            Real clients. Real work. Real results.
           </p>
         </MotionWrapper>
 
@@ -97,22 +97,6 @@ export default function HomeResultsSection() {
           ))}
         </div>
 
-        {/* Featured Testimonial Card */}
-        <MotionWrapper direction="up" delay={0.2} distance={20} className="max-w-4xl mx-auto mb-10">
-          <div className="p-7 sm:p-9 rounded-3xl bg-white border border-slate-200/90 shadow-xs flex flex-col sm:flex-row items-start sm:items-center gap-6">
-            <div className="w-12 h-12 rounded-2xl bg-orange-50 border border-orange-200 flex items-center justify-center shrink-0">
-              <Quote className="w-6 h-6 text-[#FF6700]" />
-            </div>
-            <div>
-              <blockquote className="text-sm sm:text-base text-slate-800 leading-relaxed font-normal mb-3">
-                &ldquo;Bobby and his team didn&apos;t just build a pretty site — they engineered it to close commercial deals. Within 60 days of launching the new platform, our qualified inbound buyer inquiries jumped 340%.&rdquo;
-              </blockquote>
-              <div className="text-xs text-slate-500 font-semibold">
-                — Jerry Q., <span className="text-slate-700">QuinnLan Realty Group</span>
-              </div>
-            </div>
-          </div>
-        </MotionWrapper>
 
         {/* Link to all work */}
         <div className="text-center">

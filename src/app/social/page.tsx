@@ -355,7 +355,7 @@ export default function SocialPage() {
                     <span className="text-xs font-mono font-bold text-slate-400 block mb-1">ENTRY</span>
                     <h3 className="font-heading font-black text-xl text-[#090D16] mb-2">Launch</h3>
                     <div className="font-heading font-black text-3xl text-[#090D16] mb-3">$297<span className="text-xs font-normal text-slate-500">/mo</span></div>
-                    <p className="text-xs text-slate-600 mb-6">We write, design and schedule from your photos.</p>
+                    <p className="text-xs text-slate-600 mb-6">12 posts a month from your photos. We write, design and schedule.</p>
                   </div>
                   <a
                     href={PORTAL_CHECKOUT_URL}
@@ -374,7 +374,7 @@ export default function SocialPage() {
                     <span className="text-xs font-mono font-bold text-slate-400 block mb-1">STANDARD</span>
                     <h3 className="font-heading font-black text-xl text-[#090D16] mb-2">Presence</h3>
                     <div className="font-heading font-black text-3xl text-[#090D16] mb-3">$497<span className="text-xs font-normal text-slate-500">/mo</span></div>
-                    <p className="text-xs text-slate-600 mb-6">Consistent weekly cadence across all channels.</p>
+                    <p className="text-xs text-slate-600 mb-6">20 posts a month from your photos. We write, design and schedule.</p>
                   </div>
                   <a
                     href={PORTAL_CHECKOUT_URL}
@@ -393,7 +393,7 @@ export default function SocialPage() {
                     <span className="text-xs font-mono font-bold text-slate-400 block mb-1">ACCELERATED</span>
                     <h3 className="font-heading font-black text-xl text-[#090D16] mb-2">Velocity</h3>
                     <div className="font-heading font-black text-3xl text-[#090D16] mb-3">$797<span className="text-xs font-normal text-slate-500">/mo</span></div>
-                    <p className="text-xs text-slate-600 mb-6">High-frequency publishing from your media library.</p>
+                    <p className="text-xs text-slate-600 mb-6">Daily posts (30 a month) from your photos. We write, design and schedule.</p>
                   </div>
                   <a
                     href={PORTAL_CHECKOUT_URL}

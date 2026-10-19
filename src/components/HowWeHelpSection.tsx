@@ -36,8 +36,8 @@ export default function HowWeHelpSection() {
             </span>
           </div>
           <h2 className="font-heading font-black text-3xl sm:text-5xl lg:text-6xl text-[#090D16] tracking-tight leading-[1.08] mb-5">
-            We Find the Problem. We Fix it.{" "}
-            <span className="text-[#FF6700]">You Grow!</span>
+            Four ways we bring you{" "}
+            <span className="text-[#FF6700]">more customers.</span>
           </h2>
           <p className="text-slate-600 text-sm sm:text-base lg:text-lg leading-relaxed">
             Most businesses don&apos;t need more marketing noise. They need marketing that actually sells. We find where you&apos;re losing customers and fix that first.
