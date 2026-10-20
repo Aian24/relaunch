@@ -11,8 +11,9 @@ import { NextResponse } from "next/server";
  *                       The domain (relaunch.us) must be verified in Resend.
  */
 
-const TO = process.env.CONTACT_TO_EMAIL || "robert@relaunch.us";
-const FROM = process.env.CONTACT_FROM_EMAIL || "ReLaunch Website <website@relaunch.us>";
+// Dynamic evaluation inside POST handler ensures runtime environment variables are read fresh
+const DEFAULT_TO = "robert@relaunch.us";
+const DEFAULT_FROM = "ReLaunch Website <website@relaunch.us>";
 
 const MAX = 2000;
 
@@ -96,6 +97,9 @@ export async function POST(request: Request) {
     </div>`;
 
   const text = rows.map(([k, v]) => `${k}: ${v}`).join("\n");
+
+  const TO = process.env.CONTACT_TO_EMAIL || DEFAULT_TO;
+  const FROM = process.env.CONTACT_FROM_EMAIL || DEFAULT_FROM;
 
   const res = await fetch("https://api.resend.com/emails", {
     method: "POST",
