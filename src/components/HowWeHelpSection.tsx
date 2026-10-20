@@ -48,7 +48,7 @@ export default function HowWeHelpSection() {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-7 lg:gap-8">
           {outcomeGroups.map((group, idx) => (
             <MotionWrapper key={group.id} direction="up" delay={idx * 0.08} distance={25}>
-              <div className="group relative h-full flex flex-col justify-between rounded-3xl bg-white p-7 sm:p-8 border border-slate-200/90 hover:border-[#FF6700]/60 shadow-[0_4px_24px_rgba(0,0,0,0.03),0_10px_30px_rgba(0,0,0,0.04)] hover:shadow-[0_20px_50px_rgba(255,103,0,0.12)] hover:-translate-y-1.5 transition-all duration-300 overflow-hidden">
+              <div className="group relative h-full flex flex-col justify-between rounded-3xl bg-white p-6 sm:p-8 border border-slate-200/90 hover:border-[#FF6700]/60 shadow-[0_4px_24px_rgba(0,0,0,0.03),0_10px_30px_rgba(0,0,0,0.04)] hover:shadow-[0_20px_50px_rgba(255,103,0,0.12)] hover:-translate-y-1.5 transition-all duration-300 overflow-hidden">
                 {/* Top Orange Accent Line */}
                 <div className="absolute top-0 inset-x-0 h-1.5 bg-[#FF6700]" />
 
@@ -88,20 +88,20 @@ export default function HowWeHelpSection() {
                 </div>
 
                 {/* Card Footer: Clear Price Anchor & Direct Action Button */}
-                <div className="pt-5 border-t border-slate-100 flex items-center justify-between gap-3">
-                  <div className="flex items-baseline gap-1.5">
-                    <span className="text-[11px] font-mono text-slate-400 uppercase tracking-wider">Starting:</span>
-                    <span className="text-sm sm:text-base font-heading font-black text-[#090D16]">
+                <div className="pt-5 border-t border-slate-100 flex items-center justify-between gap-2.5 sm:gap-3">
+                  <div className="flex flex-col sm:flex-row sm:items-baseline gap-0.5 sm:gap-1.5 min-w-0">
+                    <span className="text-[10px] sm:text-[11px] font-mono text-slate-400 uppercase tracking-wider">Starting:</span>
+                    <span className="text-sm sm:text-base font-heading font-black text-[#090D16] whitespace-nowrap">
                       {group.startingPricePrefix || ""}{group.startingPrice}
                     </span>
                   </div>
 
                   <Link
                     href={group.productHref}
-                    className="inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl bg-[#FF6700] hover:bg-[#E55C00] text-white font-heading font-bold text-xs uppercase tracking-wider transition-all duration-200 shadow-sm hover:shadow-[0_4px_16px_rgba(255,103,0,0.35)] cursor-pointer group/btn"
+                    className="inline-flex items-center justify-center gap-1.5 sm:gap-2 px-3.5 sm:px-5 py-2.5 rounded-xl bg-[#FF6700] hover:bg-[#E55C00] text-white font-heading font-bold text-xs uppercase tracking-wider transition-all duration-200 shadow-sm hover:shadow-[0_4px_16px_rgba(255,103,0,0.35)] cursor-pointer group/btn whitespace-nowrap shrink-0"
                   >
-                    <span>Explore Scope</span>
-                    <ArrowRight className="w-3.5 h-3.5 text-white transition-transform group-hover/btn:translate-x-1" />
+                    <span className="whitespace-nowrap">Explore Scope</span>
+                    <ArrowRight className="w-3.5 h-3.5 text-white transition-transform group-hover/btn:translate-x-1 shrink-0" />
                   </Link>
                 </div>
               </div>
