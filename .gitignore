@@ -50,5 +50,7 @@ relaunch-audit/bookings.csv
 *.csv
 relaunch-audit.zip
 DEVELOPER_INSTRUCTIONS.md
+DEVELOPER_DIRECTION.md
+CHANGES.md
 scripts/temp_*
 
