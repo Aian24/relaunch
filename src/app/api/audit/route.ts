@@ -16,6 +16,14 @@ function normalizeUrl(u: string): string | null {
   }
 }
 
+function escapeHtml(val: unknown): string {
+  return String(val || "")
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;");
+}
+
 async function saveLead(row: (string | number)[]) {
   try {
     const leadsPath = path.join(process.cwd(), "relaunch-audit", "leads.csv");
@@ -28,7 +36,7 @@ async function saveLead(row: (string | number)[]) {
     const esc = (s: string | number) => '"' + String(s == null ? "" : s).replace(/"/g, '""') + '"';
     fs.appendFileSync(leadsPath, row.map(esc).join(",") + "\n");
   } catch {
-    // In serverless / read-only filesystem environments (like Vercel), fail silently
+    // In serverless / read-only filesystem environments, fail silently
   }
 }
 
@@ -54,7 +62,7 @@ export async function POST(req: NextRequest) {
         signal: ctrl.signal,
         redirect: "follow",
         headers: {
-          "User-Agent": "ReLaunchAudit/1.0 (+https://relaunch.us)",
+          "User-Agent": "ReLaunchAudit/1.1 (+https://relaunch.us)",
         },
       });
       clearTimeout(timeout);
@@ -77,7 +85,7 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Scoring failed. Please try again." }, { status: 500 });
     }
 
-    // Attempt to log lead
+    // 1. Attempt to log lead locally
     await saveLead([
       new Date().toISOString(),
       name,
@@ -88,6 +96,81 @@ export async function POST(req: NextRequest) {
       report.band,
       report.weakest.area,
     ]);
+
+    // 2. Dispatch Resend notification email to Robert
+    const apiKey = process.env.RESEND_API_KEY;
+    const TO = process.env.CONTACT_TO_EMAIL || "robert@relaunch.us";
+    const FROM = process.env.CONTACT_FROM_EMAIL || "ReLaunch Website <website@relaunch.us>";
+
+    if (apiKey) {
+      const subject = `New Audit Lead — ${business || name || "Website"} (${report.overall}/100 · ${report.band})`;
+      const text = `New Audit Lead Received\n`
+        + `-----------------------\n`
+        + `Name: ${name || "Not given"}\n`
+        + `Email: ${email}\n`
+        + `Business: ${business || "Not given"}\n`
+        + `Website: ${url}\n\n`
+        + `Score: ${report.overall}/100 (${report.band})\n`
+        + `Band Note: ${report.bandNote}\n`
+        + `Weakest: ${report.weakest.area} (${report.weakest.score}/100)\n`
+        + `Fix: ${report.weakest.fix}\n\n`
+        + `Layers:\n`
+        + `• StoryBrand: ${report.layers.storybrand}/100\n`
+        + `• Hero's Journey: ${report.layers.herosJourney}/100\n`
+        + `• Draper: ${report.layers.draper}/100\n`
+        + `• Archetype: ${report.layers.archetype}/100\n\n`
+        + `Sales Hook: ${report.salesHook}\n`;
+
+      const htmlBody = `
+        <div style="font-family:Arial,sans-serif;font-size:14px;color:#111;max-width:600px;line-height:1.6">
+          <h2 style="color:#FF6700;margin-bottom:6px">New Audit Lead Received</h2>
+          <p style="margin-top:0;color:#666">Captured on relaunch.us/audit</p>
+          <table cellpadding="6" style="border-collapse:collapse;width:100%;margin-bottom:16px">
+            <tr style="background:#f8f9fa"><td style="font-weight:bold;width:120px">Name:</td><td>${escapeHtml(name || "Not given")}</td></tr>
+            <tr><td style="font-weight:bold">Email:</td><td><a href="mailto:${escapeHtml(email)}">${escapeHtml(email)}</a></td></tr>
+            <tr style="background:#f8f9fa"><td style="font-weight:bold">Business:</td><td>${escapeHtml(business || "Not given")}</td></tr>
+            <tr><td style="font-weight:bold">Website:</td><td><a href="${escapeHtml(url)}" target="_blank">${escapeHtml(url)}</a></td></tr>
+          </table>
+
+          <div style="padding:16px;background:#090D16;color:#fff;border-radius:12px;margin-bottom:16px">
+            <div style="font-size:12px;text-transform:uppercase;color:#FF6700;font-weight:bold;letter-spacing:1px">Score Summary</div>
+            <div style="font-size:32px;font-weight:900;margin:6px 0">${report.overall} <span style="font-size:16px;font-weight:normal;color:#94a3b8">/ 100 (${escapeHtml(report.band)})</span></div>
+            <p style="margin:0;font-size:13px;color:#cbd5e1">${escapeHtml(report.bandNote)}</p>
+          </div>
+
+          <h3 style="margin-bottom:8px">Dimension Breakdown</h3>
+          <ul>
+            <li><strong>StoryBrand Clarity:</strong> ${report.layers.storybrand}/100</li>
+            <li><strong>Transformation Story:</strong> ${report.layers.herosJourney}/100</li>
+            <li><strong>Emotional Pull:</strong> ${report.layers.draper}/100</li>
+            <li><strong>Brand Voice:</strong> ${report.layers.archetype}/100</li>
+          </ul>
+
+          <p style="background:#fff3ed;border-left:4px solid #FF6700;padding:12px;margin:16px 0">
+            <strong>Weakest Area:</strong> ${escapeHtml(report.weakest.area)} (${report.weakest.score}/100)<br>
+            <span>${escapeHtml(report.weakest.fix)}</span>
+          </p>
+
+          <p style="color:#666;font-size:12px">Reply directly to this email to contact ${escapeHtml(name || email)}.</p>
+        </div>
+      `;
+
+      fetch("https://api.resend.com/emails", {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${apiKey}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          from: FROM,
+          to: [TO],
+          reply_to: email,
+          subject,
+          text,
+          html: htmlBody,
+        }),
+      }).catch((e) => console.error("Resend audit lead dispatch failed:", e));
+    }
 
     return NextResponse.json(report);
   } catch {

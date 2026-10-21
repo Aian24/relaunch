@@ -4,6 +4,7 @@ import React, { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 import { ArrowRight, CheckCircle2, AlertCircle, RefreshCw } from "lucide-react";
 import MotionWrapper from "./MotionWrapper";
+import { useContactModal } from "@/context/ContactModalContext";
 
 interface AuditReport {
   overall: number;
@@ -23,6 +24,7 @@ interface AuditReport {
 }
 
 export default function InteractiveAuditScanner() {
+  const { openContactModal } = useContactModal();
   const [name, setName] = useState("");
   const [business, setBusiness] = useState("");
   const [email, setEmail] = useState("");
@@ -373,12 +375,24 @@ export default function InteractiveAuditScanner() {
               {report.salesHook}
             </p>
             <div className="flex flex-col sm:flex-row gap-3">
-              <Link
-                href="/contact"
-                className="flex-1 py-4 px-6 rounded-full bg-[#FF6700] hover:bg-[#E65C00] text-white font-heading font-black text-xs sm:text-sm uppercase tracking-wider text-center transition-all shadow-[0_6px_20px_rgba(255,103,0,0.30)] hover:shadow-[0_8px_24px_rgba(255,103,0,0.40)]"
+              <button
+                type="button"
+                onClick={() =>
+                  openContactModal({
+                    intent: "strategy-session",
+                    serviceInterest: "Social Audit",
+                    prefill: {
+                      name,
+                      email,
+                      business,
+                    },
+                    notes: `Audit Score: ${report.overall}/100 (${report.band}) for ${website}. Weakest area: ${report.weakest.area} (${report.weakest.score}/100) — ${report.weakest.fix}`,
+                  })
+                }
+                className="flex-1 py-4 px-6 rounded-full bg-[#FF6700] hover:bg-[#E65C00] text-white font-heading font-black text-xs sm:text-sm uppercase tracking-wider text-center transition-all shadow-[0_6px_20px_rgba(255,103,0,0.30)] hover:shadow-[0_8px_24px_rgba(255,103,0,0.40)] cursor-pointer active:scale-98"
               >
                 Book My Free Strategy Call →
-              </Link>
+              </button>
               <Link
                 href="/pricing"
                 className="flex-1 py-4 px-6 rounded-full bg-[#7F48ED] hover:bg-[#6B38D8] text-white font-heading font-black text-xs sm:text-sm uppercase tracking-wider text-center transition-all shadow-[0_6px_20px_rgba(127,72,237,0.30)] hover:shadow-[0_8px_24px_rgba(127,72,237,0.40)]"

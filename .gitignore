@@ -24,7 +24,9 @@ yarn-debug.log*
 yarn-error.log*
 
 # local env files
+.env
 .env*.local
+.env.*
 
 # vercel
 .vercel
@@ -40,10 +42,12 @@ scratch/
 *.pdf
 /*.mp4
 
-# local audit runtime & instructions
+# local audit runtime & data
 relaunch-audit/node_modules/
 relaunch-audit/.env
 relaunch-audit/leads.csv
+relaunch-audit/bookings.csv
+*.csv
 relaunch-audit.zip
 DEVELOPER_INSTRUCTIONS.md
 scripts/temp_*

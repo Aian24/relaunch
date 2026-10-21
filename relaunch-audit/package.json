@@ -1,15 +1,16 @@
 {
   "name": "relaunch-audit",
-  "version": "1.0.0",
-  "description": "ReLaunch free marketing audit — Narrative Intelligence Score engine + lead capture",
+  "version": "1.1.0",
+  "description": "ReLaunch free marketing audit — Narrative Intelligence Score engine + Resend lead & booking capture",
   "main": "server.js",
   "scripts": {
     "start": "node server.js"
   },
-  "engines": { "node": ">=18" },
+  "engines": {
+    "node": ">=18"
+  },
   "dependencies": {
     "cheerio": "^1.0.0",
-    "express": "^4.21.2",
-    "nodemailer": "^6.9.16"
+    "express": "^4.21.2"
   }
 }

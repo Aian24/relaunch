@@ -65,10 +65,15 @@ export default function ContactModal() {
   // Sync options when modal opens
   useEffect(() => {
     if (isOpen) {
+      const prefill = options.prefill || {};
       if (options.intent === "strategy-session" || options.intent === "ai-audit") {
         setActiveTab("calendar");
         setFormData((prev) => ({
           ...prev,
+          name: prefill.name !== undefined ? prefill.name : prev.name,
+          email: prefill.email !== undefined ? prefill.email : prev.email,
+          phone: prefill.phone !== undefined ? prefill.phone : prev.phone,
+          business: prefill.business !== undefined ? prefill.business : prev.business,
           interest: options.serviceInterest || "Not sure yet",
           message: options.notes || "",
         }));
@@ -76,6 +81,10 @@ export default function ContactModal() {
         setActiveTab("form");
         setFormData((prev) => ({
           ...prev,
+          name: prefill.name !== undefined ? prefill.name : prev.name,
+          email: prefill.email !== undefined ? prefill.email : prev.email,
+          phone: prefill.phone !== undefined ? prefill.phone : prev.phone,
+          business: prefill.business !== undefined ? prefill.business : prev.business,
           interest: options.serviceInterest || "Web & App Development",
           message: options.notes || "Ready to start a new project with ReLaunch.",
         }));
@@ -83,20 +92,24 @@ export default function ContactModal() {
         setActiveTab("form");
         setFormData((prev) => ({
           ...prev,
+          name: prefill.name !== undefined ? prefill.name : prev.name,
+          email: prefill.email !== undefined ? prefill.email : prev.email,
+          phone: prefill.phone !== undefined ? prefill.phone : prev.phone,
+          business: prefill.business !== undefined ? prefill.business : prev.business,
           interest: options.serviceInterest || "Enterprise & Custom Software",
           message: options.notes || "Inquiring about enterprise software development, architectural review, or RFP.",
         }));
       } else {
         setActiveTab("form");
-        if (options.serviceInterest) {
-          setFormData((prev) => ({
-            ...prev,
-            interest: options.serviceInterest || "Not sure yet",
-          }));
-        }
-        if (options.notes) {
-          setFormData((prev) => ({ ...prev, message: options.notes || "" }));
-        }
+        setFormData((prev) => ({
+          ...prev,
+          name: prefill.name !== undefined ? prefill.name : prev.name,
+          email: prefill.email !== undefined ? prefill.email : prev.email,
+          phone: prefill.phone !== undefined ? prefill.phone : prev.phone,
+          business: prefill.business !== undefined ? prefill.business : prev.business,
+          ...(options.serviceInterest ? { interest: options.serviceInterest } : {}),
+          ...(options.notes ? { message: options.notes } : {}),
+        }));
       }
     }
   }, [isOpen, options]);

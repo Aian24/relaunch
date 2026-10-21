@@ -32,8 +32,8 @@ h1 em{font-style:italic;color:var(--purple)}
 .lede{font-size:clamp(15px,2vw,18px);font-weight:400;color:var(--slate);max-width:640px;margin-bottom:38px}
 .card{background:var(--off);border:1px solid var(--line);border-radius:22px;padding:32px}
 label{display:block;font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--slate);margin:0 0 7px}
-input{width:100%;font-family:inherit;font-size:15px;color:var(--ink);background:#fff;border:2px solid var(--line);border-radius:12px;padding:14px 16px;margin-bottom:18px;outline:none;transition:all .18s}
-input:focus{border-color:var(--purple);box-shadow:0 0 0 3px rgba(127,72,237,.15)}
+input,select,textarea{width:100%;font-family:inherit;font-size:15px;color:var(--ink);background:#fff;border:2px solid var(--line);border-radius:12px;padding:14px 16px;margin-bottom:18px;outline:none;transition:all .18s}
+input:focus,select:focus,textarea:focus{border-color:var(--purple);box-shadow:0 0 0 3px rgba(127,72,237,.15)}
 .row{display:grid;grid-template-columns:1fr 1fr;gap:16px}
 .btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;font-family:inherit;font-size:14px;font-weight:700;letter-spacing:.02em;border:0;border-radius:50px;padding:16px 30px;cursor:pointer;text-decoration:none;transition:all .2s}
 .btn-orange{background:var(--orange);color:#fff;box-shadow:0 6px 20px rgba(255,103,0,.32);width:100%}
@@ -79,10 +79,12 @@ input:focus{border-color:var(--purple);box-shadow:0 0 0 3px rgba(127,72,237,.15)
 .fix-b span{font-size:14px;color:var(--slate);line-height:1.55}
 .fix-b .sc{font-size:12px;font-weight:700;color:var(--purple);margin-left:4px}
 .hook{background:linear-gradient(135deg,rgba(127,72,237,.06),rgba(255,103,0,.06));border:1px solid rgba(127,72,237,.22);border-radius:22px;padding:28px;margin:34px 0 24px}
-.hook p{font-size:17px;font-weight:600;color:var(--ink);margin-bottom:20px;line-height:1.55}
-.cta-row{display:flex;gap:14px;flex-wrap:wrap}
-.cta-row .btn{flex:1;min-width:200px}
-.mini{font-size:12px;color:var(--mist);margin-top:10px;line-height:1.5}
+.hook p{font-size:17px;font-weight:600;color:var(--ink);margin-bottom:8px;line-height:1.55}
+.booking-box{background:#fff;border:2px solid rgba(127,72,237,.25);border-radius:22px;padding:30px;margin-top:28px;box-shadow:0 10px 30px rgba(0,0,0,.04)}
+.booking-box h3{font-size:22px;font-weight:900;color:var(--ink);margin-bottom:6px}
+.booking-box p{font-size:14px;color:var(--slate);margin-bottom:20px}
+.success-msg{display:none;background:#ECFDF5;border:1.5px solid #10B981;color:#065F46;border-radius:16px;padding:22px;text-align:center;font-weight:600;margin:16px 0}
+.success-msg h4{font-size:18px;font-weight:800;margin-bottom:4px;color:#047857}
 @media(max-width:620px){.row,.layers{grid-template-columns:1fr}}
 </style>
 </head>
@@ -123,10 +125,8 @@ input:focus{border-color:var(--purple);box-shadow:0 0 0 3px rgba(127,72,237,.15)
 
 <script>
 (function(){
-  // ====== CONFIG — set these for the live site ======
-  var BOOKING_URL = 'https://relaunch.us/contact'; // Fallback until Robert provides Google Calendar schedule URL
-  var API = '/api/audit';
-  // ===================================================
+  var API_AUDIT = '/api/audit';
+  var API_BOOK = '/api/book';
 
   var form = document.getElementById('form'),
       intro = document.getElementById('intro'),
@@ -135,63 +135,94 @@ input:focus{border-color:var(--purple);box-shadow:0 0 0 3px rgba(127,72,237,.15)
       errBox = document.getElementById('err'),
       go = document.getElementById('go');
 
-  // STRICT RE-LAUNCH THEME: Purple (#7F48ED) & Orange (#FF6700) only
   var BAND_COLOR = {
-    Strong: '#7F48ED',      // Signature Purple
-    Developing: '#FF6700',  // Signature Orange
-    Weak: '#9353FF',        // Electric Violet
-    Critical: '#E65C00'     // Deep Orange
+    Strong: '#7F48ED',
+    Developing: '#FF6700',
+    Weak: '#9353FF',
+    Critical: '#E65C00'
   };
 
   function barColor(v){
-    // High performing = Brand Purple; Opportunities = Brand Orange
     return v >= 70 ? '#7F48ED' : '#FF6700';
   }
 
-  function showErr(m){ errBox.textContent=m; errBox.style.display='block'; }
-  function hideErr(){ errBox.style.display='none'; }
+  function escapeText(str){
+    return String(str || '').replace(/[&<>"']/g, function(m){
+      return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[m];
+    });
+  }
+
+  function showErr(m){ errBox.textContent = m; errBox.style.display = 'block'; }
+  function hideErr(){ errBox.style.display = 'none'; }
 
   form.addEventListener('submit', function(e){
-    e.preventDefault(); hideErr();
-    var fd=new FormData(form), payload={};
-    fd.forEach(function(v,k){ payload[k]=v.trim(); });
-    go.disabled=true; go.textContent='Analyzing…';
-    intro.style.display='none'; spin.classList.add('on');
+    e.preventDefault();
+    hideErr();
+    var fd = new FormData(form), payload = {};
+    fd.forEach(function(v, k){ payload[k] = v.trim(); });
+    go.disabled = true;
+    go.textContent = 'Analyzing…';
+    intro.style.display = 'none';
+    spin.classList.add('on');
 
-    fetch(API,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)})
-      .then(function(r){ return r.json().then(function(j){ return {ok:r.ok,j:j}; }); })
+    fetch(API_AUDIT, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload)
+    })
+      .then(function(r){ return r.json().then(function(j){ return { ok: r.ok, j: j }; }); })
       .then(function(res){
         spin.classList.remove('on');
-        if(!res.ok){ intro.style.display='block'; go.disabled=false; go.textContent='Get My Free Score →'; showErr(res.j.error||'Something went wrong. Try again.'); return; }
+        if (!res.ok) {
+          intro.style.display = 'block';
+          go.disabled = false;
+          go.textContent = 'Get My Free Score →';
+          showErr(res.j.error || 'Something went wrong. Try again.');
+          return;
+        }
         render(res.j, payload);
       })
       .catch(function(){
-        spin.classList.remove('on'); intro.style.display='block'; go.disabled=false; go.textContent='Get My Free Score →';
+        spin.classList.remove('on');
+        intro.style.display = 'block';
+        go.disabled = false;
+        go.textContent = 'Get My Free Score →';
         showErr('Network error. Please try again.');
       });
   });
 
   function render(d, p){
     var C = BAND_COLOR[d.band] || '#FF6700';
-    var circ = 2*Math.PI*80;
-    var L = d.layers, names = {storybrand:'StoryBrand Clarity',herosJourney:'Transformation Story',draper:'Emotional Pull',archetype:'Brand Voice'};
+    var circ = 2 * Math.PI * 80;
+    var L = d.layers, names = {
+      storybrand: 'StoryBrand Clarity',
+      herosJourney: 'Transformation Story',
+      draper: 'Emotional Pull',
+      archetype: 'Brand Voice'
+    };
     var layersHtml = Object.keys(L).map(function(k){
       var col = barColor(L[k]);
-      return '<div class="layer"><div class="lh"><span class="ln">'+names[k]+'</span><span class="lv" style="color:'+col+'">'+L[k]+'</span></div>'
-           + '<div class="bar"><i data-w="'+L[k]+'" style="background:'+col+'"></i></div></div>';
+      return '<div class="layer"><div class="lh"><span class="ln">' + names[k] + '</span><span class="lv" style="color:' + col + '">' + L[k] + '</span></div>'
+           + '<div class="bar"><i data-w="' + L[k] + '" style="background:' + col + '"></i></div></div>';
     }).join('');
 
-    var fixesHtml = d.fixes.map(function(f,i){
+    var fixesHtml = d.fixes.map(function(f, i){
       var isAlt = (i % 2 === 1) ? ' alt' : '';
-      return '<div class="fix"><div class="fix-n'+isAlt+'">'+(i+1)+'</div><div class="fix-b"><strong>'+f.area+' <span class="sc">· '+f.score+'/100</span></strong><span>'+f.fix+'</span></div></div>';
+      return '<div class="fix"><div class="fix-n' + isAlt + '">' + (i + 1) + '</div><div class="fix-b"><strong>' + escapeText(f.area) + ' <span class="sc">· ' + f.score + '/100</span></strong><span>' + escapeText(f.fix) + '</span></div></div>';
     }).join('');
 
-    var hello = p.name ? p.name.split(' ')[0]+', here’s' : 'Here’s';
+    var hello = p.name ? escapeText(p.name.split(' ')[0]) + ', here’s' : 'Here’s';
+
+    var safeName = escapeText(p.name || '');
+    var safeEmail = escapeText(p.email || '');
+    var safeBusiness = escapeText(p.business || '');
+    var safeWebsite = escapeText(p.website || '');
+    var scoreNotes = 'Audit Score: ' + d.overall + '/100 (' + d.band + ') for ' + safeWebsite + '. Weakest: ' + d.weakest.area;
 
     report.innerHTML =
       '<div class="eyebrow">Your Narrative Intelligence Score</div>'
-    + '<h1 style="font-size:clamp(26px,4vw,38px)">'+hello+' how your marketing <span style="color:#7F48ED">scores.</span></h1>'
-    + '<p class="lede" style="margin-bottom:26px">Analyzed: <strong>'+(p.website||'')+'</strong></p>'
+    + '<h1 style="font-size:clamp(26px,4vw,38px)">' + hello + ' how your marketing <span style="color:#7F48ED">scores.</span></h1>'
+    + '<p class="lede" style="margin-bottom:26px">Analyzed: <strong>' + safeWebsite + '</strong></p>'
     + '<div class="score-hero">'
       + '<div class="ring">'
         + '<svg width="190" height="190">'
@@ -202,36 +233,133 @@ input:focus{border-color:var(--purple);box-shadow:0 0 0 3px rgba(127,72,237,.15)
             + '</linearGradient>'
           + '</defs>'
           + '<circle cx="95" cy="95" r="80" fill="none" stroke="rgba(255,255,255,.12)" stroke-width="12"/>'
-          + '<circle id="arc" cx="95" cy="95" r="80" fill="none" stroke="url(#scoreRingGrad)" stroke-width="12" stroke-linecap="round" stroke-dasharray="'+circ+'" stroke-dashoffset="'+circ+'"/>'
+          + '<circle id="arc" cx="95" cy="95" r="80" fill="none" stroke="url(#scoreRingGrad)" stroke-width="12" stroke-linecap="round" stroke-dasharray="' + circ + '" stroke-dashoffset="' + circ + '"/>'
         + '</svg>'
         + '<div class="num"><b id="bignum">0</b><span>out of 100</span></div>'
       + '</div>'
-      + '<div class="band" style="background:'+C+'">'+d.band+'</div>'
-      + '<p class="band-note">'+d.bandNote+'</p>'
+      + '<div class="band" style="background:' + C + '">' + d.band + '</div>'
+      + '<p class="band-note">' + escapeText(d.bandNote) + '</p>'
     + '</div>'
-    + '<div class="layers">'+layersHtml+'</div>'
-    + '<div class="sec-h">Your biggest opportunity: <span style="color:#7F48ED">'+d.weakest.area+'</span></div>'
-    + '<div class="opp-card"><p>'+d.weakest.fix+'</p></div>'
+    + '<div class="layers">' + layersHtml + '</div>'
+    + '<div class="sec-h">Your biggest opportunity: <span style="color:#7F48ED">' + escapeText(d.weakest.area) + '</span></div>'
+    + '<div class="opp-card"><p>' + escapeText(d.weakest.fix) + '</p></div>'
     + '<div class="sec-h">What to fix first</div>'
     + fixesHtml
-    + '<div class="hook"><p>'+d.salesHook+'</p>'
-      + '<div class="cta-row"><a class="btn btn-orange" href="'+BOOKING_URL+'" target="_blank" rel="noopener">Book My Free Strategy Call →</a>'
-      + '<a class="btn btn-purple" href="https://relaunch.us/pricing">See Pricing</a></div>'
-      + '<div class="mini">On the call we’ll walk your report line by line and map the fastest wins — whether you hire us or not.</div></div>';
+    + '<div class="hook"><p>' + escapeText(d.salesHook) + '</p>'
+      + '<div style="font-size:13px;color:var(--slate)">On the strategy call, we’ll walk your report line by line and show you the exact copy to change.</div>'
+    + '</div>'
+    + '<div class="booking-box" id="bookingBox">'
+      + '<div class="eyebrow" style="color:var(--purple);margin-bottom:6px">NEXT STEP · NO OBLIGATION</div>'
+      + '<h3>Book Your Free 30-Minute Strategy Call</h3>'
+      + '<p>Choose a time and Robert will email you within one business day to confirm. No calendar logins or third-party links required.</p>'
+      + '<div class="err" id="bookErr"></div>'
+      + '<div class="success-msg" id="bookSuccess">'
+        + '<h4>✓ Strategy Call Request Received!</h4>'
+        + '<span>Thanks! We received your request. Robert will review your audit report and email you to confirm the time.</span>'
+      + '</div>'
+      + '<form id="bookForm">'
+        + '<div class="row">'
+          + '<div><label>Your Name *</label><input name="name" required value="' + safeName + '"/></div>'
+          + '<div><label>Work Email *</label><input name="email" type="email" required value="' + safeEmail + '"/></div>'
+        + '</div>'
+        + '<div class="row">'
+          + '<div><label>Phone Number</label><input name="phone" placeholder="(480) 779-9875"/></div>'
+          + '<div><label>Business / Company</label><input name="business" value="' + safeBusiness + '"/></div>'
+        + '</div>'
+        + '<div class="row">'
+          + '<div><label>Preferred Date</label><input name="preferredDate" type="date"/></div>'
+          + '<div><label>Preferred Time (Arizona MST)</label>'
+            + '<select name="preferredTime">'
+              + '<option value="09:00 AM MST">09:00 AM MST</option>'
+              + '<option value="10:00 AM MST" selected>10:00 AM MST</option>'
+              + '<option value="11:30 AM MST">11:30 AM MST</option>'
+              + '<option value="01:00 PM MST">01:00 PM MST</option>'
+              + '<option value="02:30 PM MST">02:30 PM MST</option>'
+              + '<option value="04:00 PM MST">04:00 PM MST</option>'
+            + '</select>'
+          + '</div>'
+        + '</div>'
+        + '<div><label>Goals / Notes</label><textarea name="notes" rows="2">' + escapeText(scoreNotes) + '</textarea></div>'
+        + '<input type="hidden" name="website" value="' + safeWebsite + '"/>'
+        + '<button class="btn btn-orange" type="submit" id="bookBtn">Submit Strategy Call Request →</button>'
+      + '</form>'
+    + '</div>'
+    + '<div style="display:flex;justify-content:space-between;align-items:center;margin-top:32px;flex-wrap:wrap;gap:14px">'
+      + '<button id="rescanBtn" class="btn" style="background:#fff;border:1px solid var(--line);color:var(--slate);font-size:13px;padding:12px 22px">↺ Scan another website</button>'
+      + '<a href="https://relaunch.us/pricing" class="btn btn-purple" style="font-size:13px;padding:12px 26px">See Pricing Plans →</a>'
+    + '</div>';
 
     report.classList.add('on');
-    window.scrollTo({top:0,behavior:'smooth'});
+    window.scrollTo({ top: 0, behavior: 'smooth' });
 
-    // animate ring + number + bars
-    var arc=document.getElementById('arc'), big=document.getElementById('bignum');
+    // Animate ring + number + bars
+    var arc = document.getElementById('arc'), big = document.getElementById('bignum');
     requestAnimationFrame(function(){
-      arc.style.transition='stroke-dashoffset 1.3s cubic-bezier(.25,.46,.45,.94)';
-      arc.style.strokeDashoffset = circ*(1-d.overall/100);
+      arc.style.transition = 'stroke-dashoffset 1.3s cubic-bezier(.25,.46,.45,.94)';
+      arc.style.strokeDashoffset = circ * (1 - d.overall / 100);
     });
-    var start=null;
-    function tick(ts){ if(!start)start=ts; var pr=Math.min((ts-start)/1300,1); big.textContent=Math.round(pr*d.overall); if(pr<1)requestAnimationFrame(tick); }
+    var start = null;
+    function tick(ts){
+      if (!start) start = ts;
+      var pr = Math.min((ts - start) / 1300, 1);
+      big.textContent = Math.round(pr * d.overall);
+      if (pr < 1) requestAnimationFrame(tick);
+    }
     requestAnimationFrame(tick);
-    report.querySelectorAll('.bar i').forEach(function(i){ setTimeout(function(){ i.style.width=i.dataset.w+'%'; },200); });
+    report.querySelectorAll('.bar i').forEach(function(i){
+      setTimeout(function(){ i.style.width = i.dataset.w + '%'; }, 200);
+    });
+
+    // Wire up booking form submission -> /api/book
+    var bookForm = document.getElementById('bookForm');
+    var bookErr = document.getElementById('bookErr');
+    var bookBtn = document.getElementById('bookBtn');
+    var bookSuccess = document.getElementById('bookSuccess');
+
+    bookForm.addEventListener('submit', function(ev){
+      ev.preventDefault();
+      bookErr.style.display = 'none';
+      bookBtn.disabled = true;
+      bookBtn.textContent = 'Submitting request…';
+
+      var bFd = new FormData(bookForm), bPayload = {};
+      bFd.forEach(function(val, key){ bPayload[key] = val.trim(); });
+
+      fetch(API_BOOK, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(bPayload)
+      })
+      .then(function(r){ return r.json().then(function(j){ return { ok: r.ok, j: j }; }); })
+      .then(function(res){
+        if (!res.ok) {
+          bookBtn.disabled = false;
+          bookBtn.textContent = 'Submit Strategy Call Request →';
+          bookErr.textContent = res.j.error || 'Could not submit your request. Please try again.';
+          bookErr.style.display = 'block';
+        } else {
+          bookForm.style.display = 'none';
+          bookSuccess.style.display = 'block';
+        }
+      })
+      .catch(function(){
+        bookBtn.disabled = false;
+        bookBtn.textContent = 'Submit Strategy Call Request →';
+        bookErr.textContent = 'Network error. Please try again.';
+        bookErr.style.display = 'block';
+      });
+    });
+
+    // Rescan button
+    document.getElementById('rescanBtn').addEventListener('click', function(){
+      report.classList.remove('on');
+      report.innerHTML = '';
+      form.reset();
+      go.disabled = false;
+      go.textContent = 'Get My Free Score →';
+      intro.style.display = 'block';
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    });
   }
 })();
 </script>

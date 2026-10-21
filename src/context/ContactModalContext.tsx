@@ -10,10 +10,18 @@ export type ContactIntent =
   | "enterprise-inquiry"
   | "general-message";
 
-interface ContactModalOptions {
+export interface ContactPrefill {
+  name?: string;
+  email?: string;
+  phone?: string;
+  business?: string;
+}
+
+export interface ContactModalOptions {
   intent?: ContactIntent;
   serviceInterest?: string;
   notes?: string;
+  prefill?: ContactPrefill;
 }
 
 interface ContactModalContextType {
