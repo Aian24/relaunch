@@ -1,0 +1,1125 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ReLaunch Studio — AI Video System Tracker</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #090A0F;
+      --card-bg: rgba(18, 20, 29, 0.7);
+      --card-border: rgba(255, 255, 255, 0.08);
+      --card-border-hover: rgba(127, 72, 237, 0.4);
+      --primary: #7F48ED;
+      --primary-light: #9B6BFF;
+      --primary-glow: rgba(127, 72, 237, 0.25);
+      --accent: #00F0FF;
+      --accent-glow: rgba(0, 240, 255, 0.2);
+      --success: #10B981;
+      --success-glow: rgba(16, 185, 129, 0.2);
+      --warning: #F59E0B;
+      --text: #F3F4F6;
+      --text-muted: #9CA3AF;
+      --text-dim: #6B7280;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      background-color: var(--bg);
+      background-image: 
+        radial-gradient(circle at 15% 20%, rgba(127, 72, 237, 0.12) 0%, transparent 40%),
+        radial-gradient(circle at 85% 60%, rgba(0, 240, 255, 0.08) 0%, transparent 40%),
+        linear-gradient(to bottom, #090A0F, #0E1017);
+      color: var(--text);
+      font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+      min-height: 100vh;
+      padding-bottom: 80px;
+      line-height: 1.5;
+    }
+
+    /* Header & Navigation Bar */
+    .header {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      background: rgba(9, 10, 15, 0.85);
+      border-bottom: 1px solid var(--card-border);
+      padding: 16px 32px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 20px;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+
+    .brand-logo {
+      width: 38px;
+      height: 38px;
+      background: linear-gradient(135deg, var(--primary), var(--accent));
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 800;
+      font-size: 20px;
+      color: #fff;
+      box-shadow: 0 0 20px var(--primary-glow);
+    }
+
+    .brand-title {
+      font-size: 18px;
+      font-weight: 800;
+      letter-spacing: -0.5px;
+    }
+
+    .brand-subtitle {
+      font-size: 12px;
+      color: var(--text-muted);
+      font-weight: 500;
+    }
+
+    .nav-links {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 16px;
+      border-radius: 8px;
+      font-size: 13px;
+      font-weight: 600;
+      text-decoration: none;
+      transition: all 0.2s ease;
+      cursor: pointer;
+      border: 1px solid transparent;
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, var(--primary), #632cd6);
+      color: #fff;
+      box-shadow: 0 4px 14px var(--primary-glow);
+    }
+
+    .btn-primary:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 6px 20px var(--primary-glow);
+    }
+
+    .btn-secondary {
+      background: rgba(255, 255, 255, 0.05);
+      color: var(--text);
+      border-color: var(--card-border);
+    }
+
+    .btn-secondary:hover {
+      background: rgba(255, 255, 255, 0.1);
+      border-color: rgba(255, 255, 255, 0.2);
+    }
+
+    /* Container */
+    .container {
+      max-width: 1280px;
+      margin: 0 auto;
+      padding: 32px 24px;
+    }
+
+    /* Hero / Status Bar */
+    .hero-banner {
+      background: linear-gradient(135deg, rgba(127, 72, 237, 0.15), rgba(0, 240, 255, 0.05));
+      border: 1px solid rgba(127, 72, 237, 0.3);
+      border-radius: 16px;
+      padding: 28px;
+      margin-bottom: 32px;
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 24px;
+      align-items: center;
+    }
+
+    @media (max-width: 900px) {
+      .hero-banner {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .hero-title {
+      font-size: 24px;
+      font-weight: 800;
+      letter-spacing: -0.5px;
+      margin-bottom: 8px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .badge-live {
+      background: rgba(16, 185, 129, 0.15);
+      color: var(--success);
+      border: 1px solid rgba(16, 185, 129, 0.3);
+      font-size: 11px;
+      padding: 3px 8px;
+      border-radius: 9999px;
+      font-weight: 700;
+      letter-spacing: 0.5px;
+      text-transform: uppercase;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .badge-live::before {
+      content: '';
+      width: 6px;
+      height: 6px;
+      background: var(--success);
+      border-radius: 50%;
+      box-shadow: 0 0 8px var(--success);
+    }
+
+    .hero-desc {
+      color: var(--text-muted);
+      font-size: 14px;
+      max-width: 720px;
+    }
+
+    /* Overall Progress Widget */
+    .progress-widget {
+      background: rgba(18, 20, 29, 0.8);
+      border: 1px solid var(--card-border);
+      border-radius: 14px;
+      padding: 20px 24px;
+      min-width: 280px;
+      text-align: right;
+    }
+
+    .progress-numbers {
+      display: flex;
+      align-items: baseline;
+      justify-content: flex-end;
+      gap: 8px;
+      margin-bottom: 10px;
+    }
+
+    .progress-percent {
+      font-size: 36px;
+      font-weight: 800;
+      color: var(--accent);
+      font-family: 'JetBrains Mono', monospace;
+      line-height: 1;
+    }
+
+    .progress-fraction {
+      font-size: 14px;
+      color: var(--text-muted);
+      font-weight: 600;
+    }
+
+    .progress-track {
+      width: 100%;
+      height: 8px;
+      background: rgba(255, 255, 255, 0.08);
+      border-radius: 9999px;
+      overflow: hidden;
+    }
+
+    .progress-fill {
+      height: 100%;
+      background: linear-gradient(90deg, var(--primary), var(--accent));
+      width: 0%;
+      border-radius: 9999px;
+      transition: width 0.4s ease;
+      box-shadow: 0 0 12px var(--accent-glow);
+    }
+
+    /* "What We Do First" Callout Card */
+    .action-card {
+      background: linear-gradient(135deg, rgba(0, 240, 255, 0.08), rgba(127, 72, 237, 0.08));
+      border: 1px solid rgba(0, 240, 255, 0.3);
+      border-radius: 14px;
+      padding: 24px;
+      margin-bottom: 32px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .action-header {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .action-pill {
+      background: var(--accent);
+      color: #000;
+      font-size: 11px;
+      font-weight: 800;
+      padding: 4px 10px;
+      border-radius: 6px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .action-title {
+      font-size: 18px;
+      font-weight: 700;
+      color: #fff;
+    }
+
+    .steps-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      gap: 16px;
+      margin-top: 8px;
+    }
+
+    .step-box {
+      background: rgba(9, 10, 15, 0.6);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 10px;
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      transition: all 0.2s ease;
+    }
+
+    .step-box.done {
+      background: rgba(16, 185, 129, 0.06);
+      border-color: rgba(16, 185, 129, 0.4);
+      box-shadow: 0 0 16px rgba(16, 185, 129, 0.12);
+    }
+
+    .step-box.active {
+      background: rgba(0, 240, 255, 0.06);
+      border-color: rgba(0, 240, 255, 0.5);
+      box-shadow: 0 0 16px rgba(0, 240, 255, 0.15);
+    }
+
+    .step-header-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+    }
+
+    .badge-done {
+      background: rgba(16, 185, 129, 0.18);
+      color: var(--success);
+      border: 1px solid rgba(16, 185, 129, 0.4);
+      font-size: 10px;
+      font-weight: 800;
+      padding: 2px 7px;
+      border-radius: 4px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .badge-active {
+      background: rgba(0, 240, 255, 0.18);
+      color: var(--accent);
+      border: 1px solid rgba(0, 240, 255, 0.4);
+      font-size: 10px;
+      font-weight: 800;
+      padding: 2px 7px;
+      border-radius: 4px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .step-box h4 {
+      font-size: 14px;
+      font-weight: 700;
+      color: #fff;
+    }
+
+    .step-box p {
+      font-size: 12px;
+      color: var(--text-muted);
+      line-height: 1.4;
+    }
+
+    /* Quick Links Bar */
+    .links-bar {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 12px;
+      margin-bottom: 32px;
+    }
+
+    .quick-link-card {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 10px;
+      padding: 14px 16px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      text-decoration: none;
+      color: var(--text);
+      transition: all 0.2s ease;
+    }
+
+    .quick-link-card:hover {
+      border-color: var(--card-border-hover);
+      transform: translateY(-2px);
+      background: rgba(255, 255, 255, 0.04);
+    }
+
+    .quick-link-icon {
+      font-size: 20px;
+    }
+
+    .quick-link-info h5 {
+      font-size: 13px;
+      font-weight: 700;
+    }
+
+    .quick-link-info span {
+      font-size: 11px;
+      color: var(--text-muted);
+    }
+
+    /* Phase Accordions */
+    .phases-container {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .phase-card {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 12px;
+      overflow: hidden;
+      transition: border-color 0.2s ease;
+    }
+
+    .phase-card.active {
+      border-color: rgba(127, 72, 237, 0.5);
+    }
+
+    .phase-header {
+      padding: 18px 24px;
+      background: rgba(255, 255, 255, 0.02);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      cursor: pointer;
+      user-select: none;
+      gap: 16px;
+    }
+
+    .phase-header:hover {
+      background: rgba(255, 255, 255, 0.04);
+    }
+
+    .phase-title-group {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      flex-wrap: wrap;
+    }
+
+    .phase-badge {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 12px;
+      font-weight: 700;
+      padding: 4px 10px;
+      border-radius: 6px;
+      background: rgba(127, 72, 237, 0.15);
+      color: var(--primary-light);
+      border: 1px solid rgba(127, 72, 237, 0.3);
+    }
+
+    .phase-name {
+      font-size: 16px;
+      font-weight: 700;
+      color: #fff;
+    }
+
+    .phase-focus {
+      font-size: 12px;
+      color: var(--text-muted);
+    }
+
+    .phase-meta {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .phase-count {
+      font-size: 13px;
+      font-family: 'JetBrains Mono', monospace;
+      font-weight: 600;
+      color: var(--text-muted);
+    }
+
+    .phase-chevron {
+      font-size: 14px;
+      color: var(--text-dim);
+      transition: transform 0.2s ease;
+    }
+
+    .phase-card.open .phase-chevron {
+      transform: rotate(180deg);
+    }
+
+    .phase-body {
+      display: none;
+      padding: 20px 24px;
+      border-top: 1px solid var(--card-border);
+      background: rgba(9, 10, 15, 0.4);
+    }
+
+    .phase-card.open .phase-body {
+      display: block;
+    }
+
+    /* Task Checklist */
+    .task-list {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .task-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 14px;
+      padding: 12px 16px;
+      background: rgba(255, 255, 255, 0.02);
+      border: 1px solid rgba(255, 255, 255, 0.05);
+      border-radius: 8px;
+      transition: all 0.15s ease;
+    }
+
+    .task-item:hover {
+      background: rgba(255, 255, 255, 0.04);
+      border-color: rgba(255, 255, 255, 0.1);
+    }
+
+    .task-item.completed {
+      background: rgba(16, 185, 129, 0.04);
+      border-color: rgba(16, 185, 129, 0.2);
+    }
+
+    .task-checkbox {
+      margin-top: 3px;
+      width: 18px;
+      height: 18px;
+      accent-color: var(--primary);
+      cursor: pointer;
+      border-radius: 4px;
+    }
+
+    .task-content {
+      flex: 1;
+    }
+
+    .task-title {
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--text);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .task-item.completed .task-title {
+      color: var(--text-muted);
+      text-decoration: line-through;
+    }
+
+    .task-tag {
+      font-size: 11px;
+      padding: 2px 6px;
+      border-radius: 4px;
+      background: rgba(255, 255, 255, 0.06);
+      color: var(--text-muted);
+      font-family: 'JetBrains Mono', monospace;
+    }
+
+    .task-desc {
+      font-size: 12px;
+      color: var(--text-muted);
+      margin-top: 4px;
+      line-height: 1.4;
+    }
+
+    .task-path {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px;
+      color: var(--primary-light);
+      background: rgba(127, 72, 237, 0.1);
+      padding: 1px 6px;
+      border-radius: 4px;
+      display: inline-block;
+      margin-top: 6px;
+    }
+
+    /* Modal / Drawer for full plan */
+    .sync-bar {
+      margin-top: 32px;
+      background: rgba(18, 20, 29, 0.6);
+      border: 1px solid var(--card-border);
+      border-radius: 12px;
+      padding: 18px 24px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      flex-wrap: wrap;
+    }
+
+    .git-command {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 12px;
+      background: #000;
+      padding: 8px 14px;
+      border-radius: 6px;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      color: var(--accent);
+      user-select: all;
+    }
+
+    .toast {
+      position: fixed;
+      bottom: 24px;
+      right: 24px;
+      background: #10B981;
+      color: #000;
+      font-weight: 700;
+      font-size: 13px;
+      padding: 12px 20px;
+      border-radius: 8px;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.5);
+      opacity: 0;
+      transform: translateY(20px);
+      transition: all 0.3s ease;
+      pointer-events: none;
+      z-index: 1000;
+    }
+
+    .toast.show {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Top Sticky Navigation -->
+  <header class="header">
+    <div class="brand">
+      <div class="brand-logo">R</div>
+      <div>
+        <div class="brand-title">ReLaunch Studio</div>
+        <div class="brand-subtitle">AI Video Ad System — Implementation Tracker</div>
+      </div>
+    </div>
+    <div class="nav-links">
+      <a href="/studio" target="_blank" class="btn btn-secondary">
+        🌐 Open /studio
+      </a>
+      <a href="/studio/review" target="_blank" class="btn btn-primary" style="background: linear-gradient(135deg, #7F48ED, #FF6700); border: none; font-weight: 800;">
+        👁️ Open QA Review (/studio/review)
+      </a>
+      <a href="/RELAUNCH_STUDIO_AI_VIDEO_SYSTEM_PLAN.md" target="_blank" class="btn btn-secondary">
+        📄 View MD Plan
+      </a>
+      <a href="/ReLaunch-Studio-AI-Video-System-Build-Spec.md" target="_blank" class="btn btn-secondary">
+        📋 View Spec
+      </a>
+      <button onclick="resetTracking()" class="btn btn-secondary" title="Reset all checkboxes">
+        🔄 Reset
+      </button>
+    </div>
+  </header>
+
+  <main class="container">
+
+    <!-- Hero Overview & Progress -->
+    <section class="hero-banner">
+      <div>
+        <div class="hero-title">
+          <span>AI Video Production System</span>
+          <span class="badge-live">Live Monitoring</span>
+        </div>
+        <p class="hero-desc">
+          Tracking the end-to-end engineering milestones for ReLaunch Studio. All tasks synchronize directly with the master plan in <code>RELAUNCH_STUDIO_AI_VIDEO_SYSTEM_PLAN.md</code>.
+        </p>
+      </div>
+
+      <div class="progress-widget">
+        <div class="progress-numbers">
+          <div class="progress-percent" id="overall-percent">0%</div>
+          <div class="progress-fraction" id="overall-fraction">0 / 54 Done</div>
+        </div>
+        <div class="progress-track">
+          <div class="progress-fill" id="overall-bar"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Current Active Phase Focus -->
+    <section class="action-card">
+      <div class="action-header">
+        <span class="action-pill">Current Active Focus</span>
+        <h3 class="action-title">We Are Currently in: Phase 4 (AI Agent Brain & Claude Prompt Engine)</h3>
+      </div>
+      <p style="color: var(--text-muted); font-size: 13px;">
+        Phases 0, 1, 2, and 3 are built and live for testing! Here is our current status across the 8 engineering phases:
+      </p>
+
+      <div class="steps-grid">
+        <div class="step-box done">
+          <div class="step-header-row">
+            <div class="step-num" style="color: var(--success); font-weight: 800;">PHASE 0 • FOUNDATION</div>
+            <span class="badge-done">✓ COMPLETED</span>
+          </div>
+          <h4>Scaffolding & Docker Compose</h4>
+          <p>Created <code>relaunch-studio-engine/</code>, generated non-colliding <code>docker-compose.yml</code> (Port 3002), and complete <code>.env.example</code>.</p>
+          <span class="task-path">relaunch-studio-engine/docker-compose.yml</span>
+        </div>
+
+        <div class="step-box done">
+          <div class="step-header-row">
+            <div class="step-num" style="color: var(--success); font-weight: 800;">PHASE 1 • DATABASE & STORAGE</div>
+            <span class="badge-done">✓ COMPLETED</span>
+          </div>
+          <h4>Schema, DB Client & S3 Storage</h4>
+          <p>Created PostgreSQL 16 <code>init.sql</code>, typed DB pool (<code>db.ts</code>), S3/R2 storage client (<code>storage.ts</code>), and live intake route (<code>/api/studio/intake</code>).</p>
+          <span class="task-path">render-worker/src/db.ts & storage.ts</span>
+        </div>
+
+        <div class="step-box done">
+          <div class="step-header-row">
+            <div class="step-num" style="color: var(--success); font-weight: 800;">PHASE 2 • RENDER & REMOTION</div>
+            <span class="badge-done">✓ COMPLETED</span>
+          </div>
+          <h4>Render Worker, Whisper & Remotion</h4>
+          <p>Built Dockerfile, faster-whisper engine (<code>whisper.py</code>), Remotion templates (<code>ProblemSolution.tsx</code>, <code>Root.tsx</code>), kinetic captions, AI disclosure watermark, and FFmpeg mastering.</p>
+          <span class="task-path">render-worker/src/index.ts & ffmpeg.ts</span>
+        </div>
+
+        <div class="step-box done">
+          <div class="step-header-row">
+            <div class="step-num" style="color: var(--success); font-weight: 800;">PHASE 3 • INTERNAL QA REVIEW</div>
+            <span class="badge-done">✓ COMPLETED</span>
+          </div>
+          <h4>Internal QA Gate Web App</h4>
+          <p>Live at <code>/studio/review</code> with multi-ratio 9:16/1:1/4:5 synchronized video player, 60-second quality checklist, and Purple/Orange theme.</p>
+          <span class="task-path"><a href="/studio/review" target="_blank" style="color: var(--accent); text-decoration: underline;">Test /studio/review ↗</a></span>
+        </div>
+
+        <div class="step-box active">
+          <div class="step-header-row">
+            <div class="step-num" style="color: var(--accent); font-weight: 800;">PHASE 4 • NEXT ACTIVE STEP</div>
+            <span class="badge-active">⚡ IN PROGRESS</span>
+          </div>
+          <h4>AI Agent Brain & Claude Prompts</h4>
+          <p>Brand synthesis prompt, 4 angles × 4 hooks weekly script generator, claims screening node, and edit-spec generator.</p>
+          <span class="task-path">render-worker/src/prompts/</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- Quick Links Bar -->
+    <section class="links-bar">
+      <a href="/studio" target="_blank" class="quick-link-card">
+        <div class="quick-link-icon">🎬</div>
+        <div class="quick-link-info">
+          <h5>Studio Landing Page</h5>
+          <span>relaunch.us/studio</span>
+        </div>
+      </a>
+
+      <a href="/studio/review" target="_blank" class="quick-link-card" style="border-color: rgba(127, 72, 237, 0.4); background: rgba(127, 72, 237, 0.08);">
+        <div class="quick-link-icon">👁️</div>
+        <div class="quick-link-info">
+          <h5 style="color: #A78BFA;">Internal QA Review</h5>
+          <span>/studio/review (Live)</span>
+        </div>
+      </a>
+
+      <a href="/RELAUNCH_STUDIO_AI_VIDEO_SYSTEM_PLAN.md" target="_blank" class="quick-link-card">
+        <div class="quick-link-icon">📑</div>
+        <div class="quick-link-info">
+          <h5>Full Master Plan</h5>
+          <span>RELAUNCH_STUDIO_AI...md</span>
+        </div>
+      </a>
+
+      <a href="/ReLaunch-Studio-AI-Video-System-Build-Spec.md" target="_blank" class="quick-link-card">
+        <div class="quick-link-icon">📐</div>
+        <div class="quick-link-info">
+          <h5>Client Build Spec</h5>
+          <span>Build-Spec.md</span>
+        </div>
+      </a>
+
+      <a href="/audit" target="_blank" class="quick-link-card">
+        <div class="quick-link-icon">🔍</div>
+        <div class="quick-link-info">
+          <h5>Free Audit Engine</h5>
+          <span>Port 3001 (Audit)</span>
+        </div>
+      </a>
+    </section>
+
+    <!-- Phase Checklist Accordions -->
+    <section class="phases-container" id="phases-list">
+      <!-- Phases dynamically populated by JavaScript below -->
+    </section>
+
+    <!-- Git Sync Command Bar -->
+    <div class="sync-bar">
+      <div>
+        <h4 style="font-size: 14px; font-weight: 700;">Multi-Machine Git Push Helper</h4>
+        <p style="font-size: 12px; color: var(--text-muted); margin-top: 2px;">
+          Push your changes so other developers or machines can pull the updated plan:
+        </p>
+      </div>
+      <div style="display: flex; gap: 10px; align-items: center;">
+        <div class="git-command" id="git-cmd">git add . && git commit -m "feat(studio): update system plan and tracker" && git push</div>
+        <button onclick="copyGitCmd()" class="btn btn-primary">📋 Copy</button>
+      </div>
+    </div>
+
+  </main>
+
+  <div class="toast" id="toast">Copied to clipboard!</div>
+
+  <script>
+    // Master Phases Data Model from RELAUNCH_STUDIO_AI_VIDEO_SYSTEM_PLAN.md
+    const PHASES = [
+      {
+        id: "phase0",
+        badge: "PHASE 0",
+        name: "Environment, Plesk VPS & Docker Stack",
+        focus: "Plesk VPS, Docker Compose, Storage, Secrets, DNS",
+        tasks: [
+          { id: "p0_1", title: "VPS Sizing & OS Prerequisites Verification", desc: "8–16 vCPUs, 32GB RAM, fast NVMe SSD, Docker Engine 25+ installed", path: "/etc/docker/daemon.json" },
+          { id: "p0_2", title: "Monorepo Directory Layout Setup", desc: "Create /relaunch-studio-engine folder structure inside the root", path: "relaunch-studio-engine/" },
+          { id: "p0_3", title: "Complete Production docker-compose.yml", desc: "Stand up Postgres (5432), Redis (6379), n8n (5678), Review App (3002 to avoid 3001 collision)", path: "relaunch-studio-engine/docker-compose.yml" },
+          { id: "p0_4", title: "Cloudflare R2 / S3 Storage Provisioning", desc: "Create buckets for raw assets, rendered variants, and thumbnails", path: "Cloudflare R2 Console" },
+          { id: "p0_5", title: "DNS Routing & Plesk Nginx Reverse Proxy", desc: "Configure ops.relaunch.us (n8n) and review.relaunch.us (QA portal)", path: "Plesk Nginx Directives" },
+          { id: "p0_6", title: "Production Secrets Configuration", desc: "Configure .env.production with Anthropic, fal.ai, ElevenLabs, Arcads keys", path: "relaunch-studio-engine/.env.production" },
+          { id: "p0_7", title: "Integration Credentials Sanity Check", desc: "Run verification script testing Claude, fal.ai, and ElevenLabs API responses", path: "scripts/verify-studio-apis.mjs" },
+          { id: "p0_8", title: "Phase 0 Stack Sign-Off", desc: "Run docker compose up -d and verify all containers report healthy", path: "docker compose ps" }
+        ]
+      },
+      {
+        id: "phase1",
+        badge: "PHASE 1",
+        name: "Database Core & State Machine",
+        focus: "Postgres 16 schema, migrations, S3 SDK, DB client",
+        tasks: [
+          { id: "p1_1", title: "PostgreSQL Database Schema (init.sql)", desc: "10 tables: clients, brand_profiles, batches, scripts, assets, variants, reviews, deliveries, performance, compliance_log", path: "relaunch-studio-engine/db/init.sql" },
+          { id: "p1_2", title: "Database Client Library", desc: "Strongly typed connection pool and query utility with pg", path: "render-worker/src/db.ts" },
+          { id: "p1_3", title: "S3 Object Storage Client", desc: "AWS SDK S3 wrapper for upload, download, and presigned video preview URLs", path: "render-worker/src/storage.ts" },
+          { id: "p1_4", title: "Studio Landing Page Intake Route", desc: "Connect /studio intake form to /api/studio/intake and send email alert via Resend to robert@relaunch.us", path: "src/app/api/studio/intake/route.ts" },
+          { id: "p1_5", title: "Database Migration & Cascade Verification", desc: "Execute init.sql and verify cascading foreign keys and indexes", path: "db/init.sql" },
+          { id: "p1_6", title: "Phase 1 Health Check", desc: "Insert mock client, brand profile, script, and verify query speed", path: "render-worker/src/db.test.ts" }
+        ]
+      },
+      {
+        id: "phase2",
+        badge: "PHASE 2",
+        name: "Render Worker & Remotion Engine",
+        focus: "BullMQ, Remotion React, faster-whisper, FFmpeg multi-ratio",
+        tasks: [
+          { id: "p2_1", title: "Render Worker Dockerfile", desc: "Node 20, FFmpeg, Python 3, faster-whisper, Chromium, and Montserrat fonts", path: "render-worker/Dockerfile" },
+          { id: "p2_2", title: "faster-whisper Python Transcription Engine", desc: "Transcribe voiceover audio and output word-level timestamp JSON (<50ms accuracy)", path: "render-worker/src/whisper.py" },
+          { id: "p2_3", title: "Remotion Ad Template Library", desc: "4 ad templates: ProblemSolution, TestimonialUGC, ListicleReasons, ComparisonUsVsThem", path: "render-worker/templates/" },
+          { id: "p2_4", title: "Kinetic Word-Highlight Captions Component", desc: "TikTok/Reels animated subtitles with active word highlighted in yellow/purple", path: "render-worker/templates/components/Captions.tsx" },
+          { id: "p2_5", title: "Mandatory AI-Disclosure Watermark", desc: "Hardcoded glassmorphic AI-Generated Media pill badge baked directly into render", path: "render-worker/templates/components/Watermark.tsx" },
+          { id: "p2_6", title: "FFmpeg Audio Ducking & -14 LUFS Normalization", desc: "Ducks music -18dB under VO, normalizes to -14 LUFS EBU R128 standard", path: "render-worker/src/ffmpeg.ts" },
+          { id: "p2_7", title: "Multi-Ratio Auto-Crop (9:16, 1:1, 4:5)", desc: "Export vertical story, square feed, and portrait ratios from master composition", path: "render-worker/src/ffmpeg.ts" },
+          { id: "p2_8", title: "BullMQ Redis Queue Worker", desc: "Pulls render jobs from Redis, executes pipeline, uploads variants to S3", path: "render-worker/src/index.ts" },
+          { id: "p2_9", title: "Render Benchmark Test", desc: "Confirm full 20s ad variant renders on VPS NVMe in under 120 seconds", path: "render-worker/test-render.sh" }
+        ]
+      },
+      {
+        id: "phase3",
+        badge: "PHASE 3",
+        name: "Internal QA Review Web App",
+        focus: "Next.js 14 review portal at review.relaunch.us (Port 3002)",
+        tasks: [
+          { id: "p3_1", title: "Review Portal Setup (Port 3002)", desc: "Next.js 14 App Router portal secured with access PIN authentication", path: "review-app/src/app/page.tsx" },
+          { id: "p3_2", title: "Review Queue Dashboard", desc: "Real-time list of variants where status = 'needs_review' with client filters", path: "review-app/src/app/page.tsx" },
+          { id: "p3_3", title: "Synchronized Multi-Ratio Player", desc: "Preview 9:16 vertical, 1:1 square, and 4:5 portrait with keyboard shortcuts", path: "review-app/src/components/VideoPlayer.tsx" },
+          { id: "p3_4", title: "Brief Context & Claims Sidebar", desc: "Displays script, angle, target persona, and forbidden claim warnings", path: "review-app/src/components/BriefSidebar.tsx" },
+          { id: "p3_5", title: "60-Second Quality Checklist", desc: "Mandatory confirmation of brief match, sync, disclosure, and volume before approval", path: "review-app/src/components/Checklist.tsx" },
+          { id: "p3_6", title: "Decision Endpoints (Approve / Reject / Recut)", desc: "Approve pushes to Frame.io; Recut submits change notes back to render queue", path: "review-app/src/app/api/action/route.ts" },
+          { id: "p3_7", title: "Strict Database Gatekeeper Rule", desc: "Enforce DB rule: No variant can be delivered without an approved review record", path: "review-app/src/lib/guard.ts" }
+        ]
+      },
+      {
+        id: "phase4",
+        badge: "PHASE 4",
+        name: "AI Agent Brain & Claude Prompts",
+        focus: "Claude 3.5 Sonnet structured JSON outputs",
+        tasks: [
+          { id: "p4_1", title: "Brand Synthesis Prompt Node", desc: "Scraped website -> Structured JSON (voice, personas, benefits, objections, do-not-say)", path: "n8n-workflows/nodes/brand-synth.ts" },
+          { id: "p4_2", title: "Weekly Script Generator", desc: "Generates 4 distinct creative angles with 3–5 hook variants each", path: "n8n-workflows/nodes/script-gen.ts" },
+          { id: "p4_3", title: "Compliance Pre-Check Node", desc: "Screens claims against FTC, Meta, and TikTok guidelines; auto-rewrites flags", path: "n8n-workflows/nodes/compliance-check.ts" },
+          { id: "p4_4", title: "Edit-Spec Generator Node", desc: "The editing brain: translates approved script + assets into render-spec.json", path: "n8n-workflows/nodes/edit-spec-gen.ts" },
+          { id: "p4_5", title: "Creative Attribute Tagging Node", desc: "Tags hook type, pacing, actor gender, music tempo for winner analysis", path: "n8n-workflows/nodes/tagger.ts" },
+          { id: "p4_6", title: "Zod Schema Validation", desc: "Validates all Claude outputs with strict Zod schemas to prevent JSON parse errors", path: "render-worker/src/schemas.ts" },
+          { id: "p4_7", title: "Prompt Benchmark Suite", desc: "Run 10 test cases against Claude 3.5 Sonnet to verify 100% schema accuracy", path: "scripts/test-prompts.mjs" }
+        ]
+      },
+      {
+        id: "phase5",
+        badge: "PHASE 5",
+        name: "Video Gen Router & Asset APIs",
+        focus: "fal.ai/Replicate (Grok/Veo/Seedance) + Arcads + ElevenLabs",
+        tasks: [
+          { id: "p5_1", title: "Unified Model-Agnostic Video Router", desc: "Abstraction layer allowing model swaps via config with zero code refactoring", path: "render-worker/src/router.ts" },
+          { id: "p5_2", title: "Grok Imagine 1.5 Integration", desc: "Default workhorse for high-volume social b-roll (~$0.08/sec)", path: "render-worker/src/models/grok.ts" },
+          { id: "p5_3", title: "Google Veo 3.1 Integration", desc: "Hero shots requiring ultra-realism and native audio via Vertex AI (~$0.40/sec)", path: "render-worker/src/models/veo.ts" },
+          { id: "p5_4", title: "ByteDance Seedance 2.0 Integration", desc: "Animates static client product photos into dynamic camera rotations", path: "render-worker/src/models/seedance.ts" },
+          { id: "p5_5", title: "Arcads.ai / Creatify Actor Integration", desc: "Submits script to talking-head AI creator actors; stores .mp4 in S3", path: "render-worker/src/models/arcads.ts" },
+          { id: "p5_6", title: "ElevenLabs Branded Voiceover", desc: "Generates custom voiceover track with speech-to-speech emotional cadence", path: "render-worker/src/models/elevenlabs.ts" }
+        ]
+      },
+      {
+        id: "phase6",
+        badge: "PHASE 6",
+        name: "n8n Orchestration Pipelines (Flows A–F)",
+        focus: "Automated workflows from Lead Intake to Frame.io Delivery",
+        tasks: [
+          { id: "p6_1", title: "Flow A — Client Onboarding & Brand Synthesis", desc: "Intake form webhook -> scrape site -> Claude Brand Synth -> email Robert", path: "n8n-workflows/flow-a-onboarding.json" },
+          { id: "p6_2", title: "Flow B — Weekly Batch Script Generator", desc: "Monday 6 AM cron -> fetch winner profiles -> generate 4 angles x 4 hooks", path: "n8n-workflows/flow-b-weekly-batch.json" },
+          { id: "p6_3", title: "Flow C — Parallel Asset Generation Fan-Out", desc: "Parallel API calls to Arcads, ElevenLabs, Grok/Veo, Seedance -> store S3", path: "n8n-workflows/flow-c-asset-generation.json" },
+          { id: "p6_4", title: "Flow D — Render Job Queue Dispatcher", desc: "Calls Claude Edit-Spec -> enqueues job into BullMQ render-jobs in Redis", path: "n8n-workflows/flow-d-render.json" },
+          { id: "p6_5", title: "Flow E — QA Notification", desc: "Alerts operator via email/Slack when variants reach needs_review status", path: "n8n-workflows/flow-e-qa-gate.json" },
+          { id: "p6_6", title: "Flow F — Frame.io Client Delivery", desc: "Uploads approved 9:16, 1:1, 4:5 variants to client Frame.io project room", path: "n8n-workflows/flow-f-delivery.json" },
+          { id: "p6_7", title: "Client Revision Feedback Loop", desc: "Listens to Frame.io comment webhooks and automatically triggers recuts", path: "n8n-workflows/flow-f-revisions.json" },
+          { id: "p6_8", title: "n8n Workflow Version Control", desc: "Export all active workflows as JSON to /relaunch-studio-engine/n8n-workflows/", path: "relaunch-studio-engine/n8n-workflows/" }
+        ]
+      },
+      {
+        id: "phase7",
+        badge: "PHASE 7",
+        name: "Performance & Publishing (Flows H & G)",
+        focus: "Meta/TikTok ad performance ingestion & winner feedback loop",
+        tasks: [
+          { id: "p7_1", title: "Flow H — Daily Ad Performance Ingestion", desc: "Pulls spend, CPA, ROAS, Thumbstop Rate (3s), and Hold Rate (50%) from Meta & TikTok", path: "n8n-workflows/flow-h-performance.json" },
+          { id: "p7_2", title: "Creative Winner Profile Synthesis", desc: "Claude analyzes top-performing ad attributes and updates brand winner profile", path: "n8n-workflows/nodes/winner-profile.ts" },
+          { id: "p7_3", title: "Automated Feedback into Flow B", desc: "Next Monday's script batch is automatically seeded by statistical winning angles", path: "n8n-workflows/flow-b-weekly-batch.json" },
+          { id: "p7_4", title: "Flow G — Automated Ad Account Publishing", desc: "Pushes approved creative to Meta & TikTok with is_ai_generated toggle turned ON", path: "n8n-workflows/flow-g-publishing.json" },
+          { id: "p7_5", title: "Weekly Client Performance Digest", desc: "Auto-generates Friday summary highlighting top ads and CPA improvement", path: "render-worker/src/reporting.ts" },
+          { id: "p7_6", title: "Disk Space & Service Watchdog", desc: "Monitors VPS NVMe disk capacity and alerts if utilization exceeds 80%", path: "scripts/watchdog.sh" }
+        ]
+      },
+      {
+        id: "phase8",
+        badge: "PHASE 8",
+        name: "Compliance, Legal Audit & Launch",
+        focus: "Mandatory disclosure audit, licensing, pilot test",
+        tasks: [
+          { id: "p8_1", title: "Mandatory AI-Disclosure Audit", desc: "Verify 100% of rendered MP4s contain the visible AI disclosure badge", path: "compliance_log" },
+          { id: "p8_2", title: "Commercial Licensing Verification", desc: "Ensure all music (Epidemic/Artlist) and actor models have commercial rights", path: "legal/licensing-manifest.json" },
+          { id: "p8_3", title: "Immutable Audit Trail Verification", desc: "Verify compliance_log stores model names, voice IDs, and timestamps", path: "db/init.sql: compliance_log" },
+          { id: "p8_4", title: "Single-Client End-to-End Pilot Test", desc: "Run complete cycle: brief in -> 16 variants rendered -> QA approved -> Frame.io", path: "docs/pilot-run-results.md" },
+          { id: "p8_5", title: "System Acceptance & Economics Sign-Off", desc: "Verify cost per variant < $5.00 and turnaround SLA < 48 hours", path: "docs/economics-audit.md" }
+        ]
+      }
+    ];
+
+    // LocalStorage Key & Default Completed State
+    const STORAGE_KEY = "relaunch_studio_tracker_state";
+    const DEFAULT_STATE = {
+      p0_2: true, // Monorepo Directory Scaffold
+      p0_3: true, // Complete Production docker-compose.yml
+      p0_6: true, // Production Environment Template (.env.example)
+      p1_1: true, // PostgreSQL Database Schema (init.sql)
+      p1_2: true, // Database Client Library (db.ts)
+      p1_3: true, // Storage S3 Wrapper Class (storage.ts)
+      p1_4: true, // Studio Intake Route (/api/studio/intake)
+      p2_1: true, // Render Worker Dockerfile
+      p2_2: true, // faster-whisper Python Transcription Engine
+      p2_3: true, // Remotion Ad Template Library
+      p2_4: true, // Kinetic Word-Highlight Captions Component
+      p2_5: true, // Mandatory AI-Disclosure Overlay
+      p2_6: true, // FFmpeg Audio Ducking & -14 LUFS Normalization
+      p2_7: true, // Multi-Ratio Auto-Crop
+      p2_8: true, // BullMQ Redis Queue Worker
+      p3_1: true, // Review Portal Setup (Port 3002 & /studio/review)
+      p3_2: true, // Review Queue Dashboard
+      p3_3: true, // Synchronized Multi-Ratio Player (9:16, 1:1, 4:5)
+      p3_4: true, // Brief Context & Claims Sidebar
+      p3_5: true, // 60-Second Quality Checklist
+      p3_6: true, // Decision Endpoints (Approve / Reject / Recut)
+      p3_7: true, // Strict Database Gatekeeper Rule
+    };
+
+    function getState() {
+      try {
+        const saved = JSON.parse(localStorage.getItem(STORAGE_KEY));
+        if (saved && typeof saved === "object") {
+          return { ...DEFAULT_STATE, ...saved };
+        }
+      } catch (e) {}
+      return { ...DEFAULT_STATE };
+    }
+
+    function saveState(state) {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+      updateProgress();
+    }
+
+    function toggleTask(taskId) {
+      const state = getState();
+      state[taskId] = !state[taskId];
+      saveState(state);
+      
+      const itemEl = document.getElementById("item-" + taskId);
+      if (itemEl) {
+        itemEl.classList.toggle("completed", !!state[taskId]);
+      }
+    }
+
+    function togglePhase(phaseId) {
+      const cardEl = document.getElementById("card-" + phaseId);
+      if (cardEl) {
+        cardEl.classList.toggle("open");
+      }
+    }
+
+    function renderPhases() {
+      const state = getState();
+      const container = document.getElementById("phases-list");
+      container.innerHTML = "";
+
+      PHASES.forEach((phase, index) => {
+        const card = document.createElement("div");
+        card.className = "phase-card" + (index === 0 ? " open active" : "");
+        card.id = "card-" + phase.id;
+
+        const tasksHtml = phase.tasks.map(t => {
+          const isDone = !!state[t.id];
+          return `
+            <div class="task-item ${isDone ? 'completed' : ''}" id="item-${t.id}">
+              <input type="checkbox" class="task-checkbox" id="chk-${t.id}" ${isDone ? 'checked' : ''} onchange="toggleTask('${t.id}')">
+              <div class="task-content">
+                <div class="task-title">
+                  <label for="chk-${t.id}" style="cursor: pointer;">${t.title}</label>
+                  <span class="task-tag">${t.id}</span>
+                </div>
+                <div class="task-desc">${t.desc}</div>
+                <div class="task-path">${t.path}</div>
+              </div>
+            </div>
+          `;
+        }).join("");
+
+        card.innerHTML = `
+          <div class="phase-header" onclick="togglePhase('${phase.id}')">
+            <div class="phase-title-group">
+              <span class="phase-badge">${phase.badge}</span>
+              <div>
+                <div class="phase-name">${phase.name}</div>
+                <div class="phase-focus">${phase.focus}</div>
+              </div>
+            </div>
+            <div class="phase-meta">
+              <span class="phase-count" id="count-${phase.id}">0 / ${phase.tasks.length}</span>
+              <span class="phase-chevron">▼</span>
+            </div>
+          </div>
+          <div class="phase-body">
+            <div class="task-list">
+              ${tasksHtml}
+            </div>
+          </div>
+        `;
+
+        container.appendChild(card);
+      });
+
+      updateProgress();
+    }
+
+    function updateProgress() {
+      const state = getState();
+      let totalTasks = 0;
+      let completedTasks = 0;
+
+      PHASES.forEach(phase => {
+        let phaseTotal = phase.tasks.length;
+        let phaseDone = 0;
+
+        phase.tasks.forEach(t => {
+          totalTasks++;
+          if (state[t.id]) {
+            completedTasks++;
+            phaseDone++;
+          }
+        });
+
+        const countEl = document.getElementById("count-" + phase.id);
+        if (countEl) {
+          countEl.textContent = `${phaseDone} / ${phaseTotal}`;
+        }
+      });
+
+      const percent = totalTasks > 0 ? Math.round((completedTasks / totalTasks) * 100) : 0;
+      document.getElementById("overall-percent").textContent = `${percent}%`;
+      document.getElementById("overall-fraction").textContent = `${completedTasks} / ${totalTasks} Done`;
+      document.getElementById("overall-bar").style.width = `${percent}%`;
+    }
+
+    function resetTracking() {
+      if (confirm("Reset all tracked checkboxes back to 0%?")) {
+        localStorage.removeItem(STORAGE_KEY);
+        renderPhases();
+      }
+    }
+
+    function copyGitCmd() {
+      const text = document.getElementById("git-cmd").textContent;
+      navigator.clipboard.writeText(text).then(() => {
+        const toast = document.getElementById("toast");
+        toast.classList.add("show");
+        setTimeout(() => toast.classList.remove("show"), 2000);
+      });
+    }
+
+    // Initialize on load
+    document.addEventListener("DOMContentLoaded", renderPhases);
+  </script>
+</body>
+</html>

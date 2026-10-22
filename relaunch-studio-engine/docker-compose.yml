@@ -1,0 +1,147 @@
+version: '3.8'
+
+# ReLaunch Studio — AI Video Ad Production Stack
+# Self-hosted on IONOS VPS (Plesk Obsidian)
+# Designed to operate alongside existing Next.js public site (3000) and Audit Engine (3001)
+
+services:
+  # 1. State Store & Relational System of Record
+  postgres:
+    image: postgres:16-alpine
+    container_name: studio-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: relaunch_studio
+      POSTGRES_USER: studio_admin
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-relaunch_studio_dev_pass_2026}
+    ports:
+      # Bound to localhost only for secure host access / migration inspection
+      - "127.0.0.1:5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./db/init.sql:/docker-entrypoint-initdb.d/init.sql:ro
+    networks:
+      - studio-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U studio_admin -d relaunch_studio"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # 2. BullMQ Render Queue & Cache
+  redis:
+    image: redis:7-alpine
+    container_name: studio-redis
+    restart: unless-stopped
+    command: redis-server --appendonly yes --requirepass ${REDIS_PASSWORD:-relaunch_redis_dev_pass_2026}
+    ports:
+      # Bound to localhost only
+      - "127.0.0.1:6379:6379"
+    volumes:
+      - redis_data:/data
+    networks:
+      - studio-network
+    healthcheck:
+      test: ["CMD", "redis-cli", "-a", "${REDIS_PASSWORD:-relaunch_redis_dev_pass_2026}", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # 3. n8n Workflow Automation Hub (ops.relaunch.us)
+  n8n:
+    image: n8nio/n8n:latest
+    container_name: studio-n8n
+    restart: unless-stopped
+    environment:
+      - N8N_HOST=ops.relaunch.us
+      - N8N_PORT=5678
+      - N8N_PROTOCOL=https
+      - NODE_ENV=production
+      - WEBHOOK_URL=https://ops.relaunch.us/
+      - DB_TYPE=postgresdb
+      - DB_POSTGRESDB_HOST=postgres
+      - DB_POSTGRESDB_PORT=5432
+      - DB_POSTGRESDB_DATABASE=relaunch_studio
+      - DB_POSTGRESDB_USER=studio_admin
+      - DB_POSTGRESDB_PASSWORD=${DB_PASSWORD:-relaunch_studio_dev_pass_2026}
+      - EXECUTIONS_DATA_PRUNE=true
+      - EXECUTIONS_DATA_MAX_AGE=168
+      - GENERIC_TIMEZONE=America/Phoenix
+    ports:
+      - "127.0.0.1:5678:5678"
+    volumes:
+      - n8n_data:/home/node/.n8n
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    networks:
+      - studio-network
+
+  # 4. Local VPS Render Worker (Remotion + FFmpeg + faster-whisper)
+  render-worker:
+    build:
+      context: ./render-worker
+      dockerfile: Dockerfile
+    container_name: studio-render-worker
+    restart: unless-stopped
+    environment:
+      - NODE_ENV=production
+      - DATABASE_URL=postgresql://studio_admin:${DB_PASSWORD:-relaunch_studio_dev_pass_2026}@postgres:5432/relaunch_studio
+      - REDIS_URL=redis://:${REDIS_PASSWORD:-relaunch_redis_dev_pass_2026}@redis:6379
+      - S3_ENDPOINT=${S3_ENDPOINT}
+      - S3_ACCESS_KEY_ID=${S3_ACCESS_KEY_ID}
+      - S3_SECRET_ACCESS_KEY=${S3_SECRET_ACCESS_KEY}
+      - S3_BUCKET_RAW=${S3_BUCKET_RAW:-relaunch-raw-assets}
+      - S3_BUCKET_VARIANTS=${S3_BUCKET_VARIANTS:-relaunch-rendered-variants}
+      - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY}
+      - FAL_KEY=${FAL_KEY}
+      - ELEVENLABS_API_KEY=${ELEVENLABS_API_KEY}
+      - ARCADS_API_KEY=${ARCADS_API_KEY}
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    networks:
+      - studio-network
+
+  # 5. Internal QA Gate Web Portal (review.relaunch.us)
+  # Uses Port 3002 to prevent collision with relaunch-audit (Port 3001)
+  review-app:
+    build:
+      context: ./review-app
+      dockerfile: Dockerfile
+    container_name: studio-review-app
+    restart: unless-stopped
+    environment:
+      - NODE_ENV=production
+      - PORT=3000
+      - DATABASE_URL=postgresql://studio_admin:${DB_PASSWORD:-relaunch_studio_dev_pass_2026}@postgres:5432/relaunch_studio
+      - REDIS_URL=redis://:${REDIS_PASSWORD:-relaunch_redis_dev_pass_2026}@redis:6379
+      - NEXTAUTH_SECRET=${NEXTAUTH_SECRET:-relaunch_review_app_secret_32_characters}
+      - NEXTAUTH_URL=https://review.relaunch.us
+      - REVIEW_ACCESS_PIN=${REVIEW_ACCESS_PIN:-relaunch2026}
+      - RESEND_API_KEY=${RESEND_API_KEY}
+      - FRAMEIO_TOKEN=${FRAMEIO_TOKEN}
+    ports:
+      - "127.0.0.1:3002:3000"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - studio-network
+
+networks:
+  studio-network:
+    name: relaunch-studio-network
+    driver: bridge
+
+volumes:
+  postgres_data:
+    name: relaunch-studio-postgres-data
+  redis_data:
+    name: relaunch-studio-redis-data
+  n8n_data:
+    name: relaunch-studio-n8n-data

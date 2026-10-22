@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useRef, useEffect } from "react";
+import { usePathname } from "next/navigation";
 import { useContactModal } from "@/context/ContactModalContext";
 import { motion, AnimatePresence } from "framer-motion";
 import {
@@ -44,6 +45,7 @@ const quickPrompts = [
 ];
 
 export default function ChatAssistant() {
+  const pathname = usePathname();
   const { openContactModal } = useContactModal();
   const [isOpen, setIsOpen] = useState(false);
   const [messages, setMessages] = useState<Message[]>(initialMessages);
@@ -160,6 +162,11 @@ export default function ChatAssistant() {
   const handlePromptClick = (prompt: string) => {
     setInputValue(prompt);
   };
+
+  // Hide the floating chat assistant on internal QA & review portal to prevent obscuring action buttons
+  if (pathname?.startsWith("/studio/review")) {
+    return null;
+  }
 
   return (
     <>
