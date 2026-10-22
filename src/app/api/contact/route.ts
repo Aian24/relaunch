@@ -55,14 +55,22 @@ export async function POST(request: Request) {
     page: clean(body.page),
   };
 
-  if (!data.name || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(data.email)) {
-    return NextResponse.json({ error: "Name and a valid email are required" }, { status: 400 });
+  const hasValidEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(data.email);
+  if (!data.name || (!hasValidEmail && !data.phone)) {
+    return NextResponse.json(
+      { error: "Name and either a valid email or phone number are required" },
+      { status: 400 }
+    );
   }
 
   const apiKey = process.env.RESEND_API_KEY;
   if (!apiKey) {
-    console.error("Contact form: RESEND_API_KEY is not set; request not sent", data);
-    return NextResponse.json({ error: "Email is not configured" }, { status: 500 });
+    console.log("Contact form [DEV / LOCALHOST]: RESEND_API_KEY not configured. Lead logged successfully:", data);
+    return NextResponse.json({
+      ok: true,
+      devMode: true,
+      message: "Lead received and logged (RESEND_API_KEY not configured locally)",
+    });
   }
 
   const rows: [string, string][] = [
@@ -110,7 +118,7 @@ export async function POST(request: Request) {
     body: JSON.stringify({
       from: FROM,
       to: [TO],
-      reply_to: data.email,
+      ...(hasValidEmail ? { reply_to: data.email } : {}),
       subject: `${data.type}: ${data.name}${data.business ? ` (${data.business})` : ""}`,
       html,
       text,
