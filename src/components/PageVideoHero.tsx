@@ -40,7 +40,7 @@ export default function PageVideoHero({
   description,
   videoSrc,
   secondaryVideoSrc,
-  posterSrc = "/hero_frames/frame_000.webp",
+  posterSrc = "",
   exploreText,
   exploreTargetId,
   bookStrategyText,
