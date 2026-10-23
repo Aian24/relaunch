@@ -1,0 +1,78 @@
+{
+  "name": "ReLaunch Studio — Flow F: Frame.io Client Delivery & Approval Sync",
+  "nodes": [
+    {
+      "parameters": {
+        "event": "variant_approved"
+      },
+      "id": "node-trigger-approved",
+      "name": "Trigger: Human QA Approved",
+      "type": "n8n-nodes-base.trigger",
+      "typeVersion": 1,
+      "position": [180, 300]
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "SELECT v.id as variant_id, v.storage_url, c.frameio_project_id, c.name as client_name, c.contact_email FROM variants v JOIN scripts s ON s.id = v.script_id JOIN batches b ON b.id = s.batch_id JOIN clients c ON c.id = b.client_id WHERE v.id = $1;"
+      },
+      "id": "node-postgres-delivery-meta",
+      "name": "Postgres: Fetch Frame.io Project Ref",
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.5,
+      "position": [420, 300]
+    },
+    {
+      "parameters": {
+        "url": "=https://api.frame.io/v2/projects/{{ $json.frameio_project_id }}/assets",
+        "method": "POST"
+      },
+      "id": "node-frameio-upload",
+      "name": "Frame.io: Upload Approved MP4",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [680, 300]
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "INSERT INTO deliveries (variant_id, frameio_asset_id, client_decision) VALUES ($1, $2, 'pending') RETURNING id;"
+      },
+      "id": "node-postgres-record-delivery",
+      "name": "Postgres: Record Delivery Status",
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.5,
+      "position": [920, 300]
+    },
+    {
+      "parameters": {
+        "fromEmail": "studio@relaunch.us",
+        "toEmail": "={{ $json.contact_email }}",
+        "subject": "=Your Weekly Video Ads Are Ready for Review",
+        "html": "=<p>Your new weekly batch of high-performing video ads is ready in your Frame.io room.</p>"
+      },
+      "id": "node-email-client-delivery",
+      "name": "Email: Client Delivery Notification",
+      "type": "n8n-nodes-base.emailSend",
+      "typeVersion": 2.1,
+      "position": [1160, 300]
+    }
+  ],
+  "connections": {
+    "Trigger: Human QA Approved": {
+      "main": [[{ "node": "Postgres: Fetch Frame.io Project Ref", "type": "main", "index": 0 }]]
+    },
+    "Postgres: Fetch Frame.io Project Ref": {
+      "main": [[{ "node": "Frame.io: Upload Approved MP4", "type": "main", "index": 0 }]]
+    },
+    "Frame.io: Upload Approved MP4": {
+      "main": [[{ "node": "Postgres: Record Delivery Status", "type": "main", "index": 0 }]]
+    },
+    "Postgres: Record Delivery Status": {
+      "main": [[{ "node": "Email: Client Delivery Notification", "type": "main", "index": 0 }]]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1"
+  }
+}

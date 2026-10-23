@@ -163,8 +163,8 @@ export default function ChatAssistant() {
     setInputValue(prompt);
   };
 
-  // Hide the floating chat assistant on internal QA & review portal to prevent obscuring action buttons
-  if (pathname?.startsWith("/studio/review")) {
+  // Hide the floating chat assistant on all studio pages (/studio, /studio/generate, /studio/review) to prevent obscuring action buttons
+  if (pathname?.startsWith("/studio")) {
     return null;
   }
 

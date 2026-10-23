@@ -1,0 +1,87 @@
+{
+  "name": "ReLaunch Studio — Flow B: Weekly Creative Script Generator",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "weeks",
+              "triggerAtDay": [1],
+              "triggerAtHour": 6,
+              "triggerAtMinute": 0
+            }
+          ]
+        }
+      },
+      "id": "node-cron-monday",
+      "name": "Schedule: Monday 6 AM Cron",
+      "type": "n8n-nodes-base.cron",
+      "typeVersion": 1,
+      "position": [180, 300]
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "SELECT c.id as client_id, c.name, bp.voice_json, bp.personas_json, bp.benefits_json, bp.do_not_say, bp.winner_profile_json FROM clients c JOIN brand_profiles bp ON bp.client_id = c.id WHERE c.status = 'active';"
+      },
+      "id": "node-postgres-fetch-active",
+      "name": "Postgres: Fetch Active Brands & Winner Context",
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.5,
+      "position": [400, 300]
+    },
+    {
+      "parameters": {
+        "model": "claude-3-5-sonnet-20241022",
+        "prompt": "Generate 4 distinct direct-response ad angles (Problem-Agitation, UGC Testimonial, 3 Reasons Why Listicle, Us vs. Them) with 3-4 hooks each adhering to the Brand DNA and winner feedback.",
+        "temperature": 0.35
+      },
+      "id": "node-claude-scriptgen",
+      "name": "Claude: 4-Angle Weekly Script Engine",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 1.7,
+      "position": [640, 300]
+    },
+    {
+      "parameters": {
+        "model": "claude-3-5-sonnet-20241022",
+        "prompt": "Screen script copy against FTC, Meta, and TikTok ad policies. Flag and auto-rewrite cure, guarantee, or misleading claims.",
+        "temperature": 0.1
+      },
+      "id": "node-claude-compliance",
+      "name": "Claude: Compliance Pre-Check & Auto-Rewrite",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 1.7,
+      "position": [880, 300]
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "INSERT INTO batches (client_id, week_of, status) VALUES ($1, CURRENT_DATE, 'generating') RETURNING id;"
+      },
+      "id": "node-postgres-save-batch",
+      "name": "Postgres: Create Batch & Save Scripts",
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.5,
+      "position": [1100, 300]
+    }
+  ],
+  "connections": {
+    "Schedule: Monday 6 AM Cron": {
+      "main": [[{ "node": "Postgres: Fetch Active Brands & Winner Context", "type": "main", "index": 0 }]]
+    },
+    "Postgres: Fetch Active Brands & Winner Context": {
+      "main": [[{ "node": "Claude: 4-Angle Weekly Script Engine", "type": "main", "index": 0 }]]
+    },
+    "Claude: 4-Angle Weekly Script Engine": {
+      "main": [[{ "node": "Claude: Compliance Pre-Check & Auto-Rewrite", "type": "main", "index": 0 }]]
+    },
+    "Claude: Compliance Pre-Check & Auto-Rewrite": {
+      "main": [[{ "node": "Postgres: Create Batch & Save Scripts", "type": "main", "index": 0 }]]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1"
+  }
+}

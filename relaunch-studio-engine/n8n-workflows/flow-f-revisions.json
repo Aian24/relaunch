@@ -1,0 +1,66 @@
+{
+  "name": "ReLaunch Studio — Flow F2: Client Revision & Feedback Loop",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "frameio-comments",
+        "responseMode": "onReceived"
+      },
+      "id": "node-frameio-webhook",
+      "name": "Webhook: Frame.io Comment Event",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [180, 300]
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "SELECT d.variant_id, v.script_id, v.render_spec_json FROM deliveries d JOIN variants v ON v.id = d.variant_id WHERE d.frameio_asset_id = $1;"
+      },
+      "id": "node-postgres-fetch-variant",
+      "name": "Postgres: Map Comment to Variant",
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.5,
+      "position": [420, 300]
+    },
+    {
+      "parameters": {
+        "model": "claude-3-5-sonnet-20241022",
+        "prompt": "Parse client timestamped feedback notes and update the Remotion render spec (e.g., adjust cutaway duration, trim hook, or swap background music).",
+        "temperature": 0.1
+      },
+      "id": "node-claude-recut-spec",
+      "name": "Claude: Recut Spec Adjuster",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 1.7,
+      "position": [680, 300]
+    },
+    {
+      "parameters": {
+        "operation": "publish",
+        "channel": "render-jobs",
+        "message": "={{ JSON.stringify($json) }}"
+      },
+      "id": "node-redis-requeue",
+      "name": "Redis: Re-enqueue Recut to BullMQ",
+      "type": "n8n-nodes-base.redis",
+      "typeVersion": 1,
+      "position": [940, 300]
+    }
+  ],
+  "connections": {
+    "Webhook: Frame.io Comment Event": {
+      "main": [[{ "node": "Postgres: Map Comment to Variant", "type": "main", "index": 0 }]]
+    },
+    "Postgres: Map Comment to Variant": {
+      "main": [[{ "node": "Claude: Recut Spec Adjuster", "type": "main", "index": 0 }]]
+    },
+    "Claude: Recut Spec Adjuster": {
+      "main": [[{ "node": "Redis: Re-enqueue Recut to BullMQ", "type": "main", "index": 0 }]]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1"
+  }
+}

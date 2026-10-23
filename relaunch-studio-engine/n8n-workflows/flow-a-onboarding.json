@@ -1,0 +1,82 @@
+{
+  "name": "ReLaunch Studio — Flow A: Client Onboarding & Brand Synthesis",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "studio-intake",
+        "responseMode": "onReceived",
+        "responseData": "allEntries"
+      },
+      "id": "node-webhook-intake",
+      "name": "Webhook: Studio Intake",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [180, 300]
+    },
+    {
+      "parameters": {
+        "url": "={{ $json.body.websiteUrl }}",
+        "options": {}
+      },
+      "id": "node-http-scrape",
+      "name": "HTTP: Scrape Client Website",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [400, 300]
+    },
+    {
+      "parameters": {
+        "model": "claude-3-5-sonnet-20241022",
+        "prompt": "Synthesize the Brand DNA for this business. Return JSON with brand_name, voice_tone, primary_personas, core_benefits, objections, do_not_say.",
+        "temperature": 0.2
+      },
+      "id": "node-claude-brandsynth",
+      "name": "Claude: Brand Synthesis Node",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 1.7,
+      "position": [640, 300]
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "INSERT INTO brand_profiles (client_id, voice_json, personas_json, benefits_json, objections_json, do_not_say) VALUES ($1, $2, $3, $4, $5, $6) RETURNING id;"
+      },
+      "id": "node-postgres-insert",
+      "name": "Postgres: Save Brand Profile",
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.5,
+      "position": [880, 300]
+    },
+    {
+      "parameters": {
+        "fromEmail": "studio@relaunch.us",
+        "toEmail": "robert@relaunch.us",
+        "subject": "=New Client Brand Profile Synthesized: {{ $json.body.businessName }}",
+        "text": "=Brand profile generated and ready for batch production."
+      },
+      "id": "node-email-alert",
+      "name": "Email: Alert Operator (Resend)",
+      "type": "n8n-nodes-base.emailSend",
+      "typeVersion": 2.1,
+      "position": [1100, 300]
+    }
+  ],
+  "connections": {
+    "Webhook: Studio Intake": {
+      "main": [[{ "node": "HTTP: Scrape Client Website", "type": "main", "index": 0 }]]
+    },
+    "HTTP: Scrape Client Website": {
+      "main": [[{ "node": "Claude: Brand Synthesis Node", "type": "main", "index": 0 }]]
+    },
+    "Claude: Brand Synthesis Node": {
+      "main": [[{ "node": "Postgres: Save Brand Profile", "type": "main", "index": 0 }]]
+    },
+    "Postgres: Save Brand Profile": {
+      "main": [[{ "node": "Email: Alert Operator (Resend)", "type": "main", "index": 0 }]]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1"
+  }
+}

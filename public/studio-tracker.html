@@ -366,6 +366,112 @@
       line-height: 1.4;
     }
 
+    /* Client API Checklist Card */
+    .api-keys-card {
+      background: linear-gradient(135deg, rgba(255, 103, 0, 0.08), rgba(127, 72, 237, 0.1));
+      border: 1px solid rgba(255, 103, 0, 0.35);
+      border-radius: 14px;
+      padding: 24px;
+      margin-bottom: 32px;
+      display: flex;
+      flex-direction: column;
+      gap: 18px;
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.35);
+    }
+
+    .api-keys-card-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      flex-wrap: wrap;
+    }
+
+    .api-badge {
+      background: #FF6700;
+      color: #000;
+      font-size: 11px;
+      font-weight: 800;
+      padding: 4px 10px;
+      border-radius: 6px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .api-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(270px, 1fr));
+      gap: 14px;
+    }
+
+    .api-item {
+      background: rgba(9, 10, 15, 0.7);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 10px;
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      gap: 10px;
+      transition: all 0.2s ease;
+    }
+
+    .api-item:hover {
+      border-color: rgba(255, 103, 0, 0.5);
+      transform: translateY(-2px);
+    }
+
+    .api-item-title {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+    }
+
+    .api-cost-pill {
+      font-size: 11px;
+      padding: 2px 7px;
+      border-radius: 4px;
+      background: rgba(16, 185, 129, 0.15);
+      color: var(--success);
+      font-weight: 700;
+      font-family: 'JetBrains Mono', monospace;
+    }
+
+    .api-item p {
+      font-size: 12px;
+      color: var(--text-muted);
+      line-height: 1.4;
+    }
+
+    .api-item a {
+      font-size: 12px;
+      color: var(--accent);
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      font-weight: 600;
+    }
+
+    .api-item a:hover {
+      text-decoration: underline;
+    }
+
+    .client-msg-box {
+      background: rgba(0, 0, 0, 0.6);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 8px;
+      padding: 14px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 12px;
+      color: #E2E8F0;
+      white-space: pre-wrap;
+      line-height: 1.5;
+      max-height: 180px;
+      overflow-y: auto;
+    }
+
     /* Quick Links Bar */
     .links-bar {
       display: grid;
@@ -654,11 +760,17 @@
       <a href="/studio/review" target="_blank" class="btn btn-primary" style="background: linear-gradient(135deg, #7F48ED, #FF6700); border: none; font-weight: 800;">
         👁️ Open QA Review (/studio/review)
       </a>
+      <a href="/studio/generate" target="_blank" class="btn btn-secondary" style="border-color: rgba(255, 103, 0, 0.5); color: #FF6700; font-weight: 700;">
+        🎬 Video Generator Studio
+      </a>
       <a href="/RELAUNCH_STUDIO_AI_VIDEO_SYSTEM_PLAN.md" target="_blank" class="btn btn-secondary">
         📄 View MD Plan
       </a>
       <a href="/ReLaunch-Studio-AI-Video-System-Build-Spec.md" target="_blank" class="btn btn-secondary">
         📋 View Spec
+      </a>
+      <a href="#client-apis" class="btn btn-secondary" style="border-color: rgba(255, 103, 0, 0.5); color: #FF6700; font-weight: 700;">
+        🔑 Client APIs Needed
       </a>
       <button onclick="resetTracking()" class="btn btn-secondary" title="Reset all checkboxes">
         🔄 Reset
@@ -695,10 +807,10 @@
     <section class="action-card">
       <div class="action-header">
         <span class="action-pill">Current Active Focus</span>
-        <h3 class="action-title">We Are Currently in: Phase 4 (AI Agent Brain & Claude Prompt Engine)</h3>
+        <h3 class="action-title">Current Focus: Video Generator Studio UI (/studio/generate)</h3>
       </div>
       <p style="color: var(--text-muted); font-size: 13px;">
-        Phases 0, 1, 2, and 3 are built and live for testing! Here is our current status across the 8 engineering phases:
+        Phases 0 through 6 are built and verified! Currently focusing on the interactive Video Generator Studio UI, with Phase 7 & 8 pending (WIP):
       </p>
 
       <div class="steps-grid">
@@ -742,15 +854,153 @@
           <span class="task-path"><a href="/studio/review" target="_blank" style="color: var(--accent); text-decoration: underline;">Test /studio/review ↗</a></span>
         </div>
 
-        <div class="step-box active">
+        <div class="step-box done">
           <div class="step-header-row">
-            <div class="step-num" style="color: var(--accent); font-weight: 800;">PHASE 4 • NEXT ACTIVE STEP</div>
-            <span class="badge-active">⚡ IN PROGRESS</span>
+            <div class="step-num" style="color: var(--success); font-weight: 800;">PHASE 4 • AI BRAIN & PROMPTS</div>
+            <span class="badge-done">✓ COMPLETED</span>
           </div>
           <h4>AI Agent Brain & Claude Prompts</h4>
-          <p>Brand synthesis prompt, 4 angles × 4 hooks weekly script generator, claims screening node, and edit-spec generator.</p>
+          <p>Brand synthesis, 4-angle weekly script generator, compliance pre-check & auto-rewrite, edit-spec generator, creative attribute tagger, and Zod schemas (5/5 tests verified).</p>
           <span class="task-path">render-worker/src/prompts/</span>
         </div>
+
+        <div class="step-box done">
+          <div class="step-header-row">
+            <div class="step-num" style="color: var(--success); font-weight: 800;">PHASE 5 • VIDEO ROUTER & APIs</div>
+            <span class="badge-done">✓ COMPLETED</span>
+          </div>
+          <h4>Video Gen Router & Asset Generation APIs</h4>
+          <p>Unified model-agnostic video router (<code>router.ts</code>), Grok Imagine 1.5, Google Veo 3.1, Seedance 2.0 image-to-video, Arcads UGC actors, and ElevenLabs voiceovers (6/6 tests verified).</p>
+          <span class="task-path">render-worker/src/router.ts & models/</span>
+        </div>
+
+        <div class="step-box done">
+          <div class="step-header-row">
+            <div class="step-num" style="color: var(--success); font-weight: 800;">PHASE 6 • n8n ORCHESTRATION</div>
+            <span class="badge-done">✓ COMPLETED</span>
+          </div>
+          <h4>n8n Orchestration Pipelines (Flows A–F)</h4>
+          <p>Automated n8n flows (Flow A Onboarding, Flow B Weekly Batch, Flow C Asset Fan-out, Flow D Render Dispatch, Flow E QA Gate, Flow F Frame.io Delivery & Revisions) with interactive AI Video Generator Studio at <code>/studio/generate</code>.</p>
+          <span class="task-path"><a href="/studio/generate" target="_blank" style="color: var(--accent); text-decoration: underline;">Open /studio/generate ↗</a></span>
+        </div>
+
+        <div class="step-box active">
+          <div class="step-header-row">
+            <div class="step-num" style="color: #FF6700; font-weight: 800;">PHASE 7 • CLOSED-LOOP</div>
+            <span class="badge-active" style="background: rgba(255, 103, 0, 0.18); color: #FF6700; border-color: rgba(255, 103, 0, 0.4);">⏳ PENDING (WIP)</span>
+          </div>
+          <h4>Closed-Loop Performance & Publishing (Flows H & G)</h4>
+          <p>Meta & TikTok marketing API metrics ingestion (CPA, ROAS, Thumbstop Rate), creative winner profile analysis, and automated ad account publishing.</p>
+          <span class="task-path">n8n-workflows/flow-h-performance.json & flow-g-publishing.json</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- Required Client APIs & Credentials Card -->
+    <section class="api-keys-card" id="client-apis">
+      <div class="api-keys-card-header">
+        <div style="display: flex; align-items: center; gap: 12px;">
+          <span class="api-badge">Client API Setup</span>
+          <h3 style="font-size: 18px; font-weight: 700; color: #fff;">External APIs & Services Needed From Client</h3>
+        </div>
+        <button onclick="copyClientMessage()" class="btn btn-primary" style="background: linear-gradient(135deg, #FF6700, #7F48ED); border: none; font-weight: 800;">
+          📋 Copy Formatted Message for Client
+        </button>
+      </div>
+
+      <p style="color: var(--text-muted); font-size: 13px;">
+        These are the 4 core developer API credentials required to run live automated ad production. (The system currently operates with full deterministic simulation mode so development continues uninterrupted):
+      </p>
+
+      <div class="api-grid">
+        <div class="api-item">
+          <div>
+            <div class="api-item-title">
+              <h4 style="font-size: 14px; font-weight: 700; color: #fff;">1. Anthropic (Claude 3.5 Sonnet)</h4>
+              <span class="api-cost-pill">~$0.015 / batch</span>
+            </div>
+            <p style="margin-top: 6px;">Powers the AI Agent Brain: Brand synthesis, 4-angle weekly script generation, FTC/Meta legal compliance pre-check, and Remotion Edit-Spec JSON.</p>
+          </div>
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 8px;">
+            <code style="font-size: 11px; color: var(--primary-light);">ANTHROPIC_API_KEY</code>
+            <a href="https://console.anthropic.com/settings/keys" target="_blank">Get Key ↗</a>
+          </div>
+        </div>
+
+        <div class="api-item">
+          <div>
+            <div class="api-item-title">
+              <h4 style="font-size: 14px; font-weight: 700; color: #fff;">2. fal.ai (Grok 1.5 & Seedance 2.0)</h4>
+              <span class="api-cost-pill">~$0.08 / sec</span>
+            </div>
+            <p style="margin-top: 6px;">Unified video hub for xAI Grok Imagine 1.5 (high-volume b-roll) and ByteDance Seedance 2.0 (product image-to-video 3D animation).</p>
+          </div>
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 8px;">
+            <code style="font-size: 11px; color: var(--accent);">FAL_KEY</code>
+            <a href="https://fal.ai/dashboard/keys" target="_blank">Get Key ↗</a>
+          </div>
+        </div>
+
+        <div class="api-item">
+          <div>
+            <div class="api-item-title">
+              <h4 style="font-size: 14px; font-weight: 700; color: #fff;">3. ElevenLabs (Voiceover & Timestamps)</h4>
+              <span class="api-cost-pill">$22 / mo</span>
+            </div>
+            <p style="margin-top: 6px;">Studio AI conversational voiceovers with automatic word-level timestamp alignment that drives the kinetic captions on TikTok/Reels.</p>
+          </div>
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 8px;">
+            <code style="font-size: 11px; color: var(--primary-light);">ELEVENLABS_API_KEY</code>
+            <a href="https://elevenlabs.io" target="_blank">Get Key ↗</a>
+          </div>
+        </div>
+
+        <div class="api-item">
+          <div>
+            <div class="api-item-title">
+              <h4 style="font-size: 14px; font-weight: 700; color: #fff;">4. Arcads.ai (UGC Talking-Head Actors)</h4>
+              <span class="api-cost-pill">~$119 / mo</span>
+            </div>
+            <p style="margin-top: 6px;">Photorealistic UGC creator actors that deliver the opening hook lines and testimonial video bodies across vertical formats.</p>
+          </div>
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 8px;">
+            <code style="font-size: 11px; color: #FF6700;">ARCADS_API_KEY</code>
+            <a href="https://arcads.ai" target="_blank">Get Key ↗</a>
+          </div>
+        </div>
+      </div>
+
+      <div style="margin-top: 8px;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+          <span style="font-size: 12px; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px;">Client-Ready Email / Slack Message Preview:</span>
+          <button onclick="copyClientMessage()" class="btn btn-secondary" style="font-size: 11px; padding: 4px 10px;">📋 Copy Message</button>
+        </div>
+        <div class="client-msg-box" id="client-msg-content">Hi! To connect the automated ReLaunch Studio AI Video pipeline for your brand, we need developer API keys for the following 4 core platforms:
+
+1. Anthropic (Claude 3.5 Sonnet)
+   • Purpose: Writes weekly direct-response ad scripts across 4 angles, checks FTC/Meta compliance, and generates render specs.
+   • Cost: Pay-as-you-go (~$10–$20/mo in credits).
+   • Link: https://console.anthropic.com/settings/keys
+
+2. fal.ai (Video Generation Hub for Grok Imagine 1.5 & Seedance 2.0)
+   • Purpose: Generates high-volume scene b-roll (Grok) and animated product photo camera rotations (Seedance).
+   • Cost: Pay-as-you-go (~$0.08 per sec; ~$30–$50/mo in credits).
+   • Link: https://fal.ai/dashboard/keys
+
+3. ElevenLabs (Studio AI Voiceovers)
+   • Purpose: Generates conversational voiceovers with automatic word-level timestamps that sync the kinetic captions.
+   • Cost: Creator plan ($22/mo).
+   • Link: https://elevenlabs.io
+
+4. Arcads.ai (or Creatify.ai for UGC Actors)
+   • Purpose: Generates talking-head creator actors delivering the opening hooks and testimonial reviews.
+   • Cost: Pro plan (~$119/mo).
+   • Link: https://arcads.ai
+
+Storage (Cloudflare R2):
+   • Purpose: Zero-egress asset & video hosting (Free tier covers 10GB; pennies thereafter).
+
+Please provide these API keys (or invite us to your workspace), and we will inject them into our secure server environment!</div>
       </div>
     </section>
 
@@ -769,6 +1019,14 @@
         <div class="quick-link-info">
           <h5 style="color: #A78BFA;">Internal QA Review</h5>
           <span>/studio/review (Live)</span>
+        </div>
+      </a>
+
+      <a href="/studio/generate" target="_blank" class="quick-link-card" style="border-color: rgba(255, 103, 0, 0.4); background: rgba(255, 103, 0, 0.08);">
+        <div class="quick-link-icon">🎬</div>
+        <div class="quick-link-info">
+          <h5 style="color: #FF6700;">Video Generator Studio</h5>
+          <span>/studio/generate (Live)</span>
         </div>
       </a>
 
@@ -891,13 +1149,13 @@
         name: "AI Agent Brain & Claude Prompts",
         focus: "Claude 3.5 Sonnet structured JSON outputs",
         tasks: [
-          { id: "p4_1", title: "Brand Synthesis Prompt Node", desc: "Scraped website -> Structured JSON (voice, personas, benefits, objections, do-not-say)", path: "n8n-workflows/nodes/brand-synth.ts" },
-          { id: "p4_2", title: "Weekly Script Generator", desc: "Generates 4 distinct creative angles with 3–5 hook variants each", path: "n8n-workflows/nodes/script-gen.ts" },
-          { id: "p4_3", title: "Compliance Pre-Check Node", desc: "Screens claims against FTC, Meta, and TikTok guidelines; auto-rewrites flags", path: "n8n-workflows/nodes/compliance-check.ts" },
-          { id: "p4_4", title: "Edit-Spec Generator Node", desc: "The editing brain: translates approved script + assets into render-spec.json", path: "n8n-workflows/nodes/edit-spec-gen.ts" },
-          { id: "p4_5", title: "Creative Attribute Tagging Node", desc: "Tags hook type, pacing, actor gender, music tempo for winner analysis", path: "n8n-workflows/nodes/tagger.ts" },
-          { id: "p4_6", title: "Zod Schema Validation", desc: "Validates all Claude outputs with strict Zod schemas to prevent JSON parse errors", path: "render-worker/src/schemas.ts" },
-          { id: "p4_7", title: "Prompt Benchmark Suite", desc: "Run 10 test cases against Claude 3.5 Sonnet to verify 100% schema accuracy", path: "scripts/test-prompts.mjs" }
+          { id: "p4_1", title: "Brand Synthesis Prompt Node", desc: "Scraped website -> Structured JSON (voice, personas, benefits, objections, do-not-say)", path: "render-worker/src/prompts/brand-synth.ts" },
+          { id: "p4_2", title: "Weekly Script Generator", desc: "Generates 4 distinct creative angles with 3–5 hook variants each", path: "render-worker/src/prompts/script-gen.ts" },
+          { id: "p4_3", title: "Compliance Pre-Check Node", desc: "Screens claims against FTC, Meta, and TikTok guidelines; auto-rewrites flags", path: "render-worker/src/prompts/compliance-check.ts" },
+          { id: "p4_4", title: "Edit-Spec Generator Node", desc: "The editing brain: translates approved script + assets into render-spec.json", path: "render-worker/src/prompts/edit-spec-gen.ts" },
+          { id: "p4_5", title: "Creative Attribute Tagging Node", desc: "Tags hook type, pacing, actor gender, music tempo for winner analysis", path: "render-worker/src/prompts/creative-tagging.ts" },
+          { id: "p4_6", title: "Zod Schema Validation", desc: "Validates all Claude outputs with strict Zod schemas to prevent JSON parse errors", path: "render-worker/src/prompts/schemas.ts" },
+          { id: "p4_7", title: "Prompt Benchmark Suite", desc: "Run verification test suite against all prompt nodes to verify 100% schema accuracy", path: "render-worker/src/prompts/test-phase4.ts" }
         ]
       },
       {
@@ -984,6 +1242,27 @@
       p3_5: true, // 60-Second Quality Checklist
       p3_6: true, // Decision Endpoints (Approve / Reject / Recut)
       p3_7: true, // Strict Database Gatekeeper Rule
+      p4_1: true, // Brand Synthesis Prompt Node
+      p4_2: true, // Weekly Script Generator
+      p4_3: true, // Compliance Pre-Check Node
+      p4_4: true, // Edit-Spec Generator Node
+      p4_5: true, // Creative Attribute Tagging Node
+      p4_6: true, // Zod Schema Validation
+      p4_7: true, // Prompt Benchmark Suite
+      p5_1: true, // Unified Model-Agnostic Video Router
+      p5_2: true, // Grok Imagine 1.5 Integration
+      p5_3: true, // Google Veo 3.1 Integration
+      p5_4: true, // ByteDance Seedance 2.0 Integration
+      p5_5: true, // Arcads.ai / Creatify Actor Integration
+      p5_6: true, // ElevenLabs Branded Voiceover
+      p6_1: true, // Flow A — Client Onboarding & Brand Synthesis
+      p6_2: true, // Flow B — Weekly Batch Script Generator
+      p6_3: true, // Flow C — Parallel Asset Generation Fan-Out
+      p6_4: true, // Flow D — Render Job Queue Dispatcher
+      p6_5: true, // Flow E — QA Notification
+      p6_6: true, // Flow F — Frame.io Client Delivery
+      p6_7: true, // Client Revision Feedback Loop
+      p6_8: true, // n8n Workflow Version Control
     };
 
     function getState() {
@@ -1115,6 +1394,16 @@
         const toast = document.getElementById("toast");
         toast.classList.add("show");
         setTimeout(() => toast.classList.remove("show"), 2000);
+      });
+    }
+
+    function copyClientMessage() {
+      const text = document.getElementById("client-msg-content").innerText;
+      navigator.clipboard.writeText(text).then(() => {
+        const toast = document.getElementById("toast");
+        toast.textContent = "Client message copied to clipboard!";
+        toast.classList.add("show");
+        setTimeout(() => toast.classList.remove("show"), 2500);
       });
     }
 

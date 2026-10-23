@@ -1,0 +1,110 @@
+{
+  "name": "ReLaunch Studio — Flow C: Parallel AI Asset Generation Fan-Out",
+  "nodes": [
+    {
+      "parameters": {
+        "event": "script_approved"
+      },
+      "id": "node-trigger-script",
+      "name": "Event: Script Ready for Generation",
+      "type": "n8n-nodes-base.trigger",
+      "typeVersion": 1,
+      "position": [180, 400]
+    },
+    {
+      "parameters": {
+        "url": "https://api.arcads.ai/v1/videos",
+        "method": "POST",
+        "authentication": "genericCredentialType"
+      },
+      "id": "node-arcads-actor",
+      "name": "Arcads: Generate UGC Actor Hook & Body",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [480, 200]
+    },
+    {
+      "parameters": {
+        "url": "https://api.elevenlabs.io/v1/text-to-speech/with-timestamps",
+        "method": "POST"
+      },
+      "id": "node-elevenlabs-vo",
+      "name": "ElevenLabs: Generate Synced Voiceover",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [480, 350]
+    },
+    {
+      "parameters": {
+        "url": "https://queue.fal.run/fal-ai/xai/grok-video-1.5",
+        "method": "POST"
+      },
+      "id": "node-fal-grok",
+      "name": "fal.ai: Grok Imagine B-Roll Generation",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [480, 500]
+    },
+    {
+      "parameters": {
+        "url": "https://queue.fal.run/fal-ai/bytedance/seedance-2",
+        "method": "POST"
+      },
+      "id": "node-fal-seedance",
+      "name": "fal.ai: Seedance 2.0 Product Motion",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [480, 650]
+    },
+    {
+      "parameters": {
+        "mode": "waitAll"
+      },
+      "id": "node-merge-assets",
+      "name": "Merge: Wait for All Parallel Assets",
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3,
+      "position": [780, 400]
+    },
+    {
+      "parameters": {
+        "bucket": "relaunch-raw-assets"
+      },
+      "id": "node-s3-upload",
+      "name": "S3/R2: Store Raw Asset Inventory",
+      "type": "n8n-nodes-base.s3",
+      "typeVersion": 1,
+      "position": [1000, 400]
+    }
+  ],
+  "connections": {
+    "Event: Script Ready for Generation": {
+      "main": [
+        [
+          { "node": "Arcads: Generate UGC Actor Hook & Body", "type": "main", "index": 0 },
+          { "node": "ElevenLabs: Generate Synced Voiceover", "type": "main", "index": 0 },
+          { "node": "fal.ai: Grok Imagine B-Roll Generation", "type": "main", "index": 0 },
+          { "node": "fal.ai: Seedance 2.0 Product Motion", "type": "main", "index": 0 }
+        ]
+      ]
+    },
+    "Arcads: Generate UGC Actor Hook & Body": {
+      "main": [[{ "node": "Merge: Wait for All Parallel Assets", "type": "main", "index": 0 }]]
+    },
+    "ElevenLabs: Generate Synced Voiceover": {
+      "main": [[{ "node": "Merge: Wait for All Parallel Assets", "type": "main", "index": 1 }]]
+    },
+    "fal.ai: Grok Imagine B-Roll Generation": {
+      "main": [[{ "node": "Merge: Wait for All Parallel Assets", "type": "main", "index": 2 }]]
+    },
+    "fal.ai: Seedance 2.0 Product Motion": {
+      "main": [[{ "node": "Merge: Wait for All Parallel Assets", "type": "main", "index": 3 }]]
+    },
+    "Merge: Wait for All Parallel Assets": {
+      "main": [[{ "node": "S3/R2: Store Raw Asset Inventory", "type": "main", "index": 0 }]]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1"
+  }
+}

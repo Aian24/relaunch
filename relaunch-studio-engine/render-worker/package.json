@@ -1,6 +1,7 @@
 {
   "name": "studio-render-worker",
   "version": "1.0.0",
+  "type": "module",
   "description": "ReLaunch Studio BullMQ render worker with Remotion, FFmpeg, and faster-whisper",
   "main": "dist/index.js",
   "scripts": {

@@ -155,11 +155,11 @@ Use these interactive checkboxes (`[ ]` / `[x]`) to track progress across develo
 | **Phase 1** | **Database Core & State Machine** | Postgres schema, migrations, S3 buckets, DB client | `[x] Completed` | 5 / 6 |
 | **Phase 2** | **Render Worker & Remotion Engine**| BullMQ, Remotion React, Whisper, FFmpeg multi-ratio | `[x] Completed` | 8 / 9 |
 | **Phase 3** | **Internal QA Review Web App** | Next.js review interface at `review.relaunch.us` | `[x] Completed` | 7 / 7 |
-| **Phase 4** | **AI Agent Brain & Prompts** | Claude structured outputs (Script, Compliance, Edit-Spec) | `[ ] In Progress` | 0 / 7 |
-| **Phase 5** | **Video Router & Asset APIs** | fal.ai/Replicate (Grok/Veo/Seedance) + Arcads + ElevenLabs | `[ ] Pending` | 0 / 6 |
-| **Phase 6** | **n8n Orchestration Flows (A–F)** | Complete pipelines from Intake to Frame.io Delivery | `[ ] Pending` | 0 / 8 |
-| **Phase 7** | **Performance & Publishing (H & G)**| Meta/TikTok metrics, winner profile, automated publishing| `[ ] Pending` | 0 / 6 |
-| **Phase 8** | **Production Verification & Pilot** | End-to-end live testing, legal compliance audit, SLA proof| `[ ] Pending` | 0 / 5 |
+| **Phase 4** | **AI Agent Brain & Prompts** | Claude structured outputs (Script, Compliance, Edit-Spec) | `[x] Completed` | 6 / 6 |
+| **Phase 5** | **Video Router & Asset APIs** | fal.ai/Replicate (Grok/Veo/Seedance) + Arcads + ElevenLabs | `[x] Completed` | 6 / 6 |
+| **Phase 6** | **n8n Orchestration Flows (A–F)** | Complete pipelines from Intake to Frame.io Delivery | `[x] Completed` | 8 / 8 |
+| **Phase 7** | **Performance & Publishing (H & G)**| Meta/TikTok metrics, winner profile, automated publishing| `[ ] Pending (WIP)` | 0 / 6 |
+| **Phase 8** | **Production Verification & Pilot** | End-to-end live testing, legal compliance audit, SLA proof| `[ ] Pending (WIP)` | 0 / 5 |
 
 ---
 
@@ -729,7 +729,7 @@ Use these interactive checkboxes (`[ ]` / `[x]`) to track progress across develo
 ### Phase 4: AI Agent Brain & Claude Prompt Engine (Week 4)
 **Objective:** Configure Claude 3.5 Sonnet structured JSON outputs for brand synthesis, script generation, and render specs.
 
-- [ ] **4.1 Brand Synthesis Node (`brand-synth.ts`)**
+- [x] **4.1 Brand Synthesis Node (`brand-synth.ts`)**
   - Input: Scraped website text, customer reviews, product catalog.
   - Output Schema:
     ```json
@@ -745,7 +745,7 @@ Use these interactive checkboxes (`[ ]` / `[x]`) to track progress across develo
     }
     ```
 
-- [ ] **4.2 Weekly Script Generator (`script-gen.ts`)**
+- [x] **4.2 Weekly Script Generator (`script-gen.ts`)**
   - Generates 4 distinct creative angles per product with 3–5 hooks each:
     - Angle 1: Direct Problem / Agitation Hook.
     - Angle 2: Social Proof / UGC Testimonial.
@@ -770,14 +770,14 @@ Use these interactive checkboxes (`[ ]` / `[x]`) to track progress across develo
     }
     ```
 
-- [ ] **4.3 Automated Compliance Pre-Check Node (`compliance-check.ts`)**
+- [x] **4.3 Automated Compliance Pre-Check Node (`compliance-check.ts`)**
   - Screens scripts against FTC, Meta, and TikTok advertising policies:
     - Flag medical/health cure claims.
     - Flag unrealistic financial/income claims.
     - Flag deceptive testimonial framing.
   - Automatically rewrites flagged claims to compliant phrasing before database insert.
 
-- [ ] **4.4 Edit-Spec JSON Generator Node (`edit-spec-gen.ts`)**
+- [x] **4.4 Edit-Spec JSON Generator Node (`edit-spec-gen.ts`)**
   - Converts script and S3 asset inventory into Remotion render instructions:
     ```json
     {
@@ -799,10 +799,10 @@ Use these interactive checkboxes (`[ ]` / `[x]`) to track progress across develo
     }
     ```
 
-- [ ] **4.5 Creative Attribute Tagging Node (for Winner Analysis)**
+- [x] **4.5 Creative Attribute Tagging Node (for Winner Analysis)**
   - Machine tags each script with attributes: Hook Type, Persona Age, Music Tempo, Pacing, Avatar Gender.
 
-- [ ] **4.6 Zod Schema Validation Suite**
+- [x] **4.6 Zod Schema Validation Suite**
   - Implement Zod schema validation ensuring 100% JSON parse compliance from Claude API responses.
 
 ---
@@ -810,7 +810,7 @@ Use these interactive checkboxes (`[ ]` / `[x]`) to track progress across develo
 ### Phase 5: Video Gen Router & Asset Generation APIs (Weeks 4–5)
 **Objective:** Build the model-agnostic router and integrate talking-head actors, scene b-roll, and branded voiceover.
 
-- [ ] **5.1 Unified Video Generation Router (`render-worker/src/router.ts`)**
+- [x] **5.1 Unified Video Generation Router (`render-worker/src/router.ts`)**
   - Build model-agnostic wrapper:
     ```typescript
     export interface GenerateSceneParams {
@@ -827,23 +827,23 @@ Use these interactive checkboxes (`[ ]` / `[x]`) to track progress across develo
     }
     ```
 
-- [ ] **5.2 Grok Imagine (Video 1.5) Integration**
+- [x] **5.2 Grok Imagine (Video 1.5) Integration**
   - Primary workhorse for high-volume social b-roll (~$0.08/sec).
   - Fast 6s/720p output in ~25 seconds.
 
-- [ ] **5.3 Google Veo 3.1 Integration**
+- [x] **5.3 Google Veo 3.1 Integration**
   - Hero shots where high dynamic range, native audio, and photorealism are required (~$0.40/sec).
   - Accessed via Vertex AI.
 
-- [ ] **5.4 Seedance 2.0 (Product Image-to-Video) Integration**
+- [x] **5.4 Seedance 2.0 (Product Image-to-Video) Integration**
   - Animates static client product photos into dynamic camera sweeps and rotations.
 
-- [ ] **5.5 Arcads.ai / Creatify.ai Actor Integration**
+- [x] **5.5 Arcads.ai / Creatify.ai Actor Integration**
   - Submits script to talking-head actor API:
     - Matches actor demographics to script persona.
     - Downloads returned high-res actor `.mp4` directly to S3 `relaunch-raw-assets`.
 
-- [ ] **5.6 ElevenLabs Voiceover Integration**
+- [x] **5.6 ElevenLabs Voiceover Integration**
   - Generates custom voiceover track with natural conversational cadence.
   - Supports speech-to-speech transfer to carry real human emotion and timing.
 
@@ -852,35 +852,35 @@ Use these interactive checkboxes (`[ ]` / `[x]`) to track progress across develo
 ### Phase 6: Orchestration Pipelines in n8n (Weeks 5–7)
 **Objective:** Implement the automated workflows in n8n connecting intake to delivery.
 
-- [ ] **6.1 Flow A — Client Onboarding & Brand Synthesis**
+- [x] **6.1 Flow A — Client Onboarding & Brand Synthesis**
   - Trigger: Webhook from `src/app/api/studio/intake/route.ts`.
   - Actions: Scrapes client site → calls Claude Brand Synth → writes `brand_profiles` row → emails alert to `robert@relaunch.us`.
 
-- [ ] **6.2 Flow B — Weekly Batch Script Generator**
+- [x] **6.2 Flow B — Weekly Batch Script Generator**
   - Trigger: Cron every Monday at 6:00 AM.
   - Actions: Fetches active clients → pulls winner attributes from `performance` table → generates 4 angles × 4 hooks → runs Compliance Pre-Check → inserts into `scripts` with `status = 'draft'`.
 
-- [ ] **6.3 Flow C — Parallel Asset Generation Fan-Out**
+- [x] **6.3 Flow C — Parallel Asset Generation Fan-Out**
   - Trigger: Script approved.
   - Actions: Fans out parallel API calls: Actor Clip (Arcads), Voiceover (ElevenLabs), Scene B-Roll (Router: Grok/Veo), Product Still Animation (Seedance) → stores in S3 → updates `assets` table.
 
-- [ ] **6.4 Flow D — Render Job Queue Dispatcher**
+- [x] **6.4 Flow D — Render Job Queue Dispatcher**
   - Trigger: All required assets for a script are in S3.
   - Actions: Calls Claude Edit-Spec Generator → enqueues job into Redis/BullMQ `render-jobs` → updates `variants` status to `rendering`.
 
-- [ ] **6.5 Flow E — QA Notification**
+- [x] **6.5 Flow E — QA Notification**
   - Trigger: Render worker marks variant `needs_review`.
   - Actions: Sends notification email via Resend to `robert@relaunch.us` with direct link to `review.relaunch.us/review/[id]`.
 
-- [ ] **6.6 Flow F — Frame.io Client Delivery**
+- [x] **6.6 Flow F — Frame.io Client Delivery**
   - Trigger: Human operator clicks "Approve" in review app.
   - Actions: Uploads 9:16 master, 1:1, and 4:5 ratios to client's Frame.io project room → posts angle explanation note → sets variant status to `delivered`.
 
-- [ ] **6.7 Client Revision Feedback Loop**
+- [x] **6.7 Client Revision Feedback Loop**
   - Trigger: Webhook from Frame.io on client timestamped comment.
   - Actions: Parses revision feedback → creates `recut` job payload → enqueues back into Flow D.
 
-- [ ] **6.8 n8n Workflow JSON Version Control**
+- [x] **6.8 n8n Workflow JSON Version Control**
   - Export all workflows and commit to `relaunch-studio-engine/n8n-workflows/`.
 
 ---

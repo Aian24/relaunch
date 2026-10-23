@@ -1,0 +1,50 @@
+{
+  "name": "ReLaunch Studio — Flow E: Internal QA Review Gate Notification",
+  "nodes": [
+    {
+      "parameters": {
+        "event": "variant_needs_review"
+      },
+      "id": "node-trigger-qa",
+      "name": "Trigger: Variant Needs Review",
+      "type": "n8n-nodes-base.trigger",
+      "typeVersion": 1,
+      "position": [180, 300]
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "SELECT v.id, v.aspect_ratio, v.storage_url, s.angle, c.name as client_name FROM variants v JOIN scripts s ON s.id = v.script_id JOIN batches b ON b.id = s.batch_id JOIN clients c ON c.id = b.client_id WHERE v.id = $1;"
+      },
+      "id": "node-postgres-variant-info",
+      "name": "Postgres: Fetch Context for QA",
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.5,
+      "position": [420, 300]
+    },
+    {
+      "parameters": {
+        "fromEmail": "qa@relaunch.us",
+        "toEmail": "robert@relaunch.us",
+        "subject": "=Action Required: Review {{ $json.client_name }} Video Ad ({{ $json.angle }})",
+        "html": "=<p>A new multi-ratio ad variant has rendered and requires 60-second QA verification.</p><p><a href='https://relaunch.us/studio/review?variantId={{ $json.id }}'>Click here to open Internal QA Review Portal</a></p>"
+      },
+      "id": "node-email-qa-alert",
+      "name": "Email: Send QA Review Alert",
+      "type": "n8n-nodes-base.emailSend",
+      "typeVersion": 2.1,
+      "position": [680, 300]
+    }
+  ],
+  "connections": {
+    "Trigger: Variant Needs Review": {
+      "main": [[{ "node": "Postgres: Fetch Context for QA", "type": "main", "index": 0 }]]
+    },
+    "Postgres: Fetch Context for QA": {
+      "main": [[{ "node": "Email: Send QA Review Alert", "type": "main", "index": 0 }]]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1"
+  }
+}

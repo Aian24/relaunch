@@ -1,0 +1,64 @@
+{
+  "name": "ReLaunch Studio — Flow D: Render Job Queue Dispatcher",
+  "nodes": [
+    {
+      "parameters": {
+        "event": "assets_stored_in_s3"
+      },
+      "id": "node-trigger-assets-ready",
+      "name": "Trigger: S3 Assets Ready",
+      "type": "n8n-nodes-base.trigger",
+      "typeVersion": 1,
+      "position": [180, 300]
+    },
+    {
+      "parameters": {
+        "model": "claude-3-5-sonnet-20241022",
+        "prompt": "Convert script and S3 asset inventory into deterministic Remotion edit-spec.json instructions with kinetic captions and volume ducking.",
+        "temperature": 0.2
+      },
+      "id": "node-claude-editspec",
+      "name": "Claude: Edit-Spec JSON Generator",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 1.7,
+      "position": [440, 300]
+    },
+    {
+      "parameters": {
+        "operation": "publish",
+        "channel": "render-jobs",
+        "message": "={{ JSON.stringify($json) }}"
+      },
+      "id": "node-redis-enqueue",
+      "name": "Redis: Enqueue BullMQ Render Job",
+      "type": "n8n-nodes-base.redis",
+      "typeVersion": 1,
+      "position": [700, 300]
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "UPDATE variants SET status = 'rendering', render_spec_json = $1 WHERE id = $2;"
+      },
+      "id": "node-postgres-update-status",
+      "name": "Postgres: Update Variant Status (rendering)",
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.5,
+      "position": [960, 300]
+    }
+  ],
+  "connections": {
+    "Trigger: S3 Assets Ready": {
+      "main": [[{ "node": "Claude: Edit-Spec JSON Generator", "type": "main", "index": 0 }]]
+    },
+    "Claude: Edit-Spec JSON Generator": {
+      "main": [[{ "node": "Redis: Enqueue BullMQ Render Job", "type": "main", "index": 0 }]]
+    },
+    "Redis: Enqueue BullMQ Render Job": {
+      "main": [[{ "node": "Postgres: Update Variant Status (rendering)", "type": "main", "index": 0 }]]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1"
+  }
+}
