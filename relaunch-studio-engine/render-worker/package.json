@@ -7,7 +7,9 @@
   "scripts": {
     "build": "tsc",
     "start": "node dist/index.js",
-    "dev": "tsx watch src/index.ts"
+    "dev": "tsx watch src/index.ts",
+    "test:phase7": "tsx src/test-phase7.ts",
+    "test:phase8": "tsx src/test-phase8.ts"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.670.0",

@@ -92,7 +92,7 @@ export default function StudioPage() {
           </h1>
 
           <p className="text-white/95 text-base sm:text-xl max-w-2xl mx-auto leading-relaxed mb-8 drop-shadow-[0_2px_12px_rgba(0,0,0,0.95)] font-medium">
-            Weekly high-converting video creative for Meta, TikTok and Shorts. We test multiple hooks to lower your ad costs—built to turn scrollers into paying customers.
+            Hybrid video ad production: verified real creators, client footage editing, and AI-assisted scenes &amp; graphics. Built to turn scrollers into paying customers.
           </p>
 
           {/* Stats Strip */}
@@ -100,6 +100,7 @@ export default function StudioPage() {
             {studioData.stats.map((s, idx) => (
               <div key={idx} className="text-center">
                 <div className="font-heading font-black text-xl sm:text-2xl text-white">
+                  {s.prefix && <span className="text-xs sm:text-sm font-semibold mr-0.5 text-slate-300">{s.prefix}</span>}
                   {s.value}
                   <span style={{ color: ACCENT }}>{s.suffix}</span>
                 </div>
@@ -208,7 +209,7 @@ export default function StudioPage() {
                     <span className="px-3 py-1 rounded-full bg-[#7F48ED] text-white text-[10px] font-mono font-bold uppercase">
                       ReLaunch Studio
                     </span>
-                    <span className="text-xs font-mono text-[#7F48ED] font-bold">85% Lower Cost</span>
+                    <span className="text-xs font-mono text-[#7F48ED] font-bold">Up to 85% Lower Cost</span>
                   </div>
                   <h3 className="font-heading font-black text-xl text-[#090D16] mb-4">
                     {studioData.comparison.relaunchStudio.cost}

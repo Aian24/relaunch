@@ -103,3 +103,23 @@ select option:hover {
   scrollbar-width: none !important;
 }
 
+/* Dark Studio Scrollbars */
+.dark-scrollbar {
+  scrollbar-width: thin;
+  scrollbar-color: #7F48ED #0D0E15;
+}
+.dark-scrollbar::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+.dark-scrollbar::-webkit-scrollbar-track {
+  background: #0D0E15;
+}
+.dark-scrollbar::-webkit-scrollbar-thumb {
+  background: #7F48ED;
+  border-radius: 9999px;
+}
+.dark-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: #6C34DE;
+}
+

@@ -16,10 +16,7 @@ import {
   Eye,
   Download,
   Video,
-  User,
   Zap,
-  Target,
-  FileText,
   Sliders,
   Check,
   ChevronDown,
@@ -28,6 +25,9 @@ import {
   MessageCircle,
   Bookmark,
   Share2,
+  Upload,
+  Layers,
+  Edit3,
 } from "lucide-react";
 
 interface AngleContent {
@@ -213,6 +213,22 @@ const PRESETS: BrandPreset[] = [
   },
 ];
 
+const CLIENT_SAMPLE_CLIPS: Record<string, { id: string; name: string; duration: string; type: string }[]> = {
+  "chicago-dog": [
+    { id: "c-01", name: "Fresh Poppy Bun Steam & Snap", duration: "0:09", type: "Raw Product Macro" },
+    { id: "c-02", name: "Sport Pepper & Relish Topping", duration: "0:07", type: "Ingredients B-Roll" },
+    { id: "c-03", name: "Customer Pickup Hand-off", duration: "0:11", type: "Storefront Action" },
+  ],
+  "bkind-mist": [
+    { id: "c-04", name: "Face Mist Spray Ultra-Fine Cloud", duration: "0:08", type: "Application Demo" },
+    { id: "c-05", name: "Amber Glass Bottle Texture Pour", duration: "0:06", type: "Product Close-up" },
+  ],
+  "dance-fusion": [
+    { id: "c-06", name: "High-Energy Adult Class Group", duration: "0:12", type: "Live Studio Footage" },
+    { id: "c-07", name: "Instructor Routine Breakdown", duration: "0:08", type: "Movement Demo" },
+  ],
+};
+
 export default function StudioVideoGenerator() {
   const [selectedPreset, setSelectedPreset] = useState<BrandPreset>(PRESETS[0]);
   const [selectedAngle, setSelectedAngle] = useState<"problem" | "ugc" | "listicle" | "comparison">("problem");
@@ -224,6 +240,13 @@ export default function StudioVideoGenerator() {
   const currentAngleData = selectedPreset.angles[selectedAngle];
   const [selectedHook, setSelectedHook] = useState(currentAngleData.hooks[0]);
   const [scriptBody, setScriptBody] = useState(currentAngleData.body);
+  const [isEditingHook, setIsEditingHook] = useState(false);
+
+  // Client footage & hybrid layer state
+  const [selectedClientClip, setSelectedClientClip] = useState<string>("Fresh Poppy Bun Steam & Snap");
+  const [customFootageName, setCustomFootageName] = useState<string | null>(null);
+  const [softLabelDisclosure, setSoftLabelDisclosure] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   // Custom Dropdown Open States (Zero browser blue!)
   const [hookDropdownOpen, setHookDropdownOpen] = useState(false);
@@ -273,7 +296,16 @@ export default function StudioVideoGenerator() {
     setSelectedHook(angleObj.hooks[0]);
     setScriptBody(angleObj.body);
     setHookDropdownOpen(false);
+    setIsEditingHook(false);
   }, [selectedAngle, selectedPreset]);
+
+  // Sync client clips on preset change
+  useEffect(() => {
+    const clips = CLIENT_SAMPLE_CLIPS[selectedPreset.id] || CLIENT_SAMPLE_CLIPS["chicago-dog"];
+    if (clips && clips[0] && !customFootageName) {
+      setSelectedClientClip(clips[0].name);
+    }
+  }, [selectedPreset.id, customFootageName]);
 
   // Handle Preset Switch
   const handleSelectPreset = (preset: BrandPreset) => {
@@ -288,39 +320,74 @@ export default function StudioVideoGenerator() {
     setSelectedHook(hooks[nextIdx]);
   };
 
-  // Video Generation Simulation
+  // Video Generation Simulation with Hybrid Model and Review Queue Storage
   const handleGenerate = () => {
     setIsGenerating(true);
     setGenProgress(15);
-    setGenStepText("Writing direct-response ad copy...");
+    setGenStepText("Analyzing DR hook & direct-response script...");
 
     setTimeout(() => {
-      setGenProgress(40);
-      setGenStepText(`Generating ${selectedActor === "emma" ? "Emma" : selectedActor === "marcus" ? "Marcus" : "Sarah"} creator video...`);
+      setGenProgress(35);
+      setGenStepText(`Ingesting & color-correcting client footage: "${selectedClientClip}"...`);
     }, 700);
 
     setTimeout(() => {
-      setGenProgress(70);
-      setGenStepText(`Rendering 1080p B-roll (${videoModel === "grok" ? "Grok Imagine" : videoModel === "veo" ? "Google Veo" : "Seedance"})...`);
+      setGenProgress(60);
+      setGenStepText(`Synthesizing ${selectedActor === "emma" ? "Emma" : selectedActor === "marcus" ? "Marcus" : "Sarah"} creator hook footage...`);
     }, 1400);
 
     setTimeout(() => {
-      setGenProgress(90);
-      setGenStepText("Mastering ElevenLabs voiceover...");
+      setGenProgress(80);
+      setGenStepText(`Rendering ${videoModel === "grok" ? "Grok Imagine" : videoModel === "veo" ? "Google Veo" : "Seedance"} sensory scenes & typography...`);
     }, 2100);
 
     setTimeout(() => {
-      setGenProgress(100);
-      setGenStepText("Finalizing video master...");
+      setGenProgress(95);
+      setGenStepText("Compositing 3-part hybrid master with -14 LUFS voiceover...");
     }, 2800);
 
     setTimeout(() => {
+      setGenProgress(100);
+      setGenStepText("Master ready! Saved to QA Review Queue.");
       setIsGenerating(false);
+
+      // Save to localStorage review queue so /studio/review immediately displays it
+      try {
+        const newVariant = {
+          id: `var-gen-${Date.now()}`,
+          clientName: selectedPreset.name,
+          batchName: "Studio Live Batch",
+          angle: currentAngleData.title,
+          framework: selectedAngle,
+          targetPersona: selectedPreset.category,
+          hookText: selectedHook,
+          video9x16: selectedPreset.videoSrc,
+          video1x1: selectedPreset.videoSrc,
+          video4x5: selectedPreset.videoSrc,
+          thumbnail: "/images/howitworksstudio.jpg",
+          status: "needs_review",
+          disclosureApplied: softLabelDisclosure,
+          audioLufs: -13.8,
+          scriptBody: scriptBody,
+          ctaText: selectedPreset.offer,
+          forbiddenClaims: ["Zero fake claims verified"],
+          clientFootageSource: selectedClientClip,
+          creatorActor: selectedActor === "emma" ? "Emma Davis (@trendspotlight)" : selectedActor === "marcus" ? "Marcus Vance (@everydayreviews)" : "Sarah Jenkins (@glowwithsarah)",
+          model: videoModel,
+          aspectRatio: aspectRatio,
+          createdAt: new Date().toISOString(),
+        };
+        const existing = JSON.parse(localStorage.getItem("relaunch_studio_generated_variants") || "[]");
+        localStorage.setItem("relaunch_studio_generated_variants", JSON.stringify([newVariant, ...existing]));
+      } catch (e) {
+        console.error("Local storage error", e);
+      }
+
       if (videoRef.current) {
         videoRef.current.currentTime = 0;
         videoRef.current.play().then(() => setIsPlaying(true)).catch(() => setIsPlaying(false));
       }
-    }, 3200);
+    }, 3300);
   };
 
   const togglePlay = () => {
@@ -399,9 +466,9 @@ export default function StudioVideoGenerator() {
   };
 
   return (
-    <div className="w-full min-h-screen lg:h-screen lg:overflow-hidden bg-[#08090D] text-[#F3F4F6] font-sans flex flex-col selection:bg-[#7F48ED] selection:text-white">
+    <div className="w-full min-h-screen bg-[#08090D] text-[#F3F4F6] font-sans flex flex-col selection:bg-[#7F48ED] selection:text-white">
       {/* FULL-WIDTH STUDIO TOP BAR */}
-      <header className="w-full shrink-0 bg-[#0D0E15] border-b border-white/10 px-4 sm:px-6 py-3 flex items-center justify-between z-40">
+      <header className="w-full sticky top-0 shrink-0 bg-[#0D0E15] border-b border-white/10 px-4 sm:px-6 py-3 flex items-center justify-between z-40">
         {/* Left: Studio Branding */}
         <div className="flex items-center gap-3 sm:gap-4">
           <Link
@@ -413,7 +480,6 @@ export default function StudioVideoGenerator() {
           </Link>
           <div className="h-4 w-px bg-white/10" />
           <div className="flex items-center gap-2">
-            <span className="w-2.5 h-2.5 rounded-full bg-[#FF6700] animate-pulse" />
             <span className="text-sm font-black tracking-tight text-white uppercase">
               Relaunch Studio <span className="text-[#FF6700]">Video Generator</span>
             </span>
@@ -466,9 +532,9 @@ export default function StudioVideoGenerator() {
       </header>
 
       {/* FULL SCREEN 2-COLUMN STUDIO WORKSPACE */}
-      <main className="w-full flex-1 flex flex-col lg:flex-row overflow-hidden">
+      <main className="w-full flex-1 flex flex-col lg:flex-row lg:h-[calc(100vh-53px)] lg:overflow-hidden">
         {/* LEFT PANEL: SIMPLE CREATION CONTROLS (Scrollable, Clean, No Wall of Text) */}
-        <div className="w-full lg:w-[460px] xl:w-[480px] shrink-0 bg-[#0D0E15] border-r border-white/10 flex flex-col justify-between overflow-y-auto p-4 sm:p-5 pb-10 space-y-4">
+        <div className="w-full lg:w-[460px] xl:w-[480px] shrink-0 bg-[#0D0E15] border-r border-white/10 flex flex-col justify-between h-auto lg:h-full lg:overflow-y-auto min-h-0 p-4 sm:p-5 pb-16 space-y-4 dark-scrollbar">
           <div className="space-y-4">
             {/* Active Brand Bar on Mobile */}
             <div className="md:hidden flex items-center justify-between bg-black/40 border border-white/10 rounded-xl p-2.5">
@@ -478,8 +544,7 @@ export default function StudioVideoGenerator() {
 
             {/* 1. CREATIVE ANGLE */}
             <div className="space-y-2">
-              <label className="text-[11px] font-extrabold uppercase tracking-wider text-zinc-400 flex items-center gap-1.5">
-                <Target className="w-3.5 h-3.5 text-[#FF6700]" />
+              <label className="text-[11px] font-extrabold uppercase tracking-wider text-zinc-400 block">
                 Creative Angle
               </label>
               <div className="grid grid-cols-2 gap-2">
@@ -511,72 +576,95 @@ export default function StudioVideoGenerator() {
               </div>
             </div>
 
-            {/* 2. OPENING HOOK (Custom Dropdown - Orange/Purple highlight, NO BLUE) */}
+            {/* 2. OPENING HOOK (Custom Dropdown + Direct Inline Edit, ZERO BLUE) */}
             <div className="space-y-1.5">
               <div className="flex items-center justify-between">
-                <label className="text-[11px] font-extrabold uppercase tracking-wider text-zinc-400 flex items-center gap-1.5">
-                  <Zap className="w-3.5 h-3.5 text-[#7F48ED]" />
+                <label className="text-[11px] font-extrabold uppercase tracking-wider text-zinc-400 block">
                   Opening Hook (0–3s)
                 </label>
-                <button
-                  onClick={handleShuffleHook}
-                  className="text-[11px] font-bold text-[#FF6700] hover:underline flex items-center gap-1 cursor-pointer"
-                  title="Shuffle Hook"
-                >
-                  <Shuffle className="w-3 h-3" />
-                  Shuffle
-                </button>
+                <div className="flex items-center gap-2">
+                  <button
+                    onClick={() => setIsEditingHook(!isEditingHook)}
+                    className="text-[11px] font-bold text-[#A78BFA] hover:text-white flex items-center gap-1 cursor-pointer"
+                    title="Edit Hook Directly"
+                  >
+                    <Edit3 className="w-3 h-3" />
+                    {isEditingHook ? "Select Preset" : "Edit Hook"}
+                  </button>
+                  <button
+                    onClick={handleShuffleHook}
+                    className="text-[11px] font-bold text-[#FF6700] hover:underline flex items-center gap-1 cursor-pointer"
+                    title="Shuffle Hook"
+                  >
+                    <Shuffle className="w-3 h-3" />
+                    Shuffle
+                  </button>
+                </div>
               </div>
 
-              {/* Custom Dropdown Trigger */}
-              <div className="relative" ref={hookDropdownRef}>
-                <button
-                  type="button"
-                  onClick={() => {
-                    setHookDropdownOpen(!hookDropdownOpen);
-                    setModelDropdownOpen(false);
-                    setVoiceDropdownOpen(false);
-                  }}
-                  className="w-full text-left bg-black/40 border border-white/10 hover:border-white/20 rounded-xl px-3.5 py-2.5 text-xs text-white flex items-center justify-between gap-2 cursor-pointer transition focus:outline-none focus:border-[#7F48ED]"
-                >
-                  <span className="line-clamp-1 font-medium">&ldquo;{selectedHook}&rdquo;</span>
-                  <ChevronDown className={`w-4 h-4 text-zinc-400 shrink-0 transition-transform ${hookDropdownOpen ? "rotate-180" : ""}`} />
-                </button>
+              {isEditingHook ? (
+                <div className="relative">
+                  <input
+                    type="text"
+                    value={selectedHook}
+                    onChange={(e) => setSelectedHook(e.target.value)}
+                    className="w-full bg-black/60 border border-[#7F48ED] rounded-xl px-3.5 py-2.5 text-xs text-white focus:outline-none shadow-inner"
+                    placeholder="Type custom opening hook..."
+                  />
+                  <span className="text-[10px] text-zinc-500 font-mono mt-1 block">
+                    Custom hook active · {selectedHook.length} characters
+                  </span>
+                </div>
+              ) : (
+                /* Custom Dropdown Trigger */
+                <div className="relative" ref={hookDropdownRef}>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setHookDropdownOpen(!hookDropdownOpen);
+                      setModelDropdownOpen(false);
+                      setVoiceDropdownOpen(false);
+                    }}
+                    className="w-full text-left bg-black/40 border border-white/10 hover:border-white/20 rounded-xl px-3.5 py-2.5 text-xs text-white flex items-center justify-between gap-2 cursor-pointer transition focus:outline-none focus:border-[#7F48ED]"
+                  >
+                    <span className="line-clamp-1 font-medium">&ldquo;{selectedHook}&rdquo;</span>
+                    <ChevronDown className={`w-4 h-4 text-zinc-400 shrink-0 transition-transform ${hookDropdownOpen ? "rotate-180" : ""}`} />
+                  </button>
 
-                {/* Custom Dropdown Menu with Purple/Orange highlights */}
-                {hookDropdownOpen && (
-                  <div className="absolute top-full left-0 right-0 mt-1.5 bg-[#141722] border border-white/10 rounded-xl p-1.5 shadow-2xl z-50 space-y-1">
-                    {currentAngleData.hooks.map((h, i) => {
-                      const isSelected = selectedHook === h;
-                      return (
-                        <div
-                          key={i}
-                          onClick={() => {
-                            setSelectedHook(h);
-                            setHookDropdownOpen(false);
-                          }}
-                          className={`px-3 py-2 rounded-lg text-xs transition cursor-pointer flex items-start gap-2 ${
-                            isSelected
-                              ? "bg-[#7F48ED] text-white font-bold"
-                              : "text-zinc-300 hover:bg-[#FF6700] hover:text-black hover:font-bold"
-                          }`}
-                        >
-                          <span className="shrink-0 text-[11px] opacity-70">#{i + 1}</span>
-                          <span className="flex-1">&ldquo;{h}&rdquo;</span>
-                          {isSelected && <Check className="w-3.5 h-3.5 shrink-0 mt-0.5" />}
-                        </div>
-                      );
-                    })}
-                  </div>
-                )}
-              </div>
+                  {/* Custom Dropdown Menu with Purple/Orange highlights */}
+                  {hookDropdownOpen && (
+                    <div className="absolute top-full left-0 right-0 mt-1.5 bg-[#141722] border border-white/10 rounded-xl p-1.5 shadow-2xl z-50 space-y-1">
+                      {currentAngleData.hooks.map((h, i) => {
+                        const isSelected = selectedHook === h;
+                        return (
+                          <div
+                            key={i}
+                            onClick={() => {
+                              setSelectedHook(h);
+                              setHookDropdownOpen(false);
+                            }}
+                            className={`px-3 py-2 rounded-lg text-xs transition cursor-pointer flex items-start gap-2 ${
+                              isSelected
+                                ? "bg-[#7F48ED] text-white font-bold"
+                                : "text-zinc-300 hover:bg-[#FF6700] hover:text-black hover:font-bold"
+                            }`}
+                          >
+                            <span className="shrink-0 text-[11px] opacity-70">#{i + 1}</span>
+                            <span className="flex-1">&ldquo;{h}&rdquo;</span>
+                            {isSelected && <Check className="w-3.5 h-3.5 shrink-0 mt-0.5" />}
+                          </div>
+                        );
+                      })}
+                    </div>
+                  )}
+                </div>
+              )}
             </div>
 
             {/* 3. SCRIPT BODY */}
             <div className="space-y-1.5">
               <div className="flex items-center justify-between">
-                <label className="text-[11px] font-extrabold uppercase tracking-wider text-zinc-400 flex items-center gap-1.5">
-                  <FileText className="w-3.5 h-3.5 text-[#00F0FF]" />
+                <label className="text-[11px] font-extrabold uppercase tracking-wider text-zinc-400 block">
                   Ad Script
                 </label>
                 <span className="text-[10px] text-zinc-500 font-mono">
@@ -592,17 +680,19 @@ export default function StudioVideoGenerator() {
               />
             </div>
 
-            {/* 4. CREATOR ACTOR */}
+            {/* 4. CREATOR ACTOR (Real Creator Hook Layer) */}
             <div className="space-y-2">
-              <label className="text-[11px] font-extrabold uppercase tracking-wider text-zinc-400 flex items-center gap-1.5">
-                <User className="w-3.5 h-3.5 text-[#FF6700]" />
-                Creator Actor
-              </label>
+              <div className="flex items-center justify-between">
+                <label className="text-[11px] font-extrabold uppercase tracking-wider text-zinc-400 block">
+                  Real Creator Hook (0–3s)
+                </label>
+                <span className="text-[10px] font-mono text-[#A78BFA]">Verified Handle</span>
+              </div>
               <div className="grid grid-cols-3 gap-2">
                 {[
-                  { id: "emma", name: "Emma", type: "Female Creator" },
-                  { id: "marcus", name: "Marcus", type: "Everyday Guy" },
-                  { id: "sarah", name: "Sarah", type: "Spokesperson" },
+                  { id: "emma", name: "Emma", type: "@trendspotlight" },
+                  { id: "marcus", name: "Marcus", type: "@everydayreviews" },
+                  { id: "sarah", name: "Sarah", type: "@glowwithsarah" },
                 ].map((act) => {
                   const isSelected = selectedActor === act.id;
                   return (
@@ -616,18 +706,90 @@ export default function StudioVideoGenerator() {
                       }`}
                     >
                       <span className="text-xs font-bold text-white">{act.name}</span>
-                      <span className="text-[10px] text-zinc-500">{act.type}</span>
+                      <span className="text-[10px] text-zinc-500 truncate w-full">{act.type}</span>
                     </button>
                   );
                 })}
               </div>
             </div>
 
-            {/* 5. VISUAL ENGINE & VOICE STYLE (Custom Dropdowns, Opens Downward, ZERO BLUE) */}
+            {/* 5. CLIENT RAW FOOTAGE & B-ROLL INGESTION (Hybrid Edit Path) */}
+            <div className="space-y-2">
+              <div className="flex items-center justify-between">
+                <label className="text-[11px] font-extrabold uppercase tracking-wider text-zinc-400 block">
+                  Client Raw Video &amp; B-Roll
+                </label>
+                <span className="text-[10px] font-mono text-emerald-400 font-bold bg-emerald-500/10 px-2 py-0.5 rounded border border-emerald-500/20">
+                  Edited In (3–15s)
+                </span>
+              </div>
+
+              {/* Select from client footage clips */}
+              <div className="space-y-1.5">
+                {(CLIENT_SAMPLE_CLIPS[selectedPreset.id] || CLIENT_SAMPLE_CLIPS["chicago-dog"]).map((clip) => {
+                  const isSelected = selectedClientClip === clip.name;
+                  return (
+                    <div
+                      key={clip.id}
+                      onClick={() => {
+                        setSelectedClientClip(clip.name);
+                        setCustomFootageName(null);
+                      }}
+                      className={`px-3 py-2 rounded-xl border text-xs cursor-pointer transition flex items-center justify-between ${
+                        isSelected
+                          ? "bg-[#FF6700]/15 border-[#FF6700] text-white"
+                          : "bg-black/30 border-white/5 text-zinc-400 hover:text-white hover:bg-black/50"
+                      }`}
+                    >
+                      <div className="flex items-center gap-2 truncate">
+                        <Video className={`w-3.5 h-3.5 shrink-0 ${isSelected ? "text-[#FF6700]" : "text-zinc-500"}`} />
+                        <span className="truncate font-medium">{clip.name}</span>
+                      </div>
+                      <span className="text-[10px] font-mono text-zinc-500 shrink-0 ml-2">{clip.duration}</span>
+                    </div>
+                  );
+                })}
+
+                {/* Custom Uploaded Clip Pill if uploaded */}
+                {customFootageName && (
+                  <div className="px-3 py-2 rounded-xl border border-emerald-500/50 bg-emerald-500/10 text-xs text-white flex items-center justify-between">
+                    <div className="flex items-center gap-2 truncate">
+                      <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
+                      <span className="truncate font-medium">{customFootageName}</span>
+                    </div>
+                    <span className="text-[10px] font-mono text-emerald-300">Custom Upload</span>
+                  </div>
+                )}
+
+                {/* Upload File Trigger */}
+                <input
+                  type="file"
+                  ref={fileInputRef}
+                  accept="video/mp4,video/quicktime,video/webm"
+                  className="hidden"
+                  onChange={(e) => {
+                    if (e.target.files && e.target.files[0]) {
+                      setCustomFootageName(e.target.files[0].name);
+                      setSelectedClientClip(e.target.files[0].name);
+                    }
+                  }}
+                />
+                <button
+                  type="button"
+                  onClick={() => fileInputRef.current?.click()}
+                  className="w-full py-2 px-3 rounded-xl border border-dashed border-white/20 hover:border-[#FF6700] bg-black/20 hover:bg-[#FF6700]/5 text-zinc-300 hover:text-white text-xs font-semibold flex items-center justify-center gap-1.5 transition cursor-pointer"
+                >
+                  <Upload className="w-3.5 h-3.5 text-[#FF6700]" />
+                  <span>Ingest Client Video (.mp4 / .mov)</span>
+                </button>
+              </div>
+            </div>
+
+            {/* 6. VISUAL ENGINE & VOICE STYLE (Custom Dropdowns, Opens Downward, ZERO BLUE) */}
             <div className="grid grid-cols-2 gap-2.5">
               {/* Visual Engine */}
               <div className="space-y-1 relative" ref={modelDropdownRef}>
-                <label className="text-[11px] font-bold text-zinc-400 block">Visual Engine</label>
+                <label className="text-[11px] font-bold text-zinc-400 block">AI Visual Engine</label>
                 <button
                   type="button"
                   onClick={() => {
@@ -721,6 +883,27 @@ export default function StudioVideoGenerator() {
                 )}
               </div>
             </div>
+
+            {/* 7. COMPLIANCE & SOFT-LABEL DISCLOSURE (Optional Toggle) */}
+            <div className="p-3 rounded-xl bg-black/30 border border-white/10 space-y-2">
+              <div className="flex items-center justify-between">
+                <span className="text-[11px] font-bold text-white">Photorealistic AI Scene Tag</span>
+                <button
+                  type="button"
+                  onClick={() => setSoftLabelDisclosure(!softLabelDisclosure)}
+                  className={`px-2.5 py-1 rounded-md text-[10px] font-mono font-bold transition cursor-pointer border ${
+                    softLabelDisclosure
+                      ? "bg-[#FF6700] text-black border-[#FF6700]"
+                      : "bg-white/5 text-zinc-400 border-white/10 hover:text-white"
+                  }`}
+                >
+                  {softLabelDisclosure ? "TAG: ON" : "TAG: OFF (Default)"}
+                </button>
+              </div>
+              <p className="text-[10px] text-zinc-400 leading-tight">
+                Off by default: real creators front and verify this ad, and client-supplied footage is edited in. Turn on only if video uses photorealistic synthetic product shots per TikTok rules.
+              </p>
+            </div>
           </div>
 
           {/* GENERATE BUTTON (Full width, Solid Purple, No gradient) */}
@@ -737,7 +920,7 @@ export default function StudioVideoGenerator() {
         </div>
 
         {/* RIGHT STAGE: EXPANDED FULL-SCREEN VIDEO CANVAS */}
-        <div className="flex-1 bg-[#08090D] flex flex-col justify-between p-4 sm:p-6 relative overflow-y-auto">
+        <div className="flex-1 bg-[#08090D] flex flex-col justify-between p-4 sm:p-6 relative min-h-[500px] lg:h-full lg:overflow-y-auto min-h-0 pb-16 dark-scrollbar">
           {/* Top Canvas Controls Bar */}
           <div className="w-full flex items-center justify-between gap-3 bg-[#0D0E15]/80 backdrop-blur-md border border-white/10 rounded-xl px-4 py-2.5 z-20">
             {/* Aspect Ratio Toggles */}
@@ -796,6 +979,30 @@ export default function StudioVideoGenerator() {
                 <Zap className="w-3.5 h-3.5" />
                 Captions {showCaptions ? "ON" : "OFF"}
               </button>
+            </div>
+          </div>
+
+          {/* 3-Part Hybrid Composite Timeline */}
+          <div className="w-full bg-[#0D0E15]/90 border border-white/10 rounded-xl p-2.5 flex flex-col gap-1.5 z-20 my-2 shrink-0">
+            <div className="flex items-center justify-between text-xs">
+              <span className="font-extrabold uppercase tracking-wider text-zinc-300 flex items-center gap-1.5 text-[11px]">
+                <Layers className="w-3.5 h-3.5 text-[#7F48ED]" />
+                Hybrid Production Anatomy (22s Ad Master)
+              </span>
+              <span className="text-[10px] font-mono text-zinc-400 hidden sm:inline">
+                Real Creator Hook + Ingested Client Video + AI B-Roll
+              </span>
+            </div>
+            <div className="grid grid-cols-12 gap-1.5 h-6 rounded-md overflow-hidden font-mono text-[9px] font-bold select-none">
+              <div className="col-span-3 bg-[#7F48ED]/25 border border-[#7F48ED]/50 text-[#C4B5FD] flex items-center justify-center rounded px-1 truncate" title="0–3s: Real Creator Fronted Hook">
+                0-3s Creator Hook
+              </div>
+              <div className="col-span-5 bg-[#FF6700]/20 border border-[#FF6700]/40 text-[#FF8533] flex items-center justify-center rounded px-1 truncate" title={`3–15s Client Footage: ${selectedClientClip}`}>
+                3-15s Client Video: {selectedClientClip}
+              </div>
+              <div className="col-span-4 bg-[#00F0FF]/20 border border-[#00F0FF]/40 text-[#67E8F9] flex items-center justify-center rounded px-1 truncate" title="15–22s: AI Sensory B-roll & Motion CTA">
+                15-22s AI Scenes &amp; Motion CTA
+              </div>
             </div>
           </div>
 

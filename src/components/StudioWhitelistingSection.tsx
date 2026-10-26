@@ -56,7 +56,7 @@ export default function StudioWhitelistingSection() {
               Creator &amp; Publisher Whitelisting
             </h2>
             <p className="text-slate-600 text-sm sm:text-base leading-relaxed font-normal">
-              Run Meta and TikTok Spark Ads through our verified creator and review publisher handles. Lowers ad costs by 20–40% and builds immediate trust.
+              Run Meta and TikTok Spark Ads through our verified creator and review publisher handles. Lowers ad costs by up to 20–40% and builds immediate trust.
             </p>
           </div>
 
@@ -64,7 +64,7 @@ export default function StudioWhitelistingSection() {
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs sm:text-sm text-slate-700 font-mono">
             <div className="flex items-center gap-2.5">
               <span className="text-emerald-600 font-bold text-base">✓</span>
-              <span>20% to 40% lower CPMs</span>
+              <span>Up to 20% to 40% lower CPMs</span>
             </div>
             <div className="flex items-center gap-2.5">
               <span className="text-emerald-600 font-bold text-base">✓</span>
@@ -76,7 +76,7 @@ export default function StudioWhitelistingSection() {
             </div>
             <div className="flex items-center gap-2.5">
               <span className="text-emerald-600 font-bold text-base">✓</span>
-              <span>100% platform compliant</span>
+              <span>Built to platform ad policies</span>
             </div>
           </div>
 

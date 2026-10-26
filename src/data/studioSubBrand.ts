@@ -52,12 +52,12 @@ export const studioData = {
   title: "ReLaunch Studio",
   headline: "Fresh Video Branding. Every Single Week.",
   tagline:
-    "Weekly high-converting video creative for Meta, TikTok and Shorts. We test multiple hooks to lower your ad costs and scale your customer acquisition.",
+    "Hybrid video ad production: verified real creators, client-supplied footage editing, and AI-assisted scenes & graphics. We test multiple hooks weekly to lower your ad costs and scale customer acquisition.",
   stats: [
-    { value: 16, suffix: "+", label: "New ads every month" },
-    { value: 48, suffix: "h", label: "Fast turnaround" },
-    { value: 85, suffix: "%", label: "Lower cost vs. shoots" },
-    { value: 100, suffix: "%", label: "Meta & TikTok compliant" },
+    { prefix: "", value: 16, suffix: "+", label: "New ads every month" },
+    { prefix: "", value: 48, suffix: "h", label: "Fast turnaround" },
+    { prefix: "Up to ", value: 85, suffix: "%", label: "Lower cost vs. shoots" },
+    { prefix: "", value: 100, suffix: "%", label: "Built to ad policies" },
   ],
   adShowcases: [
     {
@@ -455,8 +455,8 @@ export const studioData = {
   ] satisfies StudioTier[],
   compliancePoints: [
     {
-      title: "100% Meta & TikTok Compliant",
-      description: "Engineered specifically for Meta Reels, TikTok, and YouTube Shorts guidelines.",
+      title: "Built to Meta & TikTok Ad Policies",
+      description: "Engineered specifically to follow Meta Reels, TikTok, and YouTube Shorts commercial guidelines.",
     },
     {
       title: "You Own Everything",
@@ -475,13 +475,13 @@ export const studioData = {
     {
       stepNumber: "1",
       badge: "01",
-      title: "Weekly Video Production",
-      headline: "New ads created and delivered every Friday.",
+      title: "Hybrid Creative Production",
+      headline: "Real creators + client footage + AI b-roll delivered every Friday.",
       description:
-        "Every Monday, we create new video ads for your business. We deliver them to you every Friday to review and launch.",
+        "Every Monday, real creators film your hooks, our editors composite your raw client footage, and AI generates sensory b-roll & dynamic typography. Delivered every Friday.",
       bullets: [],
       imageSrc: "/images/howitworksstudio.jpg",
-      imageAlt: "Weekly Video Production",
+      imageAlt: "Hybrid Video Production",
       metricBadge: "Weekly Drops",
     },
     {
