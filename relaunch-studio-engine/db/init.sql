@@ -165,6 +165,29 @@ CREATE TABLE IF NOT EXISTS compliance_log (
 );
 
 -- ------------------------------------------------------------------------------
+-- 11. Unified Ad Jobs Table (Single Ad Pilot & Multi-Variant Coordinator)
+-- ------------------------------------------------------------------------------
+CREATE TABLE IF NOT EXISTS ad_jobs (
+    id VARCHAR(100) PRIMARY KEY,
+    brand_id VARCHAR(100) NOT NULL,
+    brand_name VARCHAR(255) NOT NULL,
+    creative_angle VARCHAR(255) NOT NULL,
+    hook_type VARCHAR(50) NOT NULL,
+    hook_text TEXT NOT NULL,
+    creator_json JSONB NOT NULL DEFAULT '{}'::jsonb,
+    client_footage_url TEXT NOT NULL,
+    ai_scene_json JSONB NOT NULL DEFAULT '{}'::jsonb,
+    script_json JSONB NOT NULL DEFAULT '{}'::jsonb,
+    variants_json JSONB NOT NULL DEFAULT '{}'::jsonb,
+    compliance_checks_json JSONB NOT NULL DEFAULT '{"creatorVerification":false,"scriptClaims":false,"clientFootagePresent":false,"disclosureState":false}'::jsonb,
+    status VARCHAR(50) DEFAULT 'needs_review',
+    review_log_json JSONB,
+    delivery_json JSONB,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+);
+
+-- ------------------------------------------------------------------------------
 -- High-Performance Indices
 -- ------------------------------------------------------------------------------
 CREATE INDEX IF NOT EXISTS idx_clients_status ON clients(status);

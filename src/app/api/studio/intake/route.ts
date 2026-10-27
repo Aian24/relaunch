@@ -1,5 +1,7 @@
 import { NextResponse } from "next/server";
 
+export const dynamic = "force-dynamic";
+
 /**
  * ReLaunch Studio — AI Video Ad Intake API Route
  * Endpoint: POST /api/studio/intake

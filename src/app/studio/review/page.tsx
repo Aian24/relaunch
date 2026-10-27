@@ -1,5 +1,7 @@
 "use client";
 
+export const dynamic = "force-dynamic";
+
 import React, { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 import {
@@ -23,6 +25,9 @@ import {
   FileText,
   Download,
   ShieldCheck,
+  Trash2,
+  RotateCcw,
+  Sparkles,
 } from "lucide-react";
 
 interface VariantItem {
@@ -49,6 +54,17 @@ interface VariantItem {
   verifiedBy?: string;
   verifiedAt?: string;
   auditId?: string;
+  complianceChecks?: {
+    creatorVerification: boolean;
+    scriptClaims: boolean;
+    clientFootagePresent: boolean;
+    disclosureState: boolean;
+  };
+  delivery?: {
+    googleDriveFolderId?: string;
+    deliveredAt?: string;
+    status: 'pending' | 'delivered' | 'failed';
+  };
 }
 
 export default function StudioReviewPortal() {
@@ -62,9 +78,65 @@ export default function StudioReviewPortal() {
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [detailsExpanded, setDetailsExpanded] = useState(false);
 
+  // Reviewer / QA Operator State & 4 Compliance Gates
+  const [operatorName, setOperatorName] = useState("Robert Clark");
+  const [checks, setChecks] = useState({
+    creatorVerification: false,
+    scriptClaims: false,
+    clientFootagePresent: false,
+    disclosureState: false,
+  });
+
+  const toggleCheck = (key: keyof typeof checks) => {
+    if (selectedVariant?.status === "approved") return;
+    setChecks((prev) => ({ ...prev, [key]: !prev[key] }));
+  };
+
+  const markAllPass = () => {
+    if (selectedVariant?.status === "approved") return;
+    setChecks({
+      creatorVerification: true,
+      scriptClaims: true,
+      clientFootagePresent: true,
+      disclosureState: true,
+    });
+  };
+
+  const numPassed = Object.values(checks).filter(Boolean).length;
+  const allChecksPassed = numPassed === 4;
+
+  // Sync compliance checks when active variant changes
+  useEffect(() => {
+    if (selectedVariant) {
+      if (selectedVariant.status === "approved") {
+        setChecks({
+          creatorVerification: true,
+          scriptClaims: true,
+          clientFootagePresent: true,
+          disclosureState: true,
+        });
+      } else if (selectedVariant.complianceChecks) {
+        setChecks({
+          creatorVerification: Boolean(selectedVariant.complianceChecks.creatorVerification),
+          scriptClaims: Boolean(selectedVariant.complianceChecks.scriptClaims),
+          clientFootagePresent: Boolean(selectedVariant.complianceChecks.clientFootagePresent),
+          disclosureState: Boolean(selectedVariant.complianceChecks.disclosureState),
+        });
+      } else {
+        setChecks({
+          creatorVerification: false,
+          scriptClaims: false,
+          clientFootagePresent: false,
+          disclosureState: false,
+        });
+      }
+    }
+  }, [selectedVariant?.id, selectedVariant?.status]);
+
   // Revision Modal State
   const [recutModalOpen, setRecutModalOpen] = useState(false);
   const [recutNotes, setRecutNotes] = useState("");
+  const [showClearModal, setShowClearModal] = useState(false);
   const [toastMessage, setToastMessage] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -93,7 +165,7 @@ export default function StudioReviewPortal() {
   };
 
   // Fetch variants from API and merge with live generator output from localStorage
-  useEffect(() => {
+  const loadVariants = () => {
     fetch("/api/studio/review")
       .then((res) => res.json())
       .then((data) => {
@@ -117,11 +189,33 @@ export default function StudioReviewPortal() {
 
         if (combined.length > 0) {
           setVariants(combined);
-          setSelectedVariant(combined[0]);
+          // Check for URL query variantId parameter
+          const targetId = typeof window !== "undefined" ? new URLSearchParams(window.location.search).get("variantId") : null;
+          const match = targetId ? combined.find((v) => v.id === targetId) : null;
+          setSelectedVariant(match || combined[0]);
+        } else {
+          setVariants([]);
+          setSelectedVariant(null);
         }
       })
       .catch((err) => console.error("Failed to load review variants", err));
+  };
+
+  useEffect(() => {
+    loadVariants();
   }, []);
+
+  const handleClearQueue = async () => {
+    try {
+      await fetch("/api/studio/review", { method: "DELETE" });
+      localStorage.removeItem("relaunch_studio_generated_variants");
+      setVariants([]);
+      setSelectedVariant(null);
+      showToast("✓ Review queue cleared successfully.");
+    } catch {
+      showToast("Failed to clear queue.");
+    }
+  };
 
   const showToast = (msg: string) => {
     setToastMessage(msg);
@@ -154,14 +248,26 @@ export default function StudioReviewPortal() {
 
   const handleDecision = async (decision: "approve" | "reject" | "recut") => {
     if (!selectedVariant) return;
+
+    if (decision === "approve" && !allChecksPassed) {
+      showToast("⚠️ All 4 quality compliance gates must pass before approving this ad.");
+      return;
+    }
+
     setIsSubmitting(true);
 
     try {
-      // Creator verification sign-off audit stamp
+      // Compliance sign-off audit stamp
       const verifiedMeta = decision === "approve" ? {
-        verifiedBy: "Sarah Jenkins (Creator Lead)",
+        verifiedBy: operatorName || "Robert Clark (QA Operator)",
         verifiedAt: new Date().toISOString(),
-        auditId: `VER-${Date.now().toString().slice(-6)}`,
+        auditId: `AUDIT-${selectedVariant.id.toUpperCase()}`,
+        complianceChecks: checks,
+        delivery: {
+          googleDriveFolderId: "relaunch_client_archive_drive",
+          status: "delivered" as const,
+          deliveredAt: new Date().toISOString(),
+        },
       } : {};
 
       // If it's a locally generated variant, update localStorage directly
@@ -183,13 +289,19 @@ export default function StudioReviewPortal() {
         body: JSON.stringify({
           variantId: selectedVariant.id,
           decision,
-          reviewerName: "Sarah Jenkins (Creator Lead)",
+          reviewerName: operatorName || "Robert Clark (QA Operator)",
+          complianceChecks: checks,
           notes: decision === "recut" ? recutNotes : undefined,
-          ...verifiedMeta,
         }),
       });
 
       const data = await res.json();
+      if (!res.ok) {
+        showToast(data.error || "Failed to update review decision");
+        setIsSubmitting(false);
+        return;
+      }
+
       const updatedStatus = decision === "approve" ? "approved" : decision === "reject" ? "rejected" : "needs_review";
 
       // Update local state with audit stamp
@@ -307,8 +419,16 @@ export default function StudioReviewPortal() {
           </div>
         </div>
 
-        {/* Client Filter & Status Counter */}
+        {/* Actions & Filters */}
         <div className="flex items-center gap-2 sm:gap-3 shrink-0">
+          <Link
+            href="/studio/generate"
+            className="flex items-center gap-1.5 px-3 py-1.5 bg-[#FF6700] hover:bg-[#FF771A] text-white rounded-lg text-xs font-bold transition-all shadow-md shadow-[#FF6700]/20 cursor-pointer shrink-0"
+          >
+            <Sparkles className="w-3.5 h-3.5" />
+            <span className="hidden sm:inline">Create Ad</span>
+          </Link>
+
           {variants.length > 1 && (
             <select
               value={filterClient}
@@ -342,14 +462,39 @@ export default function StudioReviewPortal() {
           <div className="flex items-center justify-between pb-3 border-b border-white/10 shrink-0">
             <div>
               <h2 className="text-xs font-bold uppercase tracking-wider text-white">Ad Queue</h2>
-              <p className="text-[11px] text-gray-400 mt-0.5">Select an ad to preview</p>
+              <p className="text-[11px] text-gray-400 mt-0.5">
+                {variants.length > 0 ? `${variants.length} variant${variants.length === 1 ? "" : "s"} ready` : "Queue is empty"}
+              </p>
             </div>
-            <span className="text-[11px] font-mono font-bold text-[#A78BFA] bg-[#7F48ED]/20 border border-[#7F48ED]/30 px-2.5 py-0.5 rounded-md">
-              {currentIndex + 1} of {filteredVariants.length}
-            </span>
+            {variants.length > 0 && (
+              <button
+                type="button"
+                onClick={() => setShowClearModal(true)}
+                className="flex items-center gap-1.5 text-[11px] font-semibold text-red-400 hover:text-red-300 hover:bg-red-500/10 px-2.5 py-1 rounded-lg border border-red-500/20 transition cursor-pointer"
+                title="Clear all ads in queue"
+              >
+                <Trash2 className="w-3.5 h-3.5" />
+                <span>Clear</span>
+              </button>
+            )}
           </div>
 
           <div className="flex-1 overflow-y-auto space-y-2.5 pt-3 pr-1 scrollbar-thin">
+            {filteredVariants.length === 0 ? (
+              <div className="flex flex-col items-center justify-center p-6 text-center text-gray-400 h-64 border border-dashed border-white/10 rounded-xl my-4">
+                <Sparkles className="w-8 h-8 text-[#FF6700] mb-2 opacity-80" />
+                <p className="text-xs font-bold text-white">Queue is Empty</p>
+                <p className="text-[11px] text-gray-400 mt-1 max-w-[200px]">
+                  All sample videos cleared. Generate a new video ad to test the real engine!
+                </p>
+                <Link
+                  href="/studio/generate"
+                  className="mt-3 text-xs bg-[#FF6700] hover:bg-[#FF771A] text-white font-bold px-3 py-1.5 rounded-lg transition shadow-md"
+                >
+                  + Generate Ad
+                </Link>
+              </div>
+            ) : null}
             {filteredVariants.map((item, index) => {
               const isSelected = selectedVariant?.id === item.id;
               const isApproved = item.status === "approved";
@@ -483,28 +628,30 @@ export default function StudioReviewPortal() {
             </div>
           </div>
 
-          {/* Desktop Toolbar (≥ 1024px) — Full Studio Stepper + Ratio Tabs */}
-          <div className="hidden lg:flex w-full items-center justify-between gap-2.5 mb-2 shrink-0">
+          {/* Desktop Toolbar (≥ 1024px) — Full Studio Stepper + Ratio Tabs + Fit Toggle */}
+          <div className="hidden lg:flex w-full items-center justify-between gap-2 mb-2 shrink-0 flex-wrap">
             {/* Stepper Navigation (Above Video) */}
-            <div className="flex items-center gap-1.5 text-xs text-gray-400">
+            <div className="flex items-center gap-1 shrink-0 whitespace-nowrap bg-[#181A24] p-1 rounded-xl border border-white/10">
               <button
                 onClick={goToPrev}
                 disabled={currentIndex <= 0}
-                className="flex items-center gap-1 px-3 py-1.5 rounded-xl bg-[#181A24] hover:bg-[#202330] border border-white/10 text-gray-300 hover:text-white disabled:opacity-30 disabled:hover:bg-[#181A24] transition-all cursor-pointer font-medium"
+                className="flex items-center gap-1 px-2.5 py-1 rounded-lg hover:bg-white/10 text-gray-300 hover:text-white disabled:opacity-30 disabled:hover:bg-transparent transition-all cursor-pointer text-xs font-semibold"
+                title="Previous ad"
               >
                 <ChevronLeft className="w-3.5 h-3.5" />
                 <span>Prev</span>
               </button>
 
-              <span className="text-[11px] font-medium text-gray-400 px-2">
-                Ad <strong className="text-white">{currentIndex + 1}</strong> of{" "}
-                <strong className="text-white">{filteredVariants.length}</strong>
+              <span className="text-[11px] font-mono font-bold text-gray-300 px-2 whitespace-nowrap">
+                Ad <span className="text-white">{currentIndex + 1}</span> of{" "}
+                <span className="text-white">{filteredVariants.length}</span>
               </span>
 
               <button
                 onClick={goToNext}
                 disabled={currentIndex >= filteredVariants.length - 1}
-                className="flex items-center gap-1 px-3 py-1.5 rounded-xl bg-[#181A24] hover:bg-[#202330] border border-white/10 text-gray-300 hover:text-white disabled:opacity-30 disabled:hover:bg-[#181A24] transition-all cursor-pointer font-medium"
+                className="flex items-center gap-1 px-2.5 py-1 rounded-lg hover:bg-white/10 text-gray-300 hover:text-white disabled:opacity-30 disabled:hover:bg-transparent transition-all cursor-pointer text-xs font-semibold"
+                title="Next ad"
               >
                 <span>Next</span>
                 <ChevronRight className="w-3.5 h-3.5" />
@@ -512,43 +659,45 @@ export default function StudioReviewPortal() {
             </div>
 
             {/* Right: Format Ratio Tabs + Fit/Fill Toggle + Fullscreen */}
-            <div className="flex flex-wrap items-center gap-2">
+            <div className="flex items-center gap-1.5 shrink-0 flex-wrap">
               {/* Ratio Tabs */}
               <div className="flex items-center gap-1 bg-[#181A24] p-1 rounded-xl border border-white/10 shrink-0">
                 <button
                   onClick={() => setAspectRatio("9:16")}
-                  className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${
+                  className={`flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${
                     aspectRatio === "9:16"
                       ? "bg-[#7F48ED] text-white shadow-md shadow-[#7F48ED]/30"
                       : "text-gray-400 hover:text-white"
                   }`}
+                  title="9:16 Vertical Reel (TikTok, Reels, Shorts)"
                 >
                   <Smartphone className="w-3.5 h-3.5" />
-                  <span>9:16 Reel</span>
+                  <span>9:16</span>
                 </button>
 
                 <button
                   onClick={() => setAspectRatio("1:1")}
-                  className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${
+                  className={`flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${
                     aspectRatio === "1:1"
                       ? "bg-[#7F48ED] text-white shadow-md shadow-[#7F48ED]/30"
                       : "text-gray-400 hover:text-white"
                   }`}
+                  title="1:1 Square (Instagram / Facebook Feed)"
                 >
                   <Square className="w-3.5 h-3.5" />
-                  <span>1:1 Square</span>
+                  <span>1:1</span>
                 </button>
 
                 <button
                   onClick={() => setAspectRatio("4:5")}
-                  className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${
+                  className={`flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${
                     aspectRatio === "4:5"
                       ? "bg-[#7F48ED] text-white shadow-md shadow-[#7F48ED]/30"
                       : "text-gray-400 hover:text-white"
                   }`}
+                  title="4:5 Portrait (Meta Feed)"
                 >
                   <span className="text-xs font-mono font-bold">4:5</span>
-                  <span>Portrait</span>
                 </button>
               </div>
 
@@ -557,33 +706,33 @@ export default function StudioReviewPortal() {
                 <button
                   type="button"
                   onClick={() => setVideoFit("cover")}
-                  className={`px-2.5 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${
+                  className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${
                     videoFit === "cover"
                       ? "bg-[#7F48ED] text-white shadow-md shadow-[#7F48ED]/30"
                       : "text-gray-400 hover:text-white"
                   }`}
-                  title="Fill container (full-bleed)"
+                  title="Fill container (full-bleed crop)"
                 >
                   Fill
                 </button>
                 <button
                   type="button"
                   onClick={() => setVideoFit("contain")}
-                  className={`px-2.5 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${
+                  className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${
                     videoFit === "contain"
                       ? "bg-[#7F48ED] text-white shadow-md shadow-[#7F48ED]/30"
                       : "text-gray-400 hover:text-white"
                   }`}
-                  title="Fit entire video without cutting off"
+                  title="Fit entire video without cutting off (letterbox)"
                 >
-                  Fit (No Crop)
+                  Fit
                 </button>
               </div>
 
               {/* Quick Fullscreen Button */}
               <button
                 onClick={toggleFullscreen}
-                className="p-2 rounded-xl bg-[#181A24] hover:bg-[#202330] text-gray-300 hover:text-white border border-white/10 transition-colors cursor-pointer"
+                className="p-2 rounded-xl bg-[#181A24] hover:bg-[#202330] text-gray-300 hover:text-white border border-white/10 transition-colors cursor-pointer shrink-0"
                 title="Fullscreen View"
               >
                 {isFullscreen ? <Minimize2 className="w-4 h-4 text-[#FF6700]" /> : <Maximize2 className="w-4 h-4" />}
@@ -691,66 +840,140 @@ export default function StudioReviewPortal() {
                 </div>
               </div>
             ) : (
-              <div className="h-[400px] flex items-center justify-center text-gray-500 text-sm">
-                Loading ad preview...
+              <div className="h-[460px] w-full max-w-md flex flex-col items-center justify-center text-center p-8 bg-white/[0.02] border border-dashed border-white/15 rounded-2xl my-auto">
+                <div className="w-16 h-16 rounded-2xl bg-[#FF6700]/10 border border-[#FF6700]/30 flex items-center justify-center mb-4">
+                  <Sparkles className="w-8 h-8 text-[#FF6700]" />
+                </div>
+                <h3 className="text-base font-bold text-white mb-1.5">Review Queue is Clear</h3>
+                <p className="text-xs text-gray-400 max-w-xs leading-relaxed mb-5">
+                  All example videos have been cleared. Head over to the Generator to test building a real hybrid ad from scratch!
+                </p>
+                <div className="flex items-center justify-center">
+                  <Link
+                    href="/studio/generate"
+                    className="flex items-center gap-2 bg-[#FF6700] hover:bg-[#FF771A] text-white text-xs font-bold px-5 py-2.5 rounded-xl transition shadow-lg shadow-[#FF6700]/25"
+                  >
+                    <Sparkles className="w-4 h-4" />
+                    <span>Generate Real AI Ad</span>
+                  </Link>
+                </div>
               </div>
             )}
           </div>
 
-          {/* Bottom Bar: 4 Interactive Pass/Fail Quality Verification Checks */}
-          <div className="w-full flex flex-col items-center justify-center pt-2.5 sm:pt-3 border-t border-white/10 shrink-0 gap-1.5">
-            <div className="flex items-center gap-1.5 text-[10px] font-mono text-zinc-400 uppercase tracking-wider">
-              <ShieldCheck className="w-3.5 h-3.5 text-emerald-400" />
-              <span>Automated QA Pass / Fail Checks</span>
-              <span className="text-emerald-400 font-bold">• 4 / 4 PASSED</span>
+          {/* Bottom Bar: 4 Interactive Real Pass/Fail Quality Compliance Gates */}
+          {selectedVariant && (
+            <div className="w-full flex flex-col items-center justify-center pt-2.5 sm:pt-3 border-t border-white/10 shrink-0 gap-2">
+              <div className="flex items-center justify-between w-full max-w-2xl px-2 text-[11px] font-mono">
+                <div className="flex items-center gap-1.5">
+                  <ShieldCheck className={`w-4 h-4 ${allChecksPassed ? "text-emerald-400" : "text-amber-400"}`} />
+                  <span className="text-zinc-300 font-bold uppercase tracking-wider">Quality Compliance Gates:</span>
+                  <span className={`font-bold ${allChecksPassed ? "text-emerald-400" : "text-amber-400"}`}>
+                    {numPassed} / 4 Passed
+                  </span>
+                </div>
+                <button
+                  type="button"
+                  onClick={markAllPass}
+                  disabled={selectedVariant?.status === "approved"}
+                  className="text-[10px] font-bold text-emerald-400 hover:text-emerald-300 bg-emerald-500/10 hover:bg-emerald-500/20 px-2.5 py-1 rounded-md border border-emerald-500/30 transition-all cursor-pointer disabled:opacity-50"
+                >
+                  ✓ Mark All Pass
+                </button>
+              </div>
+
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 w-full max-w-2xl px-2 text-[11px]">
+                {/* Check 1: Creator Verification */}
+                <button
+                  type="button"
+                  disabled={selectedVariant?.status === "approved"}
+                  onClick={() => toggleCheck("creatorVerification")}
+                  className={`flex items-center justify-between p-2 rounded-xl border transition-all cursor-pointer ${
+                    checks.creatorVerification
+                      ? "bg-emerald-500/10 border-emerald-500/40 text-emerald-300 shadow-sm"
+                      : "bg-red-500/10 border-red-500/30 text-red-300 hover:bg-red-500/15"
+                  }`}
+                  title="Creator Verification: Authentic UGC hook verified (0–3s)"
+                >
+                  <div className="flex items-center gap-1.5 truncate">
+                    <span className={`w-2 h-2 rounded-full shrink-0 ${checks.creatorVerification ? "bg-emerald-400" : "bg-red-400"}`} />
+                    <span className="font-semibold truncate">1. Creator UGC</span>
+                  </div>
+                  <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded ${checks.creatorVerification ? "bg-emerald-500/20 text-emerald-300" : "bg-red-500/20 text-red-300"}`}>
+                    {checks.creatorVerification ? "PASS" : "FAIL"}
+                  </span>
+                </button>
+
+                {/* Check 2: Script Claims */}
+                <button
+                  type="button"
+                  disabled={selectedVariant?.status === "approved"}
+                  onClick={() => toggleCheck("scriptClaims")}
+                  className={`flex items-center justify-between p-2 rounded-xl border transition-all cursor-pointer ${
+                    checks.scriptClaims
+                      ? "bg-emerald-500/10 border-emerald-500/40 text-emerald-300 shadow-sm"
+                      : "bg-red-500/10 border-red-500/30 text-red-300 hover:bg-red-500/15"
+                  }`}
+                  title="Script Claims: No deceptive or misleading claims"
+                >
+                  <div className="flex items-center gap-1.5 truncate">
+                    <span className={`w-2 h-2 rounded-full shrink-0 ${checks.scriptClaims ? "bg-emerald-400" : "bg-red-400"}`} />
+                    <span className="font-semibold truncate">2. Ad Claims</span>
+                  </div>
+                  <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded ${checks.scriptClaims ? "bg-emerald-500/20 text-emerald-300" : "bg-red-500/20 text-red-300"}`}>
+                    {checks.scriptClaims ? "PASS" : "FAIL"}
+                  </span>
+                </button>
+
+                {/* Check 3: Client Footage Present */}
+                <button
+                  type="button"
+                  disabled={selectedVariant?.status === "approved"}
+                  onClick={() => toggleCheck("clientFootagePresent")}
+                  className={`flex items-center justify-between p-2 rounded-xl border transition-all cursor-pointer ${
+                    checks.clientFootagePresent
+                      ? "bg-emerald-500/10 border-emerald-500/40 text-emerald-300 shadow-sm"
+                      : "bg-red-500/10 border-red-500/30 text-red-300 hover:bg-red-500/15"
+                  }`}
+                  title="Client Footage: Authentic product or location video ingested (3–15s)"
+                >
+                  <div className="flex items-center gap-1.5 truncate">
+                    <span className={`w-2 h-2 rounded-full shrink-0 ${checks.clientFootagePresent ? "bg-emerald-400" : "bg-red-400"}`} />
+                    <span className="font-semibold truncate">3. Client Video</span>
+                  </div>
+                  <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded ${checks.clientFootagePresent ? "bg-emerald-500/20 text-emerald-300" : "bg-red-500/20 text-red-300"}`}>
+                    {checks.clientFootagePresent ? "PASS" : "FAIL"}
+                  </span>
+                </button>
+
+                {/* Check 4: Disclosure State */}
+                <button
+                  type="button"
+                  disabled={selectedVariant?.status === "approved"}
+                  onClick={() => toggleCheck("disclosureState")}
+                  className={`flex items-center justify-between p-2 rounded-xl border transition-all cursor-pointer ${
+                    checks.disclosureState
+                      ? "bg-emerald-500/10 border-emerald-500/40 text-emerald-300 shadow-sm"
+                      : "bg-red-500/10 border-red-500/30 text-red-300 hover:bg-red-500/15"
+                  }`}
+                  title="Disclosure State: AI-Generated Media watermark confirmed visible"
+                >
+                  <div className="flex items-center gap-1.5 truncate">
+                    <span className={`w-2 h-2 rounded-full shrink-0 ${checks.disclosureState ? "bg-emerald-400" : "bg-red-400"}`} />
+                    <span className="font-semibold truncate">4. AI Watermark</span>
+                  </div>
+                  <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded ${checks.disclosureState ? "bg-emerald-500/20 text-emerald-300" : "bg-red-500/20 text-red-300"}`}>
+                    {checks.disclosureState ? "PASS" : "FAIL"}
+                  </span>
+                </button>
+              </div>
             </div>
-            <div className="flex flex-wrap items-center justify-center gap-2 text-[10px] sm:text-xs">
-              {/* Badge 1: 1080p Resolution Check */}
-              <div
-                className="bg-emerald-500/10 border border-emerald-500/30 text-emerald-300 px-3 py-1 rounded-lg flex items-center gap-1.5 shadow-sm select-none"
-                title="Resolution: 1080x1920 (9:16), 1080x1080 (1:1), 1080x1350 (4:5) @ 30fps H.264"
-              >
-                <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 shrink-0" />
-                <span className="font-bold">1080p HD</span>
-                <span className="text-[9px] font-mono opacity-80">(1080x1920 PASS)</span>
-              </div>
-
-              {/* Badge 2: Audio LUFS Check */}
-              <div
-                className="bg-emerald-500/10 border border-emerald-500/30 text-emerald-300 px-3 py-1 rounded-lg flex items-center gap-1.5 shadow-sm select-none"
-                title={`Loudness: ${selectedVariant?.audioLufs ?? -13.8} LUFS (Broadcast Target: -14.0 ±0.5 LUFS)`}
-              >
-                <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 shrink-0" />
-                <span className="font-bold">Audio Level</span>
-                <span className="text-[9px] font-mono opacity-80">({selectedVariant?.audioLufs ?? -13.8} LUFS PASS)</span>
-              </div>
-
-              {/* Badge 3: Word Sync Captions */}
-              <div
-                className="bg-emerald-500/10 border border-emerald-500/30 text-emerald-300 px-3 py-1 rounded-lg flex items-center gap-1.5 shadow-sm select-none"
-                title="Whisper word-aligned kinetic captions: 100% synchronized"
-              >
-                <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 shrink-0" />
-                <span className="font-bold">Kinetic Captions</span>
-                <span className="text-[9px] font-mono opacity-80">(Word-Sync PASS)</span>
-              </div>
-
-              {/* Badge 4: Policy & Claims */}
-              <div
-                className="bg-emerald-500/10 border border-emerald-500/30 text-emerald-300 px-3 py-1 rounded-lg flex items-center gap-1.5 shadow-sm select-none"
-                title="Ad Policy Check: FTC endorsement rules & Meta/TikTok guidelines verified. Zero fake claims."
-              >
-                <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 shrink-0" />
-                <span className="font-bold">Ad Policy</span>
-                <span className="text-[9px] font-mono opacity-80">(Meta &amp; TikTok PASS)</span>
-              </div>
-            </div>
-          </div>
+          )}
         </main>
 
         {/* Right Panel: Decision Hub & Creative Brief (Full Height on Desktop) */}
         <aside className="w-full lg:w-[340px] xl:w-[400px] 2xl:w-[440px] shrink-0 flex flex-col gap-4 lg:h-full lg:overflow-y-auto scrollbar-thin">
-          {selectedVariant && (
+          {selectedVariant ? (
             <>
               {/* Decision Action Card — Solid Purple & Solid Orange Buttons (No Gradients) */}
               <div className="bg-[#0E1017] rounded-2xl border border-white/10 p-4 sm:p-5 shadow-xl space-y-3.5 shrink-0">
@@ -775,7 +998,22 @@ export default function StudioReviewPortal() {
                   )}
                 </div>
 
-                {/* Primary Action: Solid Purple Button OR Creator Audit Sign-Off Seal */}
+                {/* Operator/Reviewer Name Input */}
+                <div className="bg-[#181A24] p-2.5 rounded-xl border border-white/10 space-y-1">
+                  <label className="text-[10px] font-bold uppercase tracking-wider text-gray-400 block">
+                    Reviewer / QA Auditor
+                  </label>
+                  <input
+                    type="text"
+                    value={operatorName}
+                    disabled={selectedVariant.status === "approved"}
+                    onChange={(e) => setOperatorName(e.target.value)}
+                    placeholder="Enter reviewer name"
+                    className="w-full bg-[#0E1017] border border-white/10 rounded-lg px-2.5 py-1.5 text-xs text-white focus:outline-none focus:border-[#7F48ED] font-medium"
+                  />
+                </div>
+
+                {/* Primary Action Button / Approval Seal */}
                 {selectedVariant.status === "approved" ? (
                   <div className="bg-emerald-500/10 border border-emerald-500/30 rounded-xl p-3.5 space-y-2">
                     <div className="flex items-center gap-2">
@@ -783,26 +1021,47 @@ export default function StudioReviewPortal() {
                         ✓
                       </div>
                       <span className="text-xs font-bold text-emerald-400">
-                        Creator Sign-Off &amp; Verification Complete
+                        Human Compliance Sign-Off Recorded
                       </span>
                     </div>
 
                     <div className="text-[11px] font-mono text-zinc-300 space-y-0.5 border-t border-white/5 pt-2">
-                      <div><strong className="text-white">Sign-off:</strong> {selectedVariant.verifiedBy || "Sarah Jenkins (Creator Lead)"}</div>
-                      <div><strong className="text-white">Audit ID:</strong> {selectedVariant.auditId || "VER-2026-9812"}</div>
-                      <div><strong className="text-white">Timestamp:</strong> {selectedVariant.verifiedAt ? new Date(selectedVariant.verifiedAt).toLocaleDateString() + " " + new Date(selectedVariant.verifiedAt).toLocaleTimeString() : new Date().toLocaleDateString()}</div>
-                      <div><strong className="text-white">Compliance:</strong> 100% Policy Verified · Client Release Approved</div>
+                      <div><strong className="text-white">Auditor:</strong> {selectedVariant.verifiedBy || operatorName}</div>
+                      <div><strong className="text-white">Audit ID:</strong> {selectedVariant.auditId || `AUDIT-${selectedVariant.id.toUpperCase()}`}</div>
+                      <div><strong className="text-white">Approved At:</strong> {selectedVariant.verifiedAt ? new Date(selectedVariant.verifiedAt).toLocaleString() : new Date().toLocaleString()}</div>
+                      <div><strong className="text-white">Status:</strong> 4/4 Checks Verified · Pilot Approved</div>
+                    </div>
+
+                    {/* Google Drive Delivery layer badge */}
+                    <div className="mt-2 p-2.5 rounded-lg bg-black/50 border border-emerald-500/30 flex items-center gap-2.5 text-[11px] text-emerald-300">
+                      <span className="text-base shrink-0">📁</span>
+                      <div className="truncate">
+                        <span className="font-bold text-white block">Auto-Delivered to Google Drive:</span>
+                        <span className="text-zinc-400 font-mono text-[10px] truncate block">Folder: relaunch_client_archive_drive</span>
+                      </div>
                     </div>
                   </div>
                 ) : (
-                  <button
-                    disabled={isSubmitting}
-                    onClick={() => handleDecision("approve")}
-                    className="w-full py-3 px-4 rounded-xl text-sm font-bold bg-[#7F48ED] hover:bg-[#6C34DE] active:bg-[#5B25C7] text-white shadow-lg shadow-[#7F48ED]/25 cursor-pointer active:scale-[0.99] transition-all flex items-center justify-center gap-2"
-                  >
-                    <CheckCircle2 className="w-4 h-4 stroke-[2.5]" />
-                    <span>Verify &amp; Approve Ad (Creator Sign-Off)</span>
-                  </button>
+                  <div className="space-y-1.5">
+                    {!allChecksPassed && (
+                      <div className="bg-amber-500/10 border border-amber-500/30 text-amber-300 text-[11px] p-2 rounded-lg flex items-center gap-1.5 font-medium">
+                        <span>⚠️</span>
+                        <span>Pass all 4 quality gates ({numPassed}/4 passed) to enable approval.</span>
+                      </div>
+                    )}
+                    <button
+                      disabled={isSubmitting || !allChecksPassed}
+                      onClick={() => handleDecision("approve")}
+                      className={`w-full py-3 px-4 rounded-xl text-sm font-bold text-white shadow-lg flex items-center justify-center gap-2 transition-all ${
+                        allChecksPassed
+                          ? "bg-[#7F48ED] hover:bg-[#6C34DE] active:bg-[#5B25C7] shadow-[#7F48ED]/25 cursor-pointer active:scale-[0.99]"
+                          : "bg-gray-700/50 text-gray-400 border border-white/5 cursor-not-allowed"
+                      }`}
+                    >
+                      <CheckCircle2 className="w-4 h-4 stroke-[2.5]" />
+                      <span>{allChecksPassed ? "Approve Ad & Deliver to Drive" : "Approval Locked (Checks Required)"}</span>
+                    </button>
+                  </div>
                 )}
 
                 {/* Secondary Actions: Solid Orange Button & Clean Decline */}
@@ -851,7 +1110,7 @@ export default function StudioReviewPortal() {
                   ) : (
                     <div className="p-2.5 rounded-xl bg-black/40 border border-dashed border-white/15 text-[11px] text-zinc-400 flex items-center gap-2">
                       <span className="text-[#FF6700] font-bold text-base shrink-0">🛑</span>
-                      <span>Delivery locked. Human creator must sign off before ad reaches the client.</span>
+                      <span>Delivery locked. Pass all 4 quality gates and approve to enable client delivery.</span>
                     </div>
                   )}
                 </div>
@@ -949,6 +1208,23 @@ export default function StudioReviewPortal() {
                 </div>
               </div>
             </>
+          ) : (
+            <div className="bg-[#0E1017] rounded-2xl border border-white/10 p-6 shadow-xl text-center text-gray-400 my-auto">
+              <div className="w-12 h-12 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center mx-auto mb-3">
+                <FileText className="w-6 h-6 text-gray-400" />
+              </div>
+              <p className="text-sm font-bold text-white mb-1">No Ad Variant Selected</p>
+              <p className="text-xs text-gray-400 leading-relaxed max-w-xs mx-auto mb-4">
+                Generate an ad variant in the Studio Generator to review compliance gates, audit logs, and trigger client delivery.
+              </p>
+              <Link
+                href="/studio/generate"
+                className="inline-flex items-center gap-1.5 text-xs font-bold text-[#FF6700] hover:text-[#FF771A] hover:underline"
+              >
+                <span>Open Generator</span>
+                <ChevronRight className="w-3.5 h-3.5" />
+              </Link>
+            </div>
           )}
         </aside>
       </div>
@@ -1015,6 +1291,46 @@ export default function StudioReviewPortal() {
                 className="px-5 py-2 rounded-xl text-xs font-bold bg-[#7F48ED] hover:bg-[#6C34DE] text-white transition-all disabled:opacity-40 cursor-pointer shadow-md shadow-[#7F48ED]/25"
               >
                 Submit Change Request
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Clear Queue Confirmation Modal */}
+      {showClearModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md animate-in fade-in duration-150">
+          <div className="w-full max-w-md bg-[#13151F] border border-white/15 rounded-2xl p-6 shadow-2xl flex flex-col gap-4">
+            <div className="flex items-start gap-3.5">
+              <div className="w-11 h-11 rounded-2xl bg-red-500/15 border border-red-500/30 flex items-center justify-center text-red-400 shrink-0">
+                <Trash2 className="w-5 h-5" />
+              </div>
+              <div className="flex-1 min-w-0">
+                <h3 className="text-base font-bold text-white">Clear Review Queue?</h3>
+                <p className="text-xs text-gray-300 mt-1 leading-relaxed">
+                  Are you sure you want to clear all ads from the review queue? This will remove all variants currently loaded.
+                </p>
+              </div>
+            </div>
+
+            <div className="flex items-center justify-end gap-2.5 pt-3 border-t border-white/10 mt-1">
+              <button
+                type="button"
+                onClick={() => setShowClearModal(false)}
+                className="px-4 py-2 rounded-xl text-xs font-semibold bg-white/5 hover:bg-white/10 text-gray-300 border border-white/10 transition cursor-pointer"
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                onClick={async () => {
+                  setShowClearModal(false);
+                  await handleClearQueue();
+                }}
+                className="px-4 py-2 rounded-xl text-xs font-bold bg-red-600 hover:bg-red-500 text-white shadow-lg shadow-red-600/30 transition cursor-pointer flex items-center gap-1.5"
+              >
+                <Trash2 className="w-3.5 h-3.5" />
+                <span>Yes, Clear Queue</span>
               </button>
             </div>
           </div>

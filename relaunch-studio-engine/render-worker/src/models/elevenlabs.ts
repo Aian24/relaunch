@@ -9,7 +9,7 @@ export async function generateVoiceover(
   params: GenerateVoiceoverParams
 ): Promise<VoiceoverResult> {
   const elevenKey = process.env.ELEVENLABS_API_KEY;
-  const voiceId = params.voiceId || process.env.DEFAULT_ELEVENLABS_VOICE_ID || '21m00Tcm4TlvDq8ikWAM'; // Rachel
+  const voiceId = params.voiceId || process.env.DEFAULT_ELEVENLABS_VOICE_ID || 'pNInz6obpgDQGcFmaJgB'; // Adam (verified premade)
 
   if (!elevenKey) {
     // Generate clean word timing mock for development & local captions verification

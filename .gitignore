@@ -54,4 +54,7 @@ DEVELOPER_INSTRUCTIONS.md
 DEVELOPER_DIRECTION.md
 CHANGES.md
 scripts/temp_*
-
+*.rtf
+public/deliveries/
+public/storage/
+relaunch-studio-engine/**/.env*

@@ -5,18 +5,22 @@ import { Watermark } from './components/Watermark';
 import { EndCard } from './components/EndCard';
 
 /**
- * ReLaunch Studio — Problem-Solution Ad Template
- * Structure:
- * 0-3s:   High-impact visual problem hook + teaser text
- * 3-15s:  AI Creator Talking Head + B-Roll Cutaway
- * 15-20s: End Card with brand CTA
- * Overlay: Kinetic Word-Highlight Subtitles + Mandatory AI Disclosure
+ * ReLaunch Studio — Three-Segment Ad Assembly Template
+ * Client Locked Assembly:
+ * 0–3s:   Creator Hook (sample/placeholder UGC clip) + teaser hook banner
+ * 3–15s:  Client Footage (authentic product / location raw video)
+ * 15–22s: AI Scene (Grok Imagine synthetic dynamic B-roll)
+ * 19–22s: CTA End Card with offer
+ * Overlays:
+ * - Kinetic word-highlight captions (ElevenLabs / Whisper timings)
+ * - AI disclosure watermark burned into bottom corner
+ * - Ducked background music bed + master voiceover
  */
 
-export interface ProblemSolutionProps {
-  hookVideoUrl?: string;
-  actorVideoUrl?: string;
-  brollVideoUrl?: string;
+export interface ThreeSegmentAdProps {
+  creatorHookVideoUrl?: string;
+  clientFootageVideoUrl?: string;
+  aiSceneVideoUrl?: string;
   voiceoverAudioUrl?: string;
   musicAudioUrl?: string;
   hookText?: string;
@@ -27,32 +31,35 @@ export interface ProblemSolutionProps {
   disclosureLabel?: string;
 }
 
-export const ProblemSolution: React.FC<ProblemSolutionProps> = ({
-  hookVideoUrl,
-  actorVideoUrl,
-  brollVideoUrl,
+export const ProblemSolution: React.FC<ThreeSegmentAdProps> = ({
+  creatorHookVideoUrl,
+  clientFootageVideoUrl,
+  aiSceneVideoUrl,
   voiceoverAudioUrl,
   musicAudioUrl,
-  hookText = 'Stop scrolling if your CPA keeps climbing',
-  ctaText = 'Claim 20% Off Today',
-  brandName = 'ReLaunch Studio',
-  brandUrl = 'relaunch.us',
+  hookText = "3 Hidden Reasons Why Traditional Hot Dogs Don't Compare",
+  ctaText = 'Order Online for 15% Off Your First Box',
+  brandName = 'Chicago Dog House',
+  brandUrl = 'relaunch.us/studio',
   words = [],
-  disclosureLabel = 'AI-Generated Media',
+  disclosureLabel = 'AI-Generated Media • ReLaunch Studio',
 }) => {
   return (
     <AbsoluteFill style={{ backgroundColor: '#000000' }}>
-      {/* 1. Hook Video Sequence (0 - 3s / 0 - 90 frames @ 30fps) */}
+      {/* ================================================================= */}
+      {/* SEGMENT 1: Creator Hook (0–3s / Frames 0 to 90 @ 30fps)          */}
+      {/* ================================================================= */}
       <Sequence from={0} durationInFrames={90}>
-        {hookVideoUrl ? (
+        {creatorHookVideoUrl ? (
           <Video
-            src={hookVideoUrl}
+            src={creatorHookVideoUrl}
             style={{ width: '100%', height: '100%', objectFit: 'cover' }}
           />
         ) : (
           <AbsoluteFill style={{ backgroundColor: '#181028' }} />
         )}
-        {/* Hook text banner */}
+
+        {/* High-Retention Hook Banner Overlay */}
         <div
           style={{
             position: 'absolute',
@@ -68,14 +75,15 @@ export const ProblemSolution: React.FC<ProblemSolutionProps> = ({
               background: '#FFE600',
               color: '#000000',
               padding: '12px 24px',
-              borderRadius: 8,
-              fontSize: 38,
+              borderRadius: 10,
+              fontSize: 36,
               fontWeight: 900,
-              fontFamily: "'Montserrat', sans-serif",
+              fontFamily: "'Plus Jakarta Sans', -apple-system, sans-serif",
               textTransform: 'uppercase',
-              boxShadow: '0 8px 30px rgba(0,0,0,0.6)',
+              boxShadow: '0 8px 30px rgba(0,0,0,0.7)',
               display: 'inline-block',
-              lineHeight: 1.2,
+              lineHeight: 1.25,
+              border: '2px solid rgba(0,0,0,0.15)',
             }}
           >
             {hookText}
@@ -83,11 +91,13 @@ export const ProblemSolution: React.FC<ProblemSolutionProps> = ({
         </div>
       </Sequence>
 
-      {/* 2. Creator Body Sequence (3 - 15s / 90 - 450 frames) */}
+      {/* ================================================================= */}
+      {/* SEGMENT 2: Client Footage (3–15s / Frames 90 to 450 @ 30fps)      */}
+      {/* ================================================================= */}
       <Sequence from={90} durationInFrames={360}>
-        {actorVideoUrl ? (
+        {clientFootageVideoUrl ? (
           <Video
-            src={actorVideoUrl}
+            src={clientFootageVideoUrl}
             style={{ width: '100%', height: '100%', objectFit: 'cover' }}
           />
         ) : (
@@ -95,18 +105,24 @@ export const ProblemSolution: React.FC<ProblemSolutionProps> = ({
         )}
       </Sequence>
 
-      {/* 3. B-Roll Cutaway (Overlays creator from 6s to 9s / 180 to 270 frames) */}
-      {brollVideoUrl && (
-        <Sequence from={180} durationInFrames={90}>
+      {/* ================================================================= */}
+      {/* SEGMENT 3: AI Scene (15–22s / Frames 450 to 660 @ 30fps)          */}
+      {/* ================================================================= */}
+      <Sequence from={450} durationInFrames={210}>
+        {aiSceneVideoUrl ? (
           <Video
-            src={brollVideoUrl}
+            src={aiSceneVideoUrl}
             style={{ width: '100%', height: '100%', objectFit: 'cover' }}
           />
-        </Sequence>
-      )}
+        ) : (
+          <AbsoluteFill style={{ backgroundColor: '#0C101A' }} />
+        )}
+      </Sequence>
 
-      {/* 4. End Card Sequence (15 - 20s / 450 - 600 frames) */}
-      <Sequence from={450} durationInFrames={150}>
+      {/* ================================================================= */}
+      {/* CTA End-Card Overlay (19–22s / Frames 570 to 660 @ 30fps)         */}
+      {/* ================================================================= */}
+      <Sequence from={570} durationInFrames={90}>
         <EndCard
           ctaText={ctaText}
           brandName={brandName}
@@ -114,14 +130,22 @@ export const ProblemSolution: React.FC<ProblemSolutionProps> = ({
         />
       </Sequence>
 
-      {/* 5. Audio Tracks */}
+      {/* ================================================================= */}
+      {/* Master Voiceover Track (ElevenLabs)                               */}
+      {/* ================================================================= */}
       {voiceoverAudioUrl && <Audio src={voiceoverAudioUrl} volume={1.0} />}
-      {musicAudioUrl && <Audio src={musicAudioUrl} volume={0.15} />}
 
-      {/* 6. Kinetic Captions Subtitle Layer */}
+      {/* Background Music Bed (ducked)                                     */}
+      {musicAudioUrl && <Audio src={musicAudioUrl} volume={0.12} />}
+
+      {/* ================================================================= */}
+      {/* Kinetic Captions Subtitles Layer (Whisper / ElevenLabs Timings)   */}
+      {/* ================================================================= */}
       {words.length > 0 && <Captions words={words} />}
 
-      {/* 7. Mandatory AI Disclosure Watermark Layer */}
+      {/* ================================================================= */}
+      {/* Mandatory AI Disclosure Watermark Layer                           */}
+      {/* ================================================================= */}
       <Watermark label={disclosureLabel} position="bottom_left" />
     </AbsoluteFill>
   );

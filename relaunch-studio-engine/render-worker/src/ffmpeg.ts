@@ -1,7 +1,11 @@
 import { exec } from 'child_process';
 import path from 'path';
+import fs from 'fs';
+import { fileURLToPath } from 'url';
 import { promisify } from 'util';
 
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 const execAsync = promisify(exec);
 
 /**
@@ -50,6 +54,21 @@ export async function duckAndNormalizeAudio(
   }
 }
 
+let ffmpegChecked = false;
+let ffmpegAvailable = false;
+
+async function checkFFmpeg(): Promise<boolean> {
+  if (ffmpegChecked) return ffmpegAvailable;
+  try {
+    await execAsync('ffmpeg -version');
+    ffmpegAvailable = true;
+  } catch {
+    ffmpegAvailable = false;
+  }
+  ffmpegChecked = true;
+  return ffmpegAvailable;
+}
+
 /**
  * Derives 1:1 and 4:5 ratios and extracts a thumbnail frame from a 9:16 master MP4
  */
@@ -62,6 +81,32 @@ export async function exportMultiRatio(
   const path1x1 = path.join(outputDir, `${baseFilename}-1x1.mp4`);
   const path4x5 = path.join(outputDir, `${baseFilename}-4x5.mp4`);
   const thumbnailPath = path.join(outputDir, `${baseFilename}-thumb.jpg`);
+
+  const hasFFmpeg = await checkFFmpeg();
+
+  if (!hasFFmpeg) {
+    console.warn('[FFmpeg] Native ffmpeg binary not detected on local host OS. Running local dev stream copy for 1:1 and 4:5 ratios.');
+    if (!fs.existsSync(outputDir)) {
+      fs.mkdirSync(outputDir, { recursive: true });
+    }
+    fs.copyFileSync(masterPath, path1x1);
+    fs.copyFileSync(masterPath, path4x5);
+
+    // Fallback thumbnail copy
+    const fallbackThumb = path.resolve(__dirname, '../../../../public/images/howitworksstudio.jpg');
+    if (fs.existsSync(fallbackThumb)) {
+      fs.copyFileSync(fallbackThumb, thumbnailPath);
+    } else {
+      fs.writeFileSync(thumbnailPath, 'thumb');
+    }
+
+    return {
+      path9x16,
+      path1x1,
+      path4x5,
+      thumbnailPath,
+    };
+  }
 
   // 1. Export 1:1 (1080x1080) via center smart-crop
   const cmd1x1 = `ffmpeg -y -i "${masterPath}" -vf "crop=1080:1080:0:(in_h-1080)/2" -c:v libx264 -preset fast -crf 22 -c:a copy "${path1x1}"`;
