@@ -101,7 +101,7 @@ export async function POST(request: Request) {
 
       // Auto-trigger Google Drive delivery layer
       job.delivery = {
-        googleDriveFolderId: process.env.GOOGLE_DRIVE_FOLDER_ID || "relaunch_client_archive_drive",
+        googleDriveFolderId: process.env.GOOGLE_DRIVE_FOLDER_ID || "1HWnNVUDgq3d0uI5Fcd54aS3Iim7U97Vx",
         deliveredAt: new Date().toISOString(),
         status: "delivered",
         googleDriveFileIds: {

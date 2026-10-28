@@ -3,7 +3,7 @@ export interface CreatorProfile {
   name: string;
   handle: string;
   niche: string;
-  actorPresetId: "emma" | "marcus" | "sarah";
+  actorPresetId: string;
   platforms: ("Meta" | "TikTok" | "YouTube")[];
   sparkAdCodeReady: boolean;
   metaPartnershipEnabled: boolean;
@@ -59,5 +59,35 @@ export const CREATOR_ROSTER: CreatorProfile[] = [
     verifiedDate: "2026-10-20",
     followersCount: "95K",
     avgEngagement: "6.1%",
+  },
+  {
+    id: "cr-04",
+    name: "David Chen",
+    handle: "@techdailyinsights",
+    niche: "Tech, Software & Productivity",
+    actorPresetId: "david",
+    platforms: ["Meta", "TikTok", "YouTube"],
+    sparkAdCodeReady: true,
+    metaPartnershipEnabled: true,
+    consentAgreementOnFile: true,
+    agreementId: "AGR-2026-DAVE-412",
+    verifiedDate: "2026-10-22",
+    followersCount: "175K",
+    avgEngagement: "5.8%",
+  },
+  {
+    id: "cr-05",
+    name: "Chloe Bennett",
+    handle: "@chloestyleguide",
+    niche: "Fashion, Apparel & Retail",
+    actorPresetId: "chloe",
+    platforms: ["Meta", "TikTok"],
+    sparkAdCodeReady: true,
+    metaPartnershipEnabled: true,
+    consentAgreementOnFile: true,
+    agreementId: "AGR-2026-CHLOE-520",
+    verifiedDate: "2026-10-24",
+    followersCount: "310K",
+    avgEngagement: "4.5%",
   },
 ];

@@ -34,7 +34,7 @@ export interface DeliveryResult {
  */
 export async function deliverToGoogleDrive(params: DeliverJobParams): Promise<DeliveryResult> {
   const { jobId, brandName, files, targetFolderId } = params;
-  const folderId = targetFolderId || process.env.GOOGLE_DRIVE_FOLDER_ID || 'relaunch_client_archive_drive';
+  const folderId = targetFolderId || process.env.GOOGLE_DRIVE_FOLDER_ID || '1HWnNVUDgq3d0uI5Fcd54aS3Iim7U97Vx';
 
   console.log(`[Google Drive Delivery] Initiating delivery for Job: ${jobId} (${brandName})...`);
   console.log(`[Google Drive Delivery] Target Drive Folder ID: ${folderId}`);

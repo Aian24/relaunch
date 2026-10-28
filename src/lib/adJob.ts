@@ -77,23 +77,56 @@ export interface AdJob {
   updatedAt: string;
 }
 
-// In-Memory Ad Jobs Store for Dev Server
-const AD_JOBS_STORE: Map<string, AdJob> = new Map();
+import fs from "fs";
+import path from "path";
+
+const JOBS_FILE = path.resolve(process.cwd(), "public/storage/ad-jobs.json");
+
+function loadJobsFromFile(): Map<string, AdJob> {
+  const store = new Map<string, AdJob>();
+  try {
+    if (fs.existsSync(JOBS_FILE)) {
+      const data = JSON.parse(fs.readFileSync(JOBS_FILE, "utf-8"));
+      if (Array.isArray(data)) {
+        for (const job of data) {
+          if (job?.id) store.set(job.id, job);
+        }
+      }
+    }
+  } catch (err) {
+    console.error("Error loading ad-jobs.json:", err);
+  }
+  return store;
+}
+
+function saveJobsToFile(store: Map<string, AdJob>): void {
+  try {
+    const dir = path.dirname(JOBS_FILE);
+    if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
+    fs.writeFileSync(JOBS_FILE, JSON.stringify(Array.from(store.values()), null, 2), "utf-8");
+  } catch (err) {
+    console.error("Error writing ad-jobs.json:", err);
+  }
+}
 
 export function getAllAdJobs(): AdJob[] {
-  return Array.from(AD_JOBS_STORE.values());
+  const store = loadJobsFromFile();
+  return Array.from(store.values());
 }
 
 export function getAdJobById(id: string): AdJob | null {
-  return AD_JOBS_STORE.get(id) || null;
+  const store = loadJobsFromFile();
+  return store.get(id) || null;
 }
 
 export function saveAdJob(job: AdJob): AdJob {
+  const store = loadJobsFromFile();
   job.updatedAt = new Date().toISOString();
-  AD_JOBS_STORE.set(job.id, job);
+  store.set(job.id, job);
+  saveJobsToFile(store);
   return job;
 }
 
 export function clearAllAdJobs(): void {
-  AD_JOBS_STORE.clear();
+  saveJobsToFile(new Map());
 }
