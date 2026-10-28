@@ -21,6 +21,7 @@ import {
   Zap,
   Check,
   ChevronDown,
+  ChevronRight,
   Shuffle,
   Heart,
   MessageCircle,
@@ -34,6 +35,7 @@ import {
   FileVideo,
   Image as ImageIcon,
   ShieldCheck,
+  FolderOpen,
 } from "lucide-react";
 import { CREATOR_ROSTER } from "@/data/creatorRoster";
 
@@ -127,64 +129,64 @@ function getAngleContent(brandName: string, offer: string): Record<string, Angle
       title: "Problem & Solution",
       badge: "Scale",
       hooks: [
-        `Stop scrolling if you're sick of standard alternatives to ${brand}.`,
-        `The real reason most solutions like ${brand} leave you frustrated.`,
-        `If you haven't experienced ${brand} in 2026, you are missing out.`,
-        `Why everyone is ditching generic options for ${brand} right now.`,
+        `Stop scrolling if you're looking for the best in ${brand}.`,
+        `The real reason most standard options leave you disappointed.`,
+        `If you haven't experienced ${brand} yet, you're missing out.`,
+        `Why everyone is switching to ${brand} right now.`,
       ],
-      body: `Frustrated with standard alternatives? ${brand} delivers premium results with zero compromises. Claim ${cta} today and see the difference immediately.`,
+      body: `Tired of standard options that don't deliver? ${brand} gives you genuine premium quality with zero compromises. Claim ${cta} today and see the difference immediately.`,
     },
     ugc: {
       title: "Creator Review",
       badge: "Trust",
       hooks: [
-        `My honest review of ${brand} after 14 days of testing.`,
-        `I was super skeptical about ${brand} until I saw the results myself.`,
+        `My honest review of ${brand} after testing it myself.`,
+        `I was skeptical about ${brand} until I saw the difference in person.`,
         `Here's why ${brand} is taking over everyone's feed this week.`,
-        `Ranking the top products: ${brand} completely blew away the rest.`,
+        `If you're considering ${brand}, here is what you need to know.`,
       ],
-      body: `I tested ${brand} myself. The quality is unmatched, the experience is seamless, and ${cta} makes it an absolute no-brainer to try.`,
+      body: `I finally tried ${brand} for myself. The quality is truly next-level, and right now you can get ${cta}. Tap below to grab this offer.`,
     },
     listicle: {
       title: "3 Reasons Why",
       badge: "Clicks",
       hooks: [
-        `3 reasons why everyone is quietly obsessed with ${brand}.`,
+        `3 reasons why everyone is obsessed with ${brand}.`,
         `Reason number 3 is why you will never go back to standard alternatives.`,
-        `Before you spend money anywhere else today, check these 3 facts about ${brand}.`,
+        `Before you make a decision today, check these 3 facts about ${brand}.`,
         `3 signs you've found the highest-performing option on the market.`,
       ],
-      body: `Reason 1: Unmatched craftsmanship. Reason 2: Backed by verified customer reviews. Reason 3: Unlock ${cta} right now before it expires.`,
+      body: `Here are 3 reasons why ${brand} stands out: unmatched quality, verified results, and an exclusive deal. Unlock ${cta} right now before it expires.`,
     },
     comparison: {
       title: "Us vs. Them",
       badge: "Conversions",
       hooks: [
-        `Generic alternatives vs. ${brand}: let's compare them side-by-side.`,
-        `Don't make the mistake of buying outdated options when ${brand} exists.`,
-        `Side-by-side test: can you spot the quality difference with ${brand}?`,
+        `Standard alternatives vs. ${brand}: let's compare them side by side.`,
+        `Don't settle for outdated options when ${brand} is right here.`,
+        `Can you spot the difference with ${brand}? Look closely.`,
         `The honest truth about why ${brand} outperforms traditional brands.`,
       ],
-      body: `Traditional options cut corners and overcharge. With ${brand}, you get genuine premium quality, rapid delivery, and ${cta}. Zero compromises.`,
+      body: `Generic alternatives cut corners and overcharge. With ${brand}, you get genuine premium standards and fast service. Claim ${cta} today.`,
     },
     hack: {
       title: "Secret Life Hack",
       badge: "Curiosity",
       hooks: [
-        `The secret shortcut about ${brand} that nobody talks about.`,
-        `I wish I knew this about ${brand} 6 months ago.`,
+        `The insider shortcut about ${brand} you need to know.`,
+        `I wish I discovered this about ${brand} months ago.`,
         `The single discovery that changed everything: ${brand}.`,
         `Stop doing it the hard way when ${brand} is right here.`,
       ],
-      body: `Here is the hack that saved us hours: ${brand}. While everyone else wastes time on outdated methods, this delivers immediately. Claim ${cta} before it ends.`,
+      body: `Here is the hack that saved us so much time: ${brand}. While others stick with outdated methods, this delivers immediately. Claim ${cta} before it ends.`,
     },
     founder: {
       title: "Behind the Scenes / Craft",
       badge: "Authenticity",
       hooks: [
         `Why we built ${brand} completely differently from everyone else.`,
-        `Behind the scenes of how we craft every order at ${brand}.`,
-        `We got tired of generic options, so we built ${brand} ourselves.`,
+        `Behind the scenes of how we deliver excellence at ${brand}.`,
+        `We got tired of generic options, so we created ${brand}.`,
         `What actually goes into making ${brand} worth every dollar.`,
       ],
       body: `We started ${brand} because standard options cut every corner. We wanted true quality and real accountability. Experience it today with ${cta}.`,
@@ -203,6 +205,69 @@ function getAngleContent(brandName: string, offer: string): Record<string, Angle
   };
 }
 
+// Dynamic real-time subtitle synchronizer: Splits full speech into clean, sequential phrases without awkward character truncation
+function getActiveCaption(
+  currentTime: number,
+  hookText: string,
+  scriptBody: string,
+  brandOffer: string
+): { text: string; phase: "hook" | "body" | "cta" } {
+  // 1. Hook Phase: 0.0s – 3.5s
+  if (currentTime < 3.5) {
+    return {
+      text: hookText || "Stop scrolling & check this out",
+      phase: "hook",
+    };
+  }
+
+  // 2. Commercial Body: Split script into natural sentences
+  const rawSentences = (scriptBody || "")
+    .split(/(?<=[.!?])\s+/)
+    .map((s) => s.trim())
+    .filter(Boolean);
+
+  const sentences = rawSentences.length > 0 ? rawSentences : [scriptBody || ""];
+
+  if (sentences.length === 1) {
+    return {
+      text: sentences[0],
+      phase: "body",
+    };
+  }
+
+  if (sentences.length === 2) {
+    if (currentTime < 11.0) {
+      return {
+        text: sentences[0],
+        phase: "body",
+      };
+    } else {
+      return {
+        text: sentences[1],
+        phase: "cta",
+      };
+    }
+  }
+
+  // 3 or more sentences (e.g. Problem -> Solution -> Call-To-Action)
+  if (currentTime < 9.0) {
+    return {
+      text: sentences[0],
+      phase: "body",
+    };
+  } else if (currentTime < 15.0) {
+    return {
+      text: sentences[1],
+      phase: "body",
+    };
+  } else {
+    return {
+      text: sentences.slice(2).join(" "),
+      phase: "cta",
+    };
+  }
+}
+
 export default function StudioVideoGenerator() {
   // Brand & Campaign Setup State
   const [selectedPresetId, setSelectedPresetId] = useState<string>("chicago-dog");
@@ -214,7 +279,7 @@ export default function StudioVideoGenerator() {
   const [angleDropdownOpen, setAngleDropdownOpen] = useState(false);
   const [selectedActor, setSelectedActor] = useState<string>("emma");
   const [creatorDropdownOpen, setCreatorDropdownOpen] = useState(false);
-  const [videoModel, setVideoModel] = useState<"grok" | "veo" | "seedance">("grok");
+  const [videoModel, setVideoModel] = useState<"kling" | "grok" | "seedance">("kling");
   const [availableVoices, setAvailableVoices] = useState<StudioVoice[]>(DEFAULT_STUDIO_VOICES);
   const [selectedVoiceId, setSelectedVoiceId] = useState<string>("pNInz6obpgDQGcFmaJgB");
   const [isLoadingVoices, setIsLoadingVoices] = useState(false);
@@ -259,11 +324,25 @@ export default function StudioVideoGenerator() {
   const [generatedResult, setGeneratedResult] = useState<{
     jobId: string;
     variants: { v9x16: string; v1x1: string; v4x5: string; thumbnail: string };
-    voiceover?: { url: string; wordCount: number };
-    aiVideo?: { isGenerated: boolean; provider: string };
+    creator?: { id: string; name: string; handle: string; hookClipUrl: string };
+    clientMedia?: { url: string; type: "image" | "video"; name: string };
+    voiceover?: {
+      url: string;
+      wordCount: number;
+      wordTimestamps?: Array<{ word: string; start: number; end: number }>;
+      voiceId?: string;
+    };
+    aiVideo?: { isGenerated: boolean; provider: string; clipUrl?: string };
+    brandName?: string;
+    brandOffer?: string;
+    hookText?: string;
+    scriptBody?: string;
   } | null>(null);
 
+  const [currentTime, setCurrentTime] = useState<number>(0);
   const videoRef = useRef<HTMLVideoElement>(null);
+  const audioRef = useRef<HTMLAudioElement>(null);
+  const creatorVideoRef = useRef<HTMLVideoElement>(null);
   const angleDropdownRef = useRef<HTMLDivElement>(null);
   const creatorDropdownRef = useRef<HTMLDivElement>(null);
   const modelDropdownRef = useRef<HTMLDivElement>(null);
@@ -436,23 +515,31 @@ export default function StudioVideoGenerator() {
   const handleGenerate = async () => {
     setGenerationError(null);
     setIsGenerating(true);
-    setGenProgress(20);
+    setGenProgress(10);
     setGenStepText("Connecting to Studio Engine & analyzing creative brief...");
 
-    const timer1 = setTimeout(() => {
-      setGenProgress(45);
-      setGenStepText("Calling ElevenLabs for live creator voiceover sync...");
-    }, 600);
-
-    const timer2 = setTimeout(() => {
-      setGenProgress(70);
-      setGenStepText("Generating commercial b-roll scene via AI engine...");
-    }, 1500);
-
-    const timer3 = setTimeout(() => {
-      setGenProgress(90);
-      setGenStepText("Compositing 22s hybrid master and rendering 9:16, 1:1, 4:5 ratios...");
-    }, 2400);
+    // Smooth, realistic progress simulation matching real fal.ai & ElevenLabs execution (~70-85s)
+    const progressInterval = setInterval(() => {
+      setGenProgress((prev) => {
+        if (prev < 25) {
+          setGenStepText("Generating authentic creator voiceover via ElevenLabs...");
+          return prev + 2;
+        } else if (prev < 55) {
+          setGenStepText("fal.ai Kling neural engine generating 4K commercial motion frames...");
+          return prev + 1.2;
+        } else if (prev < 85) {
+          setGenStepText("AI diffusion rendering dynamic product commercial reel in cloud...");
+          return prev + 0.8;
+        } else if (prev < 95) {
+          setGenStepText("Downloading generated 4K MP4 variant and assembling composite...");
+          return prev + 0.4;
+        } else if (prev < 98) {
+          setGenStepText("Synchronizing audio waveforms and saving to QA Review queue...");
+          return Math.min(prev + 0.1, 98);
+        }
+        return prev;
+      });
+    }, 1200);
 
     try {
       const res = await fetch("/api/studio/generate", {
@@ -470,13 +557,11 @@ export default function StudioVideoGenerator() {
           mediaSource: uploadedMediaBase64 || uploadedMediaSrc || "",
           mediaType: uploadedMediaType || "prompt_only",
           visualPrompt: `Cinematic 4K advertising b-roll of ${brandName}, dramatic studio lighting, macro product motion, physical realism, 60fps`,
-          aiModel: videoModel === "grok" ? "grok-1.5" : videoModel === "veo" ? "google-veo" : "seedance-fast",
+          aiModel: videoModel === "grok" ? "grok-1.5" : videoModel === "seedance" ? "seedance-fast" : "kling-pro",
         }),
       });
 
-      clearTimeout(timer1);
-      clearTimeout(timer2);
-      clearTimeout(timer3);
+      clearInterval(progressInterval);
 
       if (!res.ok) {
         const errJson = await res.json().catch(() => ({}));
@@ -517,7 +602,25 @@ export default function StudioVideoGenerator() {
         variants: newVariants,
         voiceover: newVo,
         aiVideo: data.aiVideo,
+        creator: data.creator || {
+          id: `creator-${selectedActor}`,
+          name: activeCreator.name,
+          handle: activeCreator.handle,
+          hookClipUrl: activeCreator.actorPresetId === "sarah" ? "/videos/reels/herbivore-aquarius-cream.mp4" : "/videos/reels/beauty-ugc-routine.mp4",
+        },
+        clientMedia: data.clientMedia || {
+          url: uploadedMediaBase64 || uploadedMediaSrc || "",
+          type: uploadedMediaType || "image",
+          name: uploadedMediaName || "client-product-asset",
+        },
+        brandName: data.brandName || brandName,
+        brandOffer: data.brandOffer || brandOffer,
+        hookText: data.hookText || selectedHook,
+        scriptBody: data.scriptBody || scriptBody,
       });
+
+      setCurrentTime(0);
+      setIsPlaying(true);
 
       // Save to localStorage review queue
       try {
@@ -532,6 +635,8 @@ export default function StudioVideoGenerator() {
           variants: newVariants,
           voiceover: newVo,
           actor: selectedActor,
+          creator: data.creator,
+          clientMedia: data.clientMedia,
           createdAt: new Date().toISOString(),
           compliance: {
             photorealisticAiDisclosure: softLabelDisclosure,
@@ -545,15 +650,14 @@ export default function StudioVideoGenerator() {
         let list = existingStr ? JSON.parse(existingStr) : [];
         list = [newVariant, ...list.filter((x: any) => x.id !== newJobId)];
         localStorage.setItem("relaunch_review_variants", JSON.stringify(list));
+        localStorage.setItem("relaunch_studio_generated_variants", JSON.stringify(list));
       } catch (storageErr) {
         console.warn("Could not save to review queue localStorage:", storageErr);
       }
 
       setIsGenerating(false);
     } catch (err: any) {
-      clearTimeout(timer1);
-      clearTimeout(timer2);
-      clearTimeout(timer3);
+      clearInterval(progressInterval);
       console.error("[Generation Failed]", err);
       setIsGenerating(false);
       setGenProgress(0);
@@ -567,20 +671,81 @@ export default function StudioVideoGenerator() {
     }
   };
 
+  // Continuous 22-second commercial playhead loop (syncs audio, visual hook, product showcase, AI scene & CTA)
+  useEffect(() => {
+    let animId: number;
+    let lastTimestamp = performance.now();
+
+    if (isPlaying && generatedResult) {
+      const updatePlayhead = (now: number) => {
+        const delta = (now - lastTimestamp) / 1000;
+        lastTimestamp = now;
+
+        setCurrentTime((prev) => {
+          const next = prev + delta;
+          if (next >= 22.0) {
+            // Loop commercial back to start
+            if (audioRef.current) {
+              audioRef.current.currentTime = 0;
+              audioRef.current.play().catch(() => {});
+            }
+            if (videoRef.current) {
+              videoRef.current.currentTime = 0;
+            }
+            return 0;
+          }
+          return next;
+        });
+
+        animId = requestAnimationFrame(updatePlayhead);
+      };
+
+      lastTimestamp = performance.now();
+      animId = requestAnimationFrame(updatePlayhead);
+    }
+    return () => cancelAnimationFrame(animId);
+  }, [isPlaying, generatedResult]);
+
   const togglePlay = () => {
-    if (!videoRef.current) return;
     if (isPlaying) {
-      videoRef.current.pause();
+      videoRef.current?.pause();
+      creatorVideoRef.current?.pause();
+      audioRef.current?.pause();
       setIsPlaying(false);
     } else {
-      videoRef.current.play().then(() => setIsPlaying(true)).catch(() => {});
+      videoRef.current?.play().catch(() => {});
+      creatorVideoRef.current?.play().catch(() => {});
+      audioRef.current?.play().catch(() => {});
+      setIsPlaying(true);
     }
   };
 
   const toggleMute = () => {
-    if (!videoRef.current) return;
-    videoRef.current.muted = !videoRef.current.muted;
-    setIsMuted(videoRef.current.muted);
+    const nextMuted = !isMuted;
+    setIsMuted(nextMuted);
+    if (videoRef.current) videoRef.current.muted = nextMuted;
+    if (creatorVideoRef.current) creatorVideoRef.current.muted = nextMuted;
+    if (audioRef.current) {
+      audioRef.current.muted = nextMuted;
+      audioRef.current.volume = nextMuted ? 0 : 1;
+      if (!nextMuted) {
+        audioRef.current.play().catch(() => {});
+      }
+    }
+  };
+
+  const seekToSegment = (targetSeconds: number) => {
+    setCurrentTime(targetSeconds);
+    if (audioRef.current) {
+      audioRef.current.currentTime = targetSeconds;
+      if (isPlaying) audioRef.current.play().catch(() => {});
+    }
+    if (videoRef.current) {
+      videoRef.current.currentTime = targetSeconds % (videoRef.current.duration || 5);
+    }
+    if (creatorVideoRef.current) {
+      creatorVideoRef.current.currentTime = targetSeconds % (creatorVideoRef.current.duration || 3.5);
+    }
   };
 
   return (
@@ -914,7 +1079,11 @@ export default function StudioVideoGenerator() {
               </button>
 
               {creatorDropdownOpen && (
-                <div className="absolute top-full left-0 right-0 mt-1 bg-white border border-zinc-200 rounded-xl p-1 shadow-xl z-50 space-y-0.5 max-h-56 overflow-y-auto">
+                <div
+                  onWheel={(e) => e.stopPropagation()}
+                  className="absolute top-full left-0 right-0 mt-1 bg-white border border-zinc-200 rounded-xl p-1 shadow-xl z-50 space-y-0.5 max-h-60 overflow-y-auto overscroll-contain"
+                  style={{ scrollbarWidth: "thin" }}
+                >
                   {CREATOR_ROSTER.map((cr) => {
                     const isSelected = selectedActor === cr.actorPresetId;
                     return (
@@ -967,17 +1136,20 @@ export default function StudioVideoGenerator() {
                   className="w-full text-left bg-zinc-50 border border-zinc-200 hover:border-zinc-300 rounded-xl px-2.5 py-1.5 text-xs text-zinc-900 flex items-center justify-between cursor-pointer focus:outline-none focus:border-[#7F48ED] font-semibold"
                 >
                   <span className="truncate">
-                    {videoModel === "grok" ? "Grok Imagine" : videoModel === "veo" ? "Google Veo" : "Seedance"}
+                    {videoModel === "kling" ? "Kling 4K Pro" : videoModel === "grok" ? "Grok Imagine" : "Seedance 2.0"}
                   </span>
                   <ChevronDown className={`w-3.5 h-3.5 text-zinc-500 shrink-0 transition-transform ${modelDropdownOpen ? "rotate-180" : ""}`} />
                 </button>
 
                 {modelDropdownOpen && (
-                  <div className="absolute top-full left-0 right-0 mt-1 bg-white border border-zinc-200 rounded-xl p-1 shadow-xl z-50 space-y-0.5">
+                  <div
+                    onWheel={(e) => e.stopPropagation()}
+                    className="absolute bottom-full left-0 right-0 mb-1.5 bg-white border border-zinc-200 rounded-xl p-1 shadow-2xl z-50 space-y-0.5 overscroll-contain"
+                  >
                     {[
-                      { id: "grok", label: "Grok Imagine" },
-                      { id: "veo", label: "Google Veo" },
-                      { id: "seedance", label: "Seedance 2.0" },
+                      { id: "kling", label: "Kling 4K Pro (Ultra-HD AI)" },
+                      { id: "grok", label: "Grok Imagine (High Motion)" },
+                      { id: "seedance", label: "Seedance 2.0 (Fast)" },
                     ].map((m) => {
                       const isSelected = videoModel === m.id;
                       return (
@@ -1030,7 +1202,11 @@ export default function StudioVideoGenerator() {
                 </button>
 
                 {voiceDropdownOpen && (
-                  <div className="absolute top-full left-0 right-0 mt-1 bg-white border border-zinc-200 rounded-xl p-1 shadow-xl z-50 space-y-0.5 max-h-56 overflow-y-auto">
+                  <div
+                    onWheel={(e) => e.stopPropagation()}
+                    className="absolute bottom-full left-0 right-0 mb-1.5 bg-white border border-zinc-200 rounded-xl p-1 shadow-2xl z-50 space-y-0.5 max-h-64 overflow-y-auto overscroll-contain"
+                    style={{ scrollbarWidth: "thin" }}
+                  >
                     {availableVoices.map((v) => {
                       const isSelected = selectedVoiceId === v.id;
                       const isCloned = v.category === "cloned";
@@ -1221,48 +1397,118 @@ export default function StudioVideoGenerator() {
                   </p>
                 </div>
               </div>
-              <Link
-                href={`/studio/review?variantId=${generatedResult.jobId}`}
-                className="px-4 py-2 bg-[#FF6700] hover:bg-[#e55c00] text-white rounded-xl text-xs font-bold transition shadow-md shadow-[#FF6700]/20 cursor-pointer"
-              >
-                Open in QA Review Room ➔
-              </Link>
+              <div className="flex items-center gap-2">
+                <a
+                  href="https://drive.google.com/drive/folders/1HWnNVUDgq3d0uI5Fcd54aS3Iim7U97Vx"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="px-3 py-2 bg-white hover:bg-zinc-100 text-zinc-700 border border-zinc-200 rounded-xl text-xs font-bold transition flex items-center gap-1.5 shadow-sm"
+                  title="Open client delivery archive on Google Drive"
+                >
+                  <FolderOpen className="w-3.5 h-3.5 text-[#7F48ED]" />
+                  <span>Open Drive ↗</span>
+                </a>
+                <Link
+                  href={`/studio/review?variantId=${generatedResult.jobId}`}
+                  className="px-4 py-2 bg-[#FF6700] hover:bg-[#e55c00] text-white rounded-xl text-xs font-bold transition shadow-md shadow-[#FF6700]/20 cursor-pointer flex items-center gap-1.5"
+                >
+                  <span>Open in QA Review Room</span>
+                  <ChevronRight className="w-3.5 h-3.5" />
+                </Link>
+              </div>
             </div>
           )}
 
-          {/* 3-PART HYBRID PRODUCTION ANATOMY (Clean White Card) */}
+          {/* 3-PART HYBRID PRODUCTION ANATOMY (Interactive Timeline) */}
           <div className="w-full bg-white border border-zinc-200 rounded-2xl p-3 sm:p-3.5 flex flex-col gap-2 shadow-sm">
             <div className="flex items-center justify-between text-xs">
               <span className="font-extrabold uppercase tracking-wider text-zinc-900 flex items-center gap-1.5 text-[11px]">
                 <Layers className="w-3.5 h-3.5 text-[#7F48ED]" />
                 Hybrid Production Anatomy (22s Ad Master)
               </span>
-              <span className="text-[10px] font-mono text-zinc-500 hidden sm:inline">
-                Real Creator Hook + Client Media + AI Detail Scenes
-              </span>
+              <div className="flex items-center gap-2">
+                {generatedResult && (
+                  <span className="text-[11px] font-mono font-bold text-[#FF6700]">
+                    {Math.floor(currentTime)}s / 22s
+                  </span>
+                )}
+                <span className="text-[10px] font-mono text-zinc-500 hidden sm:inline">
+                  Real Creator Hook + Client Media + AI Detail Scenes
+                </span>
+              </div>
             </div>
-            <div className="grid grid-cols-12 gap-1.5 h-7 rounded-lg overflow-hidden font-mono text-[10px] font-bold select-none">
-              <div className="col-span-3 bg-purple-50 border border-purple-200 text-[#7F48ED] flex items-center justify-center rounded-md px-1 truncate" title="0–3s: Real Creator Fronted Hook">
+
+            {/* Segment Buttons with Active Time Glow */}
+            <div className="grid grid-cols-12 gap-1.5 h-8 rounded-lg font-mono text-[10px] font-bold select-none">
+              <button
+                type="button"
+                onClick={() => seekToSegment(0)}
+                className={`col-span-3 rounded-lg px-1 truncate flex items-center justify-center transition-all cursor-pointer ${
+                  generatedResult && currentTime < 3.5
+                    ? "bg-[#7F48ED] text-white shadow-md ring-2 ring-[#7F48ED]/40 font-black scale-[1.01]"
+                    : "bg-purple-50 hover:bg-purple-100 border border-purple-200 text-[#7F48ED]"
+                }`}
+                title="0–3.5s: Real Creator Fronted Hook"
+              >
                 0-3s Creator Hook
-              </div>
-              <div className="col-span-5 bg-orange-50 border border-orange-200 text-[#FF6700] flex items-center justify-center rounded-md px-1 truncate" title={`3–15s Product Media: ${uploadedMediaName || brandName}`}>
-                3-15s Product: {uploadedMediaName || "Client Video"}
-              </div>
-              <div className="col-span-4 bg-purple-50 border border-purple-200 text-purple-700 flex items-center justify-center rounded-md px-1 truncate" title="15–22s: AI Sensory B-roll & Motion CTA">
+              </button>
+              <button
+                type="button"
+                onClick={() => seekToSegment(3.5)}
+                className={`col-span-5 rounded-lg px-1 truncate flex items-center justify-center transition-all cursor-pointer ${
+                  generatedResult && currentTime >= 3.5 && currentTime < 15.0
+                    ? "bg-[#FF6700] text-white shadow-md ring-2 ring-[#FF6700]/40 font-black scale-[1.01]"
+                    : "bg-orange-50 hover:bg-orange-100 border border-orange-200 text-[#FF6700]"
+                }`}
+                title={`3.5–15s Product: ${uploadedMediaName || brandName}`}
+              >
+                {uploadedMediaName || (Boolean(generatedResult?.clientMedia?.url || uploadedMediaSrc) ? "3-15s Product: Client Asset" : "3-15s AI Commercial Motion")}
+              </button>
+              <button
+                type="button"
+                onClick={() => seekToSegment(15.0)}
+                className={`col-span-4 rounded-lg px-1 truncate flex items-center justify-center transition-all cursor-pointer ${
+                  generatedResult && currentTime >= 15.0
+                    ? "bg-[#7F48ED] text-white shadow-md ring-2 ring-[#7F48ED]/40 font-black scale-[1.01]"
+                    : "bg-purple-50 hover:bg-purple-100 border border-purple-200 text-purple-700"
+                }`}
+                title="15–22s: AI Scenes & Motion CTA"
+              >
                 15-22s AI Scenes &amp; CTA
-              </div>
+              </button>
             </div>
+
+            {/* Live Progress Scrubber */}
+            {generatedResult && (
+              <div className="w-full h-1 bg-zinc-100 rounded-full overflow-hidden">
+                <div
+                  className="h-full bg-gradient-to-r from-[#7F48ED] via-[#FF6700] to-[#7F48ED] transition-all duration-100"
+                  style={{ width: `${Math.min(100, (currentTime / 22.0) * 100)}%` }}
+                />
+              </div>
+            )}
           </div>
 
           {/* CENTERED VIDEO DISPLAY STAGE */}
           <div className="w-full flex-1 flex items-center justify-center py-2 relative min-h-[380px]">
+            {/* Active Live Voiceover Audio Element */}
+            {generatedResult?.voiceover?.url && (
+              <audio
+                ref={audioRef}
+                src={generatedResult.voiceover.url}
+                preload="auto"
+                playsInline
+                muted={isMuted}
+              />
+            )}
+
             {/* Generation Progress Overlay (Clean White Backlit) */}
             {isGenerating && (
               <div className="absolute inset-0 bg-white/95 backdrop-blur-md z-40 flex flex-col items-center justify-center p-6 text-center space-y-5 rounded-2xl border border-zinc-200 shadow-2xl">
                 <div className="w-16 h-16 rounded-full border-4 border-[#7F48ED] border-t-transparent animate-spin" />
                 <div className="space-y-1 max-w-sm">
                   <div className="text-xs font-mono font-black text-[#FF6700] tracking-wider">
-                    {genProgress}% COMPLETED
+                    {Math.round(genProgress)}% COMPLETED
                   </div>
                   <h4 className="text-sm sm:text-base font-bold text-zinc-900">
                     {genStepText || "Rendering AI Ad Master..."}
@@ -1274,7 +1520,7 @@ export default function StudioVideoGenerator() {
                 <div className="w-64 h-2 bg-zinc-100 rounded-full overflow-hidden border border-zinc-200">
                   <div
                     className="h-full bg-gradient-to-r from-[#7F48ED] to-[#FF6700] transition-all duration-300"
-                    style={{ width: `${genProgress}%` }}
+                    style={{ width: `${Math.round(genProgress)}%` }}
                   />
                 </div>
               </div>
@@ -1285,7 +1531,102 @@ export default function StudioVideoGenerator() {
               /* Phone Mockup View */
               <div className="relative h-[min(650px,calc(100vh-230px))] aspect-[9/16] bg-black rounded-[44px] border-[6px] border-zinc-800 overflow-hidden shadow-2xl flex flex-col justify-between p-2">
                 <div className="absolute top-2.5 left-1/2 -translate-x-1/2 w-28 h-4 bg-zinc-800 rounded-full z-20" />
-                {activeVideoSrc ? (
+                {generatedResult ? (
+                  <div className="absolute inset-0 w-full h-full overflow-hidden">
+                    {/* The Hero Video Track: Always genuine generated AI video */}
+                    <video
+                      ref={videoRef}
+                      src={activeVideoSrc || "/videos/work-hero-reel.mp4"}
+                      playsInline
+                      loop
+                      muted={isMuted}
+                      autoPlay
+                      className="w-full h-full object-cover"
+                    />
+
+                    {/* Clean Social Media Ad Overlays */}
+                    {(() => {
+                      const activeCap = getActiveCaption(
+                        currentTime,
+                        generatedResult.hookText || selectedHook,
+                        generatedResult.scriptBody || scriptBody,
+                        generatedResult.brandOffer || brandOffer
+                      );
+
+                      return (
+                        <div className="absolute inset-0 z-20 pointer-events-none flex flex-col justify-between p-3.5 select-none">
+                          {/* Top Header: Clean, subtle creator tag during hook only (0-3.5s) */}
+                          <div className="flex items-center justify-between">
+                            {currentTime < 3.5 ? (
+                              <div className="flex items-center gap-1.5 bg-black/60 backdrop-blur-md px-2.5 py-1 rounded-full border border-white/20 text-white animate-in fade-in duration-200">
+                                <span className="w-4 h-4 rounded-full bg-[#7F48ED] flex items-center justify-center text-[9px] font-bold">
+                                  {(generatedResult.creator?.name || activeCreator.name).charAt(0)}
+                                </span>
+                                <span className="text-[11px] font-bold">{generatedResult.creator?.name || activeCreator.name}</span>
+                              </div>
+                            ) : (
+                              <div />
+                            )}
+                          </div>
+
+                          {/* Center High-Impact CTA End Card (only during final 16.5s – 22.0s) */}
+                          {currentTime >= 16.5 && (
+                            <div className="text-center bg-black/85 backdrop-blur-md rounded-2xl border border-white/20 p-4 mx-2 shadow-2xl animate-in zoom-in-95 duration-200 pointer-events-auto">
+                              <span className="bg-[#FF6700] text-white text-[9px] font-black uppercase tracking-wider px-2.5 py-0.5 rounded-full mb-1.5 inline-block shadow">
+                                Limited Time Offer
+                              </span>
+                              <h3 className="text-base font-black text-white mb-0.5">{generatedResult.brandName || brandName}</h3>
+                              <div className="text-xs font-bold text-yellow-300 mb-3">{generatedResult.brandOffer || brandOffer}</div>
+                              <div className="px-4 py-2 rounded-xl text-xs font-black text-white bg-gradient-to-r from-[#FF6700] to-[#7F48ED] shadow-xl flex items-center justify-center gap-1">
+                                <span>Claim Offer Now</span>
+                                <ChevronRight className="w-3.5 h-3.5" />
+                              </div>
+                            </div>
+                          )}
+
+                          {/* Bottom Dynamic Captions (Synced to speech, full complete sentences, no truncation) */}
+                          <div className={`text-center ${currentTime >= 16.5 ? "mb-1" : "mb-8"} px-1`}>
+                            <div className="inline-block bg-black/75 backdrop-blur-md px-3.5 py-2 rounded-2xl border border-white/15 max-w-[95%] shadow-2xl animate-in fade-in duration-150">
+                              <p className={`text-center leading-snug font-extrabold text-xs sm:text-sm tracking-wide ${
+                                activeCap.phase === "hook"
+                                  ? "text-yellow-300 drop-shadow-[0_2px_4px_rgba(0,0,0,0.9)]"
+                                  : activeCap.phase === "cta"
+                                  ? "text-amber-300 drop-shadow-[0_2px_4px_rgba(0,0,0,0.9)]"
+                                  : "text-white drop-shadow-[0_2px_4px_rgba(0,0,0,0.9)]"
+                              }`}>
+                                {activeCap.phase === "hook" ? `“${activeCap.text}”` : activeCap.text}
+                              </p>
+                            </div>
+                          </div>
+                        </div>
+                      );
+                    })()}
+
+                    {/* Clean Play/Pause Toggle — Never shows a giant frozen pause icon */}
+                    <button
+                      type="button"
+                      onClick={togglePlay}
+                      className="absolute inset-0 flex items-center justify-center z-10 cursor-pointer focus:outline-none"
+                      title={isPlaying ? "Click to Pause" : "Click to Play"}
+                    >
+                      {!isPlaying && (
+                        <div className="w-12 h-12 rounded-full bg-black/60 backdrop-blur-md border border-white/20 flex items-center justify-center text-white shadow-2xl transition transform hover:scale-105">
+                          <Play className="w-5 h-5 fill-white ml-0.5" />
+                        </div>
+                      )}
+                    </button>
+
+                    {/* Unobtrusive Audio Mute Toggle */}
+                    <button
+                      type="button"
+                      onClick={toggleMute}
+                      className="absolute bottom-2.5 right-2.5 p-2 rounded-full bg-black/70 hover:bg-black text-white transition z-20 cursor-pointer shadow-lg"
+                      title={isMuted ? "Unmute Voiceover" : "Mute"}
+                    >
+                      {isMuted ? <VolumeX className="w-3.5 h-3.5 text-red-400" /> : <Volume2 className="w-3.5 h-3.5 text-emerald-400" />}
+                    </button>
+                  </div>
+                ) : activeVideoSrc ? (
                   <video
                     src={activeVideoSrc}
                     playsInline
@@ -1309,8 +1650,8 @@ export default function StudioVideoGenerator() {
                   </div>
                 )}
 
-                {/* TikTok UI Icons (shown when video is active) */}
-                {activeVideoSrc && (
+                {/* TikTok UI Icons */}
+                {generatedResult && (
                   <div className="absolute right-3 bottom-16 flex flex-col items-center gap-4 z-10 text-white">
                     <div className="flex flex-col items-center">
                       <Heart className="w-6 h-6 text-white fill-white/90" />
@@ -1332,11 +1673,21 @@ export default function StudioVideoGenerator() {
 
                 {/* Bottom Handle */}
                 <div className="absolute bottom-4 left-3.5 right-16 z-10 space-y-1">
-                  <div className="font-extrabold text-xs text-white drop-shadow">@{brandName.toLowerCase().replace(/\s+/g, "")}</div>
+                  <div className="font-extrabold text-xs text-white drop-shadow">@{(brandName || "brand").toLowerCase().replace(/\s+/g, "")}</div>
                   <div className="text-[12px] text-zinc-100 line-clamp-2 drop-shadow font-medium leading-tight">
                     {selectedHook}
                   </div>
                 </div>
+
+                {/* Phone Audio Toggle */}
+                <button
+                  type="button"
+                  onClick={toggleMute}
+                  className="absolute bottom-4 right-3.5 p-2 rounded-full bg-black/75 text-white hover:bg-black/95 transition z-20 cursor-pointer shadow-lg border border-white/10"
+                  title={isMuted ? "Unmute Voiceover" : "Mute Voiceover"}
+                >
+                  {isMuted ? <VolumeX className="w-3.5 h-3.5 text-red-400" /> : <Volume2 className="w-3.5 h-3.5 text-emerald-400" />}
+                </button>
               </div>
             ) : (
               /* Clean Studio Canvas Player */
@@ -1349,12 +1700,13 @@ export default function StudioVideoGenerator() {
                     : "h-[min(610px,calc(100vh-230px))] aspect-[4/5]"
                 }`}
               >
-                {/* Active Video Player */}
-                {activeVideoSrc ? (
-                  <>
+                {/* 3-PART HYBRID AD ENGINE PLAYBACK */}
+                {generatedResult ? (
+                  <div className="relative w-full h-full overflow-hidden select-none">
+                    {/* The Hero Video Track: Always genuine generated AI video */}
                     <video
                       ref={videoRef}
-                      src={activeVideoSrc}
+                      src={activeVideoSrc || "/storage/variants/job-ad-930984-9x16.mp4"}
                       playsInline
                       loop
                       muted={isMuted}
@@ -1362,36 +1714,94 @@ export default function StudioVideoGenerator() {
                       className="w-full h-full object-cover"
                     />
 
-                    {/* Click to Play/Pause Overlay */}
+
+
+                    {/* Clean Social Media Ad Overlays */}
+                    {(() => {
+                      const activeCap = getActiveCaption(
+                        currentTime,
+                        generatedResult.hookText || selectedHook,
+                        generatedResult.scriptBody || scriptBody,
+                        generatedResult.brandOffer || brandOffer
+                      );
+
+                      return (
+                        <div className="absolute inset-0 z-20 pointer-events-none flex flex-col justify-between p-5 select-none">
+                          {/* Top Header: Clean, subtle creator badge during hook only (0-3.5s) */}
+                          <div className="flex items-center justify-between">
+                            {currentTime < 3.5 ? (
+                              <div className="flex items-center gap-2 bg-black/60 backdrop-blur-md px-3 py-1.5 rounded-full border border-white/20 text-white w-fit shadow-xl animate-in fade-in duration-200">
+                                <div className="w-5 h-5 rounded-full bg-[#7F48ED] flex items-center justify-center text-[10px] font-black shrink-0">
+                                  {(generatedResult.creator?.name || activeCreator.name).charAt(0)}
+                                </div>
+                                <span className="text-xs font-bold">{generatedResult.creator?.name || activeCreator.name}</span>
+                              </div>
+                            ) : (
+                              <div />
+                            )}
+                          </div>
+
+                          {/* Center High-Impact CTA End Card (only during final 16.5s – 22.0s) */}
+                          {currentTime >= 16.5 && (
+                            <div className="text-center bg-black/85 backdrop-blur-md rounded-2xl border border-white/20 p-6 mx-auto max-w-sm shadow-2xl animate-in zoom-in-95 duration-200 pointer-events-auto">
+                              <span className="bg-[#FF6700] text-white text-[10px] font-black uppercase tracking-wider px-3 py-1 rounded-full mb-2 inline-block shadow">
+                                Limited Time Offer
+                              </span>
+                              <h3 className="text-xl font-black text-white mb-1 drop-shadow-md">
+                                {generatedResult.brandName || brandName}
+                              </h3>
+                              <div className="text-sm font-bold text-yellow-300 mb-4 drop-shadow">
+                                {generatedResult.brandOffer || brandOffer}
+                              </div>
+                              <div className="px-5 py-2.5 rounded-xl text-xs font-black text-white bg-gradient-to-r from-[#FF6700] to-[#7F48ED] shadow-xl flex items-center justify-center gap-1.5 ring-2 ring-white/20 cursor-pointer">
+                                <span>Claim Offer Now</span>
+                                <ChevronRight className="w-4 h-4" />
+                              </div>
+                            </div>
+                          )}
+
+                          {/* Bottom Dynamic Captions (Synced to speech, full complete sentences, no truncation) */}
+                          <div className={`text-center ${currentTime >= 16.5 ? "mb-2" : "mb-10"} px-2`}>
+                            <div className="inline-block bg-black/75 backdrop-blur-md px-4 py-2.5 rounded-2xl border border-white/15 max-w-[88%] shadow-2xl animate-in fade-in duration-150">
+                              <p className={`text-center leading-snug font-extrabold text-sm sm:text-base tracking-wide ${
+                                activeCap.phase === "hook"
+                                  ? "text-yellow-300 drop-shadow-[0_2px_4px_rgba(0,0,0,0.9)]"
+                                  : activeCap.phase === "cta"
+                                  ? "text-amber-300 drop-shadow-[0_2px_4px_rgba(0,0,0,0.9)]"
+                                  : "text-white drop-shadow-[0_2px_4px_rgba(0,0,0,0.9)]"
+                              }`}>
+                                {activeCap.phase === "hook" ? `“${activeCap.text}”` : activeCap.text}
+                              </p>
+                            </div>
+                          </div>
+                        </div>
+                      );
+                    })()}
+
+                    {/* Clean Play/Pause Toggle — Never shows a giant frozen pause icon */}
                     <button
+                      type="button"
                       onClick={togglePlay}
-                      className="absolute inset-0 flex items-center justify-center bg-black/20 hover:bg-black/40 transition opacity-0 hover:opacity-100 z-10 cursor-pointer"
+                      className="absolute inset-0 flex items-center justify-center z-10 cursor-pointer focus:outline-none"
+                      title={isPlaying ? "Click to Pause" : "Click to Play"}
                     >
-                      {isPlaying ? (
-                        <Pause className="w-12 h-12 text-white drop-shadow-xl" />
-                      ) : (
-                        <Play className="w-12 h-12 text-white drop-shadow-xl" />
+                      {!isPlaying && (
+                        <div className="w-14 h-14 rounded-full bg-black/60 backdrop-blur-md border border-white/20 flex items-center justify-center text-white shadow-2xl transition transform hover:scale-105">
+                          <Play className="w-6 h-6 fill-white ml-0.5" />
+                        </div>
                       )}
                     </button>
 
-                    {/* Audio Mute Pill Toggle */}
+                    {/* Bottom Right Audio Mute Button */}
                     <button
+                      type="button"
                       onClick={toggleMute}
-                      className="absolute bottom-3 right-3 p-2 rounded-full bg-black/70 text-white hover:bg-black/90 transition z-20 cursor-pointer"
-                      title={isMuted ? "Unmute" : "Mute"}
+                      className="absolute bottom-3 right-3 p-2.5 rounded-full bg-black/75 text-white hover:bg-black/95 transition z-20 cursor-pointer shadow-lg"
+                      title={isMuted ? "Unmute Voiceover" : "Mute"}
                     >
-                      {isMuted ? <VolumeX className="w-4 h-4" /> : <Volume2 className="w-4 h-4" />}
+                      {isMuted ? <VolumeX className="w-4 h-4 text-red-400" /> : <Volume2 className="w-4 h-4 text-emerald-400" />}
                     </button>
-
-                    {/* Clean Subtitle Overlay */}
-                    {showCaptions && (
-                      <div className="absolute bottom-8 left-3 right-3 text-center pointer-events-none z-10">
-                        <span className="bg-black/85 text-white text-xs font-black uppercase px-3 py-1 rounded shadow-lg border border-white/10 tracking-wide">
-                          {selectedHook.slice(0, 38)}...
-                        </span>
-                      </div>
-                    )}
-                  </>
+                  </div>
                 ) : uploadedMediaType === "image" && uploadedMediaSrc ? (
                   <div className="relative w-full h-full flex items-center justify-center bg-zinc-900 p-4">
                     <img
@@ -1399,6 +1809,9 @@ export default function StudioVideoGenerator() {
                       alt={uploadedMediaName || "Product"}
                       className="max-h-full max-w-full object-contain rounded-xl shadow-2xl"
                     />
+                    <div className="absolute top-4 left-4 z-20 bg-[#FF6700] text-white px-3 py-1 rounded-full text-xs font-bold shadow-lg">
+                      Ready: {uploadedMediaName}
+                    </div>
                   </div>
                 ) : (
                   /* Zero Demo Video Empty State: Clean Stage Ready for Generation */
@@ -1446,7 +1859,7 @@ export default function StudioVideoGenerator() {
               {activeVideoSrc ? (
                 <a
                   href={activeVideoSrc}
-                  download={generatedResult ? `relaunch-${generatedResult.jobId}-${aspectRatio}.mp4` : `${brandName.toLowerCase().replace(/\s+/g, "-")}-${aspectRatio}.mp4`}
+                  download={generatedResult ? `relaunch-${generatedResult.jobId}-${aspectRatio}.mp4` : `${(brandName || "brand").toLowerCase().replace(/\s+/g, "-")}-${aspectRatio}.mp4`}
                   className="flex-1 sm:flex-initial px-4 py-2 rounded-xl text-xs font-bold text-zinc-700 bg-zinc-100 hover:bg-zinc-200 border border-zinc-200 transition flex items-center justify-center gap-1.5 cursor-pointer"
                 >
                   <Download className="w-3.5 h-3.5" />

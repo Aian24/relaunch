@@ -161,48 +161,135 @@ export async function POST(request: Request) {
       } catch (err: any) {
         console.warn("[Studio Engine] Could not parse uploaded media buffer:", err.message);
       }
+    } else if (effectiveMediaSource.startsWith("/storage/")) {
+      const localFilePath = path.join(process.cwd(), "public", effectiveMediaSource.replace(/^\//, ""));
+      if (fs.existsSync(localFilePath)) {
+        savedMediaFile = path.basename(localFilePath);
+        resolvedMediaUrl = effectiveMediaSource;
+        console.log(`[Studio Engine] ✓ Using existing client media asset on disk: ${savedMediaFile}`);
+      }
     }
 
     // -------------------------------------------------------------------------
-    // 2.5. Attempt fal.ai Grok Imagine AI Video Generation
+    // 2.5. Attempt fal.ai Video Generation with Live Account
     // -------------------------------------------------------------------------
     const falKey = process.env.FAL_KEY;
     let aiVideoGenerated = false;
     let aiVideoError = "";
 
+    // 1. If client uploaded an image, upload to fal CDN so Kling transforms their actual product/image into a video ad reel!
+    let uploadedCdnImageUrl: string | null = null;
+    if (savedMediaFile && falKey) {
+      const mediaFilePath = path.join(storageDir, savedMediaFile);
+      if (
+        fs.existsSync(mediaFilePath) &&
+        (savedMediaFile.endsWith(".png") ||
+          savedMediaFile.endsWith(".jpg") ||
+          savedMediaFile.endsWith(".jpeg") ||
+          savedMediaFile.endsWith(".webp"))
+      ) {
+        try {
+          console.log(`[Studio Engine] Uploading client media asset to fal CDN for image-to-video neural animation...`);
+          const fileBytes = fs.readFileSync(mediaFilePath);
+          const mime = savedMediaFile.endsWith(".png") ? "image/png" : "image/jpeg";
+          const initRes = await fetch("https://rest.alpha.fal.ai/storage/upload/initiate", {
+            method: "POST",
+            headers: {
+              Authorization: `Key ${falKey}`,
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              file_name: savedMediaFile,
+              content_type: mime,
+            }),
+          });
+          if (initRes.ok) {
+            const { upload_url, file_url } = await initRes.json();
+            const putRes = await fetch(upload_url, {
+              method: "PUT",
+              headers: { "Content-Type": mime },
+              body: fileBytes,
+            });
+            if (putRes.ok) {
+              uploadedCdnImageUrl = file_url;
+              console.log(`[Studio Engine] ✓ Client media uploaded to fal CDN: ${uploadedCdnImageUrl}`);
+            }
+          }
+        } catch (uploadErr: any) {
+          console.warn("[Studio Engine] fal CDN upload notice:", uploadErr.message);
+        }
+      }
+    }
+
     const finalPrompt = visualPrompt?.trim()
       ? visualPrompt.trim()
-      : `Cinematic 4K advertising commercial of ${brandName}, ${creativeAngle}, high physical realism, dynamic motion, 60fps`;
+      : `High-converting viral TikTok commercial ad reel for "${brandName}", showcasing "${ctaText || brandName}", ${creativeAngle}, dynamic 4K cinematic commercial advertising motion, engaging UGC lifestyle commercial, studio lighting, hyperrealistic, 60fps`;
 
     if (falKey) {
       try {
-        console.log(`[Studio Engine] Dispatching fal.ai video request for "${brandName}" with prompt: "${finalPrompt}"...`);
-        // Use active fal.ai text-to-video model
-        const activeEndpoint = "fal-ai/kling-video/v3/pro/text-to-video";
-        const falRes = await fetch(`https://queue.fal.run/${activeEndpoint}`, {
+        console.log(`[Studio Engine] Dispatching fal.ai video request for "${brandName}"...`);
+        
+        // Single target candidate: Avoid cascading 2-minute models sequentially!
+        let targetCandidate: { endpoint: string; body: any };
+
+        if (uploadedCdnImageUrl) {
+          console.log(`[Studio Engine] Target: Kling Image-to-Video based on uploaded client asset (${uploadedCdnImageUrl})`);
+          targetCandidate = {
+            endpoint: "fal-ai/kling-video/v1/standard/image-to-video",
+            body: {
+              prompt: `High-converting social media video ad reel, dynamic commercial camera motion showcasing this product, vibrant 4K advertising commercial studio lighting, smooth continuous motion, viral promotional reel for ${brandName}`,
+              image_url: uploadedCdnImageUrl,
+              duration: "5",
+              aspect_ratio: "9:16",
+            },
+          };
+        } else if (aiModel === "minimax") {
+          console.log(`[Studio Engine] Target: Minimax Video-01 for ${brandName}`);
+          targetCandidate = {
+            endpoint: "fal-ai/minimax/video-01",
+            body: {
+              prompt: `High-converting commercial video ad reel for ${brandName}, ${creativeAngle}, ${ctaText || "limited time offer"}, dynamic advertising product motion, vibrant lighting, 60fps`,
+            },
+          };
+        } else {
+          // Default & Recommended: Kling 4K Standard Text-to-Video (fastest & highest quality ~75-85s)
+          console.log(`[Studio Engine] Target: Kling 4K Text-to-Video for ${brandName}`);
+          targetCandidate = {
+            endpoint: "fal-ai/kling-video/v1/standard/text-to-video",
+            body: {
+              prompt: `High-converting TikTok Reels video ad commercial for ${brandName}, ${ctaText || "exclusive offer"}, ${creativeAngle}, authentic lifestyle product presentation, dynamic motion, vibrant modern commercial lighting, 4K high visual clarity, 60fps`,
+              duration: "5",
+              aspect_ratio: "9:16",
+            },
+          };
+        }
+
+        console.log(`[Studio Engine] Calling fal.ai endpoint: ${targetCandidate.endpoint}...`);
+        const falRes = await fetch(`https://queue.fal.run/${targetCandidate.endpoint}`, {
           method: "POST",
           headers: {
             Authorization: `Key ${falKey}`,
             "Content-Type": "application/json",
           },
-          body: JSON.stringify({
-            prompt: finalPrompt,
-            duration: "5",
-            aspect_ratio: "9:16",
-          }),
+          body: JSON.stringify(targetCandidate.body),
         });
 
-        if (falRes.ok) {
+        if (!falRes.ok) {
+          const errBody = await falRes.text();
+          console.warn(`[Studio Engine] fal.ai endpoint ${targetCandidate.endpoint} rejected (${falRes.status}):`, errBody.slice(0, 150));
+          aiVideoError = errBody;
+        } else {
           const queueData = await falRes.json();
           let remoteUrl = queueData.video?.url || queueData.output?.[0] || "";
 
-          // If queued, poll for completion (or check response URL)
+          // Poll single model with ample headroom (up to 90 attempts at 2.5s = 225 seconds max)
           if (!remoteUrl && queueData.status_url) {
-            console.log(`[Studio Engine] fal.ai job queued (Request ID: ${queueData.request_id}). Polling status...`);
+            console.log(`[Studio Engine] fal.ai job queued on ${targetCandidate.endpoint} (Request ID: ${queueData.request_id}). Polling...`);
             let attempts = 0;
-            const maxAttempts = 15; // Poll up to ~30 seconds for quick responses
+            const maxAttempts = 90;
+            const pollIntervalMs = 2500;
             while (!remoteUrl && attempts < maxAttempts) {
-              await new Promise((resolve) => setTimeout(resolve, 2000));
+              await new Promise((resolve) => setTimeout(resolve, pollIntervalMs));
               attempts++;
               try {
                 const statusRes = await fetch(queueData.status_url, {
@@ -210,30 +297,45 @@ export async function POST(request: Request) {
                 });
                 if (statusRes.ok) {
                   const statusData = await statusRes.json();
-                  if (statusData.status === "COMPLETED" && statusData.response_url) {
-                    const respRes = await fetch(statusData.response_url, {
-                      headers: { Authorization: `Key ${falKey}` },
-                    });
-                    if (respRes.ok) {
-                      const finalData = await respRes.json();
-                      remoteUrl = finalData.video?.url || finalData.output?.[0] || "";
+                  if (statusData.status === "COMPLETED") {
+                    const fetchUrl = statusData.response_url || queueData.response_url;
+                    if (fetchUrl) {
+                      const respRes = await fetch(fetchUrl, {
+                        headers: { Authorization: `Key ${falKey}` },
+                      });
+                      if (respRes.ok) {
+                        const finalData = await respRes.json();
+                        remoteUrl = finalData.video?.url || finalData.output?.[0] || "";
+                      } else {
+                        const respErr = await respRes.text();
+                        console.warn(`[Studio Engine] fal.ai response error (${respRes.status}):`, respErr.slice(0, 150));
+                        aiVideoError = respErr;
+                      }
                     }
                     break;
                   } else if (statusData.status === "FAILED") {
-                    aiVideoError = statusData.error || "fal.ai model inference failed.";
+                    aiVideoError = statusData.error || (statusData.logs ? JSON.stringify(statusData.logs) : "fal.ai model inference failed.");
+                    console.warn(`[Studio Engine] fal.ai inference FAILED on ${targetCandidate.endpoint}:`, aiVideoError);
                     break;
+                  } else {
+                    if (attempts % 4 === 0) {
+                      const pct = Math.min(95, Math.round((attempts / 45) * 100));
+                      console.log(`[Studio Engine] fal.ai (${targetCandidate.endpoint}) rendering in progress (~${pct}% - attempt ${attempts}/${maxAttempts})...`);
+                    }
                   }
+                } else {
+                  const statusErr = await statusRes.text();
+                  console.warn(`[Studio Engine] fal.ai status check failed (${statusRes.status}):`, statusErr.slice(0, 100));
+                  aiVideoError = `fal.ai queue status returned ${statusRes.status}: ${statusErr}`;
                 }
               } catch (pollErr: any) {
                 console.warn(`[Studio Engine] Polling notice (attempt ${attempts}):`, pollErr.message);
               }
             }
-          }
 
-          // If the newly queued video is still in inference queue (>30s), use verified live fal.ai master scene
-          if (!remoteUrl) {
-            console.log(`[Studio Engine] Async inference in progress on fal cluster. Linking verified live fal.ai scene master...`);
-            remoteUrl = "https://v3b.fal.media/files/b/0ab021a1/4cAev25z-LAnrwtUjFpCy_output.mp4";
+            if (!remoteUrl && attempts >= maxAttempts && !aiVideoError) {
+              aiVideoError = `fal.ai model (${targetCandidate.endpoint}) took longer than 225s to render. The job may still be processing in the cloud queue.`;
+            }
           }
 
           if (remoteUrl) {
@@ -244,18 +346,13 @@ export async function POST(request: Request) {
               const aiFile = `ai-${jobId}.mp4`;
               fs.writeFileSync(path.join(storageDir, aiFile), dlBuf);
               aiVideoGenerated = true;
-              console.log(`[Studio Engine] ✓ fal.ai AI video saved locally (${dlBuf.length} bytes)!`);
+              console.log(`[Studio Engine] ✓ Genuine fal.ai AI video saved locally (${dlBuf.length} bytes from ${targetCandidate.endpoint})!`);
+            } else {
+              aiVideoError = `Failed to download completed video from fal.ai CDN (${dlRes.status})`;
             }
+          } else if (!aiVideoError) {
+            aiVideoError = "fal.ai completed without returning a valid video download URL.";
           }
-        } else {
-          const errBody = await falRes.text();
-          try {
-            const parsed = JSON.parse(errBody);
-            aiVideoError = parsed.detail || errBody;
-          } catch {
-            aiVideoError = errBody;
-          }
-          console.warn(`[Studio Engine] fal.ai video notice (${falRes.status}):`, aiVideoError);
         }
       } catch (e: any) {
         aiVideoError = e.message;
@@ -390,15 +487,33 @@ export async function POST(request: Request) {
       jobId,
       adJob: newAdJob,
       variants: newAdJob.variants,
+      creator: {
+        id: `creator-${actor}`,
+        name: actorNames[actor] || "Sarah Jenkins",
+        handle: `@${actor}_ugc`,
+        hookClipUrl: creatorHookClip,
+      },
+      clientMedia: {
+        url: resolvedMediaUrl || "",
+        type: savedMediaFile.endsWith(".mp4") ? "video" : "image",
+        name: savedMediaFile || "product-asset",
+      },
       voiceover: {
         url: voiceoverUrl,
         wordCount: wordTimestamps.length,
+        wordTimestamps: wordTimestamps,
+        voiceId: voiceId,
       },
       aiVideo: {
         isGenerated: true,
-        provider: "fal.ai (Grok Imagine 1.5)",
+        provider: "ReLaunch Studio AI Engine",
+        clipUrl: public9x16,
       },
-      message: "AI video ad successfully generated with live ElevenLabs voiceover and fal.ai video scene.",
+      brandName,
+      brandOffer: ctaText,
+      hookText,
+      scriptBody,
+      message: "AI video ad successfully generated with live ElevenLabs voiceover and 3-part hybrid composition.",
     });
   } catch (err: any) {
     console.error("[Studio Engine Error]", err);

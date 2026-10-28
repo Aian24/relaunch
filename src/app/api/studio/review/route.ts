@@ -1,4 +1,6 @@
 import { NextResponse } from "next/server";
+import fs from "fs";
+import path from "path";
 import { getAllAdJobs, getAdJobById, saveAdJob, clearAllAdJobs, type AdJob } from "@/lib/adJob";
 
 export const dynamic = "force-dynamic";
@@ -36,6 +38,10 @@ export async function GET() {
     createdAt: job.createdAt,
     clientFootageSource: job.clientFootageUrl,
     creatorActor: `${job.creator.name} (${job.creator.handle || "@ugc_creator"})`,
+    creatorHookClip: job.creator?.hookClipUrl || "/videos/reels/beauty-ugc-routine.mp4",
+    voiceoverUrl: job.script?.voiceoverUrl || "",
+    wordTimestamps: job.script?.wordTimestamps || [],
+    aiSceneUrl: job.aiScene?.clipUrl || job.variants.v9x16,
     verifiedBy: job.reviewLog?.reviewerName,
     verifiedAt: job.reviewLog?.approvedAt,
     auditId: `AUDIT-${job.id.toUpperCase()}`,
@@ -99,19 +105,58 @@ export async function POST(request: Request) {
         approvedAt: new Date().toISOString(),
       };
 
-      // Auto-trigger Google Drive delivery layer
+      // Auto-trigger Google Drive delivery layer & archive files in public/deliveries
+      const folderId = process.env.GOOGLE_DRIVE_FOLDER_ID || "1HWnNVUDgq3d0uI5Fcd54aS3Iim7U97Vx";
+      const deliveryDir = path.join(process.cwd(), "public", "deliveries", job.id);
+      const deliveryMap: Record<string, string> = {};
+      try {
+        if (!fs.existsSync(deliveryDir)) {
+          fs.mkdirSync(deliveryDir, { recursive: true });
+        }
+        for (const [key, relPath] of Object.entries(job.variants)) {
+          if (typeof relPath === "string" && relPath.endsWith(".mp4")) {
+            const cleanRel = relPath.replace(/^\//, "");
+            const srcPath = path.join(process.cwd(), "public", cleanRel);
+            const destFilename = `${job.brandName.toLowerCase().replace(/\s+/g, "-")}-${job.id}-${key}.mp4`;
+            const destPath = path.join(deliveryDir, destFilename);
+            if (fs.existsSync(srcPath)) {
+              fs.copyFileSync(srcPath, destPath);
+              deliveryMap[key] = `/deliveries/${job.id}/${destFilename}`;
+            }
+          }
+        }
+        fs.writeFileSync(
+          path.join(deliveryDir, "delivery-manifest.json"),
+          JSON.stringify(
+            {
+              jobId: job.id,
+              brandName: job.brandName,
+              googleDriveFolderId: folderId,
+              approvedAt: new Date().toISOString(),
+              approvedBy: job.reviewLog.reviewerName,
+              files: deliveryMap,
+              status: "delivered",
+            },
+            null,
+            2
+          )
+        );
+      } catch (copyErr) {
+        console.warn("[Delivery Archive Warning]", copyErr);
+      }
+
       job.delivery = {
-        googleDriveFolderId: process.env.GOOGLE_DRIVE_FOLDER_ID || "1HWnNVUDgq3d0uI5Fcd54aS3Iim7U97Vx",
+        googleDriveFolderId: folderId,
         deliveredAt: new Date().toISOString(),
         status: "delivered",
         googleDriveFileIds: {
-          v9x16: `drive-${job.id}-9x16.mp4`,
-          v1x1: `drive-${job.id}-1x1.mp4`,
-          v4x5: `drive-${job.id}-4x5.mp4`,
+          v9x16: deliveryMap.v9x16 || `drive-${job.id}-9x16.mp4`,
+          v1x1: deliveryMap.v1x1 || `drive-${job.id}-1x1.mp4`,
+          v4x5: deliveryMap.v4x5 || `drive-${job.id}-4x5.mp4`,
         },
       };
 
-      console.log(`[QA Gate] ✓ Job ${job.id} APPROVED by ${job.reviewLog.reviewerName}. Copied to Google Drive delivery folder.`);
+      console.log(`[QA Gate] ✓ Job ${job.id} APPROVED by ${job.reviewLog.reviewerName}. Files archived for Google Drive delivery [${folderId}].`);
     } else if (decision === "reject") {
       job.status = "rejected";
       job.reviewLog = {

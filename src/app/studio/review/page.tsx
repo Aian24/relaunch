@@ -27,6 +27,7 @@ import {
   ShieldCheck,
   Trash2,
   Sparkles,
+  FolderOpen,
 } from "lucide-react";
 
 interface VariantItem {
@@ -59,6 +60,10 @@ interface VariantItem {
     clientFootagePresent: boolean;
     disclosureState: boolean;
   };
+  creatorHookClip?: string;
+  voiceoverUrl?: string;
+  wordTimestamps?: Array<{ word: string; start: number; end: number }>;
+  aiSceneUrl?: string;
   delivery?: {
     googleDriveFolderId?: string;
     deliveredAt?: string;
@@ -76,6 +81,8 @@ export default function StudioReviewPortal() {
   const [filterClient, setFilterClient] = useState("all");
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [detailsExpanded, setDetailsExpanded] = useState(false);
+
+  const audioRef = useRef<HTMLAudioElement>(null);
 
   // Reviewer / QA Operator State & 4 Compliance Gates
   const [operatorName, setOperatorName] = useState("Robert Clark");
@@ -163,35 +170,22 @@ export default function StudioReviewPortal() {
     }
   };
 
-  // Fetch variants from API and merge with live generator output from localStorage
+  // Fetch variants from API (the single ground truth for rendered ad jobs)
   const loadVariants = () => {
     fetch("/api/studio/review")
       .then((res) => res.json())
       .then((data) => {
-        let combined: VariantItem[] = [];
+        const apiVariants: VariantItem[] = (data.variants || []).map((item: any) => ({
+          ...item,
+          clientName: item.clientName || item.brandName || "Brand Ad",
+        }));
 
-        // Check if there are newly generated variants in localStorage from /studio/generate
-        try {
-          const localSaved = JSON.parse(localStorage.getItem("relaunch_studio_generated_variants") || "[]");
-          if (Array.isArray(localSaved) && localSaved.length > 0) {
-            combined = [...localSaved];
-          }
-        } catch (e) {
-          console.error("Failed to read local generated variants", e);
-        }
-
-        if (data.variants && data.variants.length > 0) {
-          const existingIds = new Set(combined.map((v) => v.id));
-          const apiOnly = data.variants.filter((v: VariantItem) => !existingIds.has(v.id));
-          combined = [...combined, ...apiOnly];
-        }
-
-        if (combined.length > 0) {
-          setVariants(combined);
+        if (apiVariants.length > 0) {
+          setVariants(apiVariants);
           // Check for URL query variantId parameter
           const targetId = typeof window !== "undefined" ? new URLSearchParams(window.location.search).get("variantId") : null;
-          const match = targetId ? combined.find((v) => v.id === targetId) : null;
-          setSelectedVariant(match || combined[0]);
+          const match = targetId ? apiVariants.find((v: any) => v.id === targetId) : null;
+          setSelectedVariant(match || apiVariants[0]);
         } else {
           setVariants([]);
           setSelectedVariant(null);
@@ -201,6 +195,10 @@ export default function StudioReviewPortal() {
   };
 
   useEffect(() => {
+    // Purge any stale mock items from old sessions
+    try {
+      localStorage.removeItem("relaunch_studio_generated_variants");
+    } catch {}
     loadVariants();
   }, []);
 
@@ -227,22 +225,35 @@ export default function StudioReviewPortal() {
       videoRef.current.currentTime = 0;
       videoRef.current.play().then(() => setIsPlaying(true)).catch(() => setIsPlaying(false));
     }
+    if (audioRef.current && selectedVariant?.voiceoverUrl) {
+      audioRef.current.currentTime = 0;
+      if (isPlaying) {
+        audioRef.current.play().catch(() => {});
+      }
+    }
   }, [selectedVariant?.id, aspectRatio]);
 
   const togglePlay = () => {
-    if (!videoRef.current) return;
     if (isPlaying) {
-      videoRef.current.pause();
+      videoRef.current?.pause();
+      audioRef.current?.pause();
       setIsPlaying(false);
     } else {
-      videoRef.current.play().then(() => setIsPlaying(true)).catch(() => {});
+      videoRef.current?.play().then(() => setIsPlaying(true)).catch(() => {});
+      audioRef.current?.play().catch(() => {});
+      setIsPlaying(true);
     }
   };
 
   const toggleMute = () => {
-    if (!videoRef.current) return;
-    videoRef.current.muted = !isMuted;
-    setIsMuted(!isMuted);
+    const nextMuted = !isMuted;
+    setIsMuted(nextMuted);
+    if (videoRef.current) videoRef.current.muted = nextMuted;
+    if (audioRef.current) {
+      audioRef.current.muted = nextMuted;
+      audioRef.current.volume = nextMuted ? 0 : 1;
+      if (!nextMuted) audioRef.current.play().catch(() => {});
+    }
   };
 
   const handleDecision = async (decision: "approve" | "reject" | "recut") => {
@@ -263,7 +274,7 @@ export default function StudioReviewPortal() {
         auditId: `AUDIT-${selectedVariant.id.toUpperCase()}`,
         complianceChecks: checks,
         delivery: {
-          googleDriveFolderId: "relaunch_client_archive_drive",
+          googleDriveFolderId: "1HWnNVUDgq3d0uI5Fcd54aS3Iim7U97Vx",
           status: "delivered" as const,
           deliveredAt: new Date().toISOString(),
         },
@@ -366,7 +377,8 @@ export default function StudioReviewPortal() {
 
   const filteredVariants = variants.filter((v) => {
     if (filterClient === "all") return true;
-    return v.clientName.toLowerCase().includes(filterClient.toLowerCase());
+    const name = v.clientName || (v as any).brandName || "";
+    return name.toLowerCase().includes(filterClient.toLowerCase());
   });
 
   const pendingCount = variants.filter((v) => v.status === "needs_review").length;
@@ -510,9 +522,14 @@ export default function StudioReviewPortal() {
                   }`}
                 >
                   <div className="flex items-center justify-between">
-                    <span className="text-[11px] font-bold text-zinc-500 uppercase tracking-wider">
-                      Ad #{index + 1} • {item.clientName}
-                    </span>
+                    <div className="flex items-center gap-1.5 truncate">
+                      <span className="w-5 h-5 rounded-md bg-[#7F48ED]/10 text-[#7F48ED] font-mono text-[10px] font-bold flex items-center justify-center shrink-0">
+                        #{index + 1}
+                      </span>
+                      <span className="text-xs font-bold text-zinc-900 truncate">
+                        {item.clientName}
+                      </span>
+                    </div>
                     {isApproved ? (
                       <span className="bg-emerald-50 text-emerald-700 border border-emerald-200 text-[10px] font-bold px-1.5 py-0.5 rounded flex items-center gap-1">
                         <Check className="w-2.5 h-2.5 stroke-[3]" />
@@ -778,6 +795,16 @@ export default function StudioReviewPortal() {
                   }`}
                 />
 
+                {selectedVariant.voiceoverUrl && (
+                  <audio
+                    ref={audioRef}
+                    src={selectedVariant.voiceoverUrl}
+                    preload="auto"
+                    playsInline
+                    muted={isMuted}
+                  />
+                )}
+
                 {/* Big Center Play Indicator (when paused) */}
                 {!isPlaying && (
                   <div className="absolute inset-0 bg-black/40 backdrop-blur-[2px] flex items-center justify-center transition-all z-20">
@@ -787,27 +814,6 @@ export default function StudioReviewPortal() {
                   </div>
                 )}
 
-                {/* Floating Sound Toggle Pill */}
-                <div
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    toggleMute();
-                  }}
-                  className="absolute bottom-3 left-3 z-20 bg-white/90 hover:bg-white text-zinc-900 backdrop-blur-md border border-zinc-200 text-[11px] font-bold px-3 py-1.5 rounded-full flex items-center gap-1.5 shadow-md transition-all cursor-pointer"
-                >
-                  {isMuted ? (
-                    <>
-                      <VolumeX className="w-3.5 h-3.5 text-[#FF6700]" />
-                      <span>Tap to unmute</span>
-                    </>
-                  ) : (
-                    <>
-                      <Volume2 className="w-3.5 h-3.5 text-emerald-600" />
-                      <span>Sound On</span>
-                    </>
-                  )}
-                </div>
-
                 {/* Floating Aspect Indicator */}
                 <div className="absolute top-3 left-3 z-20 bg-white/90 text-zinc-900 backdrop-blur-md border border-zinc-200 text-[10px] font-bold px-2 py-0.5 rounded-md shadow-xs">
                   {aspectRatio}
@@ -815,6 +821,17 @@ export default function StudioReviewPortal() {
 
                 {/* Top Right Quick Controls */}
                 <div className="absolute top-3 right-3 z-20 flex items-center gap-1.5">
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      toggleMute();
+                    }}
+                    className="w-8 h-8 rounded-full bg-white/90 hover:bg-white text-zinc-900 backdrop-blur-md border border-zinc-200 flex items-center justify-center transition-all cursor-pointer shadow-xs"
+                    title={isMuted ? "Unmute Audio" : "Mute Audio"}
+                  >
+                    {isMuted ? <VolumeX className="w-3.5 h-3.5 text-[#FF6700]" /> : <Volume2 className="w-3.5 h-3.5 text-emerald-600" />}
+                  </button>
+
                   <button
                     onClick={(e) => {
                       e.stopPropagation();
@@ -1218,6 +1235,44 @@ export default function StudioReviewPortal() {
                       <span className="text-teal-700 font-semibold">Grok Imagine 1.5</span>
                     </div>
                   </div>
+
+                  {/* Google Drive Delivery & Client Archive Card */}
+                  {selectedVariant.status === "approved" && (
+                    <div className="bg-emerald-50 border border-emerald-200 p-3.5 rounded-xl space-y-2.5 animate-in fade-in duration-200">
+                      <div className="flex items-center justify-between">
+                        <span className="text-[10px] font-bold uppercase tracking-wider text-emerald-800 flex items-center gap-1">
+                          <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" />
+                          Client Archive &amp; Delivery
+                        </span>
+                        <span className="text-[10px] bg-emerald-200/80 text-emerald-900 font-bold px-2 py-0.5 rounded-full">
+                          Ready for Client
+                        </span>
+                      </div>
+                      <p className="text-xs text-emerald-950 font-medium leading-relaxed">
+                        Approved 22s Ad Master &amp; all 3 ratios (9:16, 1:1, 4:5) are indexed for Google Drive folder <span className="font-mono font-bold text-emerald-800">1HWnNVUDgq3d0uI5Fcd54aS3Iim7U97Vx</span>.
+                      </p>
+                      <div className="pt-0.5 flex flex-col sm:flex-row gap-2">
+                        <a
+                          href="https://drive.google.com/drive/folders/1HWnNVUDgq3d0uI5Fcd54aS3Iim7U97Vx"
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="flex-1 text-center bg-[#7F48ED] hover:bg-[#6C3BD6] text-white py-2 px-3 rounded-lg text-xs font-bold transition shadow-sm flex items-center justify-center gap-1.5 cursor-pointer"
+                        >
+                          <FolderOpen className="w-3.5 h-3.5" />
+                          <span>Open Google Drive ↗</span>
+                        </a>
+                        <a
+                          href={selectedVariant.video9x16}
+                          download={`${(selectedVariant?.clientName || (selectedVariant as any)?.brandName || "ad").toLowerCase().replace(/\s+/g, "-")}-9x16.mp4`}
+                          className="bg-white hover:bg-zinc-50 border border-emerald-300 text-emerald-900 py-2 px-3 rounded-lg text-xs font-bold transition flex items-center justify-center gap-1 shadow-xs cursor-pointer"
+                          title="Download 9:16 vertical master MP4"
+                        >
+                          <Download className="w-3.5 h-3.5" />
+                          <span>MP4</span>
+                        </a>
+                      </div>
+                    </div>
+                  )}
                 </div>
               </div>
             </>
