@@ -50,9 +50,7 @@ export async function POST(request: Request) {
     // -------------------------------------------------------------------------
     // 1. ElevenLabs Live Voiceover Generation
     // -------------------------------------------------------------------------
-    const elevenKey =
-      process.env.ELEVENLABS_API_KEY ||
-      "sk_0428106a3d5da07753d0467e2e6eb7efec4e55b3ec140ffc";
+    const elevenKey = process.env.ELEVENLABS_API_KEY;
     const voiceId =
       requestedVoiceId ||
       process.env.DEFAULT_ELEVENLABS_VOICE_ID ||
@@ -61,7 +59,8 @@ export async function POST(request: Request) {
     let voiceoverUrl = "/audio/sample-vo.mp3";
     let wordTimestamps: Array<{ word: string; start: number; end: number }> = [];
 
-    try {
+    if (elevenKey) {
+      try {
       console.log(`[Studio Engine] Calling ElevenLabs for voiceover (${scriptBody.slice(0, 40)}...)...`);
       const voRes = await fetch(
         `https://api.elevenlabs.io/v1/text-to-speech/${voiceId}/with-timestamps`,
@@ -124,8 +123,11 @@ export async function POST(request: Request) {
         const errText = await voRes.text();
         console.warn(`[Studio Engine] ElevenLabs fallback (${voRes.status}):`, errText);
       }
-    } catch (e: any) {
-      console.warn("[Studio Engine] ElevenLabs error, using dev audio:", e.message);
+      } catch (e: any) {
+        console.warn("[Studio Engine] ElevenLabs error, using dev audio:", e.message);
+      }
+    } else {
+      console.warn("[Studio Engine] ELEVENLABS_API_KEY not configured. Using dev audio fallback.");
     }
 
     // -------------------------------------------------------------------------
@@ -241,6 +243,14 @@ export async function POST(request: Request) {
               image_url: uploadedCdnImageUrl,
               duration: "5",
               aspect_ratio: "9:16",
+            },
+          };
+        } else if (aiModel === "grok" || aiModel === "grok-1.5") {
+          console.log(`[Studio Engine] Target: Grok Imagine (fal-ai/xai/grok-video-1.5) for ${brandName}`);
+          targetCandidate = {
+            endpoint: "fal-ai/xai/grok-video-1.5",
+            body: {
+              prompt: `High-converting commercial video ad reel for ${brandName}, ${creativeAngle}, ${ctaText || "limited time offer"}, dynamic advertising product motion, vibrant lighting, 60fps`,
             },
           };
         } else if (aiModel === "minimax") {

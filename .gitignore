@@ -58,3 +58,5 @@ scripts/temp_*
 public/deliveries/
 public/storage/
 relaunch-studio-engine/**/.env*
+*PLAN.md
+RELAUNCH_STUDIO_DEV_NEXTSTEPS_PLAN.md

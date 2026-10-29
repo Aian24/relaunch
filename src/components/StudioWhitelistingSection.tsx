@@ -111,7 +111,7 @@ export default function StudioWhitelistingSection() {
               {/* Floating Platform Pill */}
               <div className="absolute -top-3.5 left-1/2 -translate-x-1/2 z-30 px-3 py-1 rounded-full bg-black text-white border border-white/25 text-[9px] font-mono font-bold uppercase shadow-lg flex items-center gap-1.5 whitespace-nowrap">
                 <span className="w-1.5 h-1.5 rounded-full bg-[#1877F2] animate-pulse" />
-                <span>Whitelisted Reel</span>
+                <span>Whitelisted Concept Ad</span>
               </div>
 
               {/* Inner Screen */}
@@ -156,20 +156,18 @@ export default function StudioWhitelistingSection() {
                   </div>
                 </div>
 
-                {/* Right Social Action Rail */}
-                <div className="absolute right-2 bottom-16 z-20 flex flex-col items-center gap-2.5 text-white pointer-events-none">
+                {/* Right Social Action Rail (Clean icons, no fabricated metrics) */}
+                <div className="absolute right-2 bottom-16 z-20 flex flex-col items-center gap-2.5 text-white pointer-events-none opacity-85">
                   <div className="flex flex-col items-center">
                     <div className="w-7 h-7 rounded-full bg-black/40 backdrop-blur-md flex items-center justify-center">
                       <Heart className="w-3.5 h-3.5 text-white drop-shadow" />
                     </div>
-                    <span className="text-[8px] font-mono mt-0.5 font-bold">28.4K</span>
                   </div>
 
                   <div className="flex flex-col items-center">
                     <div className="w-7 h-7 rounded-full bg-black/40 backdrop-blur-md flex items-center justify-center">
                       <MessageCircle className="w-3.5 h-3.5 text-white drop-shadow" />
                     </div>
-                    <span className="text-[8px] font-mono mt-0.5 font-bold">412</span>
                   </div>
 
                   <div className="flex flex-col items-center">
@@ -185,7 +183,7 @@ export default function StudioWhitelistingSection() {
                   </div>
                 </div>
 
-                {/* Bottom Creator Info & Sponsored Banner */}
+                {/* Bottom Creator Info & Whitelisted Concept Banner */}
                 <div className="relative z-10 p-3 pr-10 text-white">
                   {/* Creator Handle with Blue Checkmark */}
                   <div className="flex items-center gap-1.5 mb-1">
@@ -196,18 +194,18 @@ export default function StudioWhitelistingSection() {
                     </div>
                     <div className="flex items-center gap-1">
                       <span className="font-heading font-bold text-[10px] text-white">
-                        @trendspotlight
+                        @verified.creator
                       </span>
                       <CheckCircle2 className="w-3 h-3 text-[#1877F2] fill-[#1877F2] text-white shrink-0" />
                     </div>
-                    <span className="px-1 py-0.2 rounded bg-white/20 text-[7px] font-mono uppercase text-slate-200">
-                      Paid Partnership
+                    <span className="px-1.5 py-0.2 rounded bg-white/20 text-[7px] font-mono uppercase tracking-wider text-slate-200">
+                      Whitelisted Concept
                     </span>
                   </div>
 
                   {/* Reel Caption */}
                   <p className="text-[9px] text-slate-200 leading-tight line-clamp-2 mb-2 font-normal">
-                    Honest review: tested this for 30 days and the difference in results is wild. Grab the link below! 👇
+                    Creator whitelisted ad in action: authentic creator hook paired with your client footage. Built for high retention and ad policy compliance.
                   </p>
 
                   {/* Whitelisted Direct CTA Button */}

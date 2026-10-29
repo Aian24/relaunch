@@ -56,9 +56,7 @@ const FALLBACK_VOICES: StudioVoice[] = [
  * Cloned creator voices appear at the top automatically.
  */
 export async function GET() {
-  const elevenKey =
-    process.env.ELEVENLABS_API_KEY ||
-    "sk_0428106a3d5da07753d0467e2e6eb7efec4e55b3ec140ffc";
+  const elevenKey = process.env.ELEVENLABS_API_KEY;
 
   if (!elevenKey) {
     return NextResponse.json({

@@ -1536,7 +1536,7 @@ export default function StudioVideoGenerator() {
                     {/* The Hero Video Track: Always genuine generated AI video */}
                     <video
                       ref={videoRef}
-                      src={activeVideoSrc || "/videos/work-hero-reel.mp4"}
+                      src={activeVideoSrc || "/videos/golf/shotshaver-1.mp4"}
                       playsInline
                       loop
                       muted={isMuted}
