@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { checkRateLimit, getClientIp } from "@/lib/rateLimit";
 
 /**
  * Emails every contact / strategy-call request to ReLaunch.
@@ -30,6 +31,16 @@ function escapeHtml(value: string): string {
 }
 
 export async function POST(request: Request) {
+  // Rate limit: 5 submissions per 5 minutes per IP
+  const clientIp = getClientIp(request);
+  const rateCheck = checkRateLimit(`contact_${clientIp}`, 5, 5 * 60 * 1000);
+  if (!rateCheck.success) {
+    return NextResponse.json(
+      { error: "Too many messages sent. Please wait a few minutes before submitting again." },
+      { status: 429, headers: { "Retry-After": String(rateCheck.retryAfterSeconds) } }
+    );
+  }
+
   let body: Record<string, unknown>;
   try {
     body = await request.json();

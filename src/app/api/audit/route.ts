@@ -2,6 +2,22 @@ import { NextRequest, NextResponse } from "next/server";
 import { scoreHtml } from "@/lib/nis";
 import fs from "fs";
 import path from "path";
+import dns from "dns";
+import { checkRateLimit, getClientIp } from "@/lib/rateLimit";
+
+function isPrivateIp(ip: string): boolean {
+  if (ip === "::1" || ip === "localhost") return true;
+  const parts = ip.split(".").map(Number);
+  if (parts.length === 4 && parts.every((p) => !isNaN(p) && p >= 0 && p <= 255)) {
+    if (parts[0] === 127) return true; // 127.0.0.0/8 Loopback
+    if (parts[0] === 10) return true;  // 10.0.0.0/8 Private
+    if (parts[0] === 172 && parts[1] >= 16 && parts[1] <= 31) return true; // 172.16.0.0/12 Private
+    if (parts[0] === 192 && parts[1] === 168) return true; // 192.168.0.0/16 Private
+    if (parts[0] === 169 && parts[1] === 254) return true; // 169.254.0.0/16 Cloud Metadata / Link-local
+    if (parts[0] === 0) return true;   // 0.0.0.0/8
+  }
+  return false;
+}
 
 function normalizeUrl(u: string): string | null {
   u = (u || "").trim();
@@ -11,6 +27,33 @@ function normalizeUrl(u: string): string | null {
     const url = new URL(u);
     if (!/^https?:$/.test(url.protocol)) return null;
     return url.toString();
+  } catch {
+    return null;
+  }
+}
+
+async function validatePublicUrl(u: string): Promise<string | null> {
+  const normalized = normalizeUrl(u);
+  if (!normalized) return null;
+  try {
+    const parsed = new URL(normalized);
+    const hostname = parsed.hostname.toLowerCase();
+    if (
+      hostname === "localhost" ||
+      hostname.endsWith(".local") ||
+      hostname.endsWith(".internal") ||
+      isPrivateIp(hostname)
+    ) {
+      return null;
+    }
+
+    // Resolve DNS to verify resolved IP is strictly public
+    const lookup = await dns.promises.lookup(hostname);
+    if (isPrivateIp(lookup.address)) {
+      return null;
+    }
+
+    return normalized;
   } catch {
     return null;
   }
@@ -42,6 +85,16 @@ async function saveLead(row: (string | number)[]) {
 
 export async function POST(req: NextRequest) {
   try {
+    // Rate limit check: max 5 audits per 10 minutes per IP
+    const clientIp = getClientIp(req);
+    const rateCheck = checkRateLimit(`audit_${clientIp}`, 5, 10 * 60 * 1000);
+    if (!rateCheck.success) {
+      return NextResponse.json(
+        { error: "Too many audit requests. Please wait a few minutes before auditing another site." },
+        { status: 429, headers: { "Retry-After": String(rateCheck.retryAfterSeconds) } }
+      );
+    }
+
     const body = await req.json().catch(() => ({}));
     const { name = "", email = "", business = "", website = "" } = body;
 
@@ -49,9 +102,12 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "A valid email is required." }, { status: 400 });
     }
 
-    const url = normalizeUrl(website);
+    const url = await validatePublicUrl(website);
     if (!url) {
-      return NextResponse.json({ error: "Enter a valid website URL." }, { status: 400 });
+      return NextResponse.json(
+        { error: "Enter a valid public website URL. Internal, private, or local network addresses cannot be audited." },
+        { status: 400 }
+      );
     }
 
     let html = "";

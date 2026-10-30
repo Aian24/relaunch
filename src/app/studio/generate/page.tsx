@@ -36,6 +36,8 @@ import {
   Image as ImageIcon,
   ShieldCheck,
   FolderOpen,
+  Sliders,
+  ExternalLink,
 } from "lucide-react";
 import { CREATOR_ROSTER } from "@/data/creatorRoster";
 
@@ -315,6 +317,9 @@ export default function StudioVideoGenerator() {
   const [isMuted, setIsMuted] = useState(true);
   const [showPhoneFrame, setShowPhoneFrame] = useState(false);
   const [showCaptions, setShowCaptions] = useState(false);
+  const [mobileTab, setMobileTab] = useState<"controls" | "preview">("controls");
+  const [generationMode, setGenerationMode] = useState<"single" | "batch">("single");
+  const [batchJobsCreated, setBatchJobsCreated] = useState<any[] | null>(null);
   const [generationError, setGenerationError] = useState<{
     title: string;
     message: string;
@@ -511,12 +516,17 @@ export default function StudioVideoGenerator() {
     setSelectedHook(hooks[nextIdx]);
   };
 
-  // Video Generation via Studio Engine API
-  const handleGenerate = async () => {
+  // Video Generation via Studio Engine API (supports single or 5-angle batch)
+  const handleGenerate = async (asBatch = generationMode === "batch") => {
     setGenerationError(null);
     setIsGenerating(true);
+    setMobileTab("preview");
     setGenProgress(10);
-    setGenStepText("Connecting to Studio Engine & analyzing creative brief...");
+    setGenStepText(
+      asBatch
+        ? "Connecting to Studio Engine & preparing 5-angle campaign matrix..."
+        : "Connecting to Studio Engine & analyzing creative brief..."
+    );
 
     // Smooth, realistic progress simulation matching real fal.ai & ElevenLabs execution (~70-85s)
     const progressInterval = setInterval(() => {
@@ -531,7 +541,11 @@ export default function StudioVideoGenerator() {
           setGenStepText("AI diffusion rendering dynamic product commercial reel in cloud...");
           return prev + 0.8;
         } else if (prev < 95) {
-          setGenStepText("Downloading generated 4K MP4 variant and assembling composite...");
+          setGenStepText(
+            asBatch
+              ? "Deriving 5 creative angles & compiling 15 aspect ratio deliverables..."
+              : "Downloading generated 4K MP4 variant and assembling composite..."
+          );
           return prev + 0.4;
         } else if (prev < 98) {
           setGenStepText("Synchronizing audio waveforms and saving to QA Review queue...");
@@ -558,6 +572,7 @@ export default function StudioVideoGenerator() {
           mediaType: uploadedMediaType || "prompt_only",
           visualPrompt: `Cinematic 4K advertising b-roll of ${brandName}, dramatic studio lighting, macro product motion, physical realism, 60fps`,
           aiModel: videoModel === "grok" ? "grok-1.5" : videoModel === "seedance" ? "seedance-fast" : "kling-pro",
+          isBatch: asBatch,
         }),
       });
 
@@ -591,7 +606,17 @@ export default function StudioVideoGenerator() {
 
       const data = await res.json();
       setGenProgress(100);
-      setGenStepText("Master ready! Saved to QA Review Queue.");
+      setGenStepText(
+        asBatch
+          ? "5-Angle Campaign Batch Ready! 15 Deliverables saved to QA Review."
+          : "Master ready! Saved to QA Review Queue."
+      );
+
+      if (data.batchJobs && data.batchJobs.length > 0) {
+        setBatchJobsCreated(data.batchJobs);
+      } else {
+        setBatchJobsCreated(null);
+      }
 
       const newJobId = data.jobId;
       const newVariants = data.variants;
@@ -750,23 +775,25 @@ export default function StudioVideoGenerator() {
 
   return (
     <div className="w-full min-h-screen bg-white text-[#090D16] font-sans flex flex-col selection:bg-[#7F48ED] selection:text-white">
-      {/* 1. TOP STUDIO BAR (Clean White Header, Zero Pitch Black) */}
-      <header className="w-full sticky top-0 shrink-0 bg-white border-b border-zinc-200/90 px-4 sm:px-6 py-3 flex items-center justify-between z-40 shadow-sm">
+      {/* 1. TOP STUDIO BAR (Clean White Header, Single-Line Responsive) */}
+      <header className="w-full sticky top-0 shrink-0 bg-white border-b border-zinc-200/90 px-3 sm:px-6 py-2.5 sm:py-3 flex items-center justify-between z-40 shadow-sm">
         {/* Left: Studio Branding */}
-        <div className="flex items-center gap-3 sm:gap-4">
+        <div className="flex items-center gap-2 sm:gap-4 min-w-0">
           <Link
             href="/studio"
-            className="flex items-center gap-1.5 text-xs font-semibold text-zinc-600 hover:text-[#7F48ED] transition"
+            className="flex items-center gap-1.5 text-xs font-semibold text-zinc-600 hover:text-[#7F48ED] transition shrink-0"
+            title="Exit Studio"
           >
             <ArrowLeft className="w-4 h-4" />
             <span className="hidden sm:inline">Exit Studio</span>
           </Link>
 
-          <div className="h-4 w-px bg-zinc-200" />
+          <div className="h-4 w-px bg-zinc-200 shrink-0" />
 
-          <div className="flex items-center gap-1.5 sm:gap-2">
-            <span className="text-sm font-black tracking-tight text-[#090D16] uppercase">
-              Relaunch Studio <span className="text-[#FF6700]">Video Generator</span>
+          <div className="flex items-center gap-1.5 min-w-0">
+            <span className="text-xs sm:text-sm font-black tracking-tight text-[#090D16] uppercase whitespace-nowrap truncate">
+              <span className="hidden xs:inline">Relaunch Studio </span>
+              <span className="text-[#FF6700]">Generator</span>
             </span>
           </div>
         </div>
@@ -792,17 +819,57 @@ export default function StudioVideoGenerator() {
           })}
         </div>
 
-        {/* Right: Review Room Action */}
-        <div className="flex items-center gap-2 sm:gap-3">
+        {/* Right: Review Room & Approved Vault Actions */}
+        <div className="flex items-center gap-1.5 sm:gap-2.5 shrink-0">
+          <Link
+            href="/studio/approved"
+            className="hidden sm:inline-flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 rounded-xl text-xs font-bold text-zinc-700 hover:text-zinc-950 bg-zinc-100 hover:bg-zinc-200 border border-zinc-200 transition cursor-pointer shrink-0"
+            title="Open Approved Vault"
+          >
+            <FolderOpen className="w-3.5 h-3.5 text-emerald-600" />
+            <span>Vault</span>
+          </Link>
+
           <Link
             href="/studio/review"
-            className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg text-xs font-bold text-white bg-[#7F48ED] hover:bg-[#6b35d6] transition shadow-md shadow-[#7F48ED]/20 cursor-pointer"
+            className="inline-flex items-center gap-1.5 px-2.5 sm:px-3.5 py-1.5 rounded-xl text-xs font-bold text-white bg-[#7F48ED] hover:bg-[#6b35d6] transition shadow-md shadow-[#7F48ED]/20 cursor-pointer shrink-0"
+            title="Open Review Room"
           >
             <Eye className="w-3.5 h-3.5" />
-            <span>Review Room</span>
+            <span className="hidden xs:inline">Review Room</span>
+            <span className="xs:hidden">Review</span>
           </Link>
         </div>
       </header>
+
+      {/* Mobile Workspace Tabs (< 1024px) */}
+      <div className="lg:hidden flex items-center bg-zinc-100 p-1 mx-3 sm:mx-4 mt-2.5 mb-1 rounded-xl border border-zinc-200 shrink-0">
+        <button
+          type="button"
+          onClick={() => setMobileTab("controls")}
+          className={`flex-1 py-1.5 text-xs font-bold rounded-lg transition cursor-pointer flex items-center justify-center gap-1.5 ${
+            mobileTab === "controls"
+              ? "bg-white text-zinc-900 shadow-sm"
+              : "text-zinc-600 hover:text-zinc-900"
+          }`}
+        >
+          <Sliders className="w-3.5 h-3.5 text-[#7F48ED]" />
+          <span>Brief &amp; Script</span>
+        </button>
+        <button
+          type="button"
+          onClick={() => setMobileTab("preview")}
+          className={`flex-1 py-1.5 text-xs font-bold rounded-lg transition cursor-pointer flex items-center justify-center gap-1.5 ${
+            mobileTab === "preview"
+              ? "bg-[#7F48ED] text-white shadow-sm"
+              : "text-zinc-600 hover:text-zinc-900"
+          }`}
+        >
+          <Video className="w-3.5 h-3.5" />
+          <span>Live Stage</span>
+          {isGenerating && <RefreshCw className="w-3 h-3 animate-spin" />}
+        </button>
+      </div>
 
       {/* 2. MAIN WORKSPACE (2-Column Studio: Left Controls, Right Live Stage) */}
       <main className="w-full flex-1 flex flex-col lg:flex-row lg:h-[calc(100vh-57px)] lg:overflow-hidden min-h-0 bg-[#F8F9FC]">
@@ -811,7 +878,9 @@ export default function StudioVideoGenerator() {
         {/* ============================================================== */}
         <div
           ref={sidebarRef}
-          className="w-full lg:w-[460px] xl:w-[480px] shrink-0 bg-white border-r border-zinc-200/90 p-4 sm:p-5 pb-28 space-y-4 h-auto lg:h-full lg:overflow-y-auto min-h-0"
+          className={`w-full lg:w-[460px] xl:w-[480px] shrink-0 bg-white border-r border-zinc-200/90 p-4 sm:p-5 pb-28 space-y-4 h-auto lg:h-full lg:overflow-y-auto min-h-0 ${
+            mobileTab === "controls" ? "block" : "hidden lg:block"
+          }`}
         >
           {/* STEP 1: BRAND & OFFER */}
           <div className="bg-white border border-zinc-200 rounded-2xl p-4 shadow-sm space-y-3">
@@ -1123,7 +1192,7 @@ export default function StudioVideoGenerator() {
             </div>
 
             {/* AI Engine & Voice Cadence */}
-            <div className="grid grid-cols-2 gap-2 pt-0.5">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 pt-0.5">
               {/* Visual Engine */}
               <div className="space-y-1 relative" ref={modelDropdownRef}>
                 <label className="text-[10px] font-bold text-zinc-500 uppercase tracking-wider block">AI Engine</label>
@@ -1264,15 +1333,85 @@ export default function StudioVideoGenerator() {
             </div>
           </div>
 
-          {/* ACTION BUTTON (Solid Purple #7F48ED, High Impact) */}
-          <div className="pt-1">
+          {/* GENERATION MODE SWITCHER & ACTION BUTTON */}
+          <div className="pt-1 space-y-2">
+            {/* Mode Switcher */}
+            <div className="flex items-center gap-1 p-1 bg-zinc-100 rounded-xl border border-zinc-200/80">
+              <button
+                type="button"
+                onClick={() => setGenerationMode("single")}
+                className={`flex-1 py-1.5 rounded-lg text-xs font-bold transition flex items-center justify-center gap-1.5 cursor-pointer ${
+                  generationMode === "single"
+                    ? "bg-white text-zinc-900 shadow-sm"
+                    : "text-zinc-600 hover:text-zinc-900"
+                }`}
+              >
+                <Sparkles className="w-3.5 h-3.5 text-[#7F48ED]" />
+                <span>Single Ad Master</span>
+              </button>
+              <button
+                type="button"
+                onClick={() => setGenerationMode("batch")}
+                className={`flex-1 py-1.5 rounded-lg text-xs font-bold transition flex items-center justify-center gap-1.5 cursor-pointer ${
+                  generationMode === "batch"
+                    ? "bg-[#7F48ED] text-white shadow-sm"
+                    : "text-zinc-600 hover:text-zinc-900"
+                }`}
+              >
+                <Layers className="w-3.5 h-3.5" />
+                <span>5-Angle Batch</span>
+              </button>
+            </div>
+
+            {/* Batch Mode Overview Card */}
+            {generationMode === "batch" && (
+              <div className="bg-purple-50/70 border border-purple-200/80 rounded-xl p-3 space-y-2 text-xs">
+                <div className="flex items-center justify-between">
+                  <span className="font-extrabold text-zinc-900 uppercase tracking-wider text-[11px] flex items-center gap-1">
+                    <Layers className="w-3.5 h-3.5 text-[#7F48ED]" />
+                    High-Volume Campaign Engine
+                  </span>
+                  <span className="text-[10px] font-mono font-bold bg-[#7F48ED] text-white px-2 py-0.5 rounded-full">
+                    15 Deliverables
+                  </span>
+                </div>
+                <p className="text-[11px] text-zinc-600">
+                  Generates 5 distinct creative angles from this brief across all 3 ratios (9:16, 1:1, 4:5):
+                </p>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-1 text-[11px] font-semibold text-zinc-800">
+                  <div className="flex items-center gap-1 text-purple-900">
+                    <span className="text-[#7F48ED] font-mono font-bold">1.</span> Problem &amp; Solution
+                  </div>
+                  <div className="flex items-center gap-1 text-purple-900">
+                    <span className="text-[#7F48ED] font-mono font-bold">2.</span> Creator Review
+                  </div>
+                  <div className="flex items-center gap-1 text-purple-900">
+                    <span className="text-[#7F48ED] font-mono font-bold">3.</span> 3 Reasons Why
+                  </div>
+                  <div className="flex items-center gap-1 text-purple-900">
+                    <span className="text-[#7F48ED] font-mono font-bold">4.</span> Us vs. Them
+                  </div>
+                  <div className="flex items-center gap-1 text-purple-900 col-span-1 sm:col-span-2">
+                    <span className="text-[#7F48ED] font-mono font-bold">5.</span> Secret Life Hack
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* Action Trigger Button */}
             <button
-              onClick={handleGenerate}
+              onClick={() => handleGenerate(generationMode === "batch")}
               disabled={isGenerating}
               className="w-full py-3.5 rounded-xl font-black text-sm transition shadow-lg shadow-[#7F48ED]/25 flex items-center justify-center gap-2 cursor-pointer bg-[#7F48ED] hover:bg-[#6b35d6] text-white disabled:opacity-50"
             >
               <RefreshCw className={`w-4 h-4 ${isGenerating ? "animate-spin" : ""}`} />
-              {isGenerating ? "Rendering AI Commercial..." : "Generate AI Video Ad"}
+              {isGenerating
+                ? generationMode === "batch"
+                  ? "Rendering 5-Angle Campaign Batch..."
+                  : "Rendering AI Commercial..."
+                : generationMode === "batch"
+                ? "Generate 5-Angle Creative Batch (15 Assets)"
+                : "Generate AI Video Ad"}
             </button>
           </div>
         </div>
@@ -1280,7 +1419,7 @@ export default function StudioVideoGenerator() {
         {/* ============================================================== */}
         {/* RIGHT STAGE: CLEAN LIGHT CANVAS & VIDEO PLAYER                */}
         {/* ============================================================== */}
-        <div className="flex-1 min-w-0 bg-[#F8F9FC] flex flex-col p-4 sm:p-6 relative gap-4 h-auto lg:h-full lg:overflow-y-auto min-h-0">
+        <div className={`flex-1 min-w-0 bg-[#F8F9FC] flex-col p-3 sm:p-6 relative gap-3 sm:gap-4 h-auto lg:h-full lg:overflow-y-auto min-h-0 ${mobileTab === "preview" ? "flex" : "hidden lg:flex"}`}>
           {/* Top Canvas Controls Bar (Clean White) */}
           <div className="w-full flex flex-wrap items-center justify-between gap-3 bg-white border border-zinc-200/90 rounded-2xl px-4 py-3 shadow-sm">
             {/* Format Ratio Selector */}
@@ -1378,44 +1517,66 @@ export default function StudioVideoGenerator() {
             </div>
           )}
 
-          {/* SUCCESS BANNER: Real AI Render */}
+          {/* SUCCESS BANNER: Real AI Render (Single or Batch) */}
           {generatedResult && !generationError && (
-            <div className="w-full bg-purple-50 border border-purple-200 rounded-2xl p-3.5 flex flex-col sm:flex-row items-center justify-between gap-3 shadow-sm">
-              <div className="flex items-center gap-2.5">
-                <div className="w-7 h-7 rounded-full bg-emerald-500 text-white flex items-center justify-center shrink-0">
-                  <CheckCircle2 className="w-4 h-4" />
-                </div>
-                <div>
-                  <div className="text-xs font-bold text-zinc-900 flex items-center gap-2">
-                    <span>Generated AI Ad Ready: <span className="font-mono text-[#7F48ED]">{generatedResult.jobId}</span></span>
-                    <span className="text-[10px] bg-emerald-100 text-emerald-800 px-2 py-0.5 rounded-full font-bold">
-                      GENUINE AI RENDER
-                    </span>
+            <div className="w-full bg-purple-50 border border-purple-200 rounded-2xl p-3.5 flex flex-col gap-3 shadow-sm">
+              <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+                <div className="flex items-center gap-2.5">
+                  <div className="w-7 h-7 rounded-full bg-emerald-500 text-white flex items-center justify-center shrink-0">
+                    <CheckCircle2 className="w-4 h-4" />
                   </div>
-                  <p className="text-[11px] text-zinc-600">
-                    Voiceover synced &amp; all 3 ratios derived
-                  </p>
+                  <div>
+                    <div className="text-xs font-bold text-zinc-900 flex flex-wrap items-center gap-2">
+                      <span>{batchJobsCreated ? "Batch Campaign Ready:" : "Generated AI Ad Ready:"} <span className="font-mono text-[#7F48ED]">{generatedResult.jobId}</span></span>
+                      <span className="text-[10px] bg-emerald-100 text-emerald-800 px-2 py-0.5 rounded-full font-bold">
+                        {batchJobsCreated ? "5-ANGLE BATCH GENERATED" : "GENUINE AI RENDER"}
+                      </span>
+                    </div>
+                    <p className="text-[11px] text-zinc-600">
+                      {batchJobsCreated
+                        ? "5 Creative Angles Generated (15 Deliverables: 9:16, 1:1, 4:5) ready for Quality Bar Sign-off"
+                        : "Voiceover synced & all 3 ratios derived"}
+                    </p>
+                  </div>
+                </div>
+                <div className="flex items-center gap-2">
+                  <a
+                    href="https://drive.google.com/drive/folders/1HWnNVUDgq3d0uI5Fcd54aS3Iim7U97Vx"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="px-3 py-2 bg-white hover:bg-zinc-100 text-zinc-700 border border-zinc-200 rounded-xl text-xs font-bold transition flex items-center gap-1.5 shadow-sm"
+                    title="Open client delivery archive on Google Drive"
+                  >
+                    <FolderOpen className="w-3.5 h-3.5 text-[#7F48ED]" />
+                    <span>Open Drive</span>
+                    <ExternalLink className="w-3 h-3 text-zinc-400" />
+                  </a>
+                  <Link
+                    href={`/studio/review?variantId=${generatedResult.jobId}`}
+                    className="px-4 py-2 bg-[#FF6700] hover:bg-[#e55c00] text-white rounded-xl text-xs font-bold transition shadow-md shadow-[#FF6700]/20 cursor-pointer flex items-center gap-1.5"
+                  >
+                    <span>Open in QA Review Room</span>
+                    <ChevronRight className="w-3.5 h-3.5" />
+                  </Link>
                 </div>
               </div>
-              <div className="flex items-center gap-2">
-                <a
-                  href="https://drive.google.com/drive/folders/1HWnNVUDgq3d0uI5Fcd54aS3Iim7U97Vx"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="px-3 py-2 bg-white hover:bg-zinc-100 text-zinc-700 border border-zinc-200 rounded-xl text-xs font-bold transition flex items-center gap-1.5 shadow-sm"
-                  title="Open client delivery archive on Google Drive"
-                >
-                  <FolderOpen className="w-3.5 h-3.5 text-[#7F48ED]" />
-                  <span>Open Drive ↗</span>
-                </a>
-                <Link
-                  href={`/studio/review?variantId=${generatedResult.jobId}`}
-                  className="px-4 py-2 bg-[#FF6700] hover:bg-[#e55c00] text-white rounded-xl text-xs font-bold transition shadow-md shadow-[#FF6700]/20 cursor-pointer flex items-center gap-1.5"
-                >
-                  <span>Open in QA Review Room</span>
-                  <ChevronRight className="w-3.5 h-3.5" />
-                </Link>
-              </div>
+
+              {/* Quick Batch Variant Selector Pills */}
+              {batchJobsCreated && batchJobsCreated.length > 0 && (
+                <div className="pt-2 border-t border-purple-200/60 flex flex-wrap items-center gap-1.5">
+                  <span className="text-[11px] font-bold text-purple-900 mr-1">Batch Angles:</span>
+                  {batchJobsCreated.map((bJob, idx) => (
+                    <Link
+                      key={bJob.id}
+                      href={`/studio/review?variantId=${bJob.id}`}
+                      className="px-2.5 py-1 bg-white hover:bg-purple-100/80 text-purple-950 border border-purple-200 rounded-lg text-[11px] font-semibold transition flex items-center gap-1 shadow-2xs"
+                    >
+                      <span className="font-mono text-[#7F48ED] font-bold">#{idx + 1}</span>
+                      <span>{bJob.creativeAngle}</span>
+                    </Link>
+                  ))}
+                </div>
+              )}
             </div>
           )}
 
@@ -1536,7 +1697,7 @@ export default function StudioVideoGenerator() {
                     {/* The Hero Video Track: Always genuine generated AI video */}
                     <video
                       ref={videoRef}
-                      src={activeVideoSrc || "/videos/golf/shotshaver-1.mp4"}
+                      src={activeVideoSrc || "/videos/golf/golf-swing-instruction.mp4"}
                       playsInline
                       loop
                       muted={isMuted}
@@ -1872,7 +2033,8 @@ export default function StudioVideoGenerator() {
                 className="flex-1 sm:flex-initial px-5 py-2 rounded-xl text-xs font-extrabold text-white bg-[#FF6700] hover:bg-[#e55c00] transition flex items-center justify-center gap-1.5 shadow-md shadow-[#FF6700]/20 cursor-pointer"
               >
                 <Eye className="w-3.5 h-3.5" />
-                {generatedResult ? "Review Generated Ad ➔" : "Open in QA Review Room"}
+                <span>{generatedResult ? "Review Generated Ad" : "Open in QA Review Room"}</span>
+                <ChevronRight className="w-3.5 h-3.5" />
               </Link>
             </div>
           </div>

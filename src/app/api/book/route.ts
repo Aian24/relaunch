@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import fs from "fs";
 import path from "path";
+import { checkRateLimit, getClientIp } from "@/lib/rateLimit";
 
 function escapeHtml(val: unknown): string {
   return String(val || "")
@@ -28,6 +29,15 @@ async function saveBooking(row: string[]) {
 
 export async function POST(req: NextRequest) {
   try {
+    const clientIp = getClientIp(req);
+    const rateCheck = checkRateLimit(`book_${clientIp}`, 5, 5 * 60 * 1000);
+    if (!rateCheck.success) {
+      return NextResponse.json(
+        { error: "Too many booking requests. Please wait a few minutes before trying again." },
+        { status: 429, headers: { "Retry-After": String(rateCheck.retryAfterSeconds) } }
+      );
+    }
+
     const body = await req.json().catch(() => ({}));
     const {
       name = "",

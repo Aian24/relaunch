@@ -13,11 +13,11 @@ export const dynamic = "force-dynamic";
  * POST: Records human QA decision (approve / reject / recut) with real pass/fail checks & audit logging
  */
 
-export async function GET() {
+export async function GET(request: Request) {
   const jobs = getAllAdJobs();
 
   // Transform ad jobs into the view model expected by the review portal
-  const variants = jobs.map((job) => ({
+  const allVariants = jobs.map((job) => ({
     id: job.id,
     clientName: job.brandName,
     batchName: "Pilot Batch #1",
@@ -49,11 +49,30 @@ export async function GET() {
     delivery: job.delivery,
   }));
 
+  const needsReviewCount = allVariants.filter((v) => v.status === "needs_review").length;
+  const approvedCount = allVariants.filter((v) => v.status === "approved").length;
+  const rejectedCount = allVariants.filter((v) => v.status === "rejected").length;
+
+  const url = new URL(request.url);
+  const statusFilter = url.searchParams.get("status");
+
+  let filtered = allVariants;
+  if (statusFilter === "pending") {
+    filtered = allVariants.filter((v) => v.status === "needs_review");
+  } else if (statusFilter === "approved") {
+    filtered = allVariants.filter((v) => v.status === "approved");
+  } else if (statusFilter === "rejected") {
+    filtered = allVariants.filter((v) => v.status === "rejected");
+  }
+
   return NextResponse.json({
     ok: true,
-    count: variants.length,
-    needsReviewCount: variants.filter((v) => v.status === "needs_review").length,
-    variants,
+    count: filtered.length,
+    totalCount: allVariants.length,
+    needsReviewCount,
+    approvedCount,
+    rejectedCount,
+    variants: filtered,
   });
 }
 

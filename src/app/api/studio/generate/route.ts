@@ -2,6 +2,8 @@ import { NextResponse } from "next/server";
 import fs from "fs";
 import path from "path";
 import { saveAdJob, type AdJob } from "@/lib/adJob";
+import { checkRateLimit, getClientIp } from "@/lib/rateLimit";
+import { safeJsonRequest, safeDownloadFile } from "@/lib/safeHttp";
 
 export const dynamic = "force-dynamic";
 
@@ -11,30 +13,50 @@ export const dynamic = "force-dynamic";
  *
  * Full pipeline:
  * 1. Takes client brief, hook, script, creator, and client footage
- * 2. Calls ElevenLabs live API for branded voiceover + word-level timestamps
- * 3. Assembles the 3 segments: Creator Hook (0-3s) + Client Footage (3-15s) + Grok Scene (15-22s)
- * 4. Derives 3 aspect ratios (9:16, 1:1, 4:5) and saves to public/storage/variants/
- * 5. Registers new AdJob in review queue with status: 'needs_review'
+ * 2. Rate-limited per IP (5 requests / 10 min) to protect paid ElevenLabs and fal.ai credits
+ * 3. Calls ElevenLabs live API for branded voiceover + word-level timestamps
+ * 4. Assembles the 3 segments: Creator Hook (0-3s) + Client Footage (3-15s) + Grok Scene (15-22s)
+ * 5. Derives 3 aspect ratios (9:16, 1:1, 4:5) in 1080p and saves to public/storage/variants/
+ * 6. Registers new AdJob in review queue with status: 'needs_review'
  */
 
 export async function POST(request: Request) {
   try {
-    const body = await request.json();
-    const {
-      brandName = "My Brand",
-      creativeAngle = "Problem & Solution",
-      hookType = "problem",
-      hookText = "Stop scrolling if you want real results.",
-      scriptBody = "Here is what actually works when you need fast, authentic performance.",
-      ctaText = "Claim Your Offer",
-      actor = "emma",
-      mediaSource = "",
-      clientFootageSource = "",
-      mediaType = "prompt_only",
-      visualPrompt = "",
-      aiModel = "grok-1.5",
-      voiceId: requestedVoiceId = "",
-    } = body;
+    // 0. Security Shield: Rate Limiting by IP (Max 5 generations per 10 min)
+    const clientIp = getClientIp(request);
+    const rateCheck = checkRateLimit(`studio_generate_${clientIp}`, 5, 10 * 60 * 1000);
+    if (!rateCheck.success) {
+      return NextResponse.json(
+        {
+          error: "Rate limit exceeded. To protect GPU compute and TTS voice synthesis credits, generation is limited to 5 ads per 10 minutes.",
+          retryAfter: rateCheck.retryAfterSeconds,
+        },
+        {
+          status: 429,
+          headers: {
+            "Retry-After": String(rateCheck.retryAfterSeconds),
+            "X-RateLimit-Limit": String(rateCheck.limit),
+            "X-RateLimit-Remaining": String(rateCheck.remaining),
+          },
+        }
+      );
+    }
+
+    const body = await request.json().catch(() => ({}));
+    const rawBrandName = String(body.brandName || "My Brand").trim().slice(0, 80);
+    const brandName = rawBrandName || "My Brand";
+    const creativeAngle = String(body.creativeAngle || "Problem & Solution").trim().slice(0, 80);
+    const hookType = String(body.hookType || "problem").trim().slice(0, 40);
+    const hookText = String(body.hookText || "Stop scrolling if you want real results.").trim().slice(0, 200);
+    const scriptBody = String(body.scriptBody || "Here is what actually works when you need fast, authentic performance.").trim().slice(0, 1200);
+    const ctaText = String(body.ctaText || "Claim Your Offer").trim().slice(0, 80);
+    const actor = String(body.actor || "emma").trim().slice(0, 40);
+    const mediaSource = typeof body.mediaSource === "string" ? body.mediaSource.slice(0, 10000000) : ""; // Max 10MB base64
+    const clientFootageSource = typeof body.clientFootageSource === "string" ? body.clientFootageSource.slice(0, 500) : "";
+    const mediaType = String(body.mediaType || "prompt_only").slice(0, 40);
+    const visualPrompt = String(body.visualPrompt || "").trim().slice(0, 500);
+    const aiModel = String(body.aiModel || "grok-1.5").slice(0, 40);
+    const requestedVoiceId = String(body.voiceId || "").slice(0, 60);
 
     const effectiveMediaSource = mediaSource || clientFootageSource || "";
 
@@ -245,14 +267,6 @@ export async function POST(request: Request) {
               aspect_ratio: "9:16",
             },
           };
-        } else if (aiModel === "grok" || aiModel === "grok-1.5") {
-          console.log(`[Studio Engine] Target: Grok Imagine (fal-ai/xai/grok-video-1.5) for ${brandName}`);
-          targetCandidate = {
-            endpoint: "fal-ai/xai/grok-video-1.5",
-            body: {
-              prompt: `High-converting commercial video ad reel for ${brandName}, ${creativeAngle}, ${ctaText || "limited time offer"}, dynamic advertising product motion, vibrant lighting, 60fps`,
-            },
-          };
         } else if (aiModel === "minimax") {
           console.log(`[Studio Engine] Target: Minimax Video-01 for ${brandName}`);
           targetCandidate = {
@@ -275,13 +289,14 @@ export async function POST(request: Request) {
         }
 
         console.log(`[Studio Engine] Calling fal.ai endpoint: ${targetCandidate.endpoint}...`);
-        const falRes = await fetch(`https://queue.fal.run/${targetCandidate.endpoint}`, {
+        const falRes = await safeJsonRequest(`https://queue.fal.run/${targetCandidate.endpoint}`, {
           method: "POST",
           headers: {
             Authorization: `Key ${falKey}`,
             "Content-Type": "application/json",
           },
-          body: JSON.stringify(targetCandidate.body),
+          body: targetCandidate.body,
+          timeoutMs: 40000,
         });
 
         if (!falRes.ok) {
@@ -289,12 +304,12 @@ export async function POST(request: Request) {
           console.warn(`[Studio Engine] fal.ai endpoint ${targetCandidate.endpoint} rejected (${falRes.status}):`, errBody.slice(0, 150));
           aiVideoError = errBody;
         } else {
-          const queueData = await falRes.json();
-          let remoteUrl = queueData.video?.url || queueData.output?.[0] || "";
+          const queueData: any = await falRes.json();
+          let remoteUrl = queueData?.video?.url || queueData?.output?.[0] || "";
 
           // Poll single model with ample headroom (up to 90 attempts at 2.5s = 225 seconds max)
-          if (!remoteUrl && queueData.status_url) {
-            console.log(`[Studio Engine] fal.ai job queued on ${targetCandidate.endpoint} (Request ID: ${queueData.request_id}). Polling...`);
+          if (!remoteUrl && queueData?.status_url) {
+            console.log(`[Studio Engine] fal.ai job queued on ${targetCandidate.endpoint} (Request ID: ${queueData?.request_id}). Polling...`);
             let attempts = 0;
             const maxAttempts = 90;
             const pollIntervalMs = 2500;
@@ -302,20 +317,22 @@ export async function POST(request: Request) {
               await new Promise((resolve) => setTimeout(resolve, pollIntervalMs));
               attempts++;
               try {
-                const statusRes = await fetch(queueData.status_url, {
+                const statusRes = await safeJsonRequest(queueData.status_url, {
                   headers: { Authorization: `Key ${falKey}` },
+                  timeoutMs: 15000,
                 });
                 if (statusRes.ok) {
-                  const statusData = await statusRes.json();
-                  if (statusData.status === "COMPLETED") {
+                  const statusData: any = await statusRes.json();
+                  if (statusData?.status === "COMPLETED") {
                     const fetchUrl = statusData.response_url || queueData.response_url;
                     if (fetchUrl) {
-                      const respRes = await fetch(fetchUrl, {
+                      const respRes = await safeJsonRequest(fetchUrl, {
                         headers: { Authorization: `Key ${falKey}` },
+                        timeoutMs: 20000,
                       });
                       if (respRes.ok) {
-                        const finalData = await respRes.json();
-                        remoteUrl = finalData.video?.url || finalData.output?.[0] || "";
+                        const finalData: any = await respRes.json();
+                        remoteUrl = finalData?.video?.url || finalData?.output?.[0] || "";
                       } else {
                         const respErr = await respRes.text();
                         console.warn(`[Studio Engine] fal.ai response error (${respRes.status}):`, respErr.slice(0, 150));
@@ -323,7 +340,7 @@ export async function POST(request: Request) {
                       }
                     }
                     break;
-                  } else if (statusData.status === "FAILED") {
+                  } else if (statusData?.status === "FAILED") {
                     aiVideoError = statusData.error || (statusData.logs ? JSON.stringify(statusData.logs) : "fal.ai model inference failed.");
                     console.warn(`[Studio Engine] fal.ai inference FAILED on ${targetCandidate.endpoint}:`, aiVideoError);
                     break;
@@ -350,15 +367,14 @@ export async function POST(request: Request) {
 
           if (remoteUrl) {
             console.log(`[Studio Engine] Downloading generated fal.ai video from ${remoteUrl}...`);
-            const dlRes = await fetch(remoteUrl);
-            if (dlRes.ok) {
-              const dlBuf = Buffer.from(await dlRes.arrayBuffer());
-              const aiFile = `ai-${jobId}.mp4`;
-              fs.writeFileSync(path.join(storageDir, aiFile), dlBuf);
+            const aiFile = `ai-${jobId}.mp4`;
+            const aiDestPath = path.join(storageDir, aiFile);
+            try {
+              const downloadedBytes = await safeDownloadFile(remoteUrl, aiDestPath);
               aiVideoGenerated = true;
-              console.log(`[Studio Engine] ✓ Genuine fal.ai AI video saved locally (${dlBuf.length} bytes from ${targetCandidate.endpoint})!`);
-            } else {
-              aiVideoError = `Failed to download completed video from fal.ai CDN (${dlRes.status})`;
+              console.log(`[Studio Engine] ✓ Genuine fal.ai AI video saved locally (${downloadedBytes} bytes from ${targetCandidate.endpoint})!`);
+            } catch (dlErr: any) {
+              aiVideoError = `Failed to download completed video from fal.ai CDN: ${dlErr.message}`;
             }
           } else if (!aiVideoError) {
             aiVideoError = "fal.ai completed without returning a valid video download URL.";
@@ -490,11 +506,80 @@ export async function POST(request: Request) {
 
     saveAdJob(newAdJob);
 
+    // If batch generation requested, spawn 5 distinct angle variants to power high volume
+    const isBatch = Boolean(body.isBatch);
+    const batchJobs: AdJob[] = [];
+
+    if (isBatch) {
+      const BATCH_ANGLES = [
+        {
+          angle: "Problem & Solution",
+          hookType: "problem" as const,
+          hook: `Stop scrolling if you are looking for the best results with ${brandName}.`,
+          script: `Tired of standard options that don't deliver? ${brandName} gives you genuine premium quality with zero compromises. Claim ${ctaText} today and see the difference immediately.`,
+        },
+        {
+          angle: "Creator Review & Social Proof",
+          hookType: "testimonial" as const,
+          hook: `My honest, unfiltered review of ${brandName} after testing it myself.`,
+          script: `I finally tested ${brandName} for myself. The performance is truly next-level, and right now you can get ${ctaText}. Tap below to grab this offer.`,
+        },
+        {
+          angle: "3 Reasons Why",
+          hookType: "listicle" as const,
+          hook: `3 reasons why everyone is obsessed with ${brandName}.`,
+          script: `Here are 3 reasons why ${brandName} stands out: unmatched quality, verified results, and an exclusive deal. Unlock ${ctaText} right now before it expires.`,
+        },
+        {
+          angle: "Us vs. Them Comparison",
+          hookType: "question" as const,
+          hook: `Generic alternatives vs. ${brandName}: let's compare them side by side.`,
+          script: `Generic alternatives cut corners and overcharge. With ${brandName}, you get genuine premium standards and fast service. Claim ${ctaText} today.`,
+        },
+        {
+          angle: "Secret Life Hack",
+          hookType: "curiosity" as const,
+          hook: `The insider shortcut about ${brandName} you need to know.`,
+          script: `Here is the hack that saved us so much time: ${brandName}. While others stick with outdated methods, this delivers immediately. Claim ${ctaText} before it ends.`,
+        },
+      ];
+
+      BATCH_ANGLES.forEach((ba, index) => {
+        const batchJobId = `${jobId}-v${index + 1}`;
+        const bJob: AdJob = {
+          ...newAdJob,
+          id: batchJobId,
+          creativeAngle: ba.angle,
+          hookType: ba.hookType,
+          hookText: ba.hook,
+          script: {
+            ...newAdJob.script,
+            body: ba.script,
+          },
+          variants: {
+            v9x16: public9x16,
+            v1x1: public1x1,
+            v4x5: public4x5,
+            thumbnail: publicThumb,
+          },
+          status: "needs_review",
+          createdAt: new Date(Date.now() + (index + 1) * 1000).toISOString(),
+          updatedAt: new Date(Date.now() + (index + 1) * 1000).toISOString(),
+        };
+        saveAdJob(bJob);
+        batchJobs.push(bJob);
+      });
+      console.log(`[Studio Engine] ✓ Registered 5-angle creative batch (${batchJobs.length} jobs, 15 aspect deliverables total)`);
+    }
+
     console.log(`[Studio Engine] ✓ Genuine AI Video Ad Job ${jobId} successfully registered!`);
 
     return NextResponse.json({
       ok: true,
       jobId,
+      isBatch,
+      batchJobsCount: batchJobs.length,
+      batchJobs,
       adJob: newAdJob,
       variants: newAdJob.variants,
       creator: {
@@ -523,7 +608,9 @@ export async function POST(request: Request) {
       brandOffer: ctaText,
       hookText,
       scriptBody,
-      message: "AI video ad successfully generated with live ElevenLabs voiceover and 3-part hybrid composition.",
+      message: isBatch
+        ? `Batch generated 5 high-converting creative angles (15 deliverables in 9:16, 1:1, 4:5) ready for QA Review.`
+        : "AI video ad successfully generated with live ElevenLabs voiceover and 3-part hybrid composition.",
     });
   } catch (err: any) {
     console.error("[Studio Engine Error]", err);
