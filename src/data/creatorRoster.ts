@@ -16,6 +16,21 @@ export interface CreatorProfile {
 
 export const CREATOR_ROSTER: CreatorProfile[] = [
   {
+    id: "cr-haley",
+    name: "Haley",
+    handle: "@haleycreative",
+    niche: "Lifestyle, DTC & Everyday Routine",
+    actorPresetId: "haley",
+    platforms: ["Meta", "TikTok", "YouTube"],
+    sparkAdCodeReady: true,
+    metaPartnershipEnabled: true,
+    consentAgreementOnFile: true,
+    agreementId: "AGR-2026-HALEY-001",
+    verifiedDate: "2026-10-30",
+    followersCount: "168K",
+    avgEngagement: "5.4%",
+  },
+  {
     id: "cr-01",
     name: "Emma Davis",
     handle: "@trendspotlight",

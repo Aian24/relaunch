@@ -58,5 +58,8 @@ scripts/temp_*
 public/deliveries/
 public/storage/
 relaunch-studio-engine/**/.env*
+# raw creator footage & large uncompressed takes
+*.mov
+public/videos/Haley UGC/
 *PLAN.md
 RELAUNCH_STUDIO_DEV_NEXTSTEPS_PLAN.md

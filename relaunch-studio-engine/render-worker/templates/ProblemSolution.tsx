@@ -7,14 +7,15 @@ import { EndCard } from './components/EndCard';
 /**
  * ReLaunch Studio — Three-Segment Ad Assembly Template
  * Client Locked Assembly:
- * 0–3s:   Creator Hook (sample/placeholder UGC clip) + teaser hook banner
- * 3–15s:  Client Footage (authentic product / location raw video)
- * 15–22s: AI Scene (Grok Imagine synthetic dynamic B-roll)
- * 19–22s: CTA End Card with offer
+ * 0–3.5s:  Creator Hook (authentic UGC video clip with real creator voice preserved @ 100%)
+ * 3.5–15s: Client Footage (authentic product / portfolio footage)
+ * 15–22s:  AI Scene (Grok / Kling synthetic dynamic B-roll)
+ * 19–22s:  CTA End Card with offer
  * Overlays:
+ * - Real creator voice on hook (0–3.5s); ElevenLabs VO begins strictly at body (3.5s+)
  * - Kinetic word-highlight captions (ElevenLabs / Whisper timings)
  * - AI disclosure watermark burned into bottom corner
- * - Ducked background music bed + master voiceover
+ * - Ducked background music bed
  */
 
 export interface ThreeSegmentAdProps {
@@ -29,6 +30,8 @@ export interface ThreeSegmentAdProps {
   brandUrl?: string;
   words?: WordTimestamp[];
   disclosureLabel?: string;
+  hookTrimStartSeconds?: number;
+  hookDurationSeconds?: number;
 }
 
 export const ProblemSolution: React.FC<ThreeSegmentAdProps> = ({
@@ -37,22 +40,35 @@ export const ProblemSolution: React.FC<ThreeSegmentAdProps> = ({
   aiSceneVideoUrl,
   voiceoverAudioUrl,
   musicAudioUrl,
-  hookText = "3 Hidden Reasons Why Traditional Hot Dogs Don't Compare",
-  ctaText = 'Order Online for 15% Off Your First Box',
-  brandName = 'Chicago Dog House',
+  hookText = "Stop scrolling if you want real results",
+  ctaText = 'Claim Exclusive Offer Today',
+  brandName = 'ReLaunch',
   brandUrl = 'relaunch.us/studio',
   words = [],
   disclosureLabel = 'AI-Generated Media • ReLaunch Studio',
+  hookTrimStartSeconds = 0,
+  hookDurationSeconds = 3.5,
 }) => {
+  const fps = 30;
+  const hookDurationFrames = Math.round((hookDurationSeconds || 3.5) * fps);
+  const hookStartFromFrame = Math.round((hookTrimStartSeconds || 0) * fps);
+  const totalFrames = 660; // 22 seconds @ 30fps
+  const aiSceneFrames = 210; // 7 seconds (15–22s)
+  const clientFootageFrames = Math.max(90, totalFrames - hookDurationFrames - aiSceneFrames);
+  const clientFootageStart = hookDurationFrames;
+  const aiSceneStart = clientFootageStart + clientFootageFrames;
+
   return (
     <AbsoluteFill style={{ backgroundColor: '#000000' }}>
       {/* ================================================================= */}
-      {/* SEGMENT 1: Creator Hook (0–3s / Frames 0 to 90 @ 30fps)          */}
+      {/* SEGMENT 1: Creator Hook (0 to hookDuration / Real Creator Voice)  */}
       {/* ================================================================= */}
-      <Sequence from={0} durationInFrames={90}>
+      <Sequence from={0} durationInFrames={hookDurationFrames}>
         {creatorHookVideoUrl ? (
           <Video
             src={creatorHookVideoUrl}
+            startFrom={hookStartFromFrame}
+            volume={1.0}
             style={{ width: '100%', height: '100%', objectFit: 'cover' }}
           />
         ) : (
@@ -76,7 +92,7 @@ export const ProblemSolution: React.FC<ThreeSegmentAdProps> = ({
               color: '#000000',
               padding: '12px 24px',
               borderRadius: 10,
-              fontSize: 36,
+              fontSize: 34,
               fontWeight: 900,
               fontFamily: "'Plus Jakarta Sans', -apple-system, sans-serif",
               textTransform: 'uppercase',
@@ -92,9 +108,9 @@ export const ProblemSolution: React.FC<ThreeSegmentAdProps> = ({
       </Sequence>
 
       {/* ================================================================= */}
-      {/* SEGMENT 2: Client Footage (3–15s / Frames 90 to 450 @ 30fps)      */}
+      {/* SEGMENT 2: Client Footage (hookDuration to AI Scene)              */}
       {/* ================================================================= */}
-      <Sequence from={90} durationInFrames={360}>
+      <Sequence from={clientFootageStart} durationInFrames={clientFootageFrames}>
         {clientFootageVideoUrl ? (
           <Video
             src={clientFootageVideoUrl}
@@ -106,9 +122,9 @@ export const ProblemSolution: React.FC<ThreeSegmentAdProps> = ({
       </Sequence>
 
       {/* ================================================================= */}
-      {/* SEGMENT 3: AI Scene (15–22s / Frames 450 to 660 @ 30fps)          */}
+      {/* SEGMENT 3: AI Scene (aiSceneStart to End @ 30fps)                 */}
       {/* ================================================================= */}
-      <Sequence from={450} durationInFrames={210}>
+      <Sequence from={aiSceneStart} durationInFrames={aiSceneFrames}>
         {aiSceneVideoUrl ? (
           <Video
             src={aiSceneVideoUrl}
@@ -120,9 +136,9 @@ export const ProblemSolution: React.FC<ThreeSegmentAdProps> = ({
       </Sequence>
 
       {/* ================================================================= */}
-      {/* CTA End-Card Overlay (19–22s / Frames 570 to 660 @ 30fps)         */}
+      {/* CTA End-Card Overlay (Last 90 Frames / 19–22s @ 30fps)            */}
       {/* ================================================================= */}
-      <Sequence from={570} durationInFrames={90}>
+      <Sequence from={totalFrames - 90} durationInFrames={90}>
         <EndCard
           ctaText={ctaText}
           brandName={brandName}
@@ -131,21 +147,22 @@ export const ProblemSolution: React.FC<ThreeSegmentAdProps> = ({
       </Sequence>
 
       {/* ================================================================= */}
-      {/* Master Voiceover Track (ElevenLabs)                               */}
+      {/* Master Voiceover Track (ElevenLabs) — strictly delayed after hook */}
+      {/* Real creator voice owns 0 to hookDuration; VO owns 3.5s to 22s    */}
       {/* ================================================================= */}
-      {voiceoverAudioUrl && <Audio src={voiceoverAudioUrl} volume={1.0} />}
+      {voiceoverAudioUrl && (
+        <Sequence from={hookDurationFrames}>
+          <Audio src={voiceoverAudioUrl} volume={1.0} />
+        </Sequence>
+      )}
 
-      {/* Background Music Bed (ducked)                                     */}
-      {musicAudioUrl && <Audio src={musicAudioUrl} volume={0.12} />}
+      {/* Ducked Background Music Bed (0.10)                                */}
+      {musicAudioUrl && <Audio src={musicAudioUrl} volume={0.10} />}
 
-      {/* ================================================================= */}
       {/* Kinetic Captions Subtitles Layer (Whisper / ElevenLabs Timings)   */}
-      {/* ================================================================= */}
       {words.length > 0 && <Captions words={words} />}
 
-      {/* ================================================================= */}
       {/* Mandatory AI Disclosure Watermark Layer                           */}
-      {/* ================================================================= */}
       <Watermark label={disclosureLabel} position="bottom_left" />
     </AbsoluteFill>
   );

@@ -1,0 +1,255 @@
+export interface CreatorClipAsset {
+  id: string;
+  creatorId: string;
+  creatorName: string;
+  handle: string;
+  type: "hook" | "broll";
+  angle: "problem" | "ugc" | "listicle" | "comparison" | "hack" | "founder" | "fomo" | "general";
+  label: string;
+  spokenText?: string;
+  src: string;
+  thumbnail: string;
+  durationSeconds: number;
+  recommendedTrim: {
+    start: number;
+    end: number;
+  };
+  resolution: string;
+  fps: number;
+  version: number;
+  status: "active" | "archived" | "re-shoot-requested";
+}
+
+export const CREATOR_ASSETS: CreatorClipAsset[] = [
+  // =========================================================================
+  // CREATOR: Haley (@haleycreative) — Hooks 1–7 (Raw takes with in/out trims)
+  // =========================================================================
+  {
+    id: "haley-hook-01",
+    creatorId: "haley",
+    creatorName: "Haley",
+    handle: "@haleycreative",
+    type: "hook",
+    angle: "problem",
+    label: "Hook 1: Problem / Stop Scrolling",
+    spokenText: "Stop scrolling if you're looking for the best results.",
+    src: "/creators/haley/hooks/haley-hook-01.mp4",
+    thumbnail: "/creators/haley/hooks/haley-hook-01.jpg",
+    durationSeconds: 10.73,
+    recommendedTrim: { start: 3.8, end: 7.1 },
+    resolution: "1080x1920",
+    fps: 30,
+    version: 1,
+    status: "active",
+  },
+  {
+    id: "haley-hook-02",
+    creatorId: "haley",
+    creatorName: "Haley",
+    handle: "@haleycreative",
+    type: "hook",
+    angle: "ugc",
+    label: "Hook 2: Authentic Review / Skeptic",
+    spokenText: "I was super skeptical until I actually tried this myself.",
+    src: "/creators/haley/hooks/haley-hook-02.mp4",
+    thumbnail: "/creators/haley/hooks/haley-hook-02.jpg",
+    durationSeconds: 22.03,
+    recommendedTrim: { start: 4.2, end: 7.6 },
+    resolution: "1080x1920",
+    fps: 30,
+    version: 1,
+    status: "active",
+  },
+  {
+    id: "haley-hook-03",
+    creatorId: "haley",
+    creatorName: "Haley",
+    handle: "@haleycreative",
+    type: "hook",
+    angle: "comparison",
+    label: "Hook 3: Us vs. Them / Direct Contrast",
+    spokenText: "Before you buy anything else, you need to see this comparison.",
+    src: "/creators/haley/hooks/haley-hook-03.mp4",
+    thumbnail: "/creators/haley/hooks/haley-hook-03.jpg",
+    durationSeconds: 13.92,
+    recommendedTrim: { start: 1.8, end: 5.2 },
+    resolution: "1080x1920",
+    fps: 30,
+    version: 1,
+    status: "active",
+  },
+  {
+    id: "haley-hook-04",
+    creatorId: "haley",
+    creatorName: "Haley",
+    handle: "@haleycreative",
+    type: "hook",
+    angle: "listicle",
+    label: "Hook 4: 3 Reasons / Curiosity",
+    spokenText: "Here are 3 reasons why everyone is talking about this.",
+    src: "/creators/haley/hooks/haley-hook-04.mp4",
+    thumbnail: "/creators/haley/hooks/haley-hook-04.jpg",
+    durationSeconds: 20.10,
+    recommendedTrim: { start: 2.5, end: 5.8 },
+    resolution: "1080x1920",
+    fps: 30,
+    version: 1,
+    status: "active",
+  },
+  {
+    id: "haley-hook-05",
+    creatorId: "haley",
+    creatorName: "Haley",
+    handle: "@haleycreative",
+    type: "hook",
+    angle: "hack",
+    label: "Hook 5: Insider Secret / Life Hack",
+    spokenText: "I wish someone told me this sooner — this is the ultimate hack.",
+    src: "/creators/haley/hooks/haley-hook-05.mp4",
+    thumbnail: "/creators/haley/hooks/haley-hook-05.jpg",
+    durationSeconds: 29.12,
+    recommendedTrim: { start: 3.0, end: 6.4 },
+    resolution: "1080x1920",
+    fps: 30,
+    version: 1,
+    status: "active",
+  },
+  {
+    id: "haley-hook-06",
+    creatorId: "haley",
+    creatorName: "Haley",
+    handle: "@haleycreative",
+    type: "hook",
+    angle: "fomo",
+    label: "Hook 6: Urgency & Limited Drop",
+    spokenText: "Don't miss out on this deal before it sells out completely.",
+    src: "/creators/haley/hooks/haley-hook-06.mp4",
+    thumbnail: "/creators/haley/hooks/haley-hook-06.jpg",
+    durationSeconds: 23.28,
+    recommendedTrim: { start: 2.2, end: 5.6 },
+    resolution: "1080x1920",
+    fps: 30,
+    version: 1,
+    status: "active",
+  },
+  {
+    id: "haley-hook-07",
+    creatorId: "haley",
+    creatorName: "Haley",
+    handle: "@haleycreative",
+    type: "hook",
+    angle: "founder",
+    label: "Hook 7: Behind the Scenes & Craft",
+    spokenText: "Why we did this differently from every other brand on the market.",
+    src: "/creators/haley/hooks/haley-hook-07.mp4",
+    thumbnail: "/creators/haley/hooks/haley-hook-07.jpg",
+    durationSeconds: 19.42,
+    recommendedTrim: { start: 1.5, end: 4.9 },
+    resolution: "1080x1920",
+    fps: 30,
+    version: 1,
+    status: "active",
+  },
+
+  // =========================================================================
+  // CREATOR: Haley B-Roll Cuts (Normalized from 4K 60fps to 1080x1920 30fps)
+  // =========================================================================
+  {
+    id: "haley-broll-01",
+    creatorId: "haley",
+    creatorName: "Haley",
+    handle: "@haleycreative",
+    type: "broll",
+    angle: "general",
+    label: "B-Roll 1: Product Showcase Macro",
+    src: "/creators/haley/broll/haley-broll-01.mp4",
+    thumbnail: "/creators/haley/broll/haley-broll-01.jpg",
+    durationSeconds: 8.72,
+    recommendedTrim: { start: 0.0, end: 4.0 },
+    resolution: "1080x1920",
+    fps: 30,
+    version: 1,
+    status: "active",
+  },
+  {
+    id: "haley-broll-02",
+    creatorId: "haley",
+    creatorName: "Haley",
+    handle: "@haleycreative",
+    type: "broll",
+    angle: "general",
+    label: "B-Roll 2: Lifestyle Unboxing Motion",
+    src: "/creators/haley/broll/haley-broll-02.mp4",
+    thumbnail: "/creators/haley/broll/haley-broll-02.jpg",
+    durationSeconds: 10.37,
+    recommendedTrim: { start: 0.0, end: 4.0 },
+    resolution: "1080x1920",
+    fps: 30,
+    version: 1,
+    status: "active",
+  },
+  {
+    id: "haley-broll-03",
+    creatorId: "haley",
+    creatorName: "Haley",
+    handle: "@haleycreative",
+    type: "broll",
+    angle: "general",
+    label: "B-Roll 3: Texture & Application Action",
+    src: "/creators/haley/broll/haley-broll-03.mp4",
+    thumbnail: "/creators/haley/broll/haley-broll-03.jpg",
+    durationSeconds: 10.26,
+    recommendedTrim: { start: 0.0, end: 4.0 },
+    resolution: "1080x1920",
+    fps: 30,
+    version: 1,
+    status: "active",
+  },
+  {
+    id: "haley-broll-04",
+    creatorId: "haley",
+    creatorName: "Haley",
+    handle: "@haleycreative",
+    type: "broll",
+    angle: "general",
+    label: "B-Roll 4: Daily Routine & Reaction",
+    src: "/creators/haley/broll/haley-broll-04.mp4",
+    thumbnail: "/creators/haley/broll/haley-broll-04.jpg",
+    durationSeconds: 7.00,
+    recommendedTrim: { start: 0.0, end: 4.0 },
+    resolution: "1080x1920",
+    fps: 30,
+    version: 1,
+    status: "active",
+  },
+];
+
+/**
+ * Filter clips by creator ID and/or asset type
+ */
+export function getCreatorClips(
+  creatorId?: string,
+  type?: "hook" | "broll"
+): CreatorClipAsset[] {
+  return CREATOR_ASSETS.filter((clip) => {
+    if (clip.status !== "active") return false;
+    if (creatorId && clip.creatorId !== creatorId) return false;
+    if (type && clip.type !== type) return false;
+    return true;
+  });
+}
+
+/**
+ * Retrieve a specific clip by asset ID
+ */
+export function getCreatorClipById(assetId: string): CreatorClipAsset | undefined {
+  return CREATOR_ASSETS.find((c) => c.id === assetId);
+}
+
+/**
+ * Get default starting hook for a creator
+ */
+export function getDefaultHook(creatorId = "haley"): CreatorClipAsset {
+  const hooks = getCreatorClips(creatorId, "hook");
+  return hooks[0] || CREATOR_ASSETS[0];
+}

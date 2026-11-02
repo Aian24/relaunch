@@ -40,6 +40,8 @@ import {
   ExternalLink,
 } from "lucide-react";
 import { CREATOR_ROSTER } from "@/data/creatorRoster";
+import { CREATOR_ASSETS, CreatorClipAsset, getCreatorClips, getCreatorClipById } from "@/data/creatorAssets";
+import HookTrimmer from "@/components/studio/HookTrimmer";
 
 interface AngleContent {
   title: string;
@@ -279,7 +281,11 @@ export default function StudioVideoGenerator() {
   // Creative Angle & Copy
   const [selectedAngle, setSelectedAngle] = useState<string>("problem");
   const [angleDropdownOpen, setAngleDropdownOpen] = useState(false);
-  const [selectedActor, setSelectedActor] = useState<string>("emma");
+  const [selectedActor, setSelectedActor] = useState<string>("haley");
+  const [selectedCreatorAssetId, setSelectedCreatorAssetId] = useState<string>("haley-hook-01");
+  const [trimStart, setTrimStart] = useState<number>(3.8);
+  const [trimEnd, setTrimEnd] = useState<number>(7.1);
+  const [assetTab, setAssetTab] = useState<"hooks" | "broll">("hooks");
   const [creatorDropdownOpen, setCreatorDropdownOpen] = useState(false);
   const [videoModel, setVideoModel] = useState<"kling" | "grok" | "seedance">("kling");
   const [availableVoices, setAvailableVoices] = useState<StudioVoice[]>(DEFAULT_STUDIO_VOICES);
@@ -307,6 +313,19 @@ export default function StudioVideoGenerator() {
   // Dropdown States
   const [modelDropdownOpen, setModelDropdownOpen] = useState(false);
   const [voiceDropdownOpen, setVoiceDropdownOpen] = useState(false);
+  const [footageDropdownOpen, setFootageDropdownOpen] = useState(false);
+
+  const activeCreatorAsset = useMemo(() => {
+    return getCreatorClipById(selectedCreatorAssetId) || CREATOR_ASSETS[0];
+  }, [selectedCreatorAssetId]);
+
+  const creatorHooksList = useMemo(() => {
+    return getCreatorClips(selectedActor === "haley" ? "haley" : undefined, "hook");
+  }, [selectedActor]);
+
+  const creatorBrollList = useMemo(() => {
+    return getCreatorClips(selectedActor === "haley" ? "haley" : undefined, "broll");
+  }, [selectedActor]);
 
   // Generation & Player State
   const [isGenerating, setIsGenerating] = useState(false);
@@ -352,6 +371,7 @@ export default function StudioVideoGenerator() {
   const creatorDropdownRef = useRef<HTMLDivElement>(null);
   const modelDropdownRef = useRef<HTMLDivElement>(null);
   const voiceDropdownRef = useRef<HTMLDivElement>(null);
+  const footageDropdownRef = useRef<HTMLDivElement>(null);
   const sidebarRef = useRef<HTMLDivElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
@@ -535,7 +555,7 @@ export default function StudioVideoGenerator() {
           setGenStepText("Generating authentic creator voiceover via ElevenLabs...");
           return prev + 2;
         } else if (prev < 55) {
-          setGenStepText("fal.ai Kling neural engine generating 4K commercial motion frames...");
+          setGenStepText("fal.ai Kling neural engine generating 1080p commercial motion frames...");
           return prev + 1.2;
         } else if (prev < 85) {
           setGenStepText("AI diffusion rendering dynamic product commercial reel in cloud...");
@@ -567,11 +587,14 @@ export default function StudioVideoGenerator() {
           scriptBody: scriptBody,
           ctaText: brandOffer.trim() || "Claim Offer",
           actor: selectedActor,
+          creatorAssetId: selectedCreatorAssetId,
+          trimStart: trimStart,
+          trimEnd: trimEnd,
           voiceId: selectedVoiceId,
           mediaSource: uploadedMediaBase64 || uploadedMediaSrc || "",
           mediaType: uploadedMediaType || "prompt_only",
-          visualPrompt: `Cinematic 4K advertising b-roll of ${brandName}, dramatic studio lighting, macro product motion, physical realism, 60fps`,
-          aiModel: videoModel === "grok" ? "grok-1.5" : videoModel === "seedance" ? "seedance-fast" : "kling-pro",
+          visualPrompt: `Cinematic 1080p advertising b-roll of ${brandName}, dramatic studio lighting, macro product motion, physical realism, 60fps`,
+          aiModel: videoModel === "grok" ? "grok-1.5" : videoModel === "seedance" ? "seedance-fast" : "kling-1080p",
           isBatch: asBatch,
         }),
       });
@@ -631,7 +654,7 @@ export default function StudioVideoGenerator() {
           id: `creator-${selectedActor}`,
           name: activeCreator.name,
           handle: activeCreator.handle,
-          hookClipUrl: activeCreator.actorPresetId === "sarah" ? "/videos/reels/herbivore-aquarius-cream.mp4" : "/videos/reels/beauty-ugc-routine.mp4",
+          hookClipUrl: activeCreatorAsset?.src || "/creators/haley/hooks/haley-hook-01.mp4",
         },
         clientMedia: data.clientMedia || {
           url: uploadedMediaBase64 || uploadedMediaSrc || "",
@@ -734,28 +757,24 @@ export default function StudioVideoGenerator() {
   const togglePlay = () => {
     if (isPlaying) {
       videoRef.current?.pause();
-      creatorVideoRef.current?.pause();
-      audioRef.current?.pause();
       setIsPlaying(false);
     } else {
-      videoRef.current?.play().catch(() => {});
-      creatorVideoRef.current?.play().catch(() => {});
-      audioRef.current?.play().catch(() => {});
-      setIsPlaying(true);
+      if (videoRef.current) {
+        if (isMuted) {
+          videoRef.current.muted = false;
+          setIsMuted(false);
+        }
+        videoRef.current.play().then(() => setIsPlaying(true)).catch(() => setIsPlaying(false));
+      }
     }
   };
 
   const toggleMute = () => {
     const nextMuted = !isMuted;
     setIsMuted(nextMuted);
-    if (videoRef.current) videoRef.current.muted = nextMuted;
-    if (creatorVideoRef.current) creatorVideoRef.current.muted = nextMuted;
-    if (audioRef.current) {
-      audioRef.current.muted = nextMuted;
-      audioRef.current.volume = nextMuted ? 0 : 1;
-      if (!nextMuted) {
-        audioRef.current.play().catch(() => {});
-      }
+    if (videoRef.current) {
+      videoRef.current.muted = nextMuted;
+      videoRef.current.volume = nextMuted ? 0 : 1;
     }
   };
 
@@ -1191,6 +1210,143 @@ export default function StudioVideoGenerator() {
               )}
             </div>
 
+            {/* Creator Footage Dropdown (Uniform to other dropdowns) */}
+            <div className="space-y-1 relative" ref={footageDropdownRef}>
+              <div className="flex items-center justify-between">
+                <label className="text-[10px] font-bold text-zinc-500 uppercase tracking-wider block">
+                  Creator Footage
+                </label>
+                <span className="text-[10px] font-mono text-[#7F48ED] font-bold">
+                  {assetTab === "hooks" ? "7 Hooks Available" : "4 B-Roll Cuts"}
+                </span>
+              </div>
+              <button
+                type="button"
+                onClick={() => {
+                  setFootageDropdownOpen(!footageDropdownOpen);
+                  setCreatorDropdownOpen(false);
+                  setModelDropdownOpen(false);
+                  setVoiceDropdownOpen(false);
+                  setAngleDropdownOpen(false);
+                }}
+                className="w-full text-left bg-zinc-50 border border-zinc-200 hover:border-[#7F48ED] rounded-xl px-3 py-2 text-xs text-zinc-900 flex items-center justify-between cursor-pointer focus:outline-none focus:border-[#7F48ED] font-semibold transition"
+              >
+                <div className="flex items-center gap-2 truncate min-w-0">
+                  <span className="w-5 h-5 rounded-full bg-[#7F48ED]/10 text-[#7F48ED] flex items-center justify-center text-[10px] font-black shrink-0">
+                    {activeCreatorAsset.type === "hook" ? "H" : "B"}
+                  </span>
+                  <div className="truncate">
+                    <span className="font-bold text-zinc-900">{activeCreatorAsset.label}</span>
+                    <span className="text-zinc-500 text-[11px] ml-1.5 font-normal">
+                      ({activeCreatorAsset.durationSeconds}s)
+                    </span>
+                  </div>
+                </div>
+                <ChevronDown className={`w-3.5 h-3.5 text-zinc-500 shrink-0 transition-transform ${footageDropdownOpen ? "rotate-180" : ""}`} />
+              </button>
+
+              {footageDropdownOpen && (
+                <div
+                  onWheel={(e) => e.stopPropagation()}
+                  className="absolute top-full left-0 right-0 mt-1 bg-white border border-zinc-200 rounded-xl p-1.5 shadow-xl z-50 space-y-1 max-h-64 overflow-y-auto overscroll-contain"
+                  style={{ scrollbarWidth: "thin" }}
+                >
+                  {/* Category Filter Tabs inside dropdown */}
+                  <div className="flex items-center gap-1 bg-zinc-100 p-0.5 rounded-lg text-[10px] font-bold mb-1">
+                    <button
+                      type="button"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setAssetTab("hooks");
+                      }}
+                      className={`flex-1 py-1 rounded-md transition cursor-pointer text-center ${
+                        assetTab === "hooks"
+                          ? "bg-white text-[#7F48ED] shadow-xs"
+                          : "text-zinc-500 hover:text-zinc-900"
+                      }`}
+                    >
+                      Opening Hooks (7)
+                    </button>
+                    <button
+                      type="button"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setAssetTab("broll");
+                      }}
+                      className={`flex-1 py-1 rounded-md transition cursor-pointer text-center ${
+                        assetTab === "broll"
+                          ? "bg-white text-[#7F48ED] shadow-xs"
+                          : "text-zinc-500 hover:text-zinc-900"
+                      }`}
+                    >
+                      B-Roll Motion (4)
+                    </button>
+                  </div>
+
+                  {/* Dropdown Options List */}
+                  {(assetTab === "hooks" ? creatorHooksList : creatorBrollList).map((clip) => {
+                    const isSelected = selectedCreatorAssetId === clip.id;
+                    return (
+                      <div
+                        key={clip.id}
+                        onClick={() => {
+                          setSelectedCreatorAssetId(clip.id);
+                          setTrimStart(clip.recommendedTrim.start);
+                          setTrimEnd(clip.recommendedTrim.end);
+                          if (clip.spokenText) {
+                            setSelectedHook(clip.spokenText);
+                          }
+                          if (videoRef.current) {
+                            videoRef.current.currentTime = clip.recommendedTrim.start;
+                          }
+                          setFootageDropdownOpen(false);
+                        }}
+                        className={`px-2.5 py-2 rounded-lg text-xs cursor-pointer transition flex items-center justify-between ${
+                          isSelected
+                            ? "bg-[#7F48ED] text-white font-bold shadow-xs"
+                            : "text-zinc-700 hover:bg-[#FF6700]/10 hover:text-[#FF6700]"
+                        }`}
+                      >
+                        <div className="flex flex-col min-w-0 pr-1">
+                          <div className="flex items-center gap-1.5">
+                            <span className="font-bold truncate">{clip.label}</span>
+                            <span className={`text-[9px] font-mono px-1.5 py-0.2 rounded shrink-0 ${
+                              isSelected ? "bg-white/20 text-white" : "bg-zinc-100 text-zinc-600"
+                            }`}>
+                              {clip.durationSeconds}s
+                            </span>
+                          </div>
+                          {clip.spokenText && (
+                            <span className={`text-[10px] truncate mt-0.5 ${
+                              isSelected ? "text-purple-100" : "text-zinc-500 italic"
+                            }`}>
+                              &ldquo;{clip.spokenText}&rdquo;
+                            </span>
+                          )}
+                        </div>
+                        {isSelected && <Check className="w-3.5 h-3.5 shrink-0 ml-1.5" />}
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
+            </div>
+
+            {/* Interactive Hook Trimmer Component (In/Out Selection from Raw 10–29s Take) */}
+            {activeCreatorAsset && activeCreatorAsset.type === "hook" && (
+              <div className="pt-1">
+                <HookTrimmer
+                  clip={activeCreatorAsset}
+                  trimStart={trimStart}
+                  trimEnd={trimEnd}
+                  onTrimChange={(start, end) => {
+                    setTrimStart(start);
+                    setTrimEnd(end);
+                  }}
+                />
+              </div>
+            )}
+
             {/* AI Engine & Voice Cadence */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 pt-0.5">
               {/* Visual Engine */}
@@ -1205,7 +1361,7 @@ export default function StudioVideoGenerator() {
                   className="w-full text-left bg-zinc-50 border border-zinc-200 hover:border-zinc-300 rounded-xl px-2.5 py-1.5 text-xs text-zinc-900 flex items-center justify-between cursor-pointer focus:outline-none focus:border-[#7F48ED] font-semibold"
                 >
                   <span className="truncate">
-                    {videoModel === "kling" ? "Kling 4K Pro" : videoModel === "grok" ? "Grok Imagine" : "Seedance 2.0"}
+                    {videoModel === "kling" ? "Kling 1080p Commercial Engine" : videoModel === "grok" ? "Grok Imagine" : "Seedance 2.0"}
                   </span>
                   <ChevronDown className={`w-3.5 h-3.5 text-zinc-500 shrink-0 transition-transform ${modelDropdownOpen ? "rotate-180" : ""}`} />
                 </button>
@@ -1216,7 +1372,7 @@ export default function StudioVideoGenerator() {
                     className="absolute bottom-full left-0 right-0 mb-1.5 bg-white border border-zinc-200 rounded-xl p-1 shadow-2xl z-50 space-y-0.5 overscroll-contain"
                   >
                     {[
-                      { id: "kling", label: "Kling 4K Pro (Ultra-HD AI)" },
+                      { id: "kling", label: "Kling 1080p Commercial Engine (Standard HD)" },
                       { id: "grok", label: "Grok Imagine (High Motion)" },
                       { id: "seedance", label: "Seedance 2.0 (Fast)" },
                     ].map((m) => {
@@ -1419,7 +1575,7 @@ export default function StudioVideoGenerator() {
         {/* ============================================================== */}
         {/* RIGHT STAGE: CLEAN LIGHT CANVAS & VIDEO PLAYER                */}
         {/* ============================================================== */}
-        <div className={`flex-1 min-w-0 bg-[#F8F9FC] flex-col p-3 sm:p-6 relative gap-3 sm:gap-4 h-auto lg:h-full lg:overflow-y-auto min-h-0 ${mobileTab === "preview" ? "flex" : "hidden lg:flex"}`}>
+        <div className={`flex-1 min-w-0 bg-[#F8F9FC] flex-col p-4 sm:p-6 relative gap-4 h-auto lg:h-full lg:overflow-y-auto min-h-0 ${mobileTab === "preview" ? "flex" : "hidden lg:flex"}`}>
           {/* Top Canvas Controls Bar (Clean White) */}
           <div className="w-full flex flex-wrap items-center justify-between gap-3 bg-white border border-zinc-200/90 rounded-2xl px-4 py-3 shadow-sm">
             {/* Format Ratio Selector */}
@@ -1652,16 +1808,7 @@ export default function StudioVideoGenerator() {
 
           {/* CENTERED VIDEO DISPLAY STAGE */}
           <div className="w-full flex-1 flex items-center justify-center py-2 relative min-h-[380px]">
-            {/* Active Live Voiceover Audio Element */}
-            {generatedResult?.voiceover?.url && (
-              <audio
-                ref={audioRef}
-                src={generatedResult.voiceover.url}
-                preload="auto"
-                playsInline
-                muted={isMuted}
-              />
-            )}
+            {/* Master audio is embedded directly into the video stream for synchronized playback */}
 
             {/* Generation Progress Overlay (Clean White Backlit) */}
             {isGenerating && (
@@ -1787,15 +1934,6 @@ export default function StudioVideoGenerator() {
                       {isMuted ? <VolumeX className="w-3.5 h-3.5 text-red-400" /> : <Volume2 className="w-3.5 h-3.5 text-emerald-400" />}
                     </button>
                   </div>
-                ) : activeVideoSrc ? (
-                  <video
-                    src={activeVideoSrc}
-                    playsInline
-                    loop
-                    muted={isMuted}
-                    autoPlay
-                    className="absolute inset-0 w-full h-full object-cover"
-                  />
                 ) : (
                   <div className="absolute inset-0 w-full h-full flex flex-col items-center justify-center p-6 text-center bg-[#090D16] text-white">
                     <div className="w-12 h-12 rounded-2xl bg-[#7F48ED]/20 border border-[#7F48ED]/30 flex items-center justify-center mb-3">
@@ -1953,15 +2091,27 @@ export default function StudioVideoGenerator() {
                       )}
                     </button>
 
-                    {/* Bottom Right Audio Mute Button */}
-                    <button
-                      type="button"
-                      onClick={toggleMute}
-                      className="absolute bottom-3 right-3 p-2.5 rounded-full bg-black/75 text-white hover:bg-black/95 transition z-20 cursor-pointer shadow-lg"
-                      title={isMuted ? "Unmute Voiceover" : "Mute"}
-                    >
-                      {isMuted ? <VolumeX className="w-4 h-4 text-red-400" /> : <Volume2 className="w-4 h-4 text-emerald-400" />}
-                    </button>
+                    {/* Bottom Right Audio Mute Button with Tap for Sound Pill */}
+                    <div className="absolute bottom-3 right-3 flex items-center gap-2 z-20 pointer-events-auto">
+                      {isMuted && (
+                        <button
+                          type="button"
+                          onClick={toggleMute}
+                          className="bg-black/85 backdrop-blur-md border border-white/20 text-white text-[11px] font-bold px-3 py-1.5 rounded-full flex items-center gap-1.5 shadow-xl hover:bg-black transition cursor-pointer animate-pulse"
+                        >
+                          <VolumeX className="w-3.5 h-3.5 text-red-400" />
+                          <span>Tap for Sound</span>
+                        </button>
+                      )}
+                      <button
+                        type="button"
+                        onClick={toggleMute}
+                        className="p-2.5 rounded-full bg-black/75 text-white hover:bg-black/95 transition cursor-pointer shadow-lg border border-white/10"
+                        title={isMuted ? "Unmute Voiceover" : "Mute Voiceover"}
+                      >
+                        {isMuted ? <VolumeX className="w-4 h-4 text-red-400" /> : <Volume2 className="w-4 h-4 text-emerald-400" />}
+                      </button>
+                    </div>
                   </div>
                 ) : uploadedMediaType === "image" && uploadedMediaSrc ? (
                   <div className="relative w-full h-full flex items-center justify-center bg-zinc-900 p-4">
