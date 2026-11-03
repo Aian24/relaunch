@@ -60,7 +60,7 @@ interface BrandPreset {
 const BRAND_PRESETS: BrandPreset[] = [
   {
     id: "chicago-dog",
-    name: "Chicago Dog House",
+    name: "Chicago Dog 42",
     category: "Food & Dining",
     offer: "15% off first pickup order",
   },
@@ -73,8 +73,8 @@ const BRAND_PRESETS: BrandPreset[] = [
   {
     id: "turf-life",
     name: "Turf Life",
-    category: "Home & Garden",
-    offer: "Free consultation + $200 off",
+    category: "Golf & Sports Apparel",
+    offer: "15% off performance sports apparel",
   },
 ];
 
@@ -275,7 +275,7 @@ function getActiveCaption(
 export default function StudioVideoGenerator() {
   // Brand & Campaign Setup State
   const [selectedPresetId, setSelectedPresetId] = useState<string>("chicago-dog");
-  const [brandName, setBrandName] = useState("Chicago Dog House");
+  const [brandName, setBrandName] = useState("Chicago Dog 42");
   const [brandOffer, setBrandOffer] = useState("15% off first pickup order");
 
   // Creative Angle & Copy
@@ -374,6 +374,95 @@ export default function StudioVideoGenerator() {
   const footageDropdownRef = useRef<HTMLDivElement>(null);
   const sidebarRef = useRef<HTMLDivElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
+
+  const [draftRestored, setDraftRestored] = useState(false);
+  const [hasLoadedDraft, setHasLoadedDraft] = useState(false);
+
+  // Restore draft from localStorage on initial client mount
+  useEffect(() => {
+    try {
+      const saved = localStorage.getItem("relaunch_studio_generator_draft");
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        if (parsed.brandName) setBrandName(parsed.brandName);
+        if (parsed.brandOffer) setBrandOffer(parsed.brandOffer);
+        if (parsed.selectedPresetId) setSelectedPresetId(parsed.selectedPresetId);
+        if (parsed.selectedAngle) setSelectedAngle(parsed.selectedAngle);
+        if (parsed.selectedActor) setSelectedActor(parsed.selectedActor);
+        if (parsed.selectedCreatorAssetId) setSelectedCreatorAssetId(parsed.selectedCreatorAssetId);
+        if (typeof parsed.trimStart === "number") setTrimStart(parsed.trimStart);
+        if (typeof parsed.trimEnd === "number") setTrimEnd(parsed.trimEnd);
+        if (parsed.videoModel) setVideoModel(parsed.videoModel);
+        if (parsed.selectedVoiceId) setSelectedVoiceId(parsed.selectedVoiceId);
+        if (parsed.selectedHook) setSelectedHook(parsed.selectedHook);
+        if (parsed.scriptBody) setScriptBody(parsed.scriptBody);
+        setDraftRestored(true);
+      }
+    } catch (e) {
+      // ignore parse errors
+    } finally {
+      setHasLoadedDraft(true);
+    }
+  }, []);
+
+  // Debounced auto-save to localStorage
+  useEffect(() => {
+    if (!hasLoadedDraft) return;
+    const timer = setTimeout(() => {
+      try {
+        const stateToSave = {
+          selectedPresetId,
+          brandName,
+          brandOffer,
+          selectedAngle,
+          selectedActor,
+          selectedCreatorAssetId,
+          trimStart,
+          trimEnd,
+          videoModel,
+          selectedVoiceId,
+          selectedHook,
+          scriptBody,
+          updatedAt: Date.now(),
+        };
+        localStorage.setItem("relaunch_studio_generator_draft", JSON.stringify(stateToSave));
+      } catch (e) {
+        // ignore quota errors
+      }
+    }, 500);
+
+    return () => clearTimeout(timer);
+  }, [
+    hasLoadedDraft,
+    selectedPresetId,
+    brandName,
+    brandOffer,
+    selectedAngle,
+    selectedActor,
+    selectedCreatorAssetId,
+    trimStart,
+    trimEnd,
+    videoModel,
+    selectedVoiceId,
+    selectedHook,
+    scriptBody,
+  ]);
+
+  const handleResetDraft = () => {
+    try {
+      localStorage.removeItem("relaunch_studio_generator_draft");
+    } catch (e) {}
+    setSelectedPresetId("chicago-dog");
+    setBrandName("Chicago Dog 42");
+    setBrandOffer("15% off first pickup order");
+    setSelectedAngle("problem");
+    setSelectedActor("haley");
+    setSelectedCreatorAssetId("haley-hook-01");
+    setTrimStart(3.8);
+    setTrimEnd(7.1);
+    setVideoModel("kling");
+    setDraftRestored(false);
+  };
 
   const activeCreator = useMemo(() => {
     return CREATOR_ROSTER.find((c) => c.actorPresetId === selectedActor) || CREATOR_ROSTER[0];
@@ -815,6 +904,21 @@ export default function StudioVideoGenerator() {
               <span className="text-[#FF6700]">Generator</span>
             </span>
           </div>
+
+          {draftRestored && (
+            <div className="hidden sm:inline-flex items-center gap-1.5 px-3 py-0.5 rounded-full bg-purple-50 hover:bg-purple-100/70 border border-purple-200/90 text-[11px] font-sans shrink-0 transition-all shadow-[0_1px_3px_rgba(127,72,237,0.06)]">
+              <span className="font-semibold tracking-tight text-[#5B21B6]">Draft Restored</span>
+              <span className="text-purple-300">·</span>
+              <button
+                type="button"
+                onClick={handleResetDraft}
+                className="font-bold text-[#7F48ED] hover:text-[#4C1D95] hover:underline cursor-pointer transition-colors"
+                title="Reset generator to original presets"
+              >
+                Reset
+              </button>
+            </div>
+          )}
         </div>
 
         {/* Center: Brand Quick Switcher */}
@@ -919,7 +1023,7 @@ export default function StudioVideoGenerator() {
                   type="text"
                   value={brandName}
                   onChange={(e) => setBrandName(e.target.value)}
-                  placeholder="e.g. Chicago Dog House"
+                  placeholder="e.g. Chicago Dog 42"
                   className="w-full bg-white border border-zinc-200 focus:border-[#7F48ED] focus:ring-2 focus:ring-[#7F48ED]/15 rounded-xl px-3 py-2 text-xs text-zinc-900 placeholder-zinc-400 focus:outline-none transition font-medium"
                 />
               </div>
@@ -1265,7 +1369,7 @@ export default function StudioVideoGenerator() {
                           : "text-zinc-500 hover:text-zinc-900"
                       }`}
                     >
-                      Opening Hooks (7)
+                      Opening Hooks ({creatorHooksList.length})
                     </button>
                     <button
                       type="button"
@@ -1279,7 +1383,7 @@ export default function StudioVideoGenerator() {
                           : "text-zinc-500 hover:text-zinc-900"
                       }`}
                     >
-                      B-Roll Motion (4)
+                      B-Roll Motion ({creatorBrollList.length})
                     </button>
                   </div>
 
@@ -1844,7 +1948,7 @@ export default function StudioVideoGenerator() {
                     {/* The Hero Video Track: Always genuine generated AI video */}
                     <video
                       ref={videoRef}
-                      src={activeVideoSrc || "/videos/golf/golf-swing-instruction.mp4"}
+                      src={activeVideoSrc || (selectedPresetId === "turf-life" ? "/videos/turflife-real-video.mp4" : selectedPresetId === "carmen-hotel" ? "/videos/carmen-hotel-hero.mp4" : "/videos/chicago-dog-social-1.mp4")}
                       playsInline
                       loop
                       muted={isMuted}
@@ -2005,7 +2109,7 @@ export default function StudioVideoGenerator() {
                     {/* The Hero Video Track: Always genuine generated AI video */}
                     <video
                       ref={videoRef}
-                      src={activeVideoSrc || "/storage/variants/job-ad-930984-9x16.mp4"}
+                      src={activeVideoSrc || (selectedPresetId === "turf-life" ? "/videos/turflife-real-video.mp4" : selectedPresetId === "carmen-hotel" ? "/videos/carmen-hotel-hero.mp4" : "/videos/chicago-dog-social-1.mp4")}
                       playsInline
                       loop
                       muted={isMuted}

@@ -9,7 +9,7 @@ import { ArrowRight } from "lucide-react";
 export default function HomeResultsSection() {
   const cards = [
     {
-      client: "Chicago Dogs 42",
+      client: "Chicago Dog 42",
       slug: "chicago-dog-42",
       industry: "Restaurant",
       number: "$150K → $450K revenue",

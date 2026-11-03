@@ -281,8 +281,8 @@ export async function POST(request: Request) {
       brandVisualTheme = "delicious appetizing gourmet Chicago-style hot dog with yellow mustard, bright green sweet relish, freshly chopped onions, ripe tomato wedges, crisp pickle spear, sport peppers and celery salt in a warm steamed poppy seed bun, mouth-watering restaurant commercial advertising, dynamic slow-motion macro shot, sizzling background grill, warm studio lighting";
     } else if (bNameLower.includes("hotel") || bNameLower.includes("carmen") || bNameLower.includes("travel") || bNameLower.includes("vacation") || bNameLower.includes("resort")) {
       brandVisualTheme = "luxury boutique resort hotel suite with sunlit balcony overlooking azure ocean sunset, elegant modern luxury travel advertising motion, golden hour sunlight, 4K resort cinematography";
-    } else if (bNameLower.includes("turf") || bNameLower.includes("lawn") || bNameLower.includes("garden") || bNameLower.includes("grass")) {
-      brandVisualTheme = "ultra-lush vibrant manicured green residential lawn, bright sunny morning sunlight, pristine blades of grass with glistening dew drops, smooth low-angle drone glide, premium landscaping commercial";
+    } else if (bNameLower.includes("turf") || bNameLower.includes("sport") || bNameLower.includes("golf") || bNameLower.includes("apparel") || bNameLower.includes("athletic")) {
+      brandVisualTheme = "premium athletic golf and coastal sports lifestyle apparel, dynamic slow-motion golf swing on a sun-drenched championship course fairway, crisp morning ocean breeze, modern technical performance sportswear, cinematic commercial lighting, 4K sports commercial cinematography";
     } else {
       brandVisualTheme = `dynamic commercial advertising showcase for "${brandName}", ${creativeAngle}, dynamic product commercial motion, vibrant advertising lighting, 4K high visual clarity`;
     }

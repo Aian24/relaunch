@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { checkRateLimit, getClientIp } from "@/lib/rateLimit";
 
 export const dynamic = "force-dynamic";
 
@@ -50,15 +51,58 @@ const FALLBACK_VOICES: StudioVoice[] = [
   },
 ];
 
+// Server-side in-memory cache to prevent draining ElevenLabs API quota
+let voiceCache: {
+  voices: StudioVoice[];
+  source: string;
+  timestamp: number;
+} | null = null;
+const CACHE_TTL_MS = 5 * 60 * 1000; // 5 minutes
+
 /**
  * GET /api/studio/voices
- * Fetches all live voices directly from the client's ElevenLabs account.
+ * Protected by sliding window rate limiter + 5-minute in-memory server cache.
  * Cloned creator voices appear at the top automatically.
  */
-export async function GET() {
+export async function GET(request: Request) {
+  const clientIp = getClientIp(request);
+  const rateCheck = checkRateLimit(`studio_voices_${clientIp}`, 25, 60 * 1000);
+
+  if (!rateCheck.success) {
+    return NextResponse.json(
+      {
+        success: false,
+        error: "Too many voice requests. Please try again shortly.",
+        source: "rate_limited",
+        voices: FALLBACK_VOICES,
+      },
+      {
+        status: 429,
+        headers: {
+          "Retry-After": String(rateCheck.retryAfterSeconds),
+          "X-RateLimit-Limit": String(rateCheck.limit),
+          "X-RateLimit-Remaining": "0",
+        },
+      }
+    );
+  }
+
+  // Return from in-memory cache if fresh
+  const now = Date.now();
+  if (voiceCache && now - voiceCache.timestamp < CACHE_TTL_MS) {
+    return NextResponse.json({
+      success: true,
+      source: voiceCache.source,
+      cached: true,
+      count: voiceCache.voices.length,
+      voices: voiceCache.voices,
+    });
+  }
+
   const elevenKey = process.env.ELEVENLABS_API_KEY;
 
   if (!elevenKey) {
+    voiceCache = { voices: FALLBACK_VOICES, source: "fallback_no_key", timestamp: now };
     return NextResponse.json({
       success: true,
       source: "fallback",
@@ -72,12 +116,11 @@ export async function GET() {
       headers: {
         "xi-api-key": elevenKey,
       },
-      // Cache for 60 seconds to avoid spamming the API on every keystroke
-      next: { revalidate: 60 },
     });
 
     if (!res.ok) {
-      console.warn(`[Studio Voices] ElevenLabs API returned status ${res.status}. Using fallback voices.`);
+      console.warn(`[Studio Voices] ElevenLabs API returned status ${res.status}. Using fallback voices (cached 5m).`);
+      voiceCache = { voices: FALLBACK_VOICES, source: "fallback_api_status", timestamp: now };
       return NextResponse.json({
         success: true,
         source: "fallback",
@@ -89,6 +132,7 @@ export async function GET() {
     const rawVoices: any[] = data.voices || [];
 
     if (rawVoices.length === 0) {
+      voiceCache = { voices: FALLBACK_VOICES, source: "fallback_empty", timestamp: now };
       return NextResponse.json({
         success: true,
         source: "fallback",
@@ -121,6 +165,8 @@ export async function GET() {
       return a.name.localeCompare(b.name);
     });
 
+    voiceCache = { voices: formattedVoices, source: "elevenlabs_live", timestamp: now };
+
     return NextResponse.json({
       success: true,
       source: "elevenlabs_live",
@@ -129,6 +175,7 @@ export async function GET() {
     });
   } catch (err: any) {
     console.error("[Studio Voices] Failed to fetch ElevenLabs voices:", err.message);
+    voiceCache = { voices: FALLBACK_VOICES, source: "fallback_network_err", timestamp: now };
     return NextResponse.json({
       success: true,
       source: "fallback",

@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useRef, useEffect } from "react";
+import React, { useState, useRef, useEffect, useMemo } from "react";
 import { AdShowcaseItem, studioData } from "@/data/studioSubBrand";
 import {
   Play,
@@ -89,6 +89,38 @@ function StudioPhoneCard({
 }: StudioPhoneCardProps) {
   const isTikTok = idx % 2 === 0;
   const videoRef = useRef<HTMLVideoElement>(null);
+  const cardRef = useRef<HTMLDivElement>(null);
+  const [isInView, setIsInView] = useState(false);
+
+  // Viewport-based lazy observation (60fps performance guard)
+  useEffect(() => {
+    const el = cardRef.current;
+    if (!el) return;
+
+    if (typeof IntersectionObserver === "undefined") {
+      setIsInView(true);
+      return;
+    }
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        const entry = entries[0];
+        if (entry) {
+          setIsInView(entry.isIntersecting);
+        }
+      },
+      {
+        root: null,
+        rootMargin: "80px", // pre-wake slightly before card slides fully onto screen
+        threshold: 0.1,
+      }
+    );
+
+    observer.observe(el);
+    return () => {
+      observer.disconnect();
+    };
+  }, []);
 
   // Sync mute state
   useEffect(() => {
@@ -97,20 +129,22 @@ function StudioPhoneCard({
     }
   }, [isAudioActive]);
 
-  // Sync play/pause state
+  // Sync play/pause state with both manual pause AND viewport visibility
   useEffect(() => {
-    if (videoRef.current) {
-      if (isPaused) {
-        videoRef.current.pause();
-      } else {
-        videoRef.current.play().catch(() => {});
-      }
+    const video = videoRef.current;
+    if (!video) return;
+
+    if (!isInView || isPaused) {
+      video.pause();
+    } else {
+      video.play().catch(() => {});
     }
-  }, [isPaused]);
+  }, [isInView, isPaused]);
 
   if (isTikTok) {
     return (
       <div
+        ref={cardRef}
         onClick={onOpenModal}
         className={`w-[230px] sm:w-[260px] aspect-[9/16] rounded-[34px] sm:rounded-[38px] p-2 sm:p-2.5 bg-gradient-to-b from-slate-800 via-slate-900 to-black shadow-[0_20px_50px_rgba(0,0,0,0.85)] border transition-all duration-300 relative flex flex-col justify-between group cursor-pointer shrink-0 select-none ${
           isDimmed
@@ -129,7 +163,7 @@ function StudioPhoneCard({
           <video
             ref={videoRef}
             src={ad.videoSrc}
-            autoPlay
+            preload={isInView ? "auto" : "none"}
             loop
             muted={!isAudioActive}
             playsInline
@@ -257,6 +291,7 @@ function StudioPhoneCard({
   // Meta Reels / FB Reels
   return (
     <div
+      ref={cardRef}
       onClick={onOpenModal}
       className={`w-[230px] sm:w-[260px] aspect-[9/16] rounded-[34px] sm:rounded-[38px] p-2 sm:p-2.5 bg-gradient-to-b from-slate-700 via-slate-900 to-black shadow-[0_20px_50px_rgba(0,0,0,0.85)] border-2 transition-all duration-300 relative flex flex-col justify-between group cursor-pointer shrink-0 select-none ${
         isDimmed
@@ -275,7 +310,7 @@ function StudioPhoneCard({
         <video
           ref={videoRef}
           src={ad.videoSrc}
-          autoPlay
+          preload={isInView ? "auto" : "none"}
           loop
           muted={!isAudioActive}
           playsInline
@@ -405,23 +440,87 @@ export default function StudioAdCarousel() {
   const [activePlatform, setActivePlatform] = useState<PlatformFilter>("all");
   const [activeCategory, setActiveCategory] = useState<CategoryFilter>("all");
   const [likedAdIds, setLikedAdIds] = useState<Set<string>>(new Set());
-  const [activeAudioAdId, setActiveAudioAdId] = useState<string | null>(null);
+  const [activeAudioCardKey, setActiveAudioCardKey] = useState<string | null>(null);
   const [pausedAdIds, setPausedAdIds] = useState<Set<string>>(new Set());
 
   const scrollRef = useRef<HTMLDivElement>(null);
   const ads: AdShowcaseItem[] = studioData.adShowcases;
 
-  // Manual Swipe / Scroll Buttons
-  const handleScroll = (direction: "left" | "right") => {
-    if (scrollRef.current) {
-      const scrollAmount = direction === "left" ? -300 : 300;
-      scrollRef.current.scrollBy({ left: scrollAmount, behavior: "smooth" });
+  // Mouse Drag-to-Swipe State
+  const [isMouseDown, setIsMouseDown] = useState(false);
+  const dragStartXRef = useRef(0);
+  const dragStartScrollLeftRef = useRef(0);
+  const isDraggingRef = useRef(false);
+
+  // Mouse Drag Handlers for Desktop Swiping
+  const handleMouseDown = (e: React.MouseEvent<HTMLDivElement>) => {
+    if (e.button !== 0) return; // Only primary left-click
+    const el = scrollRef.current;
+    if (!el) return;
+
+    setIsMouseDown(true);
+    isDraggingRef.current = false;
+    dragStartXRef.current = e.pageX - el.offsetLeft;
+    dragStartScrollLeftRef.current = el.scrollLeft;
+  };
+
+  const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
+    if (!isMouseDown) return;
+    const el = scrollRef.current;
+    if (!el) return;
+
+    e.preventDefault();
+    const x = e.pageX - el.offsetLeft;
+    const walk = (x - dragStartXRef.current) * 1.4; // Natural 1.4x swipe ratio
+
+    if (Math.abs(walk) > 5) {
+      isDraggingRef.current = true;
     }
+
+    let nextScroll = dragStartScrollLeftRef.current - walk;
+
+    // Handle seamless infinite marquee loop boundary while dragging
+    if (el.scrollWidth > el.clientWidth) {
+      const halfWidth = el.scrollWidth / 2;
+      if (nextScroll >= halfWidth) {
+        nextScroll -= halfWidth;
+        dragStartScrollLeftRef.current -= halfWidth;
+        dragStartXRef.current = x;
+      } else if (nextScroll < 0) {
+        nextScroll += halfWidth;
+        dragStartScrollLeftRef.current += halfWidth;
+        dragStartXRef.current = x;
+      }
+    }
+
+    el.scrollLeft = nextScroll;
+  };
+
+  const handleMouseUpOrLeave = () => {
+    setIsMouseDown(false);
+    setTimeout(() => {
+      isDraggingRef.current = false;
+    }, 60);
+  };
+
+  // Manual Swipe / Scroll Buttons with seamless loop awareness
+  const handleScroll = (direction: "left" | "right") => {
+    const el = scrollRef.current;
+    if (!el) return;
+    const scrollAmount = direction === "left" ? -320 : 320;
+    const halfWidth = el.scrollWidth / 2;
+    if (direction === "left" && el.scrollLeft <= 50) {
+      el.scrollLeft += halfWidth;
+    } else if (direction === "right" && el.scrollLeft >= halfWidth - 50) {
+      el.scrollLeft -= halfWidth;
+    }
+    el.scrollBy({ left: scrollAmount, behavior: "smooth" });
   };
 
   // Toggle Like
   const handleToggleLike = (id: string, e: React.MouseEvent) => {
     e.stopPropagation();
+    if (isDraggingRef.current) return;
     setLikedAdIds((prev) => {
       const next = new Set(prev);
       if (next.has(id)) {
@@ -434,14 +533,16 @@ export default function StudioAdCarousel() {
   };
 
   // Toggle In-Phone Audio (only one phone sounds at a time)
-  const handleToggleAudio = (id: string, e: React.MouseEvent) => {
+  const handleToggleAudio = (cardKey: string, e: React.MouseEvent) => {
     e.stopPropagation();
-    setActiveAudioAdId((prev) => (prev === id ? null : id));
+    if (isDraggingRef.current) return;
+    setActiveAudioCardKey((prev) => (prev === cardKey ? null : cardKey));
   };
 
   // Toggle In-Phone Play/Pause
   const handleTogglePlay = (id: string, e: React.MouseEvent) => {
     e.stopPropagation();
+    if (isDraggingRef.current) return;
     setPausedAdIds((prev) => {
       const next = new Set(prev);
       if (next.has(id)) {
@@ -488,27 +589,46 @@ export default function StudioAdCarousel() {
   const isFiltered = activeCategory !== "all" || activePlatform !== "all";
   const displayAds = filteredAds;
 
+  // Build items for Track: ensure at least 6 items so track width easily overflows viewport for smooth infinite looping
+  const trackAds = useMemo(() => {
+    if (displayAds.length === 0) return [];
+    if (displayAds.length >= 6) return displayAds;
+    const repeatCount = Math.ceil(6 / displayAds.length);
+    const repeated: AdShowcaseItem[] = [];
+    for (let i = 0; i < repeatCount; i++) {
+      repeated.push(...displayAds);
+    }
+    return repeated;
+  }, [displayAds]);
+
   // Scroll back to start when filter changes
   useEffect(() => {
-    if (scrollRef.current) {
-      scrollRef.current.scrollLeft = 0;
+    const el = scrollRef.current;
+    if (el) {
+      el.scrollLeft = 0;
     }
   }, [activeCategory, activePlatform]);
 
-  // Continuous Smooth Auto-scroll with pause on hover/interaction (only when viewing all niches)
+  // Continuous Smooth Auto-scroll with pause on hover/interaction across all niches
   useEffect(() => {
     const el = scrollRef.current;
-    if (!el) return;
-
-    if (isFiltered) return;
+    if (!el || trackAds.length === 0) return;
 
     let animId: number;
-    const step = () => {
-      if (isAutoScrolling && !isHovered && !activeAudioAdId) {
-        el.scrollLeft += 0.8;
-        // Seamless loop reset when halfway
-        if (el.scrollLeft >= el.scrollWidth / 2) {
-          el.scrollLeft = 0;
+    let lastTime = performance.now();
+
+    const step = (time: number) => {
+      const dt = Math.min(32, time - lastTime);
+      lastTime = time;
+
+      if (isAutoScrolling && !isHovered && !activeAudioCardKey && !isMouseDown) {
+        if (el.scrollWidth > el.clientWidth) {
+          const halfWidth = el.scrollWidth / 2;
+          el.scrollLeft += 0.8 * (dt / 16.666);
+          // Seamless loop reset when halfway
+          if (el.scrollLeft >= halfWidth) {
+            el.scrollLeft -= halfWidth;
+          }
         }
       }
       animId = requestAnimationFrame(step);
@@ -516,7 +636,7 @@ export default function StudioAdCarousel() {
 
     animId = requestAnimationFrame(step);
     return () => cancelAnimationFrame(animId);
-  }, [isAutoScrolling, isHovered, activeAudioAdId, isFiltered, displayAds]);
+  }, [isAutoScrolling, isHovered, activeAudioCardKey, isMouseDown, trackAds]);
 
   return (
     <section id="studio-reels" className="relative w-full py-16 sm:py-24 bg-[#090D16] text-white overflow-hidden select-none">
@@ -718,52 +838,59 @@ export default function StudioAdCarousel() {
         <div className="absolute left-0 top-0 bottom-0 w-8 sm:w-24 z-20 pointer-events-none bg-gradient-to-r from-[#090D16] to-transparent" />
         <div className="absolute right-0 top-0 bottom-0 w-8 sm:w-24 z-20 pointer-events-none bg-gradient-to-l from-[#090D16] to-transparent" />
 
-        {/* Horizontally Scrollable Reel Track */}
+        {/* Horizontally Scrollable Reel Track with Mouse Swipe & Drag */}
         <div
           ref={scrollRef}
-          className={`flex w-full overflow-x-auto no-scrollbar scroll-smooth py-8 px-6 sm:px-12 select-none ${
-            isFiltered ? "justify-start md:justify-center" : "cursor-grab active:cursor-grabbing"
+          onMouseDown={handleMouseDown}
+          onMouseMove={handleMouseMove}
+          onMouseUp={handleMouseUpOrLeave}
+          onMouseLeave={handleMouseUpOrLeave}
+          onDragStart={(e) => e.preventDefault()}
+          className={`flex w-full overflow-x-auto no-scrollbar py-8 px-6 sm:px-12 select-none justify-start ${
+            isMouseDown ? "cursor-grabbing scroll-auto" : "cursor-grab scroll-smooth"
           }`}
         >
-          {/* Main Track (Unique distinct ads with zero duplication) */}
+          {/* Main Track (Track 1) */}
           <div className="flex items-center gap-6 sm:gap-8 shrink-0 pr-6 sm:pr-8">
-            {displayAds.map((ad, idx) => {
+            {trackAds.map((ad, idx) => {
               const isTikTok = ad.platform ? ad.platform === "tiktok" : idx % 2 === 0;
+              const cardKey = `t1-${idx}-${ad.id}`;
               return (
                 <StudioPhoneCard
-                  key={`ad-main-${ad.id}`}
+                  key={`ad-t1-${idx}-${ad.id}`}
                   ad={ad}
                   idx={isTikTok ? 0 : 1}
-                  isLiked={likedAdIds.has(`main-${ad.id}`)}
-                  onToggleLike={(e) => handleToggleLike(`main-${ad.id}`, e)}
-                  isAudioActive={activeAudioAdId === `main-${ad.id}`}
-                  onToggleAudio={(e) => handleToggleAudio(`main-${ad.id}`, e)}
-                  isPaused={pausedAdIds.has(`main-${ad.id}`)}
-                  onTogglePlay={(e) => handleTogglePlay(`main-${ad.id}`, e)}
-                  onOpenModal={() => setSelectedAd(ad)}
+                  isLiked={likedAdIds.has(ad.id)}
+                  onToggleLike={(e) => handleToggleLike(ad.id, e)}
+                  isAudioActive={activeAudioCardKey === cardKey}
+                  onToggleAudio={(e) => handleToggleAudio(cardKey, e)}
+                  isPaused={pausedAdIds.has(ad.id)}
+                  onTogglePlay={(e) => handleTogglePlay(ad.id, e)}
+                  onOpenModal={() => { if (!isDraggingRef.current) setSelectedAd(ad); }}
                   isDimmed={false}
                 />
               );
             })}
           </div>
 
-          {/* Loop 2 rendered strictly when viewing All Niches for seamless continuous marquee */}
-          {!isFiltered && (
+          {/* Loop 2 rendered for seamless continuous marquee across all categories */}
+          {trackAds.length > 0 && (
             <div className="flex items-center gap-6 sm:gap-8 shrink-0 pr-6 sm:pr-8" aria-hidden="true">
-              {displayAds.map((ad, idx) => {
-                const isTikTok = ad.platform ? ad.platform === "tiktok" : (displayAds.length + idx) % 2 === 0;
+              {trackAds.map((ad, idx) => {
+                const isTikTok = ad.platform ? ad.platform === "tiktok" : (trackAds.length + idx) % 2 === 0;
+                const cardKey = `t2-${idx}-${ad.id}`;
                 return (
                   <StudioPhoneCard
-                    key={`ad-loop2-${ad.id}`}
+                    key={`ad-t2-${idx}-${ad.id}`}
                     ad={ad}
                     idx={isTikTok ? 0 : 1}
-                    isLiked={likedAdIds.has(`loop2-${ad.id}`)}
-                    onToggleLike={(e) => handleToggleLike(`loop2-${ad.id}`, e)}
-                    isAudioActive={activeAudioAdId === `loop2-${ad.id}`}
-                    onToggleAudio={(e) => handleToggleAudio(`loop2-${ad.id}`, e)}
-                    isPaused={pausedAdIds.has(`loop2-${ad.id}`)}
-                    onTogglePlay={(e) => handleTogglePlay(`loop2-${ad.id}`, e)}
-                    onOpenModal={() => setSelectedAd(ad)}
+                    isLiked={likedAdIds.has(ad.id)}
+                    onToggleLike={(e) => handleToggleLike(ad.id, e)}
+                    isAudioActive={activeAudioCardKey === cardKey}
+                    onToggleAudio={(e) => handleToggleAudio(cardKey, e)}
+                    isPaused={pausedAdIds.has(ad.id)}
+                    onTogglePlay={(e) => handleTogglePlay(ad.id, e)}
+                    onOpenModal={() => { if (!isDraggingRef.current) setSelectedAd(ad); }}
                     isDimmed={false}
                   />
                 );

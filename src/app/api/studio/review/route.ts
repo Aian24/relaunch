@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import fs from "fs";
 import path from "path";
 import { getAllAdJobs, getAdJobById, saveAdJob, clearAllAdJobs, type AdJob } from "@/lib/adJob";
+import { checkRateLimit, getClientIp } from "@/lib/rateLimit";
 
 export const dynamic = "force-dynamic";
 
@@ -9,11 +10,27 @@ export const dynamic = "force-dynamic";
  * ReLaunch Studio — Internal QA Review API
  * Endpoint: /api/studio/review
  *
- * GET: Returns ad jobs and variants pending review (needs_review) or approved
- * POST: Records human QA decision (approve / reject / recut) with real pass/fail checks & audit logging
+ * GET: Returns ad jobs and variants pending review (needs_review) or approved (rate-limited 60/min)
+ * POST: Records human QA decision (approve / reject / recut) with real pass/fail checks & audit logging (rate-limited 20/min)
  */
 
 export async function GET(request: Request) {
+  const clientIp = getClientIp(request);
+  const rateCheck = checkRateLimit(`studio_review_get_${clientIp}`, 60, 60 * 1000);
+  if (!rateCheck.success) {
+    return NextResponse.json(
+      { error: "Too many review requests. Please slow down." },
+      {
+        status: 429,
+        headers: {
+          "Retry-After": String(rateCheck.retryAfterSeconds),
+          "X-RateLimit-Limit": String(rateCheck.limit),
+          "X-RateLimit-Remaining": "0",
+        },
+      }
+    );
+  }
+
   const jobs = getAllAdJobs();
 
   // Transform ad jobs into the view model expected by the review portal
@@ -77,6 +94,22 @@ export async function GET(request: Request) {
 }
 
 export async function POST(request: Request) {
+  const clientIp = getClientIp(request);
+  const rateCheck = checkRateLimit(`studio_review_post_${clientIp}`, 20, 60 * 1000);
+  if (!rateCheck.success) {
+    return NextResponse.json(
+      { error: "Too many review submissions. Please wait a moment." },
+      {
+        status: 429,
+        headers: {
+          "Retry-After": String(rateCheck.retryAfterSeconds),
+          "X-RateLimit-Limit": String(rateCheck.limit),
+          "X-RateLimit-Remaining": "0",
+        },
+      }
+    );
+  }
+
   try {
     const body = await request.json();
     const { variantId, decision, reviewerName, notes, complianceChecks } = body;
@@ -87,6 +120,15 @@ export async function POST(request: Request) {
         { status: 400 }
       );
     }
+
+    // Input sanitization & limits
+    const safeDecision = String(decision).toLowerCase();
+    if (!["approve", "reject", "recut"].includes(safeDecision)) {
+      return NextResponse.json({ error: "Invalid decision value" }, { status: 400 });
+    }
+
+    const safeReviewerName = reviewerName ? String(reviewerName).trim().slice(0, 100) : "Lead QA Operator";
+    const safeNotes = notes ? String(notes).trim().slice(0, 1000) : "";
 
     const job = getAdJobById(variantId);
     if (!job) {
@@ -104,7 +146,7 @@ export async function POST(request: Request) {
     }
 
     // Strict Gate: For approval, all 4 compliance checks must be true
-    if (decision === "approve") {
+    if (safeDecision === "approve") {
       const { creatorVerification, scriptClaims, clientFootagePresent, disclosureState } = job.complianceChecks;
       if (!creatorVerification || !scriptClaims || !clientFootagePresent || !disclosureState) {
         return NextResponse.json(
@@ -118,9 +160,9 @@ export async function POST(request: Request) {
 
       job.status = "approved";
       job.reviewLog = {
-        reviewerName: reviewerName?.trim() || "Lead QA Operator",
+        reviewerName: safeReviewerName,
         decision: "approve",
-        notes: notes || "All checks passed. Approved for delivery.",
+        notes: safeNotes || "All checks passed. Approved for delivery.",
         approvedAt: new Date().toISOString(),
       };
 
@@ -176,31 +218,31 @@ export async function POST(request: Request) {
       };
 
       console.log(`[QA Gate] ✓ Job ${job.id} APPROVED by ${job.reviewLog.reviewerName}. Files archived for Google Drive delivery [${folderId}].`);
-    } else if (decision === "reject") {
+    } else if (safeDecision === "reject") {
       job.status = "rejected";
       job.reviewLog = {
-        reviewerName: reviewerName?.trim() || "Lead QA Operator",
+        reviewerName: safeReviewerName,
         decision: "reject",
-        notes: notes || "Rejected by operator.",
+        notes: safeNotes || "Rejected by operator.",
         approvedAt: new Date().toISOString(),
       };
       console.log(`[QA Gate] ✗ Job ${job.id} REJECTED by ${job.reviewLog.reviewerName}.`);
-    } else if (decision === "recut") {
+    } else if (safeDecision === "recut") {
       job.status = "recut";
       job.reviewLog = {
-        reviewerName: reviewerName?.trim() || "Lead QA Operator",
+        reviewerName: safeReviewerName,
         decision: "recut",
-        notes: notes || "Recut requested.",
+        notes: safeNotes || "Recut requested.",
         approvedAt: new Date().toISOString(),
       };
-      console.log(`[QA Gate] ⚡ Job ${job.id} RECUT requested. Notes: ${notes}`);
+      console.log(`[QA Gate] ⚡ Job ${job.id} RECUT requested. Notes: ${safeNotes}`);
     }
 
     saveAdJob(job);
 
     return NextResponse.json({
       ok: true,
-      decision,
+      decision: safeDecision,
       jobId: job.id,
       updatedStatus: job.status,
       complianceChecks: job.complianceChecks,
@@ -214,7 +256,13 @@ export async function POST(request: Request) {
   }
 }
 
-export async function DELETE() {
+export async function DELETE(request: Request) {
+  const clientIp = getClientIp(request);
+  const rateCheck = checkRateLimit(`studio_review_del_${clientIp}`, 5, 60 * 1000);
+  if (!rateCheck.success) {
+    return NextResponse.json({ error: "Too many requests" }, { status: 429 });
+  }
+
   try {
     clearAllAdJobs();
     return NextResponse.json({ ok: true, message: "Review queue cleared" });
@@ -222,4 +270,3 @@ export async function DELETE() {
     return NextResponse.json({ error: err.message }, { status: 500 });
   }
 }
-
