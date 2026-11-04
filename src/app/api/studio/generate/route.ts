@@ -194,9 +194,10 @@ export async function POST(request: Request) {
     const outPoint = Math.max(inPoint + 1.5, Number(trimEnd) || (inPoint + 3.4));
     const hookDuration = Number((outPoint - inPoint).toFixed(2));
 
-    // Resolve uploaded brand media (photo or video reference)
+    // Resolve uploaded brand media (photo, slide graphic, or video reference)
     let resolvedMediaUrl = effectiveMediaSource;
     let savedMediaFile = "";
+    let localMediaDiskPath: string | null = null;
 
     if (effectiveMediaSource.startsWith("data:")) {
       try {
@@ -204,22 +205,34 @@ export async function POST(request: Request) {
         if (matches && matches[2]) {
           const mimeType = matches[1] || "";
           const isImage = mimeType.startsWith("image/") || mediaType === "image";
-          const ext = isImage ? "png" : "mp4";
+          const ext = isImage ? "jpg" : "mp4";
           const mediaBuffer = Buffer.from(matches[2], "base64");
           savedMediaFile = `${jobId}-ref.${ext}`;
-          fs.writeFileSync(path.join(storageDir, savedMediaFile), mediaBuffer);
+          const targetDiskPath = path.join(storageDir, savedMediaFile);
+          fs.writeFileSync(targetDiskPath, mediaBuffer);
+          localMediaDiskPath = targetDiskPath;
           resolvedMediaUrl = `/storage/variants/${savedMediaFile}`;
           console.log(`[Studio Engine] ✓ Saved uploaded ${isImage ? "product photo reference" : "video asset"} (${mediaBuffer.length} bytes)`);
         }
       } catch (err: any) {
         console.warn("[Studio Engine] Could not parse uploaded media buffer:", err.message);
       }
-    } else if (effectiveMediaSource.startsWith("/storage/")) {
-      const localFilePath = path.join(process.cwd(), "public", effectiveMediaSource.replace(/^\//, ""));
-      if (fs.existsSync(localFilePath)) {
-        savedMediaFile = path.basename(localFilePath);
-        resolvedMediaUrl = effectiveMediaSource;
-        console.log(`[Studio Engine] ✓ Using existing client media asset on disk: ${savedMediaFile}`);
+    } else if (effectiveMediaSource.trim()) {
+      // Handles /images/..., /storage/..., /videos/... or direct filenames on disk
+      const candidate = path.resolve(process.cwd(), "public", effectiveMediaSource.replace(/^\//, ""));
+      if (fs.existsSync(candidate) && fs.statSync(candidate).isFile()) {
+        localMediaDiskPath = candidate;
+        const ext = path.extname(candidate).toLowerCase() || ".jpg";
+        savedMediaFile = `${jobId}-asset${ext}`;
+        const copyPath = path.join(storageDir, savedMediaFile);
+        try {
+          fs.copyFileSync(candidate, copyPath);
+          localMediaDiskPath = copyPath;
+          resolvedMediaUrl = `/storage/variants/${savedMediaFile}`;
+        } catch {
+          resolvedMediaUrl = effectiveMediaSource;
+        }
+        console.log(`[Studio Engine] ✓ Resolved client asset on disk: ${candidate}`);
       }
     }
 
@@ -230,46 +243,61 @@ export async function POST(request: Request) {
     let aiVideoGenerated = false;
     let aiVideoError = "";
 
-    // 1. If client uploaded an image, upload to fal CDN so Kling transforms their actual product/image into a video ad reel!
+    // 1. If client uploaded or selected an image (e.g. PDF slides), prepare for Kling Image-to-Video!
     let uploadedCdnImageUrl: string | null = null;
-    if (savedMediaFile && falKey) {
-      const mediaFilePath = path.join(storageDir, savedMediaFile);
-      if (
-        fs.existsSync(mediaFilePath) &&
-        (savedMediaFile.endsWith(".png") ||
-          savedMediaFile.endsWith(".jpg") ||
-          savedMediaFile.endsWith(".jpeg") ||
-          savedMediaFile.endsWith(".webp"))
-      ) {
+    if (localMediaDiskPath && fs.existsSync(localMediaDiskPath) && falKey) {
+      const ext = path.extname(localMediaDiskPath).toLowerCase();
+      if ([".png", ".jpg", ".jpeg", ".webp"].includes(ext)) {
         try {
-          console.log(`[Studio Engine] Uploading client media asset to fal CDN for image-to-video neural animation...`);
-          const fileBytes = fs.readFileSync(mediaFilePath);
-          const mime = savedMediaFile.endsWith(".png") ? "image/png" : "image/jpeg";
-          const initRes = await fetch("https://rest.alpha.fal.ai/storage/upload/initiate", {
-            method: "POST",
-            headers: {
-              Authorization: `Key ${falKey}`,
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify({
-              file_name: savedMediaFile,
-              content_type: mime,
-            }),
-          });
-          if (initRes.ok) {
-            const { upload_url, file_url } = await initRes.json();
-            const putRes = await fetch(upload_url, {
-              method: "PUT",
-              headers: { "Content-Type": mime },
-              body: fileBytes,
-            });
-            if (putRes.ok) {
-              uploadedCdnImageUrl = file_url;
-              console.log(`[Studio Engine] ✓ Client media uploaded to fal CDN: ${uploadedCdnImageUrl}`);
+          console.log(`[Studio Engine] Preparing client graphic for Kling Image-to-Video neural motion...`);
+          const fileBytes = fs.readFileSync(localMediaDiskPath);
+          const mime = ext === ".png" ? "image/png" : ext === ".webp" ? "image/webp" : "image/jpeg";
+          const base64DataUrl = `data:${mime};base64,${fileBytes.toString("base64")}`;
+
+          // Try uploading to fal CDN
+          let uploadSucceeded = false;
+          for (const uploadEndpoint of [
+            "https://rest.fal.ai/storage/upload/initiate",
+            "https://rest.alpha.fal.ai/storage/upload/initiate",
+          ]) {
+            try {
+              const initRes = await fetch(uploadEndpoint, {
+                method: "POST",
+                headers: {
+                  Authorization: `Key ${falKey}`,
+                  "Content-Type": "application/json",
+                },
+                body: JSON.stringify({
+                  file_name: path.basename(localMediaDiskPath),
+                  content_type: mime,
+                }),
+              });
+              if (initRes.ok) {
+                const { upload_url, file_url } = await initRes.json();
+                const putRes = await fetch(upload_url, {
+                  method: "PUT",
+                  headers: { "Content-Type": mime },
+                  body: fileBytes,
+                });
+                if (putRes.ok) {
+                  uploadedCdnImageUrl = file_url;
+                  uploadSucceeded = true;
+                  console.log(`[Studio Engine] ✓ Client media uploaded to fal CDN: ${uploadedCdnImageUrl}`);
+                  break;
+                }
+              }
+            } catch (err: any) {
+              console.warn(`[Studio Engine] CDN upload via ${uploadEndpoint} notice:`, err.message);
             }
           }
+
+          // Fallback directly to base64 data URL if CDN upload endpoints are unavailable
+          if (!uploadSucceeded) {
+            uploadedCdnImageUrl = base64DataUrl;
+            console.log(`[Studio Engine] ✓ Using base64 data URL for fal image-to-video input`);
+          }
         } catch (uploadErr: any) {
-          console.warn("[Studio Engine] fal CDN upload notice:", uploadErr.message);
+          console.warn("[Studio Engine] fal image preparation notice:", uploadErr.message);
         }
       }
     }
@@ -283,8 +311,18 @@ export async function POST(request: Request) {
       brandVisualTheme = "luxury boutique resort hotel suite with sunlit balcony overlooking azure ocean sunset, elegant modern luxury travel advertising motion, golden hour sunlight, 4K resort cinematography";
     } else if (bNameLower.includes("turf") || bNameLower.includes("sport") || bNameLower.includes("golf") || bNameLower.includes("apparel") || bNameLower.includes("athletic")) {
       brandVisualTheme = "premium athletic golf and coastal sports lifestyle apparel, dynamic slow-motion golf swing on a sun-drenched championship course fairway, crisp morning ocean breeze, modern technical performance sportswear, cinematic commercial lighting, 4K sports commercial cinematography";
+    } else if (
+      bNameLower.includes("ai") ||
+      bNameLower.includes("search") ||
+      bNameLower.includes("recommend") ||
+      bNameLower.includes("relaunch") ||
+      bNameLower.includes("marketing") ||
+      bNameLower.includes("audit") ||
+      bNameLower.includes("facebook")
+    ) {
+      brandVisualTheme = "modern bright creative agency studio, professional entrepreneur reviewing local business search growth on sleek smartphone, screen showing clean abstract glowing data visualizations and connectivity network nodes with strictly NO text and NO words, crisp daylight, shallow depth of field, 4K commercial cinematography, 60fps, photorealistic physical realism";
     } else {
-      brandVisualTheme = `dynamic commercial advertising showcase for "${brandName}", ${creativeAngle}, dynamic product commercial motion, vibrant advertising lighting, 4K high visual clarity`;
+      brandVisualTheme = `dynamic commercial advertising showcase for "${brandName}", ${creativeAngle}, dynamic product commercial motion, vibrant advertising lighting, 4K high visual clarity, clean sleek background without garbled text or alien writing`;
     }
 
     const finalPrompt = visualPrompt?.trim() && !visualPrompt.includes("Cinematic 1080p advertising b-roll")
@@ -299,11 +337,12 @@ export async function POST(request: Request) {
         let targetCandidate: { endpoint: string; body: any };
 
         if (uploadedCdnImageUrl) {
-          console.log(`[Studio Engine] Target: Kling Image-to-Video based on uploaded client asset (${uploadedCdnImageUrl})`);
+          console.log(`[Studio Engine] Target: Kling Image-to-Video based on client asset (${uploadedCdnImageUrl.slice(0, 50)}...)`);
           targetCandidate = {
             endpoint: "fal-ai/kling-video/v1/standard/image-to-video",
             body: {
-              prompt: `High-converting social media video ad reel, dynamic commercial camera motion showcasing this product, vibrant 4K advertising commercial studio lighting, smooth continuous motion, viral promotional reel for ${brandName}`,
+              prompt: `Subtle dynamic camera slow push-in on the commercial presentation graphic, gentle studio lighting sweep, smooth continuous 4K advertising motion, maintaining original clean high-resolution English typography and layout, professional broadcast presentation`,
+              negative_prompt: "gibberish text, non-english text, bad typography, alien language, distorted words, blurry text, foreign characters, watermarks, deformed UI, low quality, warped layout",
               image_url: uploadedCdnImageUrl,
               duration: "5",
               aspect_ratio: "9:16",
@@ -314,16 +353,17 @@ export async function POST(request: Request) {
           targetCandidate = {
             endpoint: "fal-ai/minimax/video-01",
             body: {
-              prompt: `High-converting commercial video ad reel for ${brandName}, ${creativeAngle}, ${ctaText || "limited time offer"}, dynamic advertising product motion, vibrant lighting, 60fps`,
+              prompt: `High-converting commercial video ad reel for ${brandName}, ${creativeAngle}, ${ctaText || "limited time offer"}, dynamic advertising product motion, vibrant lighting, 60fps, strictly no unreadable text`,
             },
           };
         } else {
-          // Default & Recommended: Kling 4K Standard Text-to-Video (fastest & highest quality ~75-85s)
+          // Default & Recommended: Kling 4K Standard Text-to-Video with STRICT negative prompt against gibberish/alien text
           console.log(`[Studio Engine] Target: Kling 4K Text-to-Video for ${brandName}`);
           targetCandidate = {
             endpoint: "fal-ai/kling-video/v1/standard/text-to-video",
             body: {
-              prompt: finalPrompt,
+              prompt: `${finalPrompt}. Clean minimalist interface with glowing abstract data charts, strictly NO on-screen text, NO letters, NO words, 4K photorealistic advertising`,
+              negative_prompt: "text, words, letters, typography, gibberish, foreign language, alien glyphs, distorted letters, fake words, unreadable writing, symbols, blur, watermark, low quality, bad anatomy, deformed",
               duration: "5",
               aspect_ratio: "9:16",
             },
@@ -529,6 +569,7 @@ export async function POST(request: Request) {
       const seg1Path = path.join(storageDir, `${jobId}-seg1.mp4`);
       const seg2Path = path.join(storageDir, `${jobId}-seg2.mp4`);
       const seg3Path = path.join(storageDir, `${jobId}-seg3.mp4`);
+      const seg4Path = path.join(storageDir, `${jobId}-seg4.mp4`);
       const concatList = path.join(storageDir, `${jobId}-concat.txt`);
       const tempCombined = path.join(storageDir, `${jobId}-temp-combined.mp4`);
 
@@ -541,45 +582,81 @@ export async function POST(request: Request) {
           { stdio: "ignore" }
         );
 
-        // 2. Core Product Scene: The newly generated Kling AI Video (created dynamically for this brand!)
-        const aiTarget = fs.existsSync(aiVideoFile)
-          ? aiVideoFile
-          : (fs.existsSync(path.resolve(process.cwd(), "public/storage/variants/kling-chicago-dog.mp4"))
-              ? path.resolve(process.cwd(), "public/storage/variants/kling-chicago-dog.mp4")
-              : creatorHookFilePath);
-
-        // Compute voiceover duration from word timestamps so video perfectly covers the narration
-        let voDuration = 8.0;
+        // Compute voiceover duration from word timestamps so video perfectly covers narration (~22s)
+        let voDuration = 18.5;
         if (wordTimestamps && wordTimestamps.length > 0) {
           const lastWord = wordTimestamps[wordTimestamps.length - 1];
-          voDuration = Math.max(5.0, (lastWord.end || 0) + 0.8);
+          voDuration = Math.max(14.0, (lastWord.end || 0) + 0.8);
         }
-        const aiSceneDuration = Math.max(5.0, voDuration);
 
-        // Loop Kling AI video smoothly to match voiceover narration length
-        execSync(
-          `"${ffmpegBinary}" -y -stream_loop -1 -i "${aiTarget}" -t ${aiSceneDuration.toFixed(3)} -vf "scale=1080:1920" -pix_fmt yuv420p -c:v libx264 -preset fast -r 30 -an "${seg2Path}"`,
-          { stdio: "ignore" }
-        );
+        const isClientImage = clientFootageFilePath && /\.(jpg|jpeg|png|webp)$/i.test(clientFootageFilePath);
 
-        // 3. Visual Concatenation: If user uploaded client footage, include it; otherwise cleanly join Hook + AI scene!
-        if (clientFootageFilePath && resolvedMediaUrl) {
+        // Find secondary dynamic B-roll clips for multi-scene pacing
+        const defaultBrollCandidate = actor === "haley"
+          ? path.resolve(process.cwd(), "public/creators/haley/broll/haley-broll-02.mp4")
+          : path.resolve(process.cwd(), "public/creators/emily/broll/emily-broll-01.mp4");
+        const closingBrollCandidate = actor === "haley"
+          ? path.resolve(process.cwd(), "public/creators/haley/broll/haley-broll-06.mp4")
+          : path.resolve(process.cwd(), "public/creators/emily/broll/emily-broll-02.mp4");
+
+        const dynamicBrollPath = fs.existsSync(defaultBrollCandidate) ? defaultBrollCandidate : creatorHookFilePath;
+        const closingBrollPath = fs.existsSync(closingBrollCandidate) ? closingBrollCandidate : creatorHookFilePath;
+
+        if (isClientImage) {
+          // Dynamic 4-Scene Ad Architecture:
+          // Scene 1: Creator Hook (0.0s – 3.5s)
+          // Scene 2: Dynamic Video B-roll (3.5s – 8.5s = 5.0s)
+          // Scene 3: Client Audit Graphic Slide (8.5s – 15.0s = 6.5s) with English proof points
+          // Scene 4: Closing Dynamic B-Roll & Offer CTA (15.0s – 22.0s = 7.0s)
+
+          // Scene 2: 5s dynamic video action
+          const scene2Source = (fs.existsSync(aiVideoFile) && !aiVideoError) ? aiVideoFile : dynamicBrollPath;
           execSync(
-            `"${ffmpegBinary}" -y -ss 00:00:00.000 -i "${clientFootageFilePath}" -t 5.0 -vf "scale=1080:1920" -pix_fmt yuv420p -c:v libx264 -preset fast -r 30 -an "${seg3Path}"`,
+            `"${ffmpegBinary}" -y -ss 0.0 -i "${scene2Source}" -t 5.0 -vf "scale=1080:1920" -pix_fmt yuv420p -c:v libx264 -preset fast -r 30 -an "${seg2Path}"`,
             { stdio: "ignore" }
           );
+
+          // Scene 3: 6.5s authentic client graphic presentation
+          execSync(
+            `"${ffmpegBinary}" -y -loop 1 -i "${clientFootageFilePath}" -t 6.5 -vf "scale=1080:1920" -pix_fmt yuv420p -c:v libx264 -preset fast -r 30 -an "${seg3Path}"`,
+            { stdio: "ignore" }
+          );
+
+          // Scene 4: 7.0s closing video motion with CTA
+          execSync(
+            `"${ffmpegBinary}" -y -ss 0.0 -i "${closingBrollPath}" -t 7.0 -vf "scale=1080:1920" -pix_fmt yuv420p -c:v libx264 -preset fast -r 30 -an "${seg4Path}"`,
+            { stdio: "ignore" }
+          );
+
           fs.writeFileSync(
             concatList,
-            `file '${seg1Path.replace(/\\/g, "/")}'\nfile '${seg2Path.replace(/\\/g, "/")}'\nfile '${seg3Path.replace(/\\/g, "/")}'\n`
+            `file '${seg1Path.replace(/\\/g, "/")}'\nfile '${seg2Path.replace(/\\/g, "/")}'\nfile '${seg3Path.replace(/\\/g, "/")}'\nfile '${seg4Path.replace(/\\/g, "/")}'\n`
           );
         } else {
-          fs.writeFileSync(
-            concatList,
-            `file '${seg1Path.replace(/\\/g, "/")}'\nfile '${seg2Path.replace(/\\/g, "/")}'\n`
+          // Standard Video Ad: Scene 1 (Hook) + Scene 2 (AI Video / B-Roll) + Scene 3 (Client Video)
+          const aiTarget = fs.existsSync(aiVideoFile) ? aiVideoFile : dynamicBrollPath;
+          execSync(
+            `"${ffmpegBinary}" -y -stream_loop -1 -i "${aiTarget}" -t 9.0 -vf "scale=1080:1920" -pix_fmt yuv420p -c:v libx264 -preset fast -r 30 -an "${seg2Path}"`,
+            { stdio: "ignore" }
           );
+          if (clientFootageFilePath && resolvedMediaUrl) {
+            execSync(
+              `"${ffmpegBinary}" -y -ss 00:00:00.000 -i "${clientFootageFilePath}" -t 9.5 -vf "scale=1080:1920" -pix_fmt yuv420p -c:v libx264 -preset fast -r 30 -an "${seg3Path}"`,
+              { stdio: "ignore" }
+            );
+            fs.writeFileSync(
+              concatList,
+              `file '${seg1Path.replace(/\\/g, "/")}'\nfile '${seg2Path.replace(/\\/g, "/")}'\nfile '${seg3Path.replace(/\\/g, "/")}'\n`
+            );
+          } else {
+            fs.writeFileSync(
+              concatList,
+              `file '${seg1Path.replace(/\\/g, "/")}'\nfile '${seg2Path.replace(/\\/g, "/")}'\n`
+            );
+          }
         }
 
-        execSync(`"${ffmpegBinary}" -y -f concat -safe 0 -i "${concatList}" -c copy "${tempCombined}"`, {
+                execSync(`"${ffmpegBinary}" -y -f concat -safe 0 -i "${concatList}" -c:v libx264 -preset fast -r 30 -an "${tempCombined}"`, {
           stdio: "ignore",
         });
 
@@ -598,30 +675,43 @@ export async function POST(request: Request) {
         }
 
         // 6. Derive 1:1 Square (1080x1080)
-        execSync(
-          `"${ffmpegBinary}" -y -i "${dest9x16}" -vf "scale=1080:1920,crop=1080:1080:0:(1920-1080)/2" -c:v libx264 -preset fast -c:a copy -movflags +faststart "${dest1x1}"`,
-          { stdio: "ignore" }
-        );
+        try {
+          execSync(
+            `"${ffmpegBinary}" -y -i "${dest9x16}" -vf "scale=1080:1080" -c:v libx264 -preset fast -c:a copy -movflags +faststart "${dest1x1}"`,
+            { stdio: "ignore" }
+          );
+        } catch {
+          fs.copyFileSync(dest9x16, dest1x1);
+        }
 
         // 7. Derive 4:5 Portrait (1080x1350)
-        execSync(
-          `"${ffmpegBinary}" -y -i "${dest9x16}" -vf "scale=1080:1920,crop=1080:1350:0:(1920-1350)/2" -c:v libx264 -preset fast -c:a copy -movflags +faststart "${dest4x5}"`,
-          { stdio: "ignore" }
-        );
+        try {
+          execSync(
+            `"${ffmpegBinary}" -y -i "${dest9x16}" -vf "scale=1080:1350" -c:v libx264 -preset fast -c:a copy -movflags +faststart "${dest4x5}"`,
+            { stdio: "ignore" }
+          );
+        } catch {
+          fs.copyFileSync(dest9x16, dest4x5);
+        }
 
         // 8. Extract Cover Thumbnail
         const thumbSec = Math.max(0.5, hookDuration / 2).toFixed(2);
-        execSync(
-          `"${ffmpegBinary}" -y -ss ${thumbSec} -i "${dest9x16}" -vframes 1 -q:v 2 "${destThumb}"`,
-          { stdio: "ignore" }
-        );
+        try {
+          execSync(
+            `"${ffmpegBinary}" -y -ss ${thumbSec} -i "${dest9x16}" -vframes 1 -q:v 2 "${destThumb}"`,
+            { stdio: "ignore" }
+          );
+        } catch {
+          const thumbSource = path.resolve(process.cwd(), "public/images/howitworksstudio.jpg");
+          if (fs.existsSync(thumbSource)) fs.copyFileSync(thumbSource, destThumb);
+        }
 
         assembledSuccessfully = true;
         console.log(`[Studio Engine] ✓ Full Hybrid Video Ad Master assembled successfully (9:16, 1:1, 4:5)!`);
       } catch (ffErr: any) {
         console.warn(`[Studio Engine] FFmpeg hybrid assembly notice:`, ffErr.message);
       } finally {
-        [seg1Path, seg2Path, seg3Path, concatList, tempCombined].forEach((tmp) => {
+        [seg1Path, seg2Path, seg3Path, seg4Path, concatList, tempCombined].forEach((tmp) => {
           try {
             if (fs.existsSync(tmp)) fs.unlinkSync(tmp);
           } catch {}

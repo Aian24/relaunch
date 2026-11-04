@@ -59,6 +59,12 @@ interface BrandPreset {
 
 const BRAND_PRESETS: BrandPreset[] = [
   {
+    id: "ai-recommendations",
+    name: "AI Recommendations",
+    category: "AI Search Optimization (GEO)",
+    offer: "Free AI Search Audit at relaunch.us/ai-recommendations",
+  },
+  {
     id: "chicago-dog",
     name: "Chicago Dog 42",
     category: "Food & Dining",
@@ -139,6 +145,88 @@ const DEFAULT_STUDIO_VOICES: StudioVoice[] = [
 function getAngleContent(brandName: string, offer: string): Record<string, AngleContent> {
   const brand = brandName.trim() || "My Brand";
   const cta = offer.trim() || "Exclusive Offer";
+  if (brand.toLowerCase().includes("ai recommend") || brand.toLowerCase().includes("relaunch")) {
+    return {
+      problem: {
+        title: "Problem & Solution (Lock Screen)",
+        badge: "Scale",
+        hooks: [
+          "Your next customer just asked AI who to call.",
+          "If AI doesn't know your business, you lose customers you never see.",
+          "Stop scrolling if you own a local service business.",
+          "What happens when your customers ask ChatGPT who to hire?",
+        ],
+        body: "Your next customer just asked AI who to call. If AI doesn't have a clear picture of your business, someone else gets the call. ReLaunch fixes what AI reads about you so you get recommended first. Claim your free audit today at relaunch.us/ai-recommendations.",
+      },
+      comparison: {
+        title: "Us vs. Them (10 vs 3)",
+        badge: "Conversions",
+        hooks: [
+          "Search gave them 10 choices. AI gives them 3.",
+          "Make sure one of those 3 AI recommendations is you.",
+          "Traditional Google search vs AI search: look at what changed.",
+          "Why 90% of local businesses are invisible on AI search.",
+        ],
+        body: "Traditional search gave customers 10 choices. AI gives them only 3. If AI has mixed-up or missing info on your business, it recommends your competitor. ReLaunch ensures you win the top 3 spots. Go to relaunch.us/ai-recommendations.",
+      },
+      ugc: {
+        title: "Audit Checklist (Live Scan)",
+        badge: "Trust",
+        hooks: [
+          "AI is reading about your business right now.",
+          "Here is what AI actually found about your business listings.",
+          "Missing or mixed-up info? AI recommends someone else.",
+          "We ran an AI audit on 50 local businesses: here are the results.",
+        ],
+        body: "AI is reading your Google listing, Yelp profile, hours, and reviews right now. Missing or inconsistent info causes it to recommend someone else. We fix what AI reads about you at relaunch.us/ai-recommendations.",
+      },
+      hack: {
+        title: "Secret Life Hack (Silent Decision)",
+        badge: "Curiosity",
+        hooks: [
+          "AI is quietly deciding who gets the customer.",
+          "Who's the best contractor in Phoenix? AI is answering right now.",
+          "The single biggest shift in local search since Google Maps.",
+          "If you want more calls this month, you need to fix your AI profile.",
+        ],
+        body: "AI assistants like ChatGPT and Siri are quietly deciding who gets the customer every single day. If you don't have verified AI visibility, you lose calls you never even see. Visit relaunch.us/ai-recommendations today.",
+      },
+      listicle: {
+        title: "3 Reasons Why",
+        badge: "Clicks",
+        hooks: [
+          "3 reasons your business isn't showing up on AI search.",
+          "Why traditional SEO doesn't work for ChatGPT or Siri.",
+          "3 facts about AI recommendations that local businesses ignore.",
+          "How to get recommended by AI in 3 simple steps.",
+        ],
+        body: "Here is why businesses lose customers to AI: outdated directory listings, inconsistent hours, and zero generative engine optimization. ReLaunch fixes all three. Claim your free audit at relaunch.us/ai-recommendations.",
+      },
+      founder: {
+        title: "Behind the Scenes / Craft",
+        badge: "Authenticity",
+        hooks: [
+          "Why we built ReLaunch to fix AI search visibility.",
+          "Behind the scenes of how AI assistants pick top local businesses.",
+          "We got tired of great businesses losing calls to outdated AI info.",
+          "What actually goes into ranking #1 on ChatGPT and Gemini.",
+        ],
+        body: "We created ReLaunch because AI search is completely replacing old-school Google results. We ensure your business is accurately indexed, verified, and recommended. Get started at relaunch.us/ai-recommendations.",
+      },
+      fomo: {
+        title: "Limited Promo & Urgency",
+        badge: "Scarcity",
+        hooks: [
+          "Claim your free AI search audit before your competitors do.",
+          "Is your business being recommended by AI right now? Find out free.",
+          "Alert: AI search is replacing traditional Google results.",
+          "Don't let competitors take the top 3 spots on AI assistants.",
+        ],
+        body: "Don't lose customers you never even see. Claim your free AI search visibility audit today at relaunch.us/ai-recommendations before this limited promotion ends.",
+      },
+    };
+  }
+
 
   return {
     problem: {
@@ -594,6 +682,20 @@ export default function StudioVideoGenerator() {
     setSelectedPresetId(preset.id);
     setBrandName(preset.name);
     setBrandOffer(preset.offer);
+
+    if (preset.id === "ai-recommendations") {
+      setUploadedMediaSrc("/images/ai-recommendations/slide-1.jpg");
+      setUploadedMediaName("AI Recommendations – Slide 1 (Lock Screen).jpg");
+      setUploadedMediaSize("465 KB");
+      setUploadedMediaType("image");
+      setSelectedAngle("problem");
+      setSelectedHook("Your next customer just asked AI who to call.");
+      setScriptBody("Traditional search gave them 10 choices. AI gives them 3. If AI has mixed-up info on your business, someone else gets the call. ReLaunch fixes what AI reads about you so you get recommended first. Claim your free AI audit today at relaunch.us/ai-recommendations.");
+      setGeneratedResult(null);
+      setGenerationError(null);
+      return;
+    }
+
     setUploadedMediaSrc(null);
     setUploadedMediaName(null);
     setUploadedMediaBase64(null);
@@ -713,7 +815,9 @@ export default function StudioVideoGenerator() {
           voiceId: selectedVoiceId,
           mediaSource: uploadedMediaBase64 || uploadedMediaSrc || "",
           mediaType: uploadedMediaType || "prompt_only",
-          visualPrompt: `Cinematic 1080p advertising b-roll of ${brandName}, dramatic studio lighting, macro product motion, physical realism, 60fps`,
+          visualPrompt: selectedPresetId === "ai-recommendations" || brandName.toLowerCase().includes("ai")
+            ? "High-converting commercial advertising b-roll for AI Recommendations, modern creative workspace, entrepreneur analyzing AI search engine results on smartphone and laptop, sleek minimalist abstract data graphics with strictly no text and no letters, clean bright daylight, 4K 60fps photorealistic cinematography, absolutely no gibberish text, no foreign letters, clean English commercial visuals"
+            : `Cinematic 1080p advertising b-roll of ${brandName}, dramatic studio lighting, dynamic product motion, physical realism, 60fps, clean sleek background without garbled text or alien writing`,
           aiModel: videoModel === "grok" ? "grok-1.5" : videoModel === "seedance" ? "seedance-fast" : "kling-1080p",
           isBatch: asBatch,
         }),
@@ -877,15 +981,17 @@ export default function StudioVideoGenerator() {
   const togglePlay = () => {
     if (isPlaying) {
       videoRef.current?.pause();
+      audioRef.current?.pause();
       setIsPlaying(false);
     } else {
-      if (videoRef.current) {
-        if (isMuted) {
-          videoRef.current.muted = false;
-          setIsMuted(false);
-        }
-        videoRef.current.play().then(() => setIsPlaying(true)).catch(() => setIsPlaying(false));
+      if (isMuted) {
+        if (videoRef.current) videoRef.current.muted = false;
+        if (audioRef.current) audioRef.current.muted = false;
+        setIsMuted(false);
       }
+      videoRef.current?.play().then(() => setIsPlaying(true)).catch(() => setIsPlaying(false));
+      audioRef.current?.play().catch(() => {});
+      setIsPlaying(true);
     }
   };
 
@@ -895,6 +1001,11 @@ export default function StudioVideoGenerator() {
     if (videoRef.current) {
       videoRef.current.muted = nextMuted;
       videoRef.current.volume = nextMuted ? 0 : 1;
+    }
+    if (audioRef.current) {
+      audioRef.current.muted = nextMuted;
+      audioRef.current.volume = nextMuted ? 0 : 1;
+      if (!nextMuted && isPlaying) audioRef.current.play().catch(() => {});
     }
   };
 
@@ -1073,6 +1184,47 @@ export default function StudioVideoGenerator() {
               </div>
 
               {/* Product Media File (Optional Basis) */}
+              {selectedPresetId === "ai-recommendations" && (
+                <div className="bg-purple-50/60 border border-purple-200/80 rounded-xl p-2.5 space-y-1.5 mb-1.5">
+                  <div className="flex items-center justify-between text-xs">
+                    <span className="font-bold text-zinc-900 text-[11px] flex items-center gap-1.5">
+                      <span className="w-2 h-2 rounded-full bg-[#7F48ED] animate-pulse" />
+                      Client PDF Ad Slides
+                    </span>
+                    <span className="text-[10px] font-mono text-[#7F48ED] font-bold">4 Visuals</span>
+                  </div>
+                  <div className="grid grid-cols-2 gap-1.5">
+                    {[
+                      { id: 1, label: "1. Lock Screen Alert", hook: "Your next customer just asked AI who to call." },
+                      { id: 2, label: "2. 10 Choices vs 3", hook: "Search gave them 10 choices. AI gives them 3." },
+                      { id: 3, label: "3. Phoenix Roofer AI", hook: "AI is quietly deciding who gets the customer." },
+                      { id: 4, label: "4. Audit Checklist", hook: "AI is reading about your business right now." },
+                    ].map((s) => {
+                      const isActive = uploadedMediaSrc?.includes(`slide-${s.id}`);
+                      return (
+                        <button
+                          key={s.id}
+                          type="button"
+                          onClick={() => {
+                            setUploadedMediaSrc(`/images/ai-recommendations/slide-${s.id}.jpg`);
+                            setUploadedMediaName(`AI Recommendations – Slide ${s.id}.jpg`);
+                            setUploadedMediaType("image");
+                            setUploadedMediaSize("480 KB");
+                            setSelectedHook(s.hook);
+                          }}
+                          className={`px-2 py-1.5 rounded-lg text-[10px] font-bold transition text-left truncate cursor-pointer border ${
+                            isActive
+                              ? "bg-[#7F48ED] text-white border-[#7F48ED] shadow-xs"
+                              : "bg-white text-zinc-700 border-zinc-200 hover:border-purple-300 hover:bg-purple-50/50"
+                          }`}
+                        >
+                          {s.label}
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+              )}
               <div>
                 <input
                   type="file"
@@ -1992,6 +2144,15 @@ export default function StudioVideoGenerator() {
                       autoPlay
                       className="w-full h-full object-cover"
                     />
+                    {generatedResult?.voiceover?.url && (
+                      <audio
+                        ref={audioRef}
+                        src={generatedResult.voiceover.url}
+                        preload="auto"
+                        playsInline
+                        muted={isMuted}
+                      />
+                    )}
 
                     {/* Clean Social Media Ad Overlays */}
                     {(() => {
