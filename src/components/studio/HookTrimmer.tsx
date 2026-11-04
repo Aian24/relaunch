@@ -158,23 +158,21 @@ export default function HookTrimmer({
   const widthPercent = Math.max(2, endPercent - startPercent);
 
   return (
-    <div className="bg-white border border-purple-200/90 rounded-2xl p-3.5 sm:p-4 shadow-sm space-y-3 transition">
+    <div className="space-y-3 transition">
       {/* Header Bar */}
       <div
         onClick={() => setIsExpanded(!isExpanded)}
-        className="flex items-center justify-between cursor-pointer select-none gap-2"
+        className="flex items-center justify-between cursor-pointer select-none gap-2 py-0.5"
       >
         <div className="flex items-center gap-2 min-w-0">
-          <div className="w-6 h-6 rounded-lg bg-[#7F48ED] text-white flex items-center justify-center font-bold shrink-0 shadow-xs">
-            <Scissors className="w-3.5 h-3.5" />
+          <div className="w-5 h-5 rounded-md bg-[#7F48ED] text-white flex items-center justify-center font-bold shrink-0 shadow-2xs">
+            <Scissors className="w-3 h-3" />
           </div>
-          <div className="truncate">
-            <div className="flex items-center gap-1.5 flex-wrap">
-              <span className="text-xs font-bold text-zinc-900">Hook Trimmer</span>
-              <span className="text-[10px] font-mono font-bold text-[#7F48ED] bg-purple-50 px-2 py-0.5 rounded-full border border-purple-200">
-                {hookDuration.toFixed(1)}s Take
-              </span>
-            </div>
+          <div className="flex items-center gap-1.5 flex-wrap truncate">
+            <span className="text-xs font-bold text-zinc-900">Hook Trimmer</span>
+            <span className="text-[10px] font-mono font-bold text-[#7F48ED] bg-purple-50 px-2 py-0.5 rounded-full border border-purple-200">
+              {hookDuration.toFixed(1)}s Take
+            </span>
           </div>
         </div>
 
@@ -182,14 +180,14 @@ export default function HookTrimmer({
           <button
             type="button"
             onClick={handleResetRecommended}
-            className="text-[10px] font-mono font-bold text-zinc-700 hover:text-[#7F48ED] bg-zinc-50 hover:bg-purple-50 px-2 py-1 rounded-lg border border-zinc-200 transition flex items-center gap-1 cursor-pointer"
+            className="text-[10px] font-mono font-bold text-zinc-600 hover:text-[#7F48ED] bg-zinc-50 hover:bg-purple-50 px-2 py-0.5 rounded-md border border-zinc-200 transition flex items-center gap-1 cursor-pointer"
             title="Reset to recommended clean take"
           >
             <RotateCcw className="w-2.5 h-2.5" />
-            <span className="hidden sm:inline">Recommended:</span> {clip.recommendedTrim.start}s–{clip.recommendedTrim.end}s
+            <span className="hidden sm:inline">Reset:</span> {clip.recommendedTrim.start}s–{clip.recommendedTrim.end}s
           </button>
-          <div className="p-1 text-zinc-400">
-            {isExpanded ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
+          <div className="p-0.5 text-zinc-400">
+            {isExpanded ? <ChevronUp className="w-3.5 h-3.5" /> : <ChevronDown className="w-3.5 h-3.5" />}
           </div>
         </div>
       </div>
@@ -299,17 +297,37 @@ export default function HookTrimmer({
             </div>
           </div>
 
-          {/* Steppers & Dual Controls matching user's Image 2 */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 sm:gap-3 pt-1 items-stretch">
-            {/* In Point (Start Take) */}
-            <div className="bg-white border border-zinc-200/90 rounded-2xl p-3 sm:p-3.5 shadow-xs flex flex-col justify-between gap-2">
-              <div className="flex items-center justify-between gap-2">
-                <span className="font-bold text-zinc-800 text-xs sm:text-[13px] whitespace-nowrap">
-                  In Point (Start Take)
-                </span>
-                <span className="font-mono font-bold text-purple-600 bg-purple-50/80 px-2 py-0.5 rounded-lg border border-purple-200 text-xs shrink-0">
-                  {trimStart.toFixed(1)}s
-                </span>
+          {/* Roomy Trimming Controls (Zero Compression, Full-Width Scrubbing) */}
+          <div className="space-y-2.5 pt-0.5">
+            {/* Start Take */}
+            <div className="space-y-1">
+              <div className="flex items-center justify-between text-xs">
+                <div className="flex items-center gap-2">
+                  <span className="font-bold text-zinc-800 text-xs">
+                    Start Take
+                  </span>
+                  <span className="font-mono font-bold text-purple-600 bg-purple-50 px-2 py-0.5 rounded border border-purple-200 text-xs min-w-[40px] text-center">
+                    {trimStart.toFixed(1)}s
+                  </span>
+                </div>
+                <div className="flex items-center gap-1">
+                  <button
+                    type="button"
+                    onClick={() => nudgeStart(-0.2)}
+                    className="px-2 py-0.5 bg-zinc-100 hover:bg-zinc-200 active:bg-zinc-300 rounded text-zinc-700 font-mono font-bold text-[11px] cursor-pointer transition whitespace-nowrap"
+                    title="Nudge back 0.2s"
+                  >
+                    — 0.2s
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => nudgeStart(0.2)}
+                    className="px-2 py-0.5 bg-zinc-100 hover:bg-zinc-200 active:bg-zinc-300 rounded text-zinc-700 font-mono font-bold text-[11px] cursor-pointer transition whitespace-nowrap"
+                    title="Nudge forward 0.2s"
+                  >
+                    + 0.2s
+                  </button>
+                </div>
               </div>
               <input
                 type="range"
@@ -320,36 +338,37 @@ export default function HookTrimmer({
                 onChange={(e) => handleStartChange(parseFloat(e.target.value))}
                 className="w-full accent-purple-600 cursor-pointer h-2 bg-zinc-100 rounded-lg"
               />
-              <div className="flex items-center justify-between gap-2 pt-0.5">
-                <button
-                  type="button"
-                  onClick={() => nudgeStart(-0.2)}
-                  className="px-3 py-1 bg-white hover:bg-zinc-50 border border-zinc-200/90 rounded-lg text-xs font-mono font-bold text-zinc-700 flex items-center justify-center cursor-pointer whitespace-nowrap shadow-xs hover:border-zinc-300 transition"
-                >
-                  — 0.2s
-                </button>
-                <span className="text-xs font-medium text-zinc-400 whitespace-nowrap select-none">
-                  Fine Tune
-                </span>
-                <button
-                  type="button"
-                  onClick={() => nudgeStart(0.2)}
-                  className="px-3 py-1 bg-white hover:bg-zinc-50 border border-zinc-200/90 rounded-lg text-xs font-mono font-bold text-zinc-700 flex items-center justify-center cursor-pointer whitespace-nowrap shadow-xs hover:border-zinc-300 transition"
-                >
-                  + 0.2s
-                </button>
-              </div>
             </div>
 
-            {/* Out Point (Cut To Ad) */}
-            <div className="bg-white border border-zinc-200/90 rounded-2xl p-3 sm:p-3.5 shadow-xs flex flex-col justify-between gap-2">
-              <div className="flex items-center justify-between gap-2">
-                <span className="font-bold text-zinc-800 text-xs sm:text-[13px] whitespace-nowrap">
-                  Out Point (Cut To Ad)
-                </span>
-                <span className="font-mono font-bold text-[#FF6700] bg-orange-50/80 px-2 py-0.5 rounded-lg border border-orange-200 text-xs shrink-0">
-                  {trimEnd.toFixed(1)}s
-                </span>
+            {/* Cut to Ad */}
+            <div className="space-y-1">
+              <div className="flex items-center justify-between text-xs">
+                <div className="flex items-center gap-2">
+                  <span className="font-bold text-zinc-800 text-xs">
+                    Cut to Ad
+                  </span>
+                  <span className="font-mono font-bold text-[#FF6700] bg-orange-50 px-2 py-0.5 rounded border border-orange-200 text-xs min-w-[40px] text-center">
+                    {trimEnd.toFixed(1)}s
+                  </span>
+                </div>
+                <div className="flex items-center gap-1">
+                  <button
+                    type="button"
+                    onClick={() => nudgeEnd(-0.2)}
+                    className="px-2 py-0.5 bg-zinc-100 hover:bg-zinc-200 active:bg-zinc-300 rounded text-zinc-700 font-mono font-bold text-[11px] cursor-pointer transition whitespace-nowrap"
+                    title="Nudge back 0.2s"
+                  >
+                    — 0.2s
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => nudgeEnd(0.2)}
+                    className="px-2 py-0.5 bg-zinc-100 hover:bg-zinc-200 active:bg-zinc-300 rounded text-zinc-700 font-mono font-bold text-[11px] cursor-pointer transition whitespace-nowrap"
+                    title="Nudge forward 0.2s"
+                  >
+                    + 0.2s
+                  </button>
+                </div>
               </div>
               <input
                 type="range"
@@ -360,33 +379,14 @@ export default function HookTrimmer({
                 onChange={(e) => handleEndChange(parseFloat(e.target.value))}
                 className="w-full accent-[#FF6700] cursor-pointer h-2 bg-zinc-100 rounded-lg"
               />
-              <div className="flex items-center justify-between gap-2 pt-0.5">
-                <button
-                  type="button"
-                  onClick={() => nudgeEnd(-0.2)}
-                  className="px-3 py-1 bg-white hover:bg-zinc-50 border border-zinc-200/90 rounded-lg text-xs font-mono font-bold text-zinc-700 flex items-center justify-center cursor-pointer whitespace-nowrap shadow-xs hover:border-zinc-300 transition"
-                >
-                  — 0.2s
-                </button>
-                <span className="text-xs font-medium text-zinc-400 whitespace-nowrap select-none">
-                  Fine Tune
-                </span>
-                <button
-                  type="button"
-                  onClick={() => nudgeEnd(0.2)}
-                  className="px-3 py-1 bg-white hover:bg-zinc-50 border border-zinc-200/90 rounded-lg text-xs font-mono font-bold text-zinc-700 flex items-center justify-center cursor-pointer whitespace-nowrap shadow-xs hover:border-zinc-300 transition"
-                >
-                  + 0.2s
-                </button>
-              </div>
             </div>
           </div>
 
-          {/* Authenticity Guarantee Callout */}
-          <div className="flex items-center gap-2 text-[11px] text-emerald-800 bg-emerald-50 border border-emerald-200 rounded-xl px-3 py-2 font-medium">
-            <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
-            <span>
-              Haley&apos;s real voice in this {hookDuration.toFixed(1)}s segment is preserved at 100% volume. ElevenLabs voiceover begins smoothly at {hookDuration.toFixed(1)}s.
+          {/* Authenticity Guarantee Callout — Clean inline note, no bulky box */}
+          <div className="flex items-start gap-1.5 text-[11px] text-zinc-600 pt-0.5">
+            <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 shrink-0 mt-0.5" />
+            <span className="leading-snug">
+              <strong className="text-zinc-800">{clip.creatorName || "Creator"}&apos;s real voice</strong> ({hookDuration.toFixed(1)}s take) preserved · ElevenLabs begins smoothly at {hookDuration.toFixed(1)}s.
             </span>
           </div>
         </div>

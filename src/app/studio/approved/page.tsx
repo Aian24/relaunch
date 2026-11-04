@@ -31,6 +31,7 @@ import {
   Calendar,
   Maximize2,
   Minimize2,
+  RefreshCw,
 } from "lucide-react";
 
 interface ApprovedVariant {
@@ -82,6 +83,33 @@ export default function ApprovedDeliverablesVaultPage() {
   const [toastMessage, setToastMessage] = useState<string | null>(null);
   const [pendingCount, setPendingCount] = useState(0);
   const [fullscreenId, setFullscreenId] = useState<string | null>(null);
+  const [syncingMap, setSyncingMap] = useState<Record<string, boolean>>({});
+  const [syncSuccessMap, setSyncSuccessMap] = useState<Record<string, string>>({});
+
+  const handleSyncToDrive = async (id: string) => {
+    setSyncingMap((prev) => ({ ...prev, [id]: true }));
+    try {
+      const res = await fetch(`/api/studio/deliveries/${id}/sync`, { method: "POST" });
+      const data = await res.json();
+      if (res.ok) {
+        setSyncSuccessMap((prev) => ({ ...prev, [id]: data.result?.isCloudSynced ? "✓ Cloud Synced" : "✓ Ready" }));
+        showToast(data.result?.isCloudSynced ? "✓ Files uploaded directly to Google Drive!" : "📦 Campaign Kit packaged! Download ZIP and drop into Google Drive.");
+        setTimeout(() => {
+          setSyncSuccessMap((prev) => {
+            const next = { ...prev };
+            delete next[id];
+            return next;
+          });
+        }, 5000);
+      } else {
+        showToast(data.error || "Could not complete Drive sync");
+      }
+    } catch (e: any) {
+      showToast("Drive sync error: " + e.message);
+    } finally {
+      setSyncingMap((prev) => ({ ...prev, [id]: false }));
+    }
+  };
 
   const videoRefs = useRef<Record<string, HTMLVideoElement | null>>({});
   const cardContainerRefs = useRef<Record<string, HTMLDivElement | null>>({});
@@ -640,8 +668,21 @@ export default function ApprovedDeliverablesVaultPage() {
                       </a>
                     </div>
 
+                    {/* 1-Click Complete Campaign Kit (.ZIP) */}
+                    <div className="pt-2">
+                      <a
+                        href={`/api/studio/deliveries/${item.id}/zip`}
+                        download={`${item.clientName.toLowerCase().replace(/\s+/g, "-")}-${item.id}-campaign-kit.zip`}
+                        className="w-full flex items-center justify-center gap-2 py-2.5 px-3 rounded-xl bg-gradient-to-r from-[#7F48ED] to-indigo-600 hover:from-[#713be2] hover:to-indigo-700 active:from-[#6532d0] active:to-indigo-800 text-white text-xs font-bold transition shadow-xs cursor-pointer min-h-[40px]"
+                        title="Download complete campaign package: 9:16, 1:1, 4:5 MP4s, cover thumbnail and Meta ad copy"
+                      >
+                        <Download className="w-4 h-4 text-white shrink-0" />
+                        <span>Download Full Campaign Kit (ZIP)</span>
+                      </a>
+                    </div>
+
                     {/* Cloud delivery & Review Link */}
-                    <div className="flex flex-col sm:flex-row items-center gap-2 pt-1">
+                    <div className="flex flex-col sm:flex-row items-center gap-2 pt-2">
                       <a
                         href={`https://drive.google.com/drive/folders/${item.delivery?.googleDriveFolderId || googleDriveFolderId}`}
                         target="_blank"
@@ -650,9 +691,26 @@ export default function ApprovedDeliverablesVaultPage() {
                         title="Open shared client Google Drive folder"
                       >
                         <Folder className="w-4 h-4 text-emerald-600 shrink-0" />
-                        <span>Open Drive Folder</span>
+                        <span>Open Drive</span>
                         <ExternalLink className="w-3 h-3 text-emerald-600 shrink-0 ml-0.5" />
                       </a>
+
+                      <button
+                        type="button"
+                        onClick={() => handleSyncToDrive(item.id)}
+                        disabled={syncingMap[item.id]}
+                        className={`w-full sm:w-auto flex items-center justify-center gap-1.5 py-2.5 px-3 rounded-xl border text-xs font-bold transition cursor-pointer min-h-[40px] ${
+                          syncSuccessMap[item.id]
+                            ? "bg-emerald-100 text-emerald-800 border-emerald-300"
+                            : syncingMap[item.id]
+                            ? "bg-zinc-100 text-zinc-500 border-zinc-200 cursor-not-allowed"
+                            : "bg-zinc-50 hover:bg-zinc-100 text-zinc-700 border-zinc-200"
+                        }`}
+                        title="Trigger real-time synchronization to Google Drive folder"
+                      >
+                        <RefreshCw className={`w-3.5 h-3.5 shrink-0 ${syncingMap[item.id] ? "animate-spin text-[#7F48ED]" : "text-zinc-600"}`} />
+                        <span>{syncSuccessMap[item.id] || (syncingMap[item.id] ? "Syncing..." : "Sync Drive")}</span>
+                      </button>
 
                       <Link
                         href={`/studio/review?variantId=${item.id}&clientView=true`}

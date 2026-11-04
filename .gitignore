@@ -62,5 +62,6 @@ relaunch-studio-engine/**/.env*
 # raw creator footage & large uncompressed takes
 *.mov
 public/videos/Haley UGC/
+public/videos/Emily UGC/
 *PLAN.md
 RELAUNCH_STUDIO_DEV_NEXTSTEPS_PLAN.md

@@ -65,16 +65,28 @@ const BRAND_PRESETS: BrandPreset[] = [
     offer: "15% off first pickup order",
   },
   {
+    id: "turf-life",
+    name: "Turf Life",
+    category: "Golf & Sports Apparel",
+    offer: "15% off performance sports apparel",
+  },
+  {
     id: "carmen-hotel",
     name: "Carmen Hotel",
     category: "Luxury Travel",
     offer: "Free breakfast + $50 spa credit",
   },
   {
-    id: "turf-life",
-    name: "Turf Life",
-    category: "Golf & Sports Apparel",
-    offer: "15% off performance sports apparel",
+    id: "dewpoint-skin",
+    name: "Dewpoint Skincare",
+    category: "Clean Beauty & Wellness",
+    offer: "20% off Clean Barrier Starter Set",
+  },
+  {
+    id: "relaunch-growth",
+    name: "ReLaunch Studio",
+    category: "Digital Growth & Agency",
+    offer: "Book a 3-Ad Pilot Campaign",
   },
 ];
 
@@ -215,61 +227,80 @@ function getActiveCaption(
   hookText: string,
   scriptBody: string,
   brandOffer: string
-): { text: string; phase: "hook" | "body" | "cta" } {
+): { text: string; words: string[]; activeWord: string; phase: "hook" | "body" | "cta" } {
+  let text = "";
+  let phase: "hook" | "body" | "cta" = "body";
+  let windowStart = 0;
+  let windowEnd = 22;
+
   // 1. Hook Phase: 0.0s – 3.5s
   if (currentTime < 3.5) {
-    return {
-      text: hookText || "Stop scrolling & check this out",
-      phase: "hook",
-    };
-  }
+    text = hookText || "Stop scrolling & check this out";
+    phase = "hook";
+    windowStart = 0;
+    windowEnd = 3.5;
+  } else {
+    // 2. Commercial Body: Split script into natural sentences
+    const rawSentences = (scriptBody || "")
+      .split(/(?<=[.!?])\s+/)
+      .map((s) => s.trim())
+      .filter(Boolean);
 
-  // 2. Commercial Body: Split script into natural sentences
-  const rawSentences = (scriptBody || "")
-    .split(/(?<=[.!?])\s+/)
-    .map((s) => s.trim())
-    .filter(Boolean);
+    const sentences = rawSentences.length > 0 ? rawSentences : [scriptBody || ""];
 
-  const sentences = rawSentences.length > 0 ? rawSentences : [scriptBody || ""];
-
-  if (sentences.length === 1) {
-    return {
-      text: sentences[0],
-      phase: "body",
-    };
-  }
-
-  if (sentences.length === 2) {
-    if (currentTime < 11.0) {
-      return {
-        text: sentences[0],
-        phase: "body",
-      };
+    if (sentences.length === 1) {
+      text = sentences[0];
+      phase = "body";
+      windowStart = 3.5;
+      windowEnd = 22;
+    } else if (sentences.length === 2) {
+      if (currentTime < 11.0) {
+        text = sentences[0];
+        phase = "body";
+        windowStart = 3.5;
+        windowEnd = 11.0;
+      } else {
+        text = sentences[1];
+        phase = "cta";
+        windowStart = 11.0;
+        windowEnd = 22.0;
+      }
     } else {
-      return {
-        text: sentences[1],
-        phase: "cta",
-      };
+      // 3 or more sentences
+      if (currentTime < 9.0) {
+        text = sentences[0];
+        phase = "body";
+        windowStart = 3.5;
+        windowEnd = 9.0;
+      } else if (currentTime < 15.0) {
+        text = sentences[1];
+        phase = "body";
+        windowStart = 9.0;
+        windowEnd = 15.0;
+      } else {
+        text = sentences.slice(2).join(" ");
+        phase = "cta";
+        windowStart = 15.0;
+        windowEnd = 22.0;
+      }
     }
   }
 
-  // 3 or more sentences (e.g. Problem -> Solution -> Call-To-Action)
-  if (currentTime < 9.0) {
-    return {
-      text: sentences[0],
-      phase: "body",
-    };
-  } else if (currentTime < 15.0) {
-    return {
-      text: sentences[1],
-      phase: "body",
-    };
-  } else {
-    return {
-      text: sentences.slice(2).join(" "),
-      phase: "cta",
-    };
-  }
+  const words = text.split(/\s+/).filter(Boolean);
+  const duration = Math.max(0.1, windowEnd - windowStart);
+  const elapsed = Math.max(0, currentTime - windowStart);
+  const wordIndex = Math.min(
+    words.length - 1,
+    Math.floor((elapsed / duration) * (words.length || 1))
+  );
+  const activeWord = words[Math.max(0, wordIndex)] || "";
+
+  return {
+    text,
+    words,
+    activeWord,
+    phase,
+  };
 }
 
 export default function StudioVideoGenerator() {
@@ -320,11 +351,11 @@ export default function StudioVideoGenerator() {
   }, [selectedCreatorAssetId]);
 
   const creatorHooksList = useMemo(() => {
-    return getCreatorClips(selectedActor === "haley" ? "haley" : undefined, "hook");
+    return getCreatorClips(selectedActor, "hook");
   }, [selectedActor]);
 
   const creatorBrollList = useMemo(() => {
-    return getCreatorClips(selectedActor === "haley" ? "haley" : undefined, "broll");
+    return getCreatorClips(selectedActor, "broll");
   }, [selectedActor]);
 
   // Generation & Player State
@@ -335,7 +366,7 @@ export default function StudioVideoGenerator() {
   const [isPlaying, setIsPlaying] = useState(true);
   const [isMuted, setIsMuted] = useState(true);
   const [showPhoneFrame, setShowPhoneFrame] = useState(false);
-  const [showCaptions, setShowCaptions] = useState(false);
+  const [showCaptions, setShowCaptions] = useState(true);
   const [mobileTab, setMobileTab] = useState<"controls" | "preview">("controls");
   const [generationMode, setGenerationMode] = useState<"single" | "batch">("single");
   const [batchJobsCreated, setBatchJobsCreated] = useState<any[] | null>(null);
@@ -1283,6 +1314,12 @@ export default function StudioVideoGenerator() {
                         key={cr.id}
                         onClick={() => {
                           setSelectedActor(cr.actorPresetId);
+                          const defaultClip = getCreatorClips(cr.actorPresetId, "hook")[0];
+                          if (defaultClip) {
+                            setSelectedCreatorAssetId(defaultClip.id);
+                            setTrimStart(defaultClip.recommendedTrim.start);
+                            setTrimEnd(defaultClip.recommendedTrim.end);
+                          }
                           setCreatorDropdownOpen(false);
                         }}
                         className={`px-3 py-2 rounded-lg text-xs cursor-pointer transition flex items-center justify-between ${
@@ -1321,7 +1358,7 @@ export default function StudioVideoGenerator() {
                   Creator Footage
                 </label>
                 <span className="text-[10px] font-mono text-[#7F48ED] font-bold">
-                  {assetTab === "hooks" ? "7 Hooks Available" : "4 B-Roll Cuts"}
+                  {assetTab === "hooks" ? `${creatorHooksList.length} Hooks Available` : `${creatorBrollList.length} B-Roll Cuts`}
                 </span>
               </div>
               <button
@@ -1438,7 +1475,7 @@ export default function StudioVideoGenerator() {
 
             {/* Interactive Hook Trimmer Component (In/Out Selection from Raw 10–29s Take) */}
             {activeCreatorAsset && activeCreatorAsset.type === "hook" && (
-              <div className="pt-1">
+              <div className="pt-2 border-t border-zinc-100">
                 <HookTrimmer
                   clip={activeCreatorAsset}
                   trimStart={trimStart}
@@ -1452,7 +1489,7 @@ export default function StudioVideoGenerator() {
             )}
 
             {/* AI Engine & Voice Cadence */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 pt-0.5">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 pt-2 border-t border-zinc-100">
               {/* Visual Engine */}
               <div className="space-y-1 relative" ref={modelDropdownRef}>
                 <label className="text-[10px] font-bold text-zinc-500 uppercase tracking-wider block">AI Engine</label>
@@ -1679,9 +1716,9 @@ export default function StudioVideoGenerator() {
         {/* ============================================================== */}
         {/* RIGHT STAGE: CLEAN LIGHT CANVAS & VIDEO PLAYER                */}
         {/* ============================================================== */}
-        <div className={`flex-1 min-w-0 bg-[#F8F9FC] flex-col p-4 sm:p-6 relative gap-4 h-auto lg:h-full lg:overflow-y-auto min-h-0 ${mobileTab === "preview" ? "flex" : "hidden lg:flex"}`}>
+        <div className={`flex-1 min-w-0 bg-[#F8F9FC] flex flex-col p-4 sm:p-5 relative gap-4 h-auto lg:h-full lg:overflow-y-auto min-h-0 ${mobileTab === "preview" ? "flex" : "hidden lg:flex"}`}>
           {/* Top Canvas Controls Bar (Clean White) */}
-          <div className="w-full flex flex-wrap items-center justify-between gap-3 bg-white border border-zinc-200/90 rounded-2xl px-4 py-3 shadow-sm">
+          <div className="w-full shrink-0 sticky top-0 z-20 flex flex-wrap items-center justify-between gap-3 bg-white border border-zinc-200/90 rounded-2xl px-4 py-3 shadow-sm">
             {/* Format Ratio Selector */}
             <div className="flex items-center gap-1.5">
               <span className="text-xs font-bold text-zinc-500 mr-1 hidden sm:inline uppercase tracking-wider">Format:</span>
@@ -1841,7 +1878,7 @@ export default function StudioVideoGenerator() {
           )}
 
           {/* 3-PART HYBRID PRODUCTION ANATOMY (Interactive Timeline) */}
-          <div className="w-full bg-white border border-zinc-200 rounded-2xl p-3 sm:p-3.5 flex flex-col gap-2 shadow-sm">
+          <div className="w-full shrink-0 bg-white border border-zinc-200 rounded-2xl p-3 sm:p-3.5 flex flex-col gap-2 shadow-sm">
             <div className="flex items-center justify-between text-xs">
               <span className="font-extrabold uppercase tracking-wider text-zinc-900 flex items-center gap-1.5 text-[11px]">
                 <Layers className="w-3.5 h-3.5 text-[#7F48ED]" />
@@ -1911,7 +1948,7 @@ export default function StudioVideoGenerator() {
           </div>
 
           {/* CENTERED VIDEO DISPLAY STAGE */}
-          <div className="w-full flex-1 flex items-center justify-center py-2 relative min-h-[380px]">
+          <div className="w-full shrink-0 flex items-center justify-center py-2 relative">
             {/* Master audio is embedded directly into the video stream for synchronized playback */}
 
             {/* Generation Progress Overlay (Clean White Backlit) */}
@@ -1941,7 +1978,7 @@ export default function StudioVideoGenerator() {
             {/* VIDEO PLAYER CONTAINER */}
             {showPhoneFrame ? (
               /* Phone Mockup View */
-              <div className="relative h-[min(650px,calc(100vh-230px))] aspect-[9/16] bg-black rounded-[44px] border-[6px] border-zinc-800 overflow-hidden shadow-2xl flex flex-col justify-between p-2">
+              <div className="relative h-[min(660px,calc(100vh-200px))] min-h-[520px] aspect-[9/16] bg-black rounded-[44px] border-[6px] border-zinc-800 overflow-hidden shadow-2xl flex flex-col justify-between p-2">
                 <div className="absolute top-2.5 left-1/2 -translate-x-1/2 w-28 h-4 bg-zinc-800 rounded-full z-20" />
                 {generatedResult ? (
                   <div className="absolute inset-0 w-full h-full overflow-hidden">
@@ -1996,20 +2033,34 @@ export default function StudioVideoGenerator() {
                             </div>
                           )}
 
-                          {/* Bottom Dynamic Captions (Synced to speech, full complete sentences, no truncation) */}
-                          <div className={`text-center ${currentTime >= 16.5 ? "mb-1" : "mb-8"} px-1`}>
-                            <div className="inline-block bg-black/75 backdrop-blur-md px-3.5 py-2 rounded-2xl border border-white/15 max-w-[95%] shadow-2xl animate-in fade-in duration-150">
-                              <p className={`text-center leading-snug font-extrabold text-xs sm:text-sm tracking-wide ${
-                                activeCap.phase === "hook"
-                                  ? "text-yellow-300 drop-shadow-[0_2px_4px_rgba(0,0,0,0.9)]"
-                                  : activeCap.phase === "cta"
-                                  ? "text-amber-300 drop-shadow-[0_2px_4px_rgba(0,0,0,0.9)]"
-                                  : "text-white drop-shadow-[0_2px_4px_rgba(0,0,0,0.9)]"
-                              }`}>
-                                {activeCap.phase === "hook" ? `“${activeCap.text}”` : activeCap.text}
-                              </p>
+                          {/* Bottom Dynamic Kinetic Captions (TikTok/Reels style) */}
+                          {showCaptions && (
+                            <div className={`text-center ${currentTime >= 16.5 ? "mb-1" : "mb-8"} px-1.5 flex justify-center`}>
+                              <div className="inline-block bg-black/80 backdrop-blur-md px-3.5 py-1.5 rounded-2xl border border-white/20 max-w-[96%] shadow-[0_8px_30px_rgba(0,0,0,0.9)] animate-in fade-in duration-150">
+                                <div className="flex flex-wrap items-center justify-center gap-x-1 gap-y-0.5">
+                                  {activeCap.words.map((w, wIdx) => {
+                                    const isCurrent = w.toLowerCase().replace(/[^a-z0-9]/g, "") === activeCap.activeWord.toLowerCase().replace(/[^a-z0-9]/g, "");
+                                    return (
+                                      <span
+                                        key={wIdx}
+                                        className={`font-heading font-black text-[11px] sm:text-xs tracking-wide uppercase transition-all duration-75 ${
+                                          isCurrent
+                                            ? "text-[#FFE600] scale-110 drop-shadow-[0_2px_8px_rgba(255,230,0,0.6)] font-black"
+                                            : activeCap.phase === "hook"
+                                            ? "text-yellow-100 drop-shadow-[0_2px_4px_rgba(0,0,0,0.9)]"
+                                            : activeCap.phase === "cta"
+                                            ? "text-amber-200 drop-shadow-[0_2px_4px_rgba(0,0,0,0.9)]"
+                                            : "text-white drop-shadow-[0_2px_4px_rgba(0,0,0,0.9)] opacity-95"
+                                        }`}
+                                      >
+                                        {w}
+                                      </span>
+                                    );
+                                  })}
+                                </div>
+                              </div>
                             </div>
-                          </div>
+                          )}
                         </div>
                       );
                     })()}
@@ -2097,10 +2148,10 @@ export default function StudioVideoGenerator() {
               <div
                 className={`relative flex items-center justify-center transition-all duration-300 overflow-hidden bg-black rounded-2xl border border-zinc-300/80 shadow-2xl ${
                   aspectRatio === "9:16"
-                    ? "h-[min(650px,calc(100vh-230px))] aspect-[9/16]"
+                    ? "h-[min(650px,calc(100vh-200px))] min-h-[520px] aspect-[9/16]"
                     : aspectRatio === "1:1"
-                    ? "h-[min(560px,calc(100vh-230px))] aspect-square"
-                    : "h-[min(610px,calc(100vh-230px))] aspect-[4/5]"
+                    ? "h-[min(540px,calc(100vh-220px))] min-h-[460px] aspect-square"
+                    : "h-[min(590px,calc(100vh-210px))] min-h-[490px] aspect-[4/5]"
                 }`}
               >
                 {/* 3-PART HYBRID AD ENGINE PLAYBACK */}
@@ -2163,20 +2214,34 @@ export default function StudioVideoGenerator() {
                             </div>
                           )}
 
-                          {/* Bottom Dynamic Captions (Synced to speech, full complete sentences, no truncation) */}
-                          <div className={`text-center ${currentTime >= 16.5 ? "mb-2" : "mb-10"} px-2`}>
-                            <div className="inline-block bg-black/75 backdrop-blur-md px-4 py-2.5 rounded-2xl border border-white/15 max-w-[88%] shadow-2xl animate-in fade-in duration-150">
-                              <p className={`text-center leading-snug font-extrabold text-sm sm:text-base tracking-wide ${
-                                activeCap.phase === "hook"
-                                  ? "text-yellow-300 drop-shadow-[0_2px_4px_rgba(0,0,0,0.9)]"
-                                  : activeCap.phase === "cta"
-                                  ? "text-amber-300 drop-shadow-[0_2px_4px_rgba(0,0,0,0.9)]"
-                                  : "text-white drop-shadow-[0_2px_4px_rgba(0,0,0,0.9)]"
-                              }`}>
-                                {activeCap.phase === "hook" ? `“${activeCap.text}”` : activeCap.text}
-                              </p>
+                          {/* Bottom Dynamic Kinetic Captions (TikTok/Reels style) */}
+                          {showCaptions && (
+                            <div className={`text-center ${currentTime >= 16.5 ? "mb-2" : "mb-10"} px-2 flex justify-center`}>
+                              <div className="inline-block bg-black/80 backdrop-blur-md px-4 py-2 rounded-2xl border border-white/20 max-w-[92%] shadow-[0_8px_32px_rgba(0,0,0,0.9)] animate-in fade-in duration-150">
+                                <div className="flex flex-wrap items-center justify-center gap-x-1.5 gap-y-0.5">
+                                  {activeCap.words.map((w, wIdx) => {
+                                    const isCurrent = w.toLowerCase().replace(/[^a-z0-9]/g, "") === activeCap.activeWord.toLowerCase().replace(/[^a-z0-9]/g, "");
+                                    return (
+                                      <span
+                                        key={wIdx}
+                                        className={`font-heading font-black text-xs sm:text-sm tracking-wide uppercase transition-all duration-75 ${
+                                          isCurrent
+                                            ? "text-[#FFE600] scale-110 drop-shadow-[0_2px_8px_rgba(255,230,0,0.6)] font-black"
+                                            : activeCap.phase === "hook"
+                                            ? "text-yellow-100 drop-shadow-[0_2px_4px_rgba(0,0,0,0.9)]"
+                                            : activeCap.phase === "cta"
+                                            ? "text-amber-200 drop-shadow-[0_2px_4px_rgba(0,0,0,0.9)]"
+                                            : "text-white drop-shadow-[0_2px_4px_rgba(0,0,0,0.9)] opacity-95"
+                                        }`}
+                                      >
+                                        {w}
+                                      </span>
+                                    );
+                                  })}
+                                </div>
+                              </div>
                             </div>
-                          </div>
+                          )}
                         </div>
                       );
                     })()}
@@ -2230,7 +2295,7 @@ export default function StudioVideoGenerator() {
                   </div>
                 ) : (
                   /* Zero Demo Video Empty State: Clean Stage Ready for Generation */
-                  <div className="w-full h-full flex flex-col items-center justify-center p-6 text-center bg-[#090D16] text-white select-none">
+                  <div className="w-full h-full flex flex-col items-center justify-center p-4 sm:p-5 text-center bg-[#090D16] text-white select-none">
                     <div className="w-14 h-14 rounded-2xl bg-[#7F48ED]/15 border border-[#7F48ED]/30 flex items-center justify-center mb-3">
                       <Sparkles className="w-7 h-7 text-[#FF6700]" />
                     </div>
@@ -2265,7 +2330,7 @@ export default function StudioVideoGenerator() {
           </div>
 
           {/* BOTTOM STAGE ACTION TOOLBAR (Clean White Card) */}
-          <div className="w-full flex flex-col sm:flex-row items-center justify-between gap-3 bg-white border border-zinc-200/90 rounded-2xl p-3.5 shadow-sm">
+          <div className="w-full shrink-0 flex flex-col sm:flex-row items-center justify-between gap-3 bg-white border border-zinc-200/90 rounded-2xl p-3.5 shadow-sm">
             <div className="text-xs text-zinc-600">
               Active Brand: <span className="font-extrabold text-zinc-900">{brandName}</span> · Offer: <span className="text-[#FF6700] font-bold">{brandOffer}</span>
             </div>
