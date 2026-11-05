@@ -92,8 +92,6 @@ export default function StudioReviewPortal() {
   const [approvedCount, setApprovedCount] = useState(0);
   const [queueFilter, setQueueFilter] = useState<"pending" | "all">("pending");
 
-  const audioRef = useRef<HTMLAudioElement>(null);
-
   // Reviewer / QA Operator State & 4 Compliance Gates
   const [operatorName, setOperatorName] = useState("Robert Clark");
   const [checks, setChecks] = useState({
@@ -260,22 +258,15 @@ export default function StudioReviewPortal() {
       videoRef.current.currentTime = 0;
       videoRef.current.play().then(() => setIsPlaying(true)).catch(() => setIsPlaying(false));
     }
-    if (audioRef.current && selectedVariant?.voiceoverUrl) {
-      audioRef.current.currentTime = 0;
-      if (isPlaying) {
-        audioRef.current.play().catch(() => {});
-      }
-    }
+    
   }, [selectedVariant?.id, aspectRatio]);
 
   const togglePlay = () => {
     if (isPlaying) {
       videoRef.current?.pause();
-      audioRef.current?.pause();
       setIsPlaying(false);
     } else {
       videoRef.current?.play().then(() => setIsPlaying(true)).catch(() => {});
-      audioRef.current?.play().catch(() => {});
       setIsPlaying(true);
     }
   };
@@ -284,11 +275,7 @@ export default function StudioReviewPortal() {
     const nextMuted = !isMuted;
     setIsMuted(nextMuted);
     if (videoRef.current) videoRef.current.muted = nextMuted;
-    if (audioRef.current) {
-      audioRef.current.muted = nextMuted;
-      audioRef.current.volume = nextMuted ? 0 : 1;
-      if (!nextMuted) audioRef.current.play().catch(() => {});
-    }
+    
   };
 
   const handleDecision = async (decision: "approve" | "reject" | "recut") => {
@@ -1209,16 +1196,6 @@ export default function StudioReviewPortal() {
                     videoFit === "cover" ? "object-cover" : "object-contain"
                   }`}
                 />
-
-                {selectedVariant.voiceoverUrl && (
-                  <audio
-                    ref={audioRef}
-                    src={selectedVariant.voiceoverUrl}
-                    preload="auto"
-                    playsInline
-                    muted={isMuted}
-                  />
-                )}
 
                 {/* Big Center Play Indicator (when paused) */}
                 {!isPlaying && (

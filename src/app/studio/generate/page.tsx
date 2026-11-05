@@ -425,6 +425,7 @@ export default function StudioVideoGenerator() {
   const [uploadedMediaBase64, setUploadedMediaBase64] = useState<string | null>(null);
   const [uploadedMediaType, setUploadedMediaType] = useState<"video" | "image" | null>(null);
   const [isDraggingFile, setIsDraggingFile] = useState(false);
+  const [visualPrompt, setVisualPrompt] = useState<string>("");
 
   const [softLabelDisclosure, setSoftLabelDisclosure] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -435,7 +436,8 @@ export default function StudioVideoGenerator() {
   const [footageDropdownOpen, setFootageDropdownOpen] = useState(false);
 
   const activeCreatorAsset = useMemo(() => {
-    return getCreatorClipById(selectedCreatorAssetId) || CREATOR_ASSETS[0];
+    if (!selectedCreatorAssetId) return null;
+    return getCreatorClipById(selectedCreatorAssetId) || null;
   }, [selectedCreatorAssetId]);
 
   const creatorHooksList = useMemo(() => {
@@ -684,10 +686,10 @@ export default function StudioVideoGenerator() {
     setBrandOffer(preset.offer);
 
     if (preset.id === "ai-recommendations") {
-      setUploadedMediaSrc("/images/ai-recommendations/slide-1.jpg");
-      setUploadedMediaName("AI Recommendations – Slide 1 (Lock Screen).jpg");
-      setUploadedMediaSize("465 KB");
-      setUploadedMediaType("image");
+      setUploadedMediaSrc(null);
+      setUploadedMediaName(null);
+      setUploadedMediaBase64(null);
+      setUploadedMediaType(null);
       setSelectedAngle("problem");
       setSelectedHook("Your next customer just asked AI who to call.");
       setScriptBody("Traditional search gave them 10 choices. AI gives them 3. If AI has mixed-up info on your business, someone else gets the call. ReLaunch fixes what AI reads about you so you get recommended first. Claim your free AI audit today at relaunch.us/ai-recommendations.");
@@ -750,6 +752,33 @@ export default function StudioVideoGenerator() {
     if (fileInputRef.current) fileInputRef.current.value = "";
   };
 
+  // Auto-generate high-converting Kling AI commercial prompt from script
+  const handleAutoGenerateVisualPrompt = () => {
+    const bName = brandName.trim() || "My Brand";
+    const bLower = bName.toLowerCase();
+    let baseAction = "";
+
+    if (bLower.includes("dog") || bLower.includes("food") || bLower.includes("burger") || bLower.includes("restaurant") || bLower.includes("cafe")) {
+      baseAction = `Mouth-watering commercial macro slow-motion showcase of appetizing gourmet food from ${bName}, fresh sizzling ingredients, vibrant restaurant ambiance, warm studio lighting, appetizing presentation`;
+    } else if (bLower.includes("hotel") || bLower.includes("travel") || bLower.includes("resort") || bLower.includes("vacation")) {
+      baseAction = `Luxury boutique travel commercial for ${bName}, sun-drenched private suite balcony overlooking tranquil ocean sunset, elegant golden hour lighting, 4K travel commercial cinematography`;
+    } else if (bLower.includes("turf") || bLower.includes("golf") || bLower.includes("sport") || bLower.includes("apparel") || bLower.includes("fitness")) {
+      baseAction = `Dynamic athletic performance showcase of ${bName} performance sportswear, athlete in fluid slow-motion motion outdoors on championship course, crisp morning light, 4K 60fps sports commercial`;
+    } else if (bLower.includes("skin") || bLower.includes("beauty") || bLower.includes("glow") || bLower.includes("cream") || bLower.includes("lotion") || bLower.includes("dew")) {
+      baseAction = `Modern clean beauty commercial for ${bName}, model applying nourishing product with healthy glowing skin in bright aesthetic bathroom, slow-motion water droplets, elegant macro bottle reveal`;
+    } else if (bLower.includes("ai") || bLower.includes("search") || bLower.includes("software") || bLower.includes("app") || bLower.includes("tech") || bLower.includes("relaunch")) {
+      baseAction = `Modern bright creative office studio, professional entrepreneur reviewing local business search growth on smartphone, screen showing clean abstract glowing data visualizations and connectivity network nodes with strictly NO text and NO words, crisp daylight, shallow depth of field, 4K commercial cinematography, 60fps`;
+    } else {
+      baseAction = `High-converting commercial advertising showcase for "${bName}", dynamic customer interaction with product, fluid camera orbit, vibrant studio lighting, 4K 60fps physical realism`;
+    }
+
+    const generated = uploadedMediaType === "image"
+      ? `${baseAction}, featuring the product and visual identity shown in the reference image, seamless real-world interaction, cinematic camera motion, strictly no frozen frame, 4K commercial cinematography`
+      : `${baseAction}, cinematic camera tracking shot, authentic commercial atmosphere, 4K 60fps`;
+
+    setVisualPrompt(generated);
+  };
+
   // Shuffle Hook
   const handleShuffleHook = () => {
     const hooks = currentAngleData.hooks;
@@ -809,13 +838,15 @@ export default function StudioVideoGenerator() {
           scriptBody: scriptBody,
           ctaText: brandOffer.trim() || "Claim Offer",
           actor: selectedActor,
-          creatorAssetId: selectedCreatorAssetId,
+          creatorAssetId: activeCreator?.hasVideoTakes ? selectedCreatorAssetId : undefined,
           trimStart: trimStart,
           trimEnd: trimEnd,
           voiceId: selectedVoiceId,
           mediaSource: uploadedMediaBase64 || uploadedMediaSrc || "",
           mediaType: uploadedMediaType || "prompt_only",
-          visualPrompt: selectedPresetId === "ai-recommendations" || brandName.toLowerCase().includes("ai")
+          visualPrompt: visualPrompt.trim()
+            ? visualPrompt.trim()
+            : (selectedPresetId === "ai-recommendations" || brandName.toLowerCase().includes("ai"))
             ? "High-converting commercial advertising b-roll for AI Recommendations, modern creative workspace, entrepreneur analyzing AI search engine results on smartphone and laptop, sleek minimalist abstract data graphics with strictly no text and no letters, clean bright daylight, 4K 60fps photorealistic cinematography, absolutely no gibberish text, no foreign letters, clean English commercial visuals"
             : `Cinematic 1080p advertising b-roll of ${brandName}, dramatic studio lighting, dynamic product motion, physical realism, 60fps, clean sleek background without garbled text or alien writing`,
           aiModel: videoModel === "grok" ? "grok-1.5" : videoModel === "seedance" ? "seedance-fast" : "kling-1080p",
@@ -878,7 +909,7 @@ export default function StudioVideoGenerator() {
           id: `creator-${selectedActor}`,
           name: activeCreator.name,
           handle: activeCreator.handle,
-          hookClipUrl: activeCreatorAsset?.src || "/creators/haley/hooks/haley-hook-01.mp4",
+          hookClipUrl: activeCreatorAsset?.src || "",
         },
         clientMedia: data.clientMedia || {
           url: uploadedMediaBase64 || uploadedMediaSrc || "",
@@ -957,10 +988,7 @@ export default function StudioVideoGenerator() {
           const next = prev + delta;
           if (next >= 22.0) {
             // Loop commercial back to start
-            if (audioRef.current) {
-              audioRef.current.currentTime = 0;
-              audioRef.current.play().catch(() => {});
-            }
+            // Audio driven exclusively through video track
             if (videoRef.current) {
               videoRef.current.currentTime = 0;
             }
@@ -1183,48 +1211,7 @@ export default function StudioVideoGenerator() {
                 />
               </div>
 
-              {/* Product Media File (Optional Basis) */}
-              {selectedPresetId === "ai-recommendations" && (
-                <div className="bg-purple-50/60 border border-purple-200/80 rounded-xl p-2.5 space-y-1.5 mb-1.5">
-                  <div className="flex items-center justify-between text-xs">
-                    <span className="font-bold text-zinc-900 text-[11px] flex items-center gap-1.5">
-                      <span className="w-2 h-2 rounded-full bg-[#7F48ED] animate-pulse" />
-                      Client PDF Ad Slides
-                    </span>
-                    <span className="text-[10px] font-mono text-[#7F48ED] font-bold">4 Visuals</span>
-                  </div>
-                  <div className="grid grid-cols-2 gap-1.5">
-                    {[
-                      { id: 1, label: "1. Lock Screen Alert", hook: "Your next customer just asked AI who to call." },
-                      { id: 2, label: "2. 10 Choices vs 3", hook: "Search gave them 10 choices. AI gives them 3." },
-                      { id: 3, label: "3. Phoenix Roofer AI", hook: "AI is quietly deciding who gets the customer." },
-                      { id: 4, label: "4. Audit Checklist", hook: "AI is reading about your business right now." },
-                    ].map((s) => {
-                      const isActive = uploadedMediaSrc?.includes(`slide-${s.id}`);
-                      return (
-                        <button
-                          key={s.id}
-                          type="button"
-                          onClick={() => {
-                            setUploadedMediaSrc(`/images/ai-recommendations/slide-${s.id}.jpg`);
-                            setUploadedMediaName(`AI Recommendations – Slide ${s.id}.jpg`);
-                            setUploadedMediaType("image");
-                            setUploadedMediaSize("480 KB");
-                            setSelectedHook(s.hook);
-                          }}
-                          className={`px-2 py-1.5 rounded-lg text-[10px] font-bold transition text-left truncate cursor-pointer border ${
-                            isActive
-                              ? "bg-[#7F48ED] text-white border-[#7F48ED] shadow-xs"
-                              : "bg-white text-zinc-700 border-zinc-200 hover:border-purple-300 hover:bg-purple-50/50"
-                          }`}
-                        >
-                          {s.label}
-                        </button>
-                      );
-                    })}
-                  </div>
-                </div>
-              )}
+
               <div>
                 <input
                   type="file"
@@ -1411,6 +1398,32 @@ export default function StudioVideoGenerator() {
                 placeholder="Enter 20s voiceover script..."
               />
             </div>
+
+            {/* AI Video Visual Direction (Kling Prompt) Input */}
+            <div className="space-y-1.5 pt-2 border-t border-zinc-100">
+              <div className="flex items-center justify-between gap-2">
+                <label className="text-[10px] font-bold text-zinc-500 uppercase tracking-wider flex items-center gap-1.5 whitespace-nowrap shrink-0">
+                  <Sparkles className="w-3.5 h-3.5 text-[#FF6700]" />
+                  <span>Visual Direction</span>
+                </label>
+                <button
+                  type="button"
+                  onClick={handleAutoGenerateVisualPrompt}
+                  className="text-[10px] text-[#7F48ED] hover:text-[#6a32d6] font-bold flex items-center gap-1 cursor-pointer transition bg-purple-50 hover:bg-purple-100 px-2 py-0.5 rounded-md whitespace-nowrap shrink-0"
+                  title="Generate visual prompt automatically from script"
+                >
+                  <Sparkles className="w-3 h-3 text-[#7F48ED]" />
+                  <span>Auto-Generate</span>
+                </button>
+              </div>
+              <textarea
+                value={visualPrompt}
+                onChange={(e) => setVisualPrompt(e.target.value)}
+                rows={2}
+                className="w-full bg-white border border-zinc-200 focus:border-[#7F48ED] focus:ring-2 focus:ring-[#7F48ED]/15 rounded-xl p-2.5 text-xs text-zinc-800 focus:outline-none resize-none leading-relaxed transition font-medium"
+                placeholder="Describe what should happen in the video based on your script (e.g. Delicious hot dog macro slow-motion reveal with mustard, relish, and sizzling grill steam)..."
+              />
+            </div>
           </div>
 
           {/* STEP 3: CREATOR & VOICE */}
@@ -1443,11 +1456,20 @@ export default function StudioVideoGenerator() {
                   <div className="w-6 h-6 rounded-full bg-[#7F48ED] text-white flex items-center justify-center font-bold text-xs shrink-0 shadow-sm">
                     {activeCreator?.name.charAt(0) || "C"}
                   </div>
-                  <div className="truncate">
+                  <div className="truncate flex items-center flex-wrap gap-1">
                     <span className="font-bold text-zinc-900">{activeCreator?.name}</span>
-                    <span className="text-zinc-500 text-[11px] ml-1.5 font-normal">
+                    <span className="text-zinc-500 text-[11px] font-normal">
                       ({activeCreator?.niche})
                     </span>
+                    {activeCreator?.hasVideoTakes ? (
+                      <span className="text-[9px] font-bold px-1.5 py-0.5 rounded bg-emerald-100 text-emerald-800">
+                        UGC Video Ready
+                      </span>
+                    ) : (
+                      <span className="text-[9px] font-bold px-1.5 py-0.5 rounded bg-purple-100 text-[#7F48ED]">
+                        Voice &amp; Pure AI Video
+                      </span>
+                    )}
                   </div>
                 </div>
                 <ChevronDown className={`w-3.5 h-3.5 text-zinc-500 shrink-0 transition-transform ${creatorDropdownOpen ? "rotate-180" : ""}`} />
@@ -1466,11 +1488,18 @@ export default function StudioVideoGenerator() {
                         key={cr.id}
                         onClick={() => {
                           setSelectedActor(cr.actorPresetId);
-                          const defaultClip = getCreatorClips(cr.actorPresetId, "hook")[0];
-                          if (defaultClip) {
-                            setSelectedCreatorAssetId(defaultClip.id);
-                            setTrimStart(defaultClip.recommendedTrim.start);
-                            setTrimEnd(defaultClip.recommendedTrim.end);
+                          if (cr.hasVideoTakes) {
+                            const defaultClip = getCreatorClips(cr.actorPresetId, "hook")[0];
+                            if (defaultClip) {
+                              setSelectedCreatorAssetId(defaultClip.id);
+                              setTrimStart(defaultClip.recommendedTrim.start);
+                              setTrimEnd(defaultClip.recommendedTrim.end);
+                              if (defaultClip.spokenText) {
+                                setSelectedHook(defaultClip.spokenText);
+                              }
+                            }
+                          } else {
+                            setSelectedCreatorAssetId("");
                           }
                           setCreatorDropdownOpen(false);
                         }}
@@ -1489,8 +1518,19 @@ export default function StudioVideoGenerator() {
                             {cr.name.charAt(0)}
                           </div>
                           <div className="truncate">
-                            <span className="font-bold">{cr.name}</span>
-                            <span className={`text-[10px] ml-1.5 truncate ${isSelected ? "text-purple-100" : "text-zinc-500"}`}>
+                            <div className="flex items-center gap-1.5">
+                              <span className="font-bold">{cr.name}</span>
+                              {cr.hasVideoTakes ? (
+                                <span className={`text-[9px] font-bold px-1.5 py-0.2 rounded ${isSelected ? "bg-emerald-500/30 text-white" : "bg-emerald-100 text-emerald-800"}`}>
+                                  UGC Video Ready
+                                </span>
+                              ) : (
+                                <span className={`text-[9px] font-bold px-1.5 py-0.2 rounded ${isSelected ? "bg-purple-400/30 text-white" : "bg-purple-100 text-[#7F48ED]"}`}>
+                                  Voice &amp; Pure AI Video
+                                </span>
+                              )}
+                            </div>
+                            <span className={`text-[10px] truncate ${isSelected ? "text-purple-100" : "text-zinc-500"}`}>
                               {cr.handle} · {cr.niche}
                             </span>
                           </div>
@@ -1503,6 +1543,9 @@ export default function StudioVideoGenerator() {
               )}
             </div>
 
+{/* Conditional: UGC Creator Footage & Trimmer VS Pure Kling AI Video Mode */
+            activeCreator?.hasVideoTakes && activeCreatorAsset ? (
+              <>
             {/* Creator Footage Dropdown (Uniform to other dropdowns) */}
             <div className="space-y-1 relative" ref={footageDropdownRef}>
               <div className="flex items-center justify-between">
@@ -1637,6 +1680,28 @@ export default function StudioVideoGenerator() {
                     setTrimEnd(end);
                   }}
                 />
+              </div>
+            )}
+
+              </>
+            ) : (
+              /* Pure Kling AI Mode Information Banner when Creator has no UGC video takes */
+              <div className="p-3.5 bg-gradient-to-br from-purple-50/90 to-indigo-50/70 border border-purple-200/90 rounded-2xl space-y-2 shadow-xs">
+                <div className="flex items-center gap-2">
+                  <div className="w-7 h-7 rounded-xl bg-[#7F48ED] flex items-center justify-center text-white shadow-xs">
+                    <Sparkles className="w-4 h-4 text-amber-300" />
+                  </div>
+                  <div>
+                    <div className="text-xs font-bold text-zinc-900 flex items-center gap-1.5">
+                      <span>100% Pure Kling AI Video Mode</span>
+                      <span className="text-[9px] font-mono px-1.5 py-0.2 bg-purple-100 text-[#7F48ED] rounded font-bold">No Local Stock Clips</span>
+                    </div>
+                    <div className="text-[10px] text-zinc-500 font-medium">Selected Creator: {activeCreator.name} ({activeCreator.handle})</div>
+                  </div>
+                </div>
+                <p className="text-[11px] text-zinc-600 leading-relaxed">
+                  <strong>{activeCreator.name}</strong> powers authentic voiceover narration. Because {activeCreator.name} does not have camera takes yet, this ad generates as a <strong>100% Pure Kling AI Commercial Video</strong> from 0s to end. No substitute actors or local videos will be used.
+                </p>
               </div>
             )}
 
@@ -2144,15 +2209,7 @@ export default function StudioVideoGenerator() {
                       autoPlay
                       className="w-full h-full object-cover"
                     />
-                    {generatedResult?.voiceover?.url && (
-                      <audio
-                        ref={audioRef}
-                        src={generatedResult.voiceover.url}
-                        preload="auto"
-                        playsInline
-                        muted={isMuted}
-                      />
-                    )}
+
 
                     {/* Clean Social Media Ad Overlays */}
                     {(() => {

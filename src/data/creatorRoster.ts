@@ -12,6 +12,7 @@ export interface CreatorProfile {
   verifiedDate: string;
   followersCount: string;
   avgEngagement: string;
+  hasVideoTakes?: boolean;
 }
 
 export const CREATOR_ROSTER: CreatorProfile[] = [
@@ -21,6 +22,7 @@ export const CREATOR_ROSTER: CreatorProfile[] = [
     handle: "@haleycreative",
     niche: "Lifestyle, DTC & Everyday Routine",
     actorPresetId: "haley",
+    hasVideoTakes: true,
     platforms: ["Meta", "TikTok", "YouTube"],
     sparkAdCodeReady: true,
     metaPartnershipEnabled: true,
@@ -36,6 +38,7 @@ export const CREATOR_ROSTER: CreatorProfile[] = [
     handle: "@emilycreative",
     niche: "Lifestyle, Wellness, Skincare & DTC",
     actorPresetId: "emily",
+    hasVideoTakes: true,
     platforms: ["Meta", "TikTok", "YouTube"],
     sparkAdCodeReady: true,
     metaPartnershipEnabled: true,
@@ -51,6 +54,7 @@ export const CREATOR_ROSTER: CreatorProfile[] = [
     handle: "@trendspotlight",
     niche: "Foodie & Lifestyle Dining",
     actorPresetId: "emma",
+    hasVideoTakes: false,
     platforms: ["Meta", "TikTok"],
     sparkAdCodeReady: true,
     metaPartnershipEnabled: true,
@@ -66,6 +70,7 @@ export const CREATOR_ROSTER: CreatorProfile[] = [
     handle: "@everydayreviews",
     niche: "Fitness & Casual Lifestyle",
     actorPresetId: "marcus",
+    hasVideoTakes: false,
     platforms: ["Meta", "TikTok", "YouTube"],
     sparkAdCodeReady: true,
     metaPartnershipEnabled: true,
@@ -81,6 +86,7 @@ export const CREATOR_ROSTER: CreatorProfile[] = [
     handle: "@glowwithsarah",
     niche: "Clean Beauty & Wellness DTC",
     actorPresetId: "sarah",
+    hasVideoTakes: false,
     platforms: ["Meta", "TikTok"],
     sparkAdCodeReady: true,
     metaPartnershipEnabled: true,
@@ -96,6 +102,7 @@ export const CREATOR_ROSTER: CreatorProfile[] = [
     handle: "@techdailyinsights",
     niche: "Tech, Software & Productivity",
     actorPresetId: "david",
+    hasVideoTakes: false,
     platforms: ["Meta", "TikTok", "YouTube"],
     sparkAdCodeReady: true,
     metaPartnershipEnabled: true,

@@ -160,33 +160,35 @@ export async function POST(request: Request) {
     // -------------------------------------------------------------------------
     // 2. Select Creator UGC Hook & Client Footage
     // -------------------------------------------------------------------------
-    // Creator hook UGC mapping
-    const creatorClipMap: Record<string, string> = {
-      emma: "/videos/reels/beauty-ugc-routine.mp4",
-      marcus: "/videos/reels/bkind-floral-mist.mp4",
-      sarah: "/videos/reels/herbivore-aquarius-cream.mp4",
-      david: "/videos/reels/bkind-floral-mist.mp4",
-      chloe: "/videos/reels/beauty-ugc-routine.mp4",
-      haley: "/creators/haley/hooks/haley-hook-01.mp4",
-    };
-
-    let creatorHookClip = creatorClipMap[actor] || "/creators/haley/hooks/haley-hook-01.mp4";
+    // Real Creator UGC Hook resolution:
+    // ONLY Haley and Emily have verified direct-to-camera UGC hook video takes on disk.
+    // If a creator without video takes is chosen (e.g. Emma Davis, Marcus, Sarah, David), hasCreatorHook is false.
+    let hasCreatorHook = false;
+    let creatorHookClip = "";
     let creatorHookFilePath = "";
 
-    if (creatorAssetId) {
-      const asset = getCreatorClipById(creatorAssetId);
-      if (asset && asset.src) {
-        creatorHookClip = asset.src;
-        const candidate = path.resolve(process.cwd(), "public", asset.src.replace(/^\//, ""));
-        if (fs.existsSync(candidate)) {
-          creatorHookFilePath = candidate;
+    if (actor === "haley" || actor === "emily") {
+      if (creatorAssetId) {
+        const asset = getCreatorClipById(creatorAssetId);
+        if (asset && asset.src && asset.creatorId === actor) {
+          const candidate = path.resolve(process.cwd(), "public", asset.src.replace(/^\//, ""));
+          if (fs.existsSync(candidate)) {
+            creatorHookFilePath = candidate;
+            creatorHookClip = asset.src;
+            hasCreatorHook = true;
+          }
         }
       }
-    }
-    if (!creatorHookFilePath) {
-      const candidate = path.resolve(process.cwd(), "public", creatorHookClip.replace(/^\//, ""));
-      if (fs.existsSync(candidate)) {
-        creatorHookFilePath = candidate;
+      if (!hasCreatorHook) {
+        const defaultHook = actor === "emily"
+          ? "/creators/emily/hooks/emily-hook-01.mp4"
+          : "/creators/haley/hooks/haley-hook-01.mp4";
+        const candidate = path.resolve(process.cwd(), "public", defaultHook.replace(/^\//, ""));
+        if (fs.existsSync(candidate)) {
+          creatorHookFilePath = candidate;
+          creatorHookClip = defaultHook;
+          hasCreatorHook = true;
+        }
       }
     }
 
@@ -338,11 +340,16 @@ export async function POST(request: Request) {
 
         if (uploadedCdnImageUrl) {
           console.log(`[Studio Engine] Target: Kling Image-to-Video based on client asset (${uploadedCdnImageUrl.slice(0, 50)}...)`);
+          // Use user's visual prompt or dynamic action-driven commercial prompt
+          const actionPrompt = visualPrompt?.trim()
+            ? `${visualPrompt.trim()}, dynamic real-world commercial motion featuring the reference subject shown in the image, fluid movement, natural interaction, cinematic camera orbit and slow-motion reveal, 4K 60fps photorealistic cinematography`
+            : `Dynamic commercial advertising action featuring "${brandName}", seamless real-world interaction with the product shown in the reference image, cinematic camera orbit and slow-motion product reveal, vibrant commercial studio lighting, authentic fluid motion, physical realism, 4K 60fps`;
+
           targetCandidate = {
             endpoint: "fal-ai/kling-video/v1/standard/image-to-video",
             body: {
-              prompt: `Subtle dynamic camera slow push-in on the commercial presentation graphic, gentle studio lighting sweep, smooth continuous 4K advertising motion, maintaining original clean high-resolution English typography and layout, professional broadcast presentation`,
-              negative_prompt: "gibberish text, non-english text, bad typography, alien language, distorted words, blurry text, foreign characters, watermarks, deformed UI, low quality, warped layout",
+              prompt: `${actionPrompt}, strictly NO static freeze frame, dynamic real-world action`,
+              negative_prompt: "static frame, frozen camera, live wallpaper, screensaver, static photo, slideshow, subtle pan, 2D animation, distorted logo, morphing artifacts, low quality, blurry, watermark, bad anatomy, deformed, cartoon",
               image_url: uploadedCdnImageUrl,
               duration: "5",
               aspect_ratio: "9:16",
@@ -357,12 +364,16 @@ export async function POST(request: Request) {
             },
           };
         } else {
-          // Default & Recommended: Kling 4K Standard Text-to-Video with STRICT negative prompt against gibberish/alien text
+          // Default & Recommended: Kling 4K Standard Text-to-Video with user's visual direction
           console.log(`[Studio Engine] Target: Kling 4K Text-to-Video for ${brandName}`);
+          const textPrompt = visualPrompt?.trim()
+            ? `${visualPrompt.trim()}, 4K photorealistic commercial advertising, clean commercial visuals without on-screen words or letters, 60fps`
+            : `${finalPrompt}, 4K photorealistic commercial advertising, clean commercial visuals without on-screen words or letters, 60fps`;
+
           targetCandidate = {
             endpoint: "fal-ai/kling-video/v1/standard/text-to-video",
             body: {
-              prompt: `${finalPrompt}. Clean minimalist interface with glowing abstract data charts, strictly NO on-screen text, NO letters, NO words, 4K photorealistic advertising`,
+              prompt: `${textPrompt}, strictly NO on-screen text, NO letters, NO words`,
               negative_prompt: "text, words, letters, typography, gibberish, foreign language, alien glyphs, distorted letters, fake words, unreadable writing, symbols, blur, watermark, low quality, bad anatomy, deformed",
               duration: "5",
               aspect_ratio: "9:16",
@@ -499,22 +510,15 @@ export async function POST(request: Request) {
     }
 
     if (!aiVideoGenerated) {
-      console.warn(`[Studio Engine] Notice: fal.ai was not completed (${aiVideoError || "network/queue issue"}). Using verified 1080p commercial scene for Scene 3 to complete hybrid ad master.`);
-      const aiFile = `ai-${jobId}.mp4`;
-      const aiDestPath = path.join(storageDir, aiFile);
-      const fallbackSceneCandidates = [
-        path.resolve(process.cwd(), "public/videos/reels/dewpoint-body-lotion.mp4"),
-        path.resolve(process.cwd(), "public/videos/outdoor/basecamp-tent-setup.mp4"),
-        path.resolve(process.cwd(), "public/videos/work-hero-reel.mp4"),
-        creatorHookFilePath,
-      ];
-      for (const cand of fallbackSceneCandidates) {
-        if (cand && fs.existsSync(cand)) {
-          fs.copyFileSync(cand, aiDestPath);
-          aiVideoGenerated = true;
-          break;
-        }
-      }
+      console.error(`[Studio Engine] fal.ai video generation failed: ${aiVideoError || "network/queue issue"}`);
+      return NextResponse.json(
+        {
+          ok: false,
+          error: `Kling AI video generation failed: ${aiVideoError || "Engine did not return a valid video URL"}. Zero stock videos are allowed.`,
+          service: "fal.ai",
+        },
+        { status: 502 }
+      );
     }
 
     // -------------------------------------------------------------------------
@@ -539,183 +543,136 @@ export async function POST(request: Request) {
       "relaunch-studio-engine/render-worker/node_modules/@remotion/compositor-win32-x64-msvc/ffmpeg.exe"
     );
 
-    // Resolve client / brand product media file on disk
-    let clientFootageFilePath = "";
-    if (resolvedMediaUrl) {
-      const candidate = path.resolve(process.cwd(), "public", resolvedMediaUrl.replace(/^\//, ""));
-      if (fs.existsSync(candidate)) {
-        clientFootageFilePath = candidate;
-      }
-    }
-    if (!clientFootageFilePath) {
-      const fallbackList = [
-        path.resolve(process.cwd(), "public/videos/work-hero-reel.mp4"),
-        path.resolve(process.cwd(), "public/creators/haley/broll/haley-broll-01.mp4"),
-        path.resolve(process.cwd(), "public/videos/reels/dewpoint-body-lotion.mp4"),
-        path.resolve(process.cwd(), "public/videos/outdoor/basecamp-tent-setup.mp4"),
-      ];
-      for (const fb of fallbackList) {
-        if (fs.existsSync(fb)) {
-          clientFootageFilePath = fb;
-          break;
-        }
-      }
-    }
-
+    // -------------------------------------------------------------------------
+    // 3. Multi-Ratio Video Assembly (9:16, 1:1, 4:5) — 100% PURE KLING AI VIDEO
+    // -------------------------------------------------------------------------
+    // ZERO local mock fallbacks, ZERO stock agency reels
     let assembledSuccessfully = false;
 
-    if (fs.existsSync(ffmpegBinary) && fs.existsSync(creatorHookFilePath)) {
-      console.log(`[Studio Engine] Assembling 3-part Hybrid Master with FFmpeg (Creator Hook: ${creatorAssetId || actor}, In: ${inPoint}s, Out: ${outPoint}s)...`);
-      const seg1Path = path.join(storageDir, `${jobId}-seg1.mp4`);
-      const seg2Path = path.join(storageDir, `${jobId}-seg2.mp4`);
-      const seg3Path = path.join(storageDir, `${jobId}-seg3.mp4`);
-      const seg4Path = path.join(storageDir, `${jobId}-seg4.mp4`);
-      const concatList = path.join(storageDir, `${jobId}-concat.txt`);
-      const tempCombined = path.join(storageDir, `${jobId}-temp-combined.mp4`);
+    // Compute voiceover duration from word timestamps so video perfectly covers narration
+    let voDuration = 16.5;
+    if (wordTimestamps && wordTimestamps.length > 0) {
+      const lastWord = wordTimestamps[wordTimestamps.length - 1];
+      voDuration = Math.max(10.0, (lastWord.end || 0) + 1.0);
+    }
 
-      try {
-        // 1. Trim Creator Hook to exact [inPoint, outPoint], preserving authentic voice
-        const inStr = inPoint.toFixed(3);
-        const durStr = hookDuration.toFixed(3);
-        execSync(
-          `"${ffmpegBinary}" -y -ss ${inStr} -i "${creatorHookFilePath}" -t ${durStr} -vf "scale=1080:1920" -pix_fmt yuv420p -c:v libx264 -preset fast -r 30 -c:a aac -b:a 192k -ar 48000 -ac 2 "${seg1Path}"`,
-          { stdio: "ignore" }
-        );
+    if (fs.existsSync(ffmpegBinary) && fs.existsSync(aiVideoFile)) {
+      if (hasCreatorHook && fs.existsSync(creatorHookFilePath)) {
+        // CASE A: Creator Hook (Haley / Emily 0-3.5s) + PURE KLING AI VIDEO (3.5s to end)
+        console.log(`[Studio Engine] Assembling 2-part Hybrid Master with FFmpeg (Creator Hook: ${actor}, In: ${inPoint}s, Out: ${outPoint}s + 100% Pure Kling AI Video)...`);
+        const seg1Path = path.join(storageDir, `${jobId}-seg1.mp4`);
+        const seg2Path = path.join(storageDir, `${jobId}-seg2.mp4`);
+        const concatList = path.join(storageDir, `${jobId}-concat.txt`);
+        const tempCombined = path.join(storageDir, `${jobId}-temp-combined.mp4`);
 
-        // Compute voiceover duration from word timestamps so video perfectly covers narration (~22s)
-        let voDuration = 18.5;
-        if (wordTimestamps && wordTimestamps.length > 0) {
-          const lastWord = wordTimestamps[wordTimestamps.length - 1];
-          voDuration = Math.max(14.0, (lastWord.end || 0) + 0.8);
-        }
-
-        const isClientImage = clientFootageFilePath && /\.(jpg|jpeg|png|webp)$/i.test(clientFootageFilePath);
-
-        // Find secondary dynamic B-roll clips for multi-scene pacing
-        const defaultBrollCandidate = actor === "haley"
-          ? path.resolve(process.cwd(), "public/creators/haley/broll/haley-broll-02.mp4")
-          : path.resolve(process.cwd(), "public/creators/emily/broll/emily-broll-01.mp4");
-        const closingBrollCandidate = actor === "haley"
-          ? path.resolve(process.cwd(), "public/creators/haley/broll/haley-broll-06.mp4")
-          : path.resolve(process.cwd(), "public/creators/emily/broll/emily-broll-02.mp4");
-
-        const dynamicBrollPath = fs.existsSync(defaultBrollCandidate) ? defaultBrollCandidate : creatorHookFilePath;
-        const closingBrollPath = fs.existsSync(closingBrollCandidate) ? closingBrollCandidate : creatorHookFilePath;
-
-        if (isClientImage) {
-          // Dynamic 4-Scene Ad Architecture:
-          // Scene 1: Creator Hook (0.0s – 3.5s)
-          // Scene 2: Dynamic Video B-roll (3.5s – 8.5s = 5.0s)
-          // Scene 3: Client Audit Graphic Slide (8.5s – 15.0s = 6.5s) with English proof points
-          // Scene 4: Closing Dynamic B-Roll & Offer CTA (15.0s – 22.0s = 7.0s)
-
-          // Scene 2: 5s dynamic video action
-          const scene2Source = (fs.existsSync(aiVideoFile) && !aiVideoError) ? aiVideoFile : dynamicBrollPath;
+        try {
+          // 1. Trim Creator Hook to exact [inPoint, outPoint], preserving authentic voice and 1080x1920 scaling
+          const inStr = inPoint.toFixed(3);
+          const durStr = hookDuration.toFixed(3);
           execSync(
-            `"${ffmpegBinary}" -y -ss 0.0 -i "${scene2Source}" -t 5.0 -vf "scale=1080:1920" -pix_fmt yuv420p -c:v libx264 -preset fast -r 30 -an "${seg2Path}"`,
-            { stdio: "ignore" }
+            `"${ffmpegBinary}" -y -ss ${inStr} -i "${creatorHookFilePath}" -t ${durStr} -vf "scale=1080:1920:force_original_aspect_ratio=increase,crop=1080:1920" -pix_fmt yuv420p -c:v libx264 -preset fast -r 30 -c:a aac -b:a 192k -ar 48000 -ac 2 "${seg1Path}"`,
+            { stdio: "pipe" }
           );
 
-          // Scene 3: 6.5s authentic client graphic presentation
+          // 2. Scene 2: 100% PURE KLING AI VIDEO covering the full body narration — ZERO local fallback videos!
           execSync(
-            `"${ffmpegBinary}" -y -loop 1 -i "${clientFootageFilePath}" -t 6.5 -vf "scale=1080:1920" -pix_fmt yuv420p -c:v libx264 -preset fast -r 30 -an "${seg3Path}"`,
-            { stdio: "ignore" }
+            `"${ffmpegBinary}" -y -stream_loop -1 -i "${aiVideoFile}" -t ${voDuration.toFixed(3)} -vf "scale=1080:1920:force_original_aspect_ratio=increase,crop=1080:1920" -pix_fmt yuv420p -c:v libx264 -preset fast -r 30 -an "${seg2Path}"`,
+            { stdio: "pipe" }
           );
 
-          // Scene 4: 7.0s closing video motion with CTA
-          execSync(
-            `"${ffmpegBinary}" -y -ss 0.0 -i "${closingBrollPath}" -t 7.0 -vf "scale=1080:1920" -pix_fmt yuv420p -c:v libx264 -preset fast -r 30 -an "${seg4Path}"`,
-            { stdio: "ignore" }
-          );
-
+          // 3. Concatenate Scene 1 (Creator Hook) + Scene 2 (Pure Kling AI Video)
           fs.writeFileSync(
             concatList,
-            `file '${seg1Path.replace(/\\/g, "/")}'\nfile '${seg2Path.replace(/\\/g, "/")}'\nfile '${seg3Path.replace(/\\/g, "/")}'\nfile '${seg4Path.replace(/\\/g, "/")}'\n`
+            `file '${seg1Path.replace(/\\/g, "/")}'\nfile '${seg2Path.replace(/\\/g, "/")}'\n`
           );
-        } else {
-          // Standard Video Ad: Scene 1 (Hook) + Scene 2 (AI Video / B-Roll) + Scene 3 (Client Video)
-          const aiTarget = fs.existsSync(aiVideoFile) ? aiVideoFile : dynamicBrollPath;
+
           execSync(
-            `"${ffmpegBinary}" -y -stream_loop -1 -i "${aiTarget}" -t 9.0 -vf "scale=1080:1920" -pix_fmt yuv420p -c:v libx264 -preset fast -r 30 -an "${seg2Path}"`,
-            { stdio: "ignore" }
+            `"${ffmpegBinary}" -y -f concat -safe 0 -i "${concatList}" -c:v libx264 -preset fast -r 30 -an "${tempCombined}"`,
+            { stdio: "pipe" }
           );
-          if (clientFootageFilePath && resolvedMediaUrl) {
+
+          // 4. Sequential Audio Stitching: Creator voice on Hook (0 to hookDuration), then ElevenLabs Voiceover on Body!
+          if (fs.existsSync(voFilePath)) {
+            const audioCmd = `"${ffmpegBinary}" -y -i "${tempCombined}" -i "${seg1Path}" -i "${voFilePath}" -filter_complex "[1:a]atrim=0:${durStr},asetpts=PTS-STARTPTS,aformat=sample_rates=48000:channel_layouts=stereo[a1];[2:a]aformat=sample_rates=48000:channel_layouts=stereo[a2];[a1][a2]concat=n=2:v=0:a=1[aout]" -map 0:v -map "[aout]" -c:v copy -c:a aac -b:a 192k -movflags +faststart "${dest9x16}"`;
+            execSync(audioCmd, { stdio: "pipe" });
+          } else {
+            execSync(`"${ffmpegBinary}" -y -i "${tempCombined}" -i "${seg1Path}" -map 0:v -map 1:a? -c:v copy -c:a aac -b:a 192k -movflags +faststart "${dest9x16}"`, { stdio: "pipe" });
+          }
+
+          assembledSuccessfully = true;
+          console.log(`[Studio Engine] ✓ Hybrid Creator + Pure Kling AI Video Ad assembled successfully!`);
+        } catch (ffErr: any) {
+          console.warn(`[Studio Engine] Hybrid assembly error:`, ffErr.message);
+        } finally {
+          [seg1Path, seg2Path, concatList, tempCombined].forEach((tmp) => {
+            try { if (fs.existsSync(tmp)) fs.unlinkSync(tmp); } catch {}
+          });
+        }
+      } else {
+        // CASE B: Pure Kling AI Video Mode (e.g. Emma Davis, Marcus, Sarah, David - NO substitute faces)
+        console.log(`[Studio Engine] Assembling 100% PURE KLING AI Video Ad (Creator: ${actor} - No UGC Video Take) with ElevenLabs voiceover from 0s to end...`);
+        const tempCombined = path.join(storageDir, `${jobId}-temp-combined.mp4`);
+
+        try {
+          // Extend Kling AI video to the full voiceover duration
+          execSync(
+            `"${ffmpegBinary}" -y -stream_loop -1 -i "${aiVideoFile}" -t ${voDuration.toFixed(3)} -vf "scale=1080:1920:force_original_aspect_ratio=increase,crop=1080:1920" -pix_fmt yuv420p -c:v libx264 -preset fast -r 30 -an "${tempCombined}"`,
+            { stdio: "pipe" }
+          );
+
+          // Stitch ElevenLabs voiceover from 0s to end
+          if (fs.existsSync(voFilePath)) {
             execSync(
-              `"${ffmpegBinary}" -y -ss 00:00:00.000 -i "${clientFootageFilePath}" -t 9.5 -vf "scale=1080:1920" -pix_fmt yuv420p -c:v libx264 -preset fast -r 30 -an "${seg3Path}"`,
-              { stdio: "ignore" }
-            );
-            fs.writeFileSync(
-              concatList,
-              `file '${seg1Path.replace(/\\/g, "/")}'\nfile '${seg2Path.replace(/\\/g, "/")}'\nfile '${seg3Path.replace(/\\/g, "/")}'\n`
+              `"${ffmpegBinary}" -y -i "${tempCombined}" -i "${voFilePath}" -map 0:v -map 1:a -c:v copy -c:a aac -b:a 192k -movflags +faststart "${dest9x16}"`,
+              { stdio: "pipe" }
             );
           } else {
-            fs.writeFileSync(
-              concatList,
-              `file '${seg1Path.replace(/\\/g, "/")}'\nfile '${seg2Path.replace(/\\/g, "/")}'\n`
-            );
+            fs.copyFileSync(tempCombined, dest9x16);
           }
+
+          assembledSuccessfully = true;
+          console.log(`[Studio Engine] ✓ 100% Pure Kling AI Video Ad assembled successfully!`);
+        } catch (pureErr: any) {
+          console.warn(`[Studio Engine] Pure Kling assembly error:`, pureErr.message);
+        } finally {
+          try { if (fs.existsSync(tempCombined)) fs.unlinkSync(tempCombined); } catch {}
         }
+      }
+    }
 
-                execSync(`"${ffmpegBinary}" -y -f concat -safe 0 -i "${concatList}" -c:v libx264 -preset fast -r 30 -an "${tempCombined}"`, {
-          stdio: "ignore",
-        });
+    if (assembledSuccessfully && fs.existsSync(dest9x16)) {
+      // Derive 1:1 Square (1080x1080)
+      try {
+        execSync(
+          `"${ffmpegBinary}" -y -i "${dest9x16}" -vf "scale=1080:1080" -c:v libx264 -preset fast -c:a copy -movflags +faststart "${dest1x1}"`,
+          { stdio: "pipe" }
+        );
+      } catch {
+        fs.copyFileSync(dest9x16, dest1x1);
+      }
 
-        // 4. Sequential Audio Stitching: Creator authentic voice on Hook (0 to hookDuration), then ElevenLabs Voiceover on Body!
-        let audioCmd = "";
-        if (fs.existsSync(voFilePath)) {
-          audioCmd = `"${ffmpegBinary}" -y -i "${tempCombined}" -i "${seg1Path}" -i "${voFilePath}" -filter_complex "[1:a]atrim=0:${durStr},asetpts=PTS-STARTPTS,aformat=sample_rates=48000:channel_layouts=stereo[a1];[2:a]aformat=sample_rates=48000:channel_layouts=stereo[a2];[a1][a2]concat=n=2:v=0:a=1[aout]" -map 0:v -map "[aout]" -c:v copy -c:a aac -b:a 192k -movflags +faststart "${dest9x16}"`;
-        } else {
-          audioCmd = `"${ffmpegBinary}" -y -i "${tempCombined}" -i "${seg1Path}" -map 0:v -map 1:a? -c:v copy -c:a aac -b:a 192k -movflags +faststart "${dest9x16}"`;
+      // Derive 4:5 Portrait (1080x1350)
+      try {
+        execSync(
+          `"${ffmpegBinary}" -y -i "${dest9x16}" -vf "scale=1080:1350" -c:v libx264 -preset fast -c:a copy -movflags +faststart "${dest4x5}"`,
+          { stdio: "pipe" }
+        );
+      } catch {
+        fs.copyFileSync(dest9x16, dest4x5);
+      }
+
+      // Extract Cover Thumbnail
+      const thumbSec = Math.min(2.0, voDuration / 4).toFixed(2);
+      try {
+        execSync(
+          `"${ffmpegBinary}" -y -ss ${thumbSec} -i "${dest9x16}" -vframes 1 -q:v 2 "${destThumb}"`,
+          { stdio: "pipe" }
+        );
+      } catch {
+        const thumbSource = path.resolve(process.cwd(), "public/images/howitworksstudio.jpg");
+        if (fs.existsSync(thumbSource) && !fs.existsSync(destThumb)) {
+          fs.copyFileSync(thumbSource, destThumb);
         }
-
-        try {
-          execSync(audioCmd, { stdio: "ignore" });
-        } catch {
-          fs.copyFileSync(tempCombined, dest9x16);
-        }
-
-        // 6. Derive 1:1 Square (1080x1080)
-        try {
-          execSync(
-            `"${ffmpegBinary}" -y -i "${dest9x16}" -vf "scale=1080:1080" -c:v libx264 -preset fast -c:a copy -movflags +faststart "${dest1x1}"`,
-            { stdio: "ignore" }
-          );
-        } catch {
-          fs.copyFileSync(dest9x16, dest1x1);
-        }
-
-        // 7. Derive 4:5 Portrait (1080x1350)
-        try {
-          execSync(
-            `"${ffmpegBinary}" -y -i "${dest9x16}" -vf "scale=1080:1350" -c:v libx264 -preset fast -c:a copy -movflags +faststart "${dest4x5}"`,
-            { stdio: "ignore" }
-          );
-        } catch {
-          fs.copyFileSync(dest9x16, dest4x5);
-        }
-
-        // 8. Extract Cover Thumbnail
-        const thumbSec = Math.max(0.5, hookDuration / 2).toFixed(2);
-        try {
-          execSync(
-            `"${ffmpegBinary}" -y -ss ${thumbSec} -i "${dest9x16}" -vframes 1 -q:v 2 "${destThumb}"`,
-            { stdio: "ignore" }
-          );
-        } catch {
-          const thumbSource = path.resolve(process.cwd(), "public/images/howitworksstudio.jpg");
-          if (fs.existsSync(thumbSource)) fs.copyFileSync(thumbSource, destThumb);
-        }
-
-        assembledSuccessfully = true;
-        console.log(`[Studio Engine] ✓ Full Hybrid Video Ad Master assembled successfully (9:16, 1:1, 4:5)!`);
-      } catch (ffErr: any) {
-        console.warn(`[Studio Engine] FFmpeg hybrid assembly notice:`, ffErr.message);
-      } finally {
-        [seg1Path, seg2Path, seg3Path, seg4Path, concatList, tempCombined].forEach((tmp) => {
-          try {
-            if (fs.existsSync(tmp)) fs.unlinkSync(tmp);
-          } catch {}
-        });
       }
     }
 
@@ -724,10 +681,6 @@ export async function POST(request: Request) {
         fs.copyFileSync(aiVideoFile, dest9x16);
         fs.copyFileSync(aiVideoFile, dest1x1);
         fs.copyFileSync(aiVideoFile, dest4x5);
-      }
-      const thumbSource = path.resolve(process.cwd(), "public/images/howitworksstudio.jpg");
-      if (fs.existsSync(thumbSource) && !fs.existsSync(destThumb)) {
-        fs.copyFileSync(thumbSource, destThumb);
       }
     }
 
