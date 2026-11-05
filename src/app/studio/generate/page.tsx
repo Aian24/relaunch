@@ -38,6 +38,7 @@ import {
   FolderOpen,
   Sliders,
   ExternalLink,
+  Plus,
 } from "lucide-react";
 import { CREATOR_ROSTER } from "@/data/creatorRoster";
 import { CREATOR_ASSETS, CreatorClipAsset, getCreatorClips, getCreatorClipById } from "@/data/creatorAssets";
@@ -419,6 +420,15 @@ export default function StudioVideoGenerator() {
   const [isEditingHook, setIsEditingHook] = useState(false);
 
   // Product Media State (Supports BOTH Video & Image)
+  interface UploadedImageItem {
+    id: string;
+    src: string;
+    name: string;
+    size: string;
+    base64: string;
+  }
+
+  const [uploadedImages, setUploadedImages] = useState<UploadedImageItem[]>([]);
   const [uploadedMediaSrc, setUploadedMediaSrc] = useState<string | null>(null);
   const [uploadedMediaName, setUploadedMediaName] = useState<string | null>(null);
   const [uploadedMediaSize, setUploadedMediaSize] = useState<string | null>(null);
@@ -470,7 +480,7 @@ export default function StudioVideoGenerator() {
     jobId: string;
     variants: { v9x16: string; v1x1: string; v4x5: string; thumbnail: string };
     creator?: { id: string; name: string; handle: string; hookClipUrl: string };
-    clientMedia?: { url: string; type: "image" | "video"; name: string };
+    clientMedia?: { url: string; urls?: string[]; count?: number; type: "image" | "video"; name: string };
     voiceover?: {
       url: string;
       wordCount: number;
@@ -698,6 +708,7 @@ export default function StudioVideoGenerator() {
       return;
     }
 
+    setUploadedImages([]);
     setUploadedMediaSrc(null);
     setUploadedMediaName(null);
     setUploadedMediaBase64(null);
@@ -714,35 +725,123 @@ export default function StudioVideoGenerator() {
     }
   }, [activeVideoSrc]);
 
-  // Handle media file ingestion (supports BOTH Image & Video)
-  const handleMediaFile = (file: File) => {
-    if (!file) return;
-    const isImage = file.type.startsWith("image/");
-    const isVideo = file.type.startsWith("video/");
+  // Media Upload Handlers (supports up to 5 reference images or 1 video)
+  const handleMediaFiles = (files: FileList | File[]) => {
+    const fileArr = Array.from(files);
+    if (fileArr.length === 0) return;
 
-    if (!isImage && !isVideo) {
-      alert("Please upload a valid video (.mp4, .mov) or image file (.png, .jpg, .webp).");
+    // Check if video file selected
+    const videoFile = fileArr.find((f) => f.type.startsWith("video/"));
+    if (videoFile) {
+      const objUrl = URL.createObjectURL(videoFile);
+      setUploadedImages([]);
+      setUploadedMediaSrc(objUrl);
+      setUploadedMediaName(videoFile.name);
+      setUploadedMediaSize((videoFile.size / (1024 * 1024)).toFixed(1) + " MB");
+      setUploadedMediaType("video");
+      setGeneratedResult(null);
+      setGenerationError(null);
+
+      const reader = new FileReader();
+      reader.onload = () => {
+        if (typeof reader.result === "string") {
+          setUploadedMediaBase64(reader.result);
+        }
+      };
+      reader.readAsDataURL(videoFile);
       return;
     }
 
-    const objectUrl = URL.createObjectURL(file);
-    setUploadedMediaSrc(objectUrl);
-    setUploadedMediaName(file.name);
-    setUploadedMediaSize((file.size / (1024 * 1024)).toFixed(1) + " MB");
-    setUploadedMediaType(isImage ? "image" : "video");
-    setGeneratedResult(null);
-    setGenerationError(null);
+    // Filter image files
+    const imageFiles = fileArr.filter((f) => f.type.startsWith("image/"));
+    if (imageFiles.length === 0) {
+      alert("Please upload valid image files (.png, .jpg, .webp) or a video (.mp4, .mov).");
+      return;
+    }
 
-    const reader = new FileReader();
-    reader.onload = () => {
-      if (typeof reader.result === "string") {
-        setUploadedMediaBase64(reader.result);
-      }
-    };
-    reader.readAsDataURL(file);
+    // Strict limit: maximum 5 images
+    const MAX_IMAGES = 5;
+    const remainingSlots = Math.max(0, MAX_IMAGES - uploadedImages.length);
+
+    if (remainingSlots <= 0) {
+      alert("You have already uploaded the maximum limit of 5 images. Remove an image to add another.");
+      return;
+    }
+
+    const filesToAdd = imageFiles.slice(0, remainingSlots);
+    if (imageFiles.length > remainingSlots) {
+      alert(`Only ${remainingSlots} image(s) were added. The maximum limit is 5 reference images.`);
+    }
+
+    const newItems: UploadedImageItem[] = new Array(filesToAdd.length);
+    let processed = 0;
+
+    filesToAdd.forEach((file, index) => {
+      const objUrl = URL.createObjectURL(file);
+      const reader = new FileReader();
+      reader.onload = () => {
+        newItems[index] = {
+          id: `img-${Date.now()}-${index}-${Math.random().toString(36).slice(2, 6)}`,
+          src: objUrl,
+          name: file.name,
+          size: (file.size / (1024 * 1024)).toFixed(1) + " MB",
+          base64: typeof reader.result === "string" ? reader.result : "",
+        };
+        processed++;
+        if (processed === filesToAdd.length) {
+          setUploadedImages((prev) => {
+            const combined = [...prev, ...newItems.filter(Boolean)].slice(0, 5);
+            setUploadedMediaSrc(combined[0]?.src || null);
+            setUploadedMediaName(combined.length > 1 ? `${combined.length} Reference Images` : (combined[0]?.name || null));
+            setUploadedMediaSize(combined.reduce((sum, item) => sum + parseFloat(item.size || "0"), 0).toFixed(1) + " MB");
+            setUploadedMediaBase64(combined[0]?.base64 || null);
+            setUploadedMediaType("image");
+            return combined;
+          });
+          setGeneratedResult(null);
+          setGenerationError(null);
+        }
+      };
+      reader.readAsDataURL(file);
+    });
   };
 
-  const handleClearUploadedMedia = () => {
+  const handleRemoveImage = (idToRemove: string) => {
+    setUploadedImages((prev) => {
+      const updated = prev.filter((img) => img.id !== idToRemove);
+      if (updated.length === 0) {
+        setUploadedMediaSrc(null);
+        setUploadedMediaName(null);
+        setUploadedMediaSize(null);
+        setUploadedMediaBase64(null);
+        setUploadedMediaType(null);
+      } else {
+        setUploadedMediaSrc(updated[0]?.src || null);
+        setUploadedMediaName(updated.length > 1 ? `${updated.length} Reference Images` : (updated[0]?.name || null));
+        setUploadedMediaSize(updated.reduce((sum, item) => sum + parseFloat(item.size || "0"), 0).toFixed(1) + " MB");
+        setUploadedMediaBase64(updated[0]?.base64 || null);
+        setUploadedMediaType("image");
+      }
+      return updated;
+    });
+    setGeneratedResult(null);
+  };
+
+  const handleSetPrimaryImage = (id: string) => {
+    setUploadedImages((prev) => {
+      const index = prev.findIndex((img) => img.id === id);
+      if (index <= 0) return prev;
+      const copy = [...prev];
+      const [item] = copy.splice(index, 1);
+      copy.unshift(item);
+      setUploadedMediaSrc(copy[0]?.src || null);
+      setUploadedMediaBase64(copy[0]?.base64 || null);
+      return copy;
+    });
+  };
+
+  const handleClearAllMedia = () => {
+    setUploadedImages([]);
     setUploadedMediaSrc(null);
     setUploadedMediaName(null);
     setUploadedMediaSize(null);
@@ -842,8 +941,10 @@ export default function StudioVideoGenerator() {
           trimStart: trimStart,
           trimEnd: trimEnd,
           voiceId: selectedVoiceId,
-          mediaSource: uploadedMediaBase64 || uploadedMediaSrc || "",
-          mediaType: uploadedMediaType || "prompt_only",
+          mediaSources: uploadedImages.length > 0 ? uploadedImages.map((img) => img.base64 || img.src) : (uploadedMediaBase64 || uploadedMediaSrc ? [uploadedMediaBase64 || uploadedMediaSrc || ""] : []),
+          mediaSource: uploadedImages[0]?.base64 || uploadedImages[0]?.src || (uploadedMediaBase64 || uploadedMediaSrc || ""),
+          mediaType: uploadedImages.length > 0 ? "image" : (uploadedMediaType || "prompt_only"),
+          imagesCount: uploadedImages.length,
           visualPrompt: visualPrompt.trim()
             ? visualPrompt.trim()
             : (selectedPresetId === "ai-recommendations" || brandName.toLowerCase().includes("ai"))
@@ -1216,39 +1317,116 @@ export default function StudioVideoGenerator() {
                 <input
                   type="file"
                   ref={fileInputRef}
-                  accept="video/mp4,video/quicktime,video/webm,image/png,image/jpeg,image/webp,image/jpg"
+                  multiple
+                  accept="image/png,image/jpeg,image/webp,image/jpg,video/mp4,video/quicktime"
                   className="hidden"
                   onChange={(e) => {
-                    if (e.target.files && e.target.files[0]) {
-                      handleMediaFile(e.target.files[0]);
+                    if (e.target.files && e.target.files.length > 0) {
+                      handleMediaFiles(e.target.files);
                     }
+                    e.target.value = "";
                   }}
                 />
 
-                {uploadedMediaSrc ? (
+                {uploadedImages.length > 0 ? (
+                  <div className="space-y-2 mt-1">
+                    <div className="flex items-center justify-between text-xs">
+                      <span className="font-bold text-zinc-900 text-[11px] flex items-center gap-1.5">
+                        <ImageIcon className="w-3.5 h-3.5 text-[#7F48ED]" />
+                        <span>Reference Images ({uploadedImages.length}/5 max)</span>
+                      </span>
+                      <button
+                        type="button"
+                        onClick={handleClearAllMedia}
+                        className="text-[10px] text-zinc-400 hover:text-red-500 font-bold transition cursor-pointer"
+                      >
+                        Clear All
+                      </button>
+                    </div>
+
+                    <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+                      {uploadedImages.map((img, idx) => (
+                        <div
+                          key={img.id}
+                          className={`relative rounded-xl border p-1.5 flex flex-col justify-between group transition ${
+                            idx === 0
+                              ? "bg-purple-50/80 border-[#7F48ED] shadow-xs ring-1 ring-[#7F48ED]/30"
+                              : "bg-zinc-50 border-zinc-200 hover:border-zinc-300"
+                          }`}
+                        >
+                          <div className="relative aspect-square w-full rounded-lg overflow-hidden bg-zinc-900 mb-1">
+                            <img src={img.src} alt={img.name} className="w-full h-full object-cover" />
+                            <span className="absolute top-1 left-1 bg-black/75 text-white text-[9px] font-mono font-bold px-1.5 py-0.2 rounded">
+                              #{idx + 1}
+                            </span>
+                            {idx === 0 && (
+                              <span className="absolute bottom-1 left-1 right-1 bg-[#7F48ED] text-white text-[8px] font-bold text-center py-0.5 rounded truncate shadow">
+                                Start Frame
+                              </span>
+                            )}
+                            <button
+                              type="button"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handleRemoveImage(img.id);
+                              }}
+                              className="absolute top-1 right-1 w-5 h-5 rounded-full bg-black/70 hover:bg-red-600 text-white flex items-center justify-center transition cursor-pointer shadow"
+                              title="Remove image"
+                            >
+                              <X className="w-3 h-3" />
+                            </button>
+                          </div>
+                          <div className="text-[10px] font-bold text-zinc-800 truncate" title={img.name}>
+                            {img.name}
+                          </div>
+                          <div className="flex items-center justify-between text-[9px] text-zinc-400 mt-0.5">
+                            <span>{img.size}</span>
+                            {idx !== 0 && (
+                              <button
+                                type="button"
+                                onClick={() => handleSetPrimaryImage(img.id)}
+                                className="text-[#7F48ED] hover:underline font-bold cursor-pointer"
+                              >
+                                Set #1
+                              </button>
+                            )}
+                          </div>
+                        </div>
+                      ))}
+
+                      {uploadedImages.length < 5 && (
+                        <button
+                          type="button"
+                          onClick={() => fileInputRef.current?.click()}
+                          className="aspect-square rounded-xl border border-dashed border-zinc-300 hover:border-[#7F48ED] bg-zinc-50 hover:bg-purple-50/40 flex flex-col items-center justify-center gap-1 text-zinc-500 hover:text-[#7F48ED] transition cursor-pointer p-2 text-center"
+                        >
+                          <Plus className="w-4 h-4 text-[#7F48ED]" />
+                          <span className="text-[10px] font-bold">Add Image</span>
+                          <span className="text-[9px] text-zinc-400 font-mono">({5 - uploadedImages.length} left)</span>
+                        </button>
+                      )}
+                    </div>
+                  </div>
+                ) : uploadedMediaType === "video" && uploadedMediaSrc ? (
                   <div className="p-2.5 rounded-xl bg-purple-50/70 border border-purple-200 flex items-center justify-between gap-2 mt-1">
                     <div className="flex items-center gap-2 min-w-0">
                       <div className="w-7 h-7 rounded-lg bg-[#7F48ED] text-white flex items-center justify-center shrink-0">
-                        {uploadedMediaType === "image" ? (
-                          <ImageIcon className="w-3.5 h-3.5" />
-                        ) : (
-                          <FileVideo className="w-3.5 h-3.5" />
-                        )}
+                        <FileVideo className="w-3.5 h-3.5" />
                       </div>
                       <div className="min-w-0">
                         <div className="text-xs font-bold text-zinc-900 truncate">
                           {uploadedMediaName}
                         </div>
                         <div className="text-[10px] text-zinc-500 font-mono">
-                          {uploadedMediaType === "image" ? "Photo" : "Video"} · {uploadedMediaSize}
+                          Video · {uploadedMediaSize}
                         </div>
                       </div>
                     </div>
                     <button
                       type="button"
-                      onClick={handleClearUploadedMedia}
+                      onClick={handleClearAllMedia}
                       className="p-1 text-zinc-400 hover:text-red-500 transition cursor-pointer"
-                      title="Remove Media"
+                      title="Remove Video"
                     >
                       <X className="w-4 h-4" />
                     </button>
@@ -1257,10 +1435,10 @@ export default function StudioVideoGenerator() {
                   <button
                     type="button"
                     onClick={() => fileInputRef.current?.click()}
-                    className="w-full py-2 px-3 rounded-xl border border-dashed border-zinc-300 hover:border-[#FF6700] bg-zinc-50 hover:bg-[#FF6700]/5 text-zinc-600 hover:text-[#FF6700] text-xs font-semibold flex items-center justify-center gap-1.5 transition cursor-pointer mt-1"
+                    className="w-full py-2.5 px-3 rounded-xl border border-dashed border-zinc-300 hover:border-[#7F48ED] bg-zinc-50 hover:bg-purple-50/20 text-zinc-600 hover:text-[#7F48ED] text-xs font-semibold flex items-center justify-center gap-2 transition cursor-pointer mt-1"
                   >
                     <Upload className="w-3.5 h-3.5 text-[#FF6700]" />
-                    <span>Upload Video or Photo (Optional)</span>
+                    <span>Upload Photos (Up to 5) or Video</span>
                   </button>
                 )}
               </div>
@@ -2202,7 +2380,7 @@ export default function StudioVideoGenerator() {
                     {/* The Hero Video Track: Always genuine generated AI video */}
                     <video
                       ref={videoRef}
-                      src={activeVideoSrc || (selectedPresetId === "turf-life" ? "/videos/turflife-real-video.mp4" : selectedPresetId === "carmen-hotel" ? "/videos/carmen-hotel-hero.mp4" : "/videos/chicago-dog-social-1.mp4")}
+                      src={activeVideoSrc || ""}
                       playsInline
                       loop
                       muted={isMuted}
@@ -2307,6 +2485,79 @@ export default function StudioVideoGenerator() {
                       {isMuted ? <VolumeX className="w-3.5 h-3.5 text-red-400" /> : <Volume2 className="w-3.5 h-3.5 text-emerald-400" />}
                     </button>
                   </div>
+                ) : (uploadedImages.length > 0 || (uploadedMediaType === "image" && uploadedMediaSrc)) ? (
+                  activeCreator?.hasVideoTakes && activeCreatorAsset?.src ? (
+                    /* Show Creator Footage Video Take First + Reference Images Strip in Phone Mockup */
+                    <div className="absolute inset-0 w-full h-full overflow-hidden select-none bg-black">
+                      <video
+                        ref={videoRef}
+                        src={activeCreatorAsset.src}
+                        playsInline
+                        loop
+                        muted={isMuted}
+                        autoPlay
+                        className="w-full h-full object-cover"
+                      />
+                      {/* Top Header Badge */}
+                      <div className="absolute top-8 left-3.5 right-3.5 z-20 flex items-center justify-between pointer-events-none">
+                        <div className="flex items-center gap-1.5 bg-black/75 backdrop-blur-md px-2.5 py-1 rounded-full border border-white/20 text-white shadow-xl">
+                          <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+                          <span className="text-[10px] font-bold">1. Hook: {activeCreator.name}</span>
+                        </div>
+                        <div className="bg-[#7F48ED] text-white text-[9px] font-bold px-2 py-0.5 rounded-full shadow">
+                          Pure Kling AI to Follow
+                        </div>
+                      </div>
+
+                      {/* Bottom Reference Images Showcase Pill */}
+                      <div className="absolute bottom-16 left-3.5 right-3.5 z-20 pointer-events-auto">
+                        <div className="bg-black/85 backdrop-blur-md border border-white/20 rounded-2xl p-2 shadow-2xl space-y-1">
+                          <div className="text-[9px] font-bold text-zinc-300 flex items-center gap-1 px-0.5">
+                            <Sparkles className="w-3 h-3 text-[#FF6700]" />
+                            <span>AI Video: {uploadedImages.length || 1} Reference Image{uploadedImages.length > 1 ? "s" : ""}</span>
+                          </div>
+                          <div className="flex items-center gap-1.5 overflow-x-auto py-0.5" style={{ scrollbarWidth: "none" }}>
+                            {(uploadedImages.length > 0 ? uploadedImages : [{ id: "1", src: uploadedMediaSrc || "", name: uploadedMediaName || "Image" }]).map((img, i) => (
+                              <div key={img.id || i} className="relative w-8 h-8 rounded-lg overflow-hidden shrink-0 border border-white/30 shadow-xs">
+                                <img src={img.src} alt={img.name} className="w-full h-full object-cover" />
+                                <span className="absolute bottom-0.5 right-0.5 bg-black/80 text-[7px] font-mono text-white px-0.5 rounded">
+                                  #{i + 1}
+                                </span>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  ) : (
+                    /* Pure AI Image Gallery Preview (e.g. Emma Davis) in Phone Mockup */
+                    <div className="absolute inset-0 w-full h-full flex flex-col items-center justify-center bg-zinc-950 p-4 select-none">
+                      <div className="relative max-h-[55%] max-w-[80%] rounded-2xl overflow-hidden shadow-2xl border border-white/10 mb-2 bg-black">
+                        <img
+                          src={uploadedImages[0]?.src || uploadedMediaSrc || ""}
+                          alt="Product"
+                          className="max-h-full max-w-full object-contain"
+                        />
+                        <div className="absolute top-2 left-2 bg-[#FF6700] text-white px-2 py-0.5 rounded-full text-[9px] font-bold shadow">
+                          #1 Start Frame
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-1.5 overflow-x-auto max-w-[85%] pb-1">
+                        {uploadedImages.map((img, i) => (
+                          <div key={img.id || i} className="relative w-9 h-9 rounded-lg overflow-hidden shrink-0 border border-white/20">
+                            <img src={img.src} alt={img.name} className="w-full h-full object-cover" />
+                            <span className="absolute bottom-0.5 right-0.5 bg-black/80 text-[7px] font-mono text-white px-0.5 rounded">
+                              #{i + 1}
+                            </span>
+                          </div>
+                        ))}
+                      </div>
+                      <div className="inline-flex items-center gap-1 text-[9px] font-bold text-purple-300 mt-2 bg-purple-950/70 border border-purple-800/60 px-2.5 py-1 rounded-full">
+                        <Sparkles className="w-2.5 h-2.5 text-amber-300" />
+                        <span>Pure Kling AI Video · {activeCreator.name} Voice</span>
+                      </div>
+                    </div>
+                  )
                 ) : (
                   <div className="absolute inset-0 w-full h-full flex flex-col items-center justify-center p-6 text-center bg-[#090D16] text-white">
                     <div className="w-12 h-12 rounded-2xl bg-[#7F48ED]/20 border border-[#7F48ED]/30 flex items-center justify-center mb-3">
@@ -2378,7 +2629,7 @@ export default function StudioVideoGenerator() {
                     {/* The Hero Video Track: Always genuine generated AI video */}
                     <video
                       ref={videoRef}
-                      src={activeVideoSrc || (selectedPresetId === "turf-life" ? "/videos/turflife-real-video.mp4" : selectedPresetId === "carmen-hotel" ? "/videos/carmen-hotel-hero.mp4" : "/videos/chicago-dog-social-1.mp4")}
+                      src={activeVideoSrc || ""}
                       playsInline
                       loop
                       muted={isMuted}
@@ -2500,17 +2751,91 @@ export default function StudioVideoGenerator() {
                       </button>
                     </div>
                   </div>
-                ) : uploadedMediaType === "image" && uploadedMediaSrc ? (
-                  <div className="relative w-full h-full flex items-center justify-center bg-zinc-900 p-4">
-                    <img
-                      src={uploadedMediaSrc}
-                      alt={uploadedMediaName || "Product"}
-                      className="max-h-full max-w-full object-contain rounded-xl shadow-2xl"
-                    />
-                    <div className="absolute top-4 left-4 z-20 bg-[#FF6700] text-white px-3 py-1 rounded-full text-xs font-bold shadow-lg">
-                      Ready: {uploadedMediaName}
+                ) : (uploadedImages.length > 0 || (uploadedMediaType === "image" && uploadedMediaSrc)) ? (
+                  activeCreator?.hasVideoTakes && activeCreatorAsset?.src ? (
+                    /* Show Creator Footage Video Take First + Reference Images Strip */
+                    <div className="relative w-full h-full overflow-hidden select-none bg-black">
+                      <video
+                        ref={videoRef}
+                        src={activeCreatorAsset.src}
+                        playsInline
+                        loop
+                        muted={isMuted}
+                        autoPlay
+                        className="w-full h-full object-cover"
+                      />
+                      {/* Top Header Badge */}
+                      <div className="absolute top-3.5 left-3.5 right-3.5 z-20 flex items-center justify-between pointer-events-none">
+                        <div className="flex items-center gap-2 bg-black/75 backdrop-blur-md px-3 py-1.5 rounded-full border border-white/20 text-white shadow-xl">
+                          <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+                          <span className="text-xs font-bold">1. Creator Hook (0–3.5s): {activeCreator.name}</span>
+                        </div>
+                        <div className="bg-[#7F48ED] text-white text-[10px] font-bold px-2.5 py-1 rounded-full shadow-lg">
+                          Followed by Pure Kling AI
+                        </div>
+                      </div>
+
+                      {/* Bottom Reference Images Showcase Pill */}
+                      <div className="absolute bottom-3 left-3.5 right-14 z-20 pointer-events-auto">
+                        <div className="bg-black/85 backdrop-blur-md border border-white/20 rounded-2xl p-2 shadow-2xl space-y-1">
+                          <div className="text-[10px] font-bold text-zinc-300 flex items-center gap-1.5 px-1">
+                            <Sparkles className="w-3 h-3 text-[#FF6700]" />
+                            <span>AI Video Basis: {uploadedImages.length || 1} Reference Image{uploadedImages.length > 1 ? "s" : ""}</span>
+                          </div>
+                          <div className="flex items-center gap-1.5 overflow-x-auto py-0.5" style={{ scrollbarWidth: "none" }}>
+                            {(uploadedImages.length > 0 ? uploadedImages : [{ id: "1", src: uploadedMediaSrc || "", name: uploadedMediaName || "Image" }]).map((img, i) => (
+                              <div key={img.id || i} className="relative w-10 h-10 rounded-lg overflow-hidden shrink-0 border border-white/30 shadow-xs">
+                                <img src={img.src} alt={img.name} className="w-full h-full object-cover" />
+                                <span className="absolute bottom-0.5 right-0.5 bg-black/80 text-[8px] font-mono text-white px-1 rounded">
+                                  #{i + 1}
+                                </span>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Audio mute button */}
+                      <div className="absolute bottom-3 right-3 z-20 pointer-events-auto">
+                        <button
+                          type="button"
+                          onClick={toggleMute}
+                          className="p-2.5 rounded-full bg-black/75 text-white hover:bg-black/95 transition cursor-pointer shadow-lg border border-white/10"
+                          title={isMuted ? "Unmute Hook Preview" : "Mute Hook Preview"}
+                        >
+                          {isMuted ? <VolumeX className="w-4 h-4 text-red-400" /> : <Volume2 className="w-4 h-4 text-emerald-400" />}
+                        </button>
+                      </div>
                     </div>
-                  </div>
+                  ) : (
+                    /* Pure AI Image Gallery Preview (e.g. Emma Davis) */
+                    <div className="relative w-full h-full flex flex-col items-center justify-center bg-zinc-950 p-4 select-none">
+                      <div className="relative max-h-[70%] max-w-[85%] rounded-2xl overflow-hidden shadow-2xl border border-white/10 mb-3 bg-black">
+                        <img
+                          src={uploadedImages[0]?.src || uploadedMediaSrc || ""}
+                          alt="Product"
+                          className="max-h-full max-w-full object-contain"
+                        />
+                        <div className="absolute top-2.5 left-2.5 bg-[#FF6700] text-white px-2.5 py-0.5 rounded-full text-[10px] font-bold shadow">
+                          Image #1 (Start Frame)
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-1.5 overflow-x-auto max-w-[90%] pb-1">
+                        {uploadedImages.map((img, i) => (
+                          <div key={img.id || i} className="relative w-11 h-11 rounded-lg overflow-hidden shrink-0 border border-white/20">
+                            <img src={img.src} alt={img.name} className="w-full h-full object-cover" />
+                            <span className="absolute bottom-0.5 right-0.5 bg-black/80 text-[8px] font-mono text-white px-1 rounded">
+                              #{i + 1}
+                            </span>
+                          </div>
+                        ))}
+                      </div>
+                      <div className="inline-flex items-center gap-1.5 text-[10px] font-bold text-purple-300 mt-2 bg-purple-950/70 border border-purple-800/60 px-3 py-1 rounded-full">
+                        <Sparkles className="w-3 h-3 text-amber-300" />
+                        <span>100% Pure Kling AI Video Mode · {activeCreator.name} Voice</span>
+                      </div>
+                    </div>
+                  )
                 ) : (
                   /* Zero Demo Video Empty State: Clean Stage Ready for Generation */
                   <div className="w-full h-full flex flex-col items-center justify-center p-4 sm:p-5 text-center bg-[#090D16] text-white select-none">

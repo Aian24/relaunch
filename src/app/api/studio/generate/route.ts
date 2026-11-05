@@ -53,8 +53,19 @@ export async function POST(request: Request) {
     const scriptBody = String(body.scriptBody || "Here is what actually works when you need fast, authentic performance.").trim().slice(0, 1200);
     const ctaText = String(body.ctaText || "Claim Your Offer").trim().slice(0, 80);
     const actor = String(body.actor || "emma").trim().slice(0, 40);
-    const mediaSource = typeof body.mediaSource === "string" ? body.mediaSource.slice(0, 10000000) : ""; // Max 10MB base64
-    const clientFootageSource = typeof body.clientFootageSource === "string" ? body.clientFootageSource.slice(0, 500) : "";
+    const rawMediaSources = Array.isArray(body.mediaSources)
+      ? body.mediaSources
+      : (typeof body.mediaSource === "string" && body.mediaSource.trim()
+          ? [body.mediaSource]
+          : (typeof body.clientFootageSource === "string" && body.clientFootageSource.trim()
+              ? [body.clientFootageSource]
+              : []));
+
+    // Strict limit: maximum 5 reference images
+    const mediaSources: string[] = rawMediaSources
+      .filter((s: any): s is string => typeof s === "string" && Boolean(s.trim()))
+      .slice(0, 5);
+
     const mediaType = String(body.mediaType || "prompt_only").slice(0, 40);
     const visualPrompt = String(body.visualPrompt || "").trim().slice(0, 500);
     const aiModel = String(body.aiModel || "grok-1.5").slice(0, 40);
@@ -63,7 +74,7 @@ export async function POST(request: Request) {
     const trimStart = typeof body.trimStart === "number" ? body.trimStart : 0;
     const trimEnd = typeof body.trimEnd === "number" ? body.trimEnd : 3.5;
 
-    const effectiveMediaSource = mediaSource || clientFootageSource || "";
+    const effectiveMediaSource = mediaSources[0] || "";
 
     const jobId = `job-ad-${Date.now().toString().slice(-6)}`;
     console.log(`[Studio Engine] Generating new Ad Job: ${jobId} for "${brandName}"...`);
@@ -196,47 +207,67 @@ export async function POST(request: Request) {
     const outPoint = Math.max(inPoint + 1.5, Number(trimEnd) || (inPoint + 3.4));
     const hookDuration = Number((outPoint - inPoint).toFixed(2));
 
-    // Resolve uploaded brand media (photo, slide graphic, or video reference)
-    let resolvedMediaUrl = effectiveMediaSource;
-    let savedMediaFile = "";
-    let localMediaDiskPath: string | null = null;
+    // Resolve uploaded brand media (supports up to 5 reference images or 1 video)
+    const savedImageDiskPaths: string[] = [];
+    const resolvedMediaUrls: string[] = [];
+    let isVideoAsset = false;
+    let singleVideoDiskPath: string | null = null;
 
-    if (effectiveMediaSource.startsWith("data:")) {
-      try {
-        const matches = effectiveMediaSource.match(/^data:([A-Za-z-+\/]+);base64,(.+)$/);
-        if (matches && matches[2]) {
-          const mimeType = matches[1] || "";
-          const isImage = mimeType.startsWith("image/") || mediaType === "image";
-          const ext = isImage ? "jpg" : "mp4";
-          const mediaBuffer = Buffer.from(matches[2], "base64");
-          savedMediaFile = `${jobId}-ref.${ext}`;
-          const targetDiskPath = path.join(storageDir, savedMediaFile);
-          fs.writeFileSync(targetDiskPath, mediaBuffer);
-          localMediaDiskPath = targetDiskPath;
-          resolvedMediaUrl = `/storage/variants/${savedMediaFile}`;
-          console.log(`[Studio Engine] ✓ Saved uploaded ${isImage ? "product photo reference" : "video asset"} (${mediaBuffer.length} bytes)`);
-        }
-      } catch (err: any) {
-        console.warn("[Studio Engine] Could not parse uploaded media buffer:", err.message);
-      }
-    } else if (effectiveMediaSource.trim()) {
-      // Handles /images/..., /storage/..., /videos/... or direct filenames on disk
-      const candidate = path.resolve(process.cwd(), "public", effectiveMediaSource.replace(/^\//, ""));
-      if (fs.existsSync(candidate) && fs.statSync(candidate).isFile()) {
-        localMediaDiskPath = candidate;
-        const ext = path.extname(candidate).toLowerCase() || ".jpg";
-        savedMediaFile = `${jobId}-asset${ext}`;
-        const copyPath = path.join(storageDir, savedMediaFile);
+    for (let i = 0; i < mediaSources.length; i++) {
+      const src = mediaSources[i];
+      if (src.startsWith("data:")) {
         try {
-          fs.copyFileSync(candidate, copyPath);
-          localMediaDiskPath = copyPath;
-          resolvedMediaUrl = `/storage/variants/${savedMediaFile}`;
-        } catch {
-          resolvedMediaUrl = effectiveMediaSource;
+          const matches = src.match(/^data:([A-Za-z-+\/]+);base64,(.+)$/);
+          if (matches && matches[2]) {
+            const mimeType = matches[1] || "";
+            const isImg = mimeType.startsWith("image/") || mediaType === "image";
+            const ext = isImg ? "jpg" : "mp4";
+            const buf = Buffer.from(matches[2], "base64");
+            const fileName = `${jobId}-ref-${i}.${ext}`;
+            const diskPath = path.join(storageDir, fileName);
+            fs.writeFileSync(diskPath, buf);
+            if (!isImg) {
+              isVideoAsset = true;
+              singleVideoDiskPath = diskPath;
+            } else {
+              savedImageDiskPaths.push(diskPath);
+            }
+            resolvedMediaUrls.push(`/storage/variants/${fileName}`);
+            console.log(`[Studio Engine] ✓ Saved uploaded ${isImg ? `reference image #${i + 1}` : "video asset"} (${buf.length} bytes)`);
+          }
+        } catch (err: any) {
+          console.warn(`[Studio Engine] Error parsing uploaded media #${i + 1}:`, err.message);
         }
-        console.log(`[Studio Engine] ✓ Resolved client asset on disk: ${candidate}`);
+      } else if (src.trim()) {
+        const candidate = path.resolve(process.cwd(), "public", src.replace(/^\//, ""));
+        if (fs.existsSync(candidate) && fs.statSync(candidate).isFile()) {
+          const ext = path.extname(candidate).toLowerCase() || ".jpg";
+          const fileName = `${jobId}-asset-${i}${ext}`;
+          const diskPath = path.join(storageDir, fileName);
+          try {
+            fs.copyFileSync(candidate, diskPath);
+            if ([".mp4", ".mov", ".webm"].includes(ext)) {
+              isVideoAsset = true;
+              singleVideoDiskPath = diskPath;
+            } else {
+              savedImageDiskPaths.push(diskPath);
+            }
+            resolvedMediaUrls.push(`/storage/variants/${fileName}`);
+          } catch {
+            if ([".mp4", ".mov", ".webm"].includes(ext)) {
+              isVideoAsset = true;
+              singleVideoDiskPath = candidate;
+            } else {
+              savedImageDiskPaths.push(candidate);
+            }
+            resolvedMediaUrls.push(src);
+          }
+        }
       }
     }
+
+    const resolvedMediaUrl = resolvedMediaUrls[0] || "";
+    const localMediaDiskPath = savedImageDiskPaths[0] || singleVideoDiskPath || null;
 
     // -------------------------------------------------------------------------
     // 2.5. Attempt fal.ai Video Generation with Live Account
@@ -245,64 +276,62 @@ export async function POST(request: Request) {
     let aiVideoGenerated = false;
     let aiVideoError = "";
 
-    // 1. If client uploaded or selected an image (e.g. PDF slides), prepare for Kling Image-to-Video!
-    let uploadedCdnImageUrl: string | null = null;
-    if (localMediaDiskPath && fs.existsSync(localMediaDiskPath) && falKey) {
-      const ext = path.extname(localMediaDiskPath).toLowerCase();
-      if ([".png", ".jpg", ".jpeg", ".webp"].includes(ext)) {
-        try {
-          console.log(`[Studio Engine] Preparing client graphic for Kling Image-to-Video neural motion...`);
-          const fileBytes = fs.readFileSync(localMediaDiskPath);
-          const mime = ext === ".png" ? "image/png" : ext === ".webp" ? "image/webp" : "image/jpeg";
-          const base64DataUrl = `data:${mime};base64,${fileBytes.toString("base64")}`;
+    // Upload up to 5 reference images to fal CDN for multi-image Kling video
+    const cdnImageUrls: string[] = [];
+    if (falKey && savedImageDiskPaths.length > 0) {
+      for (let i = 0; i < savedImageDiskPaths.length; i++) {
+        const diskPath = savedImageDiskPaths[i];
+        const ext = path.extname(diskPath).toLowerCase();
+        if ([".png", ".jpg", ".jpeg", ".webp"].includes(ext)) {
+          try {
+            console.log(`[Studio Engine] Preparing reference image #${i + 1}/${savedImageDiskPaths.length} for Kling Image-to-Video...`);
+            const fileBytes = fs.readFileSync(diskPath);
+            const mime = ext === ".png" ? "image/png" : ext === ".webp" ? "image/webp" : "image/jpeg";
+            const base64DataUrl = `data:${mime};base64,${fileBytes.toString("base64")}`;
+            let uploadedUrl: string | null = null;
 
-          // Try uploading to fal CDN
-          let uploadSucceeded = false;
-          for (const uploadEndpoint of [
-            "https://rest.fal.ai/storage/upload/initiate",
-            "https://rest.alpha.fal.ai/storage/upload/initiate",
-          ]) {
-            try {
-              const initRes = await fetch(uploadEndpoint, {
-                method: "POST",
-                headers: {
-                  Authorization: `Key ${falKey}`,
-                  "Content-Type": "application/json",
-                },
-                body: JSON.stringify({
-                  file_name: path.basename(localMediaDiskPath),
-                  content_type: mime,
-                }),
-              });
-              if (initRes.ok) {
-                const { upload_url, file_url } = await initRes.json();
-                const putRes = await fetch(upload_url, {
-                  method: "PUT",
-                  headers: { "Content-Type": mime },
-                  body: fileBytes,
+            for (const uploadEndpoint of [
+              "https://rest.fal.ai/storage/upload/initiate",
+              "https://rest.alpha.fal.ai/storage/upload/initiate",
+            ]) {
+              try {
+                const initRes = await fetch(uploadEndpoint, {
+                  method: "POST",
+                  headers: {
+                    Authorization: `Key ${falKey}`,
+                    "Content-Type": "application/json",
+                  },
+                  body: JSON.stringify({
+                    file_name: path.basename(diskPath),
+                    content_type: mime,
+                  }),
                 });
-                if (putRes.ok) {
-                  uploadedCdnImageUrl = file_url;
-                  uploadSucceeded = true;
-                  console.log(`[Studio Engine] ✓ Client media uploaded to fal CDN: ${uploadedCdnImageUrl}`);
-                  break;
+                if (initRes.ok) {
+                  const { upload_url, file_url } = await initRes.json();
+                  const putRes = await fetch(upload_url, {
+                    method: "PUT",
+                    headers: { "Content-Type": mime },
+                    body: fileBytes,
+                  });
+                  if (putRes.ok) {
+                    uploadedUrl = file_url;
+                    console.log(`[Studio Engine] ✓ Image #${i + 1} uploaded to fal CDN: ${uploadedUrl}`);
+                    break;
+                  }
                 }
+              } catch (err: any) {
+                console.warn(`[Studio Engine] CDN upload via ${uploadEndpoint} notice for image #${i + 1}:`, err.message);
               }
-            } catch (err: any) {
-              console.warn(`[Studio Engine] CDN upload via ${uploadEndpoint} notice:`, err.message);
             }
+            cdnImageUrls.push(uploadedUrl || base64DataUrl);
+          } catch (uploadErr: any) {
+            console.warn(`[Studio Engine] fal image #${i + 1} preparation notice:`, uploadErr.message);
           }
-
-          // Fallback directly to base64 data URL if CDN upload endpoints are unavailable
-          if (!uploadSucceeded) {
-            uploadedCdnImageUrl = base64DataUrl;
-            console.log(`[Studio Engine] ✓ Using base64 data URL for fal image-to-video input`);
-          }
-        } catch (uploadErr: any) {
-          console.warn("[Studio Engine] fal image preparation notice:", uploadErr.message);
         }
       }
     }
+
+    const uploadedCdnImageUrl = cdnImageUrls[0] || null;
 
     // Brand-specific commercial advertising theme to ensure Kling AI video matches user options
     let brandVisualTheme = "";
@@ -331,170 +360,195 @@ export async function POST(request: Request) {
       ? visualPrompt.trim()
       : `High-converting TikTok Reels video ad commercial for "${brandName}". ${brandVisualTheme}, ${ctaText ? `featuring exclusive "${ctaText}" promotion` : ""}, 4K ultra-sharp advertising clarity, cinematic depth of field, 60fps`;
 
+    const aiVideoClips: string[] = [];
+
+    // Helper to reliably dispatch and poll any fal.ai queue endpoint
+    const runFalQueueJob = async (endpoint: string, payload: any, label: string): Promise<string> => {
+      console.log(`[Studio Engine] Calling fal.ai endpoint (${label}): ${endpoint}...`);
+      let falRes: any = null;
+      for (let attempt = 1; attempt <= 3; attempt++) {
+        try {
+          falRes = await safeJsonRequest(`https://queue.fal.run/${endpoint}`, {
+            method: "POST",
+            headers: {
+              Authorization: `Key ${falKey}`,
+              "Content-Type": "application/json",
+            },
+            body: payload,
+            timeoutMs: 40000,
+          });
+          if (falRes && falRes.ok) break;
+          if (falRes && falRes.status >= 500 && attempt < 3) {
+            console.warn(`[Studio Engine] fal.ai returned ${falRes.status} (${label}), retrying attempt ${attempt}/3...`);
+            await new Promise((r) => setTimeout(r, 1500));
+            continue;
+          }
+          break;
+        } catch (dispatchErr: any) {
+          console.warn(`[Studio Engine] fal.ai dispatch attempt ${attempt}/3 (${label}) notice:`, dispatchErr.message);
+          if (attempt < 3) {
+            await new Promise((r) => setTimeout(r, 1500));
+          } else {
+            throw dispatchErr;
+          }
+        }
+      }
+
+      if (!falRes || !falRes.ok) {
+        const errBody = falRes ? await falRes.text() : "No response";
+        throw new Error(`fal.ai endpoint ${endpoint} rejected (${falRes?.status || "error"}): ${errBody.slice(0, 150)}`);
+      }
+
+      const queueData: any = await falRes.json();
+      let remoteUrl = queueData?.video?.url || queueData?.output?.[0] || "";
+
+      if (!remoteUrl && queueData?.status_url) {
+        console.log(`[Studio Engine] fal.ai job queued on ${endpoint} (${label}, Request ID: ${queueData?.request_id}). Polling...`);
+        let attempts = 0;
+        const maxAttempts = 90;
+        const pollIntervalMs = 2500;
+        while (!remoteUrl && attempts < maxAttempts) {
+          await new Promise((resolve) => setTimeout(resolve, pollIntervalMs));
+          attempts++;
+          try {
+            const statusRes = await safeJsonRequest(queueData.status_url, {
+              headers: { Authorization: `Key ${falKey}` },
+              timeoutMs: 15000,
+            });
+            if (statusRes.ok) {
+              const statusData: any = await statusRes.json();
+              if (statusData?.status === "COMPLETED") {
+                const fetchUrl = statusData.response_url || queueData.response_url;
+                if (fetchUrl) {
+                  const respRes = await safeJsonRequest(fetchUrl, {
+                    headers: { Authorization: `Key ${falKey}` },
+                    timeoutMs: 20000,
+                  });
+                  if (respRes.ok) {
+                    const finalData: any = await respRes.json();
+                    remoteUrl = finalData?.video?.url || finalData?.output?.[0] || "";
+                  } else {
+                    const respErr = await respRes.text();
+                    throw new Error(`fal.ai response error (${respRes.status}): ${respErr.slice(0, 150)}`);
+                  }
+                }
+                break;
+              } else if (statusData?.status === "FAILED") {
+                const errMsg = statusData.error || (statusData.logs ? JSON.stringify(statusData.logs) : "fal.ai model inference failed.");
+                throw new Error(errMsg);
+              } else {
+                if (attempts % 4 === 0) {
+                  const pct = Math.min(95, Math.round((attempts / 45) * 100));
+                  console.log(`[Studio Engine] fal.ai (${label}) rendering in progress (~${pct}% - attempt ${attempts}/${maxAttempts})...`);
+                }
+              }
+            }
+          } catch (pollErr: any) {
+            console.warn(`[Studio Engine] Polling notice for ${label} (attempt ${attempts}):`, pollErr.message);
+          }
+        }
+
+        if (!remoteUrl && attempts >= maxAttempts) {
+          throw new Error(`fal.ai job for ${label} timed out after 225s.`);
+        }
+      }
+
+      if (!remoteUrl) {
+        throw new Error(`fal.ai completed for ${label} without returning a valid video download URL.`);
+      }
+
+      return remoteUrl;
+    };
+
     if (falKey) {
       try {
-        console.log(`[Studio Engine] Dispatching fal.ai video request for "${brandName}"...`);
-        
-        // Single target candidate: Avoid cascading 2-minute models sequentially!
-        let targetCandidate: { endpoint: string; body: any };
+        if (cdnImageUrls.length > 0) {
+          // MULTI-IMAGE KLING VIDEO: Every uploaded image is dispatched and animated via Kling Image-to-Video
+          console.log(`[Studio Engine] Dispatching Kling Image-to-Video in parallel for ${cdnImageUrls.length} uploaded image(s)...`);
 
-        if (uploadedCdnImageUrl) {
-          console.log(`[Studio Engine] Target: Kling Image-to-Video based on client asset (${uploadedCdnImageUrl.slice(0, 50)}...)`);
-          // Use user's visual prompt or dynamic action-driven commercial prompt
-          const actionPrompt = visualPrompt?.trim()
-            ? `${visualPrompt.trim()}, dynamic real-world commercial motion featuring the reference subject shown in the image, fluid movement, natural interaction, cinematic camera orbit and slow-motion reveal, 4K 60fps photorealistic cinematography`
-            : `Dynamic commercial advertising action featuring "${brandName}", seamless real-world interaction with the product shown in the reference image, cinematic camera orbit and slow-motion product reveal, vibrant commercial studio lighting, authentic fluid motion, physical realism, 4K 60fps`;
+          const jobPromises = cdnImageUrls.map(async (imageUrl, idx) => {
+            const isFirst = idx === 0;
+            const actionPrompt = visualPrompt?.trim()
+              ? (isFirst
+                  ? `${visualPrompt.trim()}, dynamic commercial opening reveal featuring reference product, smooth camera movement, fluid commercial interaction, cinematic lighting, 4K 60fps photorealistic cinematography`
+                  : `${visualPrompt.trim()}, dynamic commercial product demonstration and feature highlight angle ${idx + 1}, fluid camera orbit, vibrant studio lighting, authentic advertising motion, 4K 60fps photorealistic cinematography`)
+              : (isFirst
+                  ? `Dynamic commercial advertising action featuring "${brandName}", opening hero reveal, seamless real-world interaction, cinematic camera orbit, vibrant commercial studio lighting, authentic fluid motion, physical realism, 4K 60fps`
+                  : `Dynamic commercial advertising showcase featuring "${brandName}", product demonstration angle ${idx + 1}, fluid camera movement, vibrant commercial studio lighting, physical realism, 4K 60fps`);
 
-          targetCandidate = {
-            endpoint: "fal-ai/kling-video/v1/standard/image-to-video",
-            body: {
+            const body = {
               prompt: `${actionPrompt}, strictly NO static freeze frame, dynamic real-world action`,
               negative_prompt: "static frame, frozen camera, live wallpaper, screensaver, static photo, slideshow, subtle pan, 2D animation, distorted logo, morphing artifacts, low quality, blurry, watermark, bad anatomy, deformed, cartoon",
-              image_url: uploadedCdnImageUrl,
+              image_url: imageUrl,
               duration: "5",
               aspect_ratio: "9:16",
-            },
-          };
+            };
+
+            const remoteUrl = await runFalQueueJob(
+              "fal-ai/kling-video/v1/standard/image-to-video",
+              body,
+              `Image #${idx + 1}`
+            );
+
+            const destPartFile = `ai-${jobId}-part-${idx}.mp4`;
+            const destPartPath = path.join(storageDir, destPartFile);
+            await safeDownloadFile(remoteUrl, destPartPath);
+            console.log(`[Studio Engine] ✓ Downloaded Kling AI Video for Image #${idx + 1} (${destPartFile})`);
+            return { index: idx, path: destPartPath };
+          });
+
+          const results = await Promise.allSettled(jobPromises);
+          const fulfilled = results
+            .filter((r) => r.status === "fulfilled")
+            .map((r) => r.value)
+            .sort((a, b) => a.index - b.index);
+
+          if (fulfilled.length > 0) {
+            aiVideoGenerated = true;
+            for (const f of fulfilled) {
+              aiVideoClips.push(f.path);
+            }
+            // Preserve primary video file at ai-${jobId}.mp4
+            fs.copyFileSync(fulfilled[0].path, path.join(storageDir, `ai-${jobId}.mp4`));
+            console.log(`[Studio Engine] ✓ Successfully generated ${fulfilled.length}/${cdnImageUrls.length} Kling AI video parts!`);
+          } else {
+            const rejected = results.find((r) => r.status === "rejected");
+            aiVideoError = rejected?.reason?.message || "All Kling image-to-video jobs failed";
+          }
         } else if (aiModel === "minimax") {
           console.log(`[Studio Engine] Target: Minimax Video-01 for ${brandName}`);
-          targetCandidate = {
-            endpoint: "fal-ai/minimax/video-01",
-            body: {
-              prompt: `High-converting commercial video ad reel for ${brandName}, ${creativeAngle}, ${ctaText || "limited time offer"}, dynamic advertising product motion, vibrant lighting, 60fps, strictly no unreadable text`,
-            },
+          const body = {
+            prompt: `High-converting commercial video ad reel for ${brandName}, ${creativeAngle}, ${ctaText || "limited time offer"}, dynamic advertising product motion, vibrant lighting, 60fps, strictly no unreadable text`,
           };
+          const remoteUrl = await runFalQueueJob("fal-ai/minimax/video-01", body, "Minimax Video");
+          const aiFile = `ai-${jobId}.mp4`;
+          const aiDestPath = path.join(storageDir, aiFile);
+          await safeDownloadFile(remoteUrl, aiDestPath);
+          aiVideoGenerated = true;
+          aiVideoClips.push(aiDestPath);
         } else {
-          // Default & Recommended: Kling 4K Standard Text-to-Video with user's visual direction
+          // Default: Kling 4K Text-to-Video
           console.log(`[Studio Engine] Target: Kling 4K Text-to-Video for ${brandName}`);
           const textPrompt = visualPrompt?.trim()
             ? `${visualPrompt.trim()}, 4K photorealistic commercial advertising, clean commercial visuals without on-screen words or letters, 60fps`
             : `${finalPrompt}, 4K photorealistic commercial advertising, clean commercial visuals without on-screen words or letters, 60fps`;
 
-          targetCandidate = {
-            endpoint: "fal-ai/kling-video/v1/standard/text-to-video",
-            body: {
-              prompt: `${textPrompt}, strictly NO on-screen text, NO letters, NO words`,
-              negative_prompt: "text, words, letters, typography, gibberish, foreign language, alien glyphs, distorted letters, fake words, unreadable writing, symbols, blur, watermark, low quality, bad anatomy, deformed",
-              duration: "5",
-              aspect_ratio: "9:16",
-            },
+          const body = {
+            prompt: `${textPrompt}, strictly NO on-screen text, NO letters, NO words`,
+            negative_prompt: "text, words, letters, typography, gibberish, foreign language, alien glyphs, distorted letters, fake words, unreadable writing, symbols, blur, watermark, low quality, bad anatomy, deformed",
+            duration: "5",
+            aspect_ratio: "9:16",
           };
-        }
-
-        console.log(`[Studio Engine] Calling fal.ai endpoint: ${targetCandidate.endpoint}...`);
-        let falRes: any = null;
-        for (let attempt = 1; attempt <= 3; attempt++) {
-          try {
-            falRes = await safeJsonRequest(`https://queue.fal.run/${targetCandidate.endpoint}`, {
-              method: "POST",
-              headers: {
-                Authorization: `Key ${falKey}`,
-                "Content-Type": "application/json",
-              },
-              body: targetCandidate.body,
-              timeoutMs: 40000,
-            });
-            if (falRes && falRes.ok) break;
-            if (falRes && falRes.status >= 500 && attempt < 3) {
-              console.warn(`[Studio Engine] fal.ai returned ${falRes.status}, retrying attempt ${attempt}/3...`);
-              await new Promise((r) => setTimeout(r, 1500));
-              continue;
-            }
-            break;
-          } catch (dispatchErr: any) {
-            console.warn(`[Studio Engine] fal.ai dispatch attempt ${attempt}/3 notice:`, dispatchErr.message);
-            if (attempt < 3) {
-              await new Promise((r) => setTimeout(r, 1500));
-            } else {
-              aiVideoError = dispatchErr.message;
-            }
-          }
-        }
-
-        if (!falRes.ok) {
-          const errBody = await falRes.text();
-          console.warn(`[Studio Engine] fal.ai endpoint ${targetCandidate.endpoint} rejected (${falRes.status}):`, errBody.slice(0, 150));
-          aiVideoError = errBody;
-        } else {
-          const queueData: any = await falRes.json();
-          let remoteUrl = queueData?.video?.url || queueData?.output?.[0] || "";
-
-          // Poll single model with ample headroom (up to 90 attempts at 2.5s = 225 seconds max)
-          if (!remoteUrl && queueData?.status_url) {
-            console.log(`[Studio Engine] fal.ai job queued on ${targetCandidate.endpoint} (Request ID: ${queueData?.request_id}). Polling...`);
-            let attempts = 0;
-            const maxAttempts = 90;
-            const pollIntervalMs = 2500;
-            while (!remoteUrl && attempts < maxAttempts) {
-              await new Promise((resolve) => setTimeout(resolve, pollIntervalMs));
-              attempts++;
-              try {
-                const statusRes = await safeJsonRequest(queueData.status_url, {
-                  headers: { Authorization: `Key ${falKey}` },
-                  timeoutMs: 15000,
-                });
-                if (statusRes.ok) {
-                  const statusData: any = await statusRes.json();
-                  if (statusData?.status === "COMPLETED") {
-                    const fetchUrl = statusData.response_url || queueData.response_url;
-                    if (fetchUrl) {
-                      const respRes = await safeJsonRequest(fetchUrl, {
-                        headers: { Authorization: `Key ${falKey}` },
-                        timeoutMs: 20000,
-                      });
-                      if (respRes.ok) {
-                        const finalData: any = await respRes.json();
-                        remoteUrl = finalData?.video?.url || finalData?.output?.[0] || "";
-                      } else {
-                        const respErr = await respRes.text();
-                        console.warn(`[Studio Engine] fal.ai response error (${respRes.status}):`, respErr.slice(0, 150));
-                        aiVideoError = respErr;
-                      }
-                    }
-                    break;
-                  } else if (statusData?.status === "FAILED") {
-                    aiVideoError = statusData.error || (statusData.logs ? JSON.stringify(statusData.logs) : "fal.ai model inference failed.");
-                    console.warn(`[Studio Engine] fal.ai inference FAILED on ${targetCandidate.endpoint}:`, aiVideoError);
-                    break;
-                  } else {
-                    if (attempts % 4 === 0) {
-                      const pct = Math.min(95, Math.round((attempts / 45) * 100));
-                      console.log(`[Studio Engine] fal.ai (${targetCandidate.endpoint}) rendering in progress (~${pct}% - attempt ${attempts}/${maxAttempts})...`);
-                    }
-                  }
-                } else {
-                  const statusErr = await statusRes.text();
-                  console.warn(`[Studio Engine] fal.ai status check failed (${statusRes.status}):`, statusErr.slice(0, 100));
-                  aiVideoError = `fal.ai queue status returned ${statusRes.status}: ${statusErr}`;
-                }
-              } catch (pollErr: any) {
-                console.warn(`[Studio Engine] Polling notice (attempt ${attempts}):`, pollErr.message);
-              }
-            }
-
-            if (!remoteUrl && attempts >= maxAttempts && !aiVideoError) {
-              aiVideoError = `fal.ai model (${targetCandidate.endpoint}) took longer than 225s to render. The job may still be processing in the cloud queue.`;
-            }
-          }
-
-          if (remoteUrl) {
-            console.log(`[Studio Engine] Downloading generated fal.ai video from ${remoteUrl}...`);
-            const aiFile = `ai-${jobId}.mp4`;
-            const aiDestPath = path.join(storageDir, aiFile);
-            try {
-              const downloadedBytes = await safeDownloadFile(remoteUrl, aiDestPath);
-              aiVideoGenerated = true;
-              console.log(`[Studio Engine] ✓ Genuine fal.ai AI video saved locally (${downloadedBytes} bytes from ${targetCandidate.endpoint})!`);
-            } catch (dlErr: any) {
-              aiVideoError = `Failed to download completed video from fal.ai CDN: ${dlErr.message}`;
-            }
-          } else if (!aiVideoError) {
-            aiVideoError = "fal.ai completed without returning a valid video download URL.";
-          }
+          const remoteUrl = await runFalQueueJob("fal-ai/kling-video/v1/standard/text-to-video", body, "Kling Text-to-Video");
+          const aiFile = `ai-${jobId}.mp4`;
+          const aiDestPath = path.join(storageDir, aiFile);
+          await safeDownloadFile(remoteUrl, aiDestPath);
+          aiVideoGenerated = true;
+          aiVideoClips.push(aiDestPath);
         }
       } catch (e: any) {
         aiVideoError = e.message;
-        console.warn(`[Studio Engine] fal.ai connection error:`, e.message);
+        console.warn(`[Studio Engine] fal.ai execution error:`, e.message);
       }
     }
 
@@ -556,6 +610,61 @@ export async function POST(request: Request) {
       voDuration = Math.max(10.0, (lastWord.end || 0) + 1.0);
     }
 
+
+    // Helper to assemble commercial body covering ALL uploaded reference images
+    const assembleCommercialBodyVideo = (
+      outputPath: string,
+      targetDuration: number,
+      clips: string[],
+      ffBin: string,
+      dir: string,
+      jId: string,
+      prefix: string
+    ): void => {
+      const activeClips = clips.filter((c) => fs.existsSync(c));
+      if (activeClips.length === 0) {
+        throw new Error("No AI video clips available to assemble commercial body.");
+      }
+
+      if (activeClips.length === 1) {
+        execSync(
+          `"${ffBin}" -y -stream_loop -1 -i "${activeClips[0]}" -t ${targetDuration.toFixed(3)} -vf "scale=1080:1920:force_original_aspect_ratio=increase,crop=1080:1920" -pix_fmt yuv420p -c:v libx264 -preset fast -r 30 -an "${outputPath}"`,
+          { stdio: "pipe" }
+        );
+        return;
+      }
+
+      // MULTI-IMAGE COMMERCIAL: Each uploaded image has its OWN Kling AI Video clip!
+      const totalClips = activeClips.length;
+      console.log(`[Studio Engine] Assembling multi-image commercial sequence with ${totalClips} pure Kling AI video clips across ${targetDuration.toFixed(1)}s...`);
+
+      const perClipDur = Number((targetDuration / totalClips).toFixed(3));
+      const partFiles: string[] = [];
+
+      for (let k = 0; k < totalClips; k++) {
+        const clipPath = activeClips[k];
+        const partPath = path.join(dir, `${jId}-${prefix}-part-${k}.mp4`);
+        execSync(
+          `"${ffBin}" -y -stream_loop -1 -i "${clipPath}" -t ${perClipDur.toFixed(3)} -vf "scale=1080:1920:force_original_aspect_ratio=increase,crop=1080:1920" -pix_fmt yuv420p -c:v libx264 -preset fast -r 30 -an "${partPath}"`,
+          { stdio: "pipe" }
+        );
+        partFiles.push(partPath);
+      }
+
+      // Concat all parts into outputPath
+      const concatFile = path.join(dir, `${jId}-${prefix}-concat.txt`);
+      fs.writeFileSync(concatFile, partFiles.map((p) => `file '${p.replace(/\\/g, "/")}'`).join("\n") + "\n");
+
+      execSync(
+        `"${ffBin}" -y -f concat -safe 0 -i "${concatFile}" -c:v libx264 -preset fast -r 30 -an "${outputPath}"`,
+        { stdio: "pipe" }
+      );
+
+      // Cleanup temp parts
+      partFiles.forEach((p) => { try { if (fs.existsSync(p)) fs.unlinkSync(p); } catch {} });
+      try { if (fs.existsSync(concatFile)) fs.unlinkSync(concatFile); } catch {}
+    };
+
     if (fs.existsSync(ffmpegBinary) && fs.existsSync(aiVideoFile)) {
       if (hasCreatorHook && fs.existsSync(creatorHookFilePath)) {
         // CASE A: Creator Hook (Haley / Emily 0-3.5s) + PURE KLING AI VIDEO (3.5s to end)
@@ -574,11 +683,8 @@ export async function POST(request: Request) {
             { stdio: "pipe" }
           );
 
-          // 2. Scene 2: 100% PURE KLING AI VIDEO covering the full body narration — ZERO local fallback videos!
-          execSync(
-            `"${ffmpegBinary}" -y -stream_loop -1 -i "${aiVideoFile}" -t ${voDuration.toFixed(3)} -vf "scale=1080:1920:force_original_aspect_ratio=increase,crop=1080:1920" -pix_fmt yuv420p -c:v libx264 -preset fast -r 30 -an "${seg2Path}"`,
-            { stdio: "pipe" }
-          );
+          // 2. Scene 2: PURE KLING AI VIDEO covering all uploaded reference images across body narration
+          assembleCommercialBodyVideo(seg2Path, voDuration, aiVideoClips, ffmpegBinary, storageDir, jobId, "seg2");
 
           // 3. Concatenate Scene 1 (Creator Hook) + Scene 2 (Pure Kling AI Video)
           fs.writeFileSync(
@@ -614,11 +720,8 @@ export async function POST(request: Request) {
         const tempCombined = path.join(storageDir, `${jobId}-temp-combined.mp4`);
 
         try {
-          // Extend Kling AI video to the full voiceover duration
-          execSync(
-            `"${ffmpegBinary}" -y -stream_loop -1 -i "${aiVideoFile}" -t ${voDuration.toFixed(3)} -vf "scale=1080:1920:force_original_aspect_ratio=increase,crop=1080:1920" -pix_fmt yuv420p -c:v libx264 -preset fast -r 30 -an "${tempCombined}"`,
-            { stdio: "pipe" }
-          );
+          // Assemble commercial body covering all uploaded reference images across full voiceover
+          assembleCommercialBodyVideo(tempCombined, voDuration, aiVideoClips, ffmpegBinary, storageDir, jobId, "pure");
 
           // Stitch ElevenLabs voiceover from 0s to end
           if (fs.existsSync(voFilePath)) {
@@ -693,10 +796,13 @@ export async function POST(request: Request) {
     // 4. Create and Save AdJob in State Store
     // -------------------------------------------------------------------------
     const actorNames: Record<string, string> = {
+      haley: "Haley (@haleycreative)",
+      emily: "Emily (@emilycreative)",
       emma: "Emma Davis (@trendspotlight)",
       marcus: "Marcus Vance (@everydayreviews)",
       sarah: "Sarah Jenkins (@glowwithsarah)",
-      haley: "Haley (@haleycreative)",
+      david: "David Chen (@techdailyinsights)",
+      chloe: "Chloe Bennett (@chloestyleguide)",
     };
 
     const newAdJob: AdJob = {
@@ -829,8 +935,10 @@ export async function POST(request: Request) {
       },
       clientMedia: {
         url: resolvedMediaUrl || "",
-        type: savedMediaFile.endsWith(".mp4") ? "video" : "image",
-        name: savedMediaFile || "product-asset",
+        urls: resolvedMediaUrls,
+        count: resolvedMediaUrls.length,
+        type: isVideoAsset ? "video" : "image",
+        name: resolvedMediaUrls.length > 1 ? `${resolvedMediaUrls.length} Reference Images` : (resolvedMediaUrls[0] ? path.basename(resolvedMediaUrls[0]) : "product-asset"),
       },
       voiceover: {
         url: voiceoverUrl,

@@ -13,7 +13,8 @@ export type AdJobStatus =
   | 'approved'
   | 'rejected'
   | 'recut'
-  | 'delivered';
+  | 'delivered'
+  | 'deleted';
 
 export interface AdJobComplianceChecks {
   creatorVerification: boolean;    // Real UGC / creator hook verified
@@ -73,6 +74,7 @@ export interface AdJob {
     deliveredAt?: string;
     status: 'pending' | 'delivered' | 'failed';
   };
+  deletedAt?: string;
   createdAt: string;
   updatedAt: string;
 }
@@ -109,9 +111,18 @@ function saveJobsToFile(store: Map<string, AdJob>): void {
   }
 }
 
-export function getAllAdJobs(): AdJob[] {
+export function getAllAdJobs(includeDeleted = false): AdJob[] {
   const store = loadJobsFromFile();
-  return Array.from(store.values());
+  const all = Array.from(store.values());
+  if (includeDeleted) return all;
+  return all.filter((job) => job.status !== 'deleted');
+}
+
+export function getDeletedAdJobs(): AdJob[] {
+  const store = loadJobsFromFile();
+  return Array.from(store.values())
+    .filter((job) => job.status === 'deleted')
+    .sort((a, b) => new Date(b.deletedAt || b.updatedAt).getTime() - new Date(a.deletedAt || a.updatedAt).getTime());
 }
 
 export function getAdJobById(id: string): AdJob | null {
@@ -128,5 +139,110 @@ export function saveAdJob(job: AdJob): AdJob {
 }
 
 export function clearAllAdJobs(): void {
-  saveJobsToFile(new Map());
+  softDeleteAllAdJobs();
+}
+
+export function softDeleteAdJobs(ids: string[]): boolean {
+  const store = loadJobsFromFile();
+  let changed = false;
+  const now = new Date().toISOString();
+  for (const id of ids) {
+    const job = store.get(id);
+    if (job && job.status !== 'deleted') {
+      job.status = 'deleted';
+      job.deletedAt = now;
+      job.updatedAt = now;
+      store.set(id, job);
+      changed = true;
+    }
+  }
+  if (changed) saveJobsToFile(store);
+  return changed;
+}
+
+export function softDeleteAdJob(id: string): boolean {
+  return softDeleteAdJobs([id]);
+}
+
+export function softDeleteAllAdJobs(): boolean {
+  const store = loadJobsFromFile();
+  let changed = false;
+  const now = new Date().toISOString();
+  for (const [id, job] of Array.from(store.entries())) {
+    if (job.status !== 'deleted') {
+      job.status = 'deleted';
+      job.deletedAt = now;
+      job.updatedAt = now;
+      store.set(id, job);
+      changed = true;
+    }
+  }
+  if (changed) saveJobsToFile(store);
+  return changed;
+}
+
+export function restoreAdJobs(ids: string[]): boolean {
+  const store = loadJobsFromFile();
+  let changed = false;
+  const now = new Date().toISOString();
+  for (const id of ids) {
+    const job = store.get(id);
+    if (job && job.status === 'deleted') {
+      job.status = 'needs_review';
+      delete job.deletedAt;
+      job.updatedAt = now;
+      store.set(id, job);
+      changed = true;
+    }
+  }
+  if (changed) saveJobsToFile(store);
+  return changed;
+}
+
+export function restoreAllAdJobs(): boolean {
+  const store = loadJobsFromFile();
+  let changed = false;
+  const now = new Date().toISOString();
+  for (const [id, job] of Array.from(store.entries())) {
+    if (job.status === 'deleted') {
+      job.status = 'needs_review';
+      delete job.deletedAt;
+      job.updatedAt = now;
+      store.set(id, job);
+      changed = true;
+    }
+  }
+  if (changed) saveJobsToFile(store);
+  return changed;
+}
+
+export function permanentlyDeleteAdJobs(ids: string[]): boolean {
+  const store = loadJobsFromFile();
+  let changed = false;
+  for (const id of ids) {
+    if (store.delete(id)) changed = true;
+  }
+  if (changed) saveJobsToFile(store);
+  return changed;
+}
+
+export function clearAllDeletedAdJobs(): boolean {
+  const store = loadJobsFromFile();
+  let changed = false;
+  for (const [id, job] of Array.from(store.entries())) {
+    if (job.status === 'deleted') {
+      store.delete(id);
+      changed = true;
+    }
+  }
+  if (changed) saveJobsToFile(store);
+  return changed;
+}
+
+export function deleteAdJobs(ids: string[]): boolean {
+  return softDeleteAdJobs(ids);
+}
+
+export function deleteAdJob(id: string): boolean {
+  return softDeleteAdJobs([id]);
 }

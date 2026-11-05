@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import fs from "fs";
 import path from "path";
-import { getAllAdJobs, getAdJobById, saveAdJob, clearAllAdJobs, type AdJob } from "@/lib/adJob";
+import { getAllAdJobs, getAdJobById, saveAdJob, clearAllAdJobs, deleteAdJobs, deleteAdJob, type AdJob } from "@/lib/adJob";
 import { checkRateLimit, getClientIp } from "@/lib/rateLimit";
 import { syncDeliverablesToGoogleDrive, GOOGLE_DRIVE_FOLDER_ID, getGoogleDriveFolderUrl } from "@/lib/googleDrive";
 
@@ -247,14 +247,29 @@ export async function POST(request: Request) {
 
 export async function DELETE(request: Request) {
   const clientIp = getClientIp(request);
-  const rateCheck = checkRateLimit(`studio_review_del_${clientIp}`, 5, 60 * 1000);
+  const rateCheck = checkRateLimit(`studio_review_del_${clientIp}`, 30, 60 * 1000);
   if (!rateCheck.success) {
     return NextResponse.json({ error: "Too many requests" }, { status: 429 });
   }
 
   try {
-    clearAllAdJobs();
-    return NextResponse.json({ ok: true, message: "Review queue cleared" });
+    let body: any = null;
+    try {
+      body = await request.json();
+    } catch {
+      // No JSON body passed
+    }
+
+    if (body && Array.isArray(body.ids) && body.ids.length > 0) {
+      deleteAdJobs(body.ids);
+      return NextResponse.json({ ok: true, message: `Removed ${body.ids.length} ad(s)`, deletedIds: body.ids });
+    } else if (body && typeof body.id === "string" && body.id.trim()) {
+      deleteAdJob(body.id.trim());
+      return NextResponse.json({ ok: true, message: "Removed ad", deletedIds: [body.id.trim()] });
+    } else {
+      clearAllAdJobs();
+      return NextResponse.json({ ok: true, message: "Review queue cleared" });
+    }
   } catch (err: any) {
     return NextResponse.json({ error: err.message }, { status: 500 });
   }

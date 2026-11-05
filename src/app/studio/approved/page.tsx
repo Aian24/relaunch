@@ -27,6 +27,7 @@ import {
   ChevronDown,
   ChevronUp,
   FolderCheck,
+  Trash2,
   CheckCircle2,
   Calendar,
   Maximize2,
@@ -297,6 +298,15 @@ export default function ApprovedDeliverablesVaultPage() {
             <FolderCheck className="w-3.5 h-3.5 text-emerald-600" />
             <span>Vault ({deliverables.length})</span>
           </div>
+
+          <Link
+            href="/studio/deleted"
+            className="flex items-center gap-1 sm:gap-1.5 px-2 sm:px-3 py-1.5 bg-zinc-100 hover:bg-red-50 text-zinc-700 hover:text-red-700 rounded-xl text-xs font-bold transition-all border border-zinc-200 hover:border-red-200 cursor-pointer shrink-0"
+            title="Open Deleted Ads Recovery Queue"
+          >
+            <Trash2 className="w-3.5 h-3.5 text-red-500" />
+            <span className="hidden sm:inline">Trash</span>
+          </Link>
 
           <Link
             href="/studio/generate"
