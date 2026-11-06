@@ -102,6 +102,10 @@ interface StudioVoice {
   name: string;
   category: "cloned" | "premade" | "generated" | "custom";
   description: string;
+  previewUrl?: string | null;
+  tierRequired?: "free" | "paid";
+  hasBalance?: boolean;
+  gender?: "male" | "female" | "neutral";
 }
 
 const DEFAULT_STUDIO_VOICES: StudioVoice[] = [
@@ -109,37 +113,82 @@ const DEFAULT_STUDIO_VOICES: StudioVoice[] = [
     id: "pNInz6obpgDQGcFmaJgB",
     name: "Adam (Direct & Commercial)",
     category: "premade",
-    description: "Deep, confident, high-converting commercial tone",
-  },
-  {
-    id: "21m00Tcm4TlvDq8ikWAM",
-    name: "Rachel (Conversational & Warm)",
-    category: "premade",
-    description: "Natural, calm, friendly lifestyle narration",
-  },
-  {
-    id: "AZnzlk1XvdvUeBnXmlld",
-    name: "Domi (Energetic & Hype)",
-    category: "premade",
-    description: "Fast-paced, vibrant, modern social media",
+    gender: "male",
+    tierRequired: "free",
+    hasBalance: true,
+    description: "Deep, confident commercial tone · Ready (Free & Active Balance)",
   },
   {
     id: "EXAVITQu4vr4xnSDxMaL",
     name: "Bella (Expressive & Soft)",
     category: "premade",
-    description: "Gentle, authentic beauty & wellness",
+    gender: "female",
+    tierRequired: "free",
+    hasBalance: true,
+    description: "Gentle, authentic beauty & wellness narration · Ready (Free & Active Balance)",
   },
   {
     id: "ErXwobaYiN019PkySvjV",
     name: "Antoni (Engaging & Polished)",
     category: "premade",
-    description: "Clear, trustworthy, corporate and retail",
+    gender: "male",
+    tierRequired: "free",
+    hasBalance: true,
+    description: "Clear, trustworthy corporate narration · Ready (Free & Active Balance)",
+  },
+  {
+    id: "pFZP5JQG7iQjIQuC4Bku",
+    name: "Lily (Warm & Natural)",
+    category: "premade",
+    gender: "female",
+    tierRequired: "free",
+    hasBalance: true,
+    description: "Authentic, relatable lifestyle UGC narration · Ready (Free & Active Balance)",
+  },
+  {
+    id: "VR6AewLTigWG4xSOukaG",
+    name: "Arnold (Deep & Authoritative)",
+    category: "premade",
+    gender: "male",
+    tierRequired: "free",
+    hasBalance: true,
+    description: "Powerful, epic cinematic commercial tone · Ready (Free & Active Balance)",
+  },
+  {
+    id: "IKne3meq5aSn9XLyUdCD",
+    name: "Charlie (Casual & Friendly)",
+    category: "premade",
+    gender: "male",
+    tierRequired: "free",
+    hasBalance: true,
+    description: "Friendly everyday Australian conversational tone · Ready (Free & Active Balance)",
+  },
+  {
+    id: "21m00Tcm4TlvDq8ikWAM",
+    name: "Rachel (Conversational & Warm)",
+    category: "premade",
+    gender: "female",
+    tierRequired: "paid",
+    hasBalance: false,
+    description: "Natural, calm lifestyle narration · Requires Paid Subscription / Balance",
+  },
+  {
+    id: "AZnzlk1XvdvUeBnXmlld",
+    name: "Domi (Energetic & Hype)",
+    category: "premade",
+    gender: "female",
+    tierRequired: "paid",
+    hasBalance: false,
+    description: "Fast-paced modern social media · Requires Paid Subscription / Balance",
   },
   {
     id: "TxGEqnHWrfWFTfGW9XjX",
     name: "Josh (Relatable & Casual)",
     category: "premade",
-    description: "Everyday friend, casual UGC review vibe",
+    gender: "male",
+    tierRequired: "paid",
+    hasBalance: false,
+    description: "Everyday friend, casual UGC review vibe · Requires Paid Subscription / Balance",
   },
 ];
 
@@ -411,6 +460,8 @@ export default function StudioVideoGenerator() {
   const [availableVoices, setAvailableVoices] = useState<StudioVoice[]>(DEFAULT_STUDIO_VOICES);
   const [selectedVoiceId, setSelectedVoiceId] = useState<string>("pNInz6obpgDQGcFmaJgB");
   const [isLoadingVoices, setIsLoadingVoices] = useState(false);
+  const [showVoiceBalanceModal, setShowVoiceBalanceModal] = useState<boolean>(false);
+  const [pendingBatchMode, setPendingBatchMode] = useState<boolean>(false);
 
   const angleDataMap = useMemo(() => getAngleContent(brandName, brandOffer), [brandName, brandOffer]);
 
@@ -1047,8 +1098,12 @@ export default function StudioVideoGenerator() {
     setGenerationError({ title: "Generation Cancelled", message: "Video generation was cancelled." });
   };
 
-  // Video Generation via Studio Engine API (supports single or 5-angle batch)
-  const handleGenerate = async (asBatch = generationMode === "batch") => {
+  // Core generator executor
+  const executeGenerate = async (
+    asBatch = generationMode === "batch",
+    overrideVoiceId?: string
+  ) => {
+    const effectiveVoiceId = overrideVoiceId || selectedVoiceId;
     setGenerationError(null);
     setIsGenerating(true);
     setMobileTab("preview");
@@ -1107,7 +1162,7 @@ export default function StudioVideoGenerator() {
           creatorAssetId: activeCreator?.hasVideoTakes ? selectedCreatorAssetId : undefined,
           trimStart: trimStart,
           trimEnd: trimEnd,
-          voiceId: selectedVoiceId,
+          voiceId: effectiveVoiceId,
           mediaSources: uploadedImages.length > 0 ? uploadedImages.map((img) => img.base64 || img.src) : (uploadedMediaBase64 || uploadedMediaSrc ? [uploadedMediaBase64 || uploadedMediaSrc || ""] : []),
           mediaSource: uploadedImages[0]?.base64 || uploadedImages[0]?.src || (uploadedMediaBase64 || uploadedMediaSrc || ""),
           mediaType: uploadedImages.length > 0 ? "image" : (uploadedMediaType || "prompt_only"),
@@ -1247,6 +1302,19 @@ export default function StudioVideoGenerator() {
         billingUrl: "https://fal.ai/dashboard/billing",
       });
     }
+  };
+
+  // Video Generation trigger with pre-flight voice balance validation
+  const handleGenerate = async (
+    asBatch = generationMode === "batch",
+    bypassVoiceWarning = false
+  ) => {
+    if (!bypassVoiceWarning && activeVoice?.tierRequired === "paid") {
+      setPendingBatchMode(asBatch);
+      setShowVoiceBalanceModal(true);
+      return;
+    }
+    executeGenerate(asBatch);
   };
 
   // Continuous 22-second commercial playhead loop (syncs audio, visual hook, product showcase, AI scene & CTA)
@@ -2110,7 +2178,7 @@ export default function StudioVideoGenerator() {
                 {modelDropdownOpen && (
                   <div
                     onWheel={(e) => e.stopPropagation()}
-                    className="absolute bottom-full left-0 right-0 mb-1.5 bg-white border border-zinc-200 rounded-xl p-1 shadow-2xl z-50 space-y-0.5 overscroll-contain"
+                    className="absolute bottom-full left-0 w-[260px] sm:w-[290px] max-w-[90vw] mb-1.5 bg-white border border-zinc-200 rounded-2xl p-1.5 shadow-2xl z-50 space-y-1 overscroll-contain"
                   >
                     {[
                       { id: "kling", label: "Kling 1080p Commercial Engine (Standard HD)" },
@@ -2159,23 +2227,45 @@ export default function StudioVideoGenerator() {
                     setModelDropdownOpen(false);
                     setCreatorDropdownOpen(false);
                   }}
-                  className="w-full text-left bg-zinc-50 border border-zinc-200 hover:border-zinc-300 rounded-xl px-2.5 py-1.5 text-xs text-zinc-900 flex items-center justify-between cursor-pointer focus:outline-none focus:border-[#7F48ED] font-semibold"
+                  className="w-full text-left bg-zinc-50 border border-zinc-200 hover:border-zinc-300 rounded-xl px-2.5 py-1.5 text-xs text-zinc-900 flex items-center justify-between cursor-pointer focus:outline-none focus:border-[#7F48ED] font-semibold gap-1.5"
                 >
-                  <span className="truncate">
-                    {activeVoice?.name || "Select Voice"}
-                  </span>
-                  <ChevronDown className={`w-3.5 h-3.5 text-zinc-500 shrink-0 transition-transform ${voiceDropdownOpen ? "rotate-180" : ""}`} />
+                  <div className="flex items-center gap-1.5 truncate min-w-0">
+                    <span className="truncate font-bold text-zinc-900">
+                      {activeVoice?.name.split(" ")[0] || "Select Voice"}
+                    </span>
+                    <span className="text-[10px] text-zinc-500 font-normal truncate hidden xs:inline">
+                      ({activeVoice?.gender === "female" ? "Female" : "Male"})
+                    </span>
+                  </div>
+                  <div className="flex items-center gap-1 shrink-0">
+                    {activeVoice?.tierRequired === "paid" ? (
+                      <span className="text-[9px] bg-amber-100 text-amber-900 border border-amber-300 px-1.5 py-0.5 rounded font-bold">
+                        🔒 Paid Tier
+                      </span>
+                    ) : (
+                      <span className="text-[9px] bg-emerald-100 text-emerald-900 border border-emerald-300 px-1.5 py-0.5 rounded font-bold flex items-center gap-1">
+                        <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                        Ready
+                      </span>
+                    )}
+                    <ChevronDown className={`w-3.5 h-3.5 text-zinc-500 shrink-0 transition-transform ${voiceDropdownOpen ? "rotate-180" : ""}`} />
+                  </div>
                 </button>
 
                 {voiceDropdownOpen && (
                   <div
                     onWheel={(e) => e.stopPropagation()}
-                    className="absolute bottom-full left-0 right-0 mb-1.5 bg-white border border-zinc-200 rounded-xl p-1 shadow-2xl z-50 space-y-0.5 max-h-64 overflow-y-auto overscroll-contain"
+                    className="absolute bottom-full right-0 w-[310px] sm:w-[340px] max-w-[90vw] mb-1.5 bg-white border border-zinc-200 rounded-2xl p-1.5 shadow-2xl z-50 space-y-1 max-h-72 overflow-y-auto overscroll-contain"
                     style={{ scrollbarWidth: "thin" }}
                   >
+                    <div className="px-2 py-1 text-[10px] font-bold text-zinc-400 uppercase tracking-wider border-b border-zinc-100 mb-1 flex items-center justify-between">
+                      <span>Available Voiceovers</span>
+                      <span className="text-[9px] text-emerald-600 font-medium">● Free Active Tier</span>
+                    </div>
                     {availableVoices.map((v) => {
                       const isSelected = selectedVoiceId === v.id;
                       const isCloned = v.category === "cloned";
+                      const isPaidOnly = v.tierRequired === "paid";
                       return (
                         <div
                           key={v.id}
@@ -2183,31 +2273,88 @@ export default function StudioVideoGenerator() {
                             setSelectedVoiceId(v.id);
                             setVoiceDropdownOpen(false);
                           }}
-                          className={`px-3 py-1.5 rounded-lg text-xs cursor-pointer transition flex items-center justify-between ${
+                          className={`px-3 py-2 rounded-xl text-xs cursor-pointer transition flex items-start justify-between gap-2 ${
                             isSelected
-                              ? "bg-[#7F48ED] text-white font-bold"
-                              : "text-zinc-700 hover:bg-[#FF6700]/10 hover:text-[#FF6700]"
+                              ? "bg-[#7F48ED] text-white font-medium shadow-xs"
+                              : "text-zinc-700 hover:bg-zinc-100"
                           }`}
                         >
-                          <div className="truncate min-w-0 pr-1">
-                            <div className="flex items-center gap-1.5 truncate">
-                              <span className="font-bold truncate">{v.name}</span>
+                          <div className="min-w-0 flex-1">
+                            <div className="flex items-center gap-1.5 flex-wrap">
+                              <span className={`font-bold ${isSelected ? "text-white" : "text-zinc-900"}`}>
+                                {v.name}
+                              </span>
                               {isCloned && (
-                                <span className={`text-[9px] px-1 py-0.2 rounded font-bold uppercase ${
+                                <span className={`text-[9px] px-1.5 py-0.2 rounded font-bold uppercase ${
                                   isSelected ? "bg-white/20 text-white" : "bg-[#FF6700]/15 text-[#FF6700]"
                                 }`}>
                                   CLONED
                                 </span>
                               )}
+                              {isPaidOnly ? (
+                                <span className={`text-[9px] px-1.5 py-0.2 rounded font-bold uppercase ${
+                                  isSelected ? "bg-amber-400 text-zinc-950 font-black" : "bg-amber-100 text-amber-800 border border-amber-300"
+                                }`}>
+                                  🔒 Paid Plan
+                                </span>
+                              ) : (
+                                <span className={`text-[9px] px-1.5 py-0.2 rounded font-bold uppercase ${
+                                  isSelected ? "bg-emerald-300 text-emerald-950 font-black" : "bg-emerald-50 text-emerald-800 border border-emerald-300"
+                                }`}>
+                                  ● Active Balance
+                                </span>
+                              )}
                             </div>
-                            <div className={`text-[10px] truncate ${isSelected ? "text-purple-100" : "text-zinc-500"}`}>
+                            <div className={`text-[11px] leading-tight mt-0.5 ${isSelected ? "text-purple-100" : "text-zinc-500"}`}>
                               {v.description}
                             </div>
                           </div>
-                          {isSelected && <Check className="w-3.5 h-3.5 shrink-0 ml-1" />}
+                          {isSelected && <Check className="w-4 h-4 shrink-0 mt-0.5 text-white" />}
                         </div>
                       );
                     })}
+                  </div>
+                )}
+
+                {/* Voice balance warning alert if paid voice is selected */}
+                {activeVoice?.tierRequired === "paid" && (
+                  <div className="mt-1.5 p-2 rounded-xl bg-amber-50/95 border border-amber-300 text-amber-950 text-xs shadow-xs animate-in fade-in duration-200">
+                    <div className="flex items-start gap-1.5">
+                      <AlertTriangle className="w-3.5 h-3.5 text-amber-600 shrink-0 mt-0.5" />
+                      <div className="min-w-0 flex-1">
+                        <div className="font-bold text-[11px] text-amber-950 flex items-center gap-1">
+                          <span>{activeVoice.name} requires Paid Balance</span>
+                        </div>
+                        <p className="text-[10px] text-amber-900 leading-tight mt-0.5">
+                          ElevenLabs restricts library voices on free API keys (HTTP 402). 
+                          Please use a voice with active balance so your ad generates with full voiceover.
+                        </p>
+                        <div className="flex items-center gap-1 mt-1.5 flex-wrap">
+                          <span className="text-[9px] font-bold text-amber-800 uppercase tracking-wider">Use ready voice:</span>
+                          <button
+                            type="button"
+                            onClick={() => setSelectedVoiceId("pNInz6obpgDQGcFmaJgB")}
+                            className="px-2 py-0.5 bg-white hover:bg-amber-100 border border-amber-300 text-zinc-900 font-bold rounded text-[10px] shadow-2xs transition cursor-pointer"
+                          >
+                            ✓ Adam (Male)
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => setSelectedVoiceId("EXAVITQu4vr4xnSDxMaL")}
+                            className="px-2 py-0.5 bg-white hover:bg-amber-100 border border-amber-300 text-zinc-900 font-bold rounded text-[10px] shadow-2xs transition cursor-pointer"
+                          >
+                            ✓ Bella (Female)
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => setSelectedVoiceId("pFZP5JQG7iQjIQuC4Bku")}
+                            className="px-2 py-0.5 bg-white hover:bg-amber-100 border border-amber-300 text-zinc-900 font-bold rounded text-[10px] shadow-2xs transition cursor-pointer"
+                          >
+                            ✓ Lily (Female)
+                          </button>
+                        </div>
+                      </div>
+                    </div>
                   </div>
                 )}
               </div>
@@ -3124,6 +3271,122 @@ export default function StudioVideoGenerator() {
               </Link>
             </div>
           </div>
+
+          {/* Voice Balance Alert Pre-Flight Modal */}
+          {showVoiceBalanceModal && (
+            <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs animate-in fade-in duration-200">
+              <div className="bg-white rounded-2xl max-w-md w-full p-5 border border-zinc-200 shadow-2xl space-y-4">
+                <div className="flex items-start gap-3">
+                  <div className="w-10 h-10 rounded-xl bg-amber-100 text-amber-700 flex items-center justify-center shrink-0">
+                    <AlertTriangle className="w-5 h-5" />
+                  </div>
+                  <div className="min-w-0 flex-1">
+                    <h3 className="font-bold text-sm text-zinc-900">
+                      Voice Balance / Subscription Notice
+                    </h3>
+                    <p className="text-xs text-zinc-600 mt-1 leading-relaxed">
+                      You selected <strong className="text-zinc-900">{activeVoice?.name}</strong>. 
+                      ElevenLabs restricts library voices on Free accounts (<code className="text-amber-800 bg-amber-50 px-1 py-0.5 rounded font-mono text-[11px]">HTTP 402 Payment Required</code>).
+                    </p>
+                    <p className="text-xs text-zinc-600 mt-1 leading-relaxed">
+                      To avoid waiting for video rendering only to find missing audio, switch to a voice with active credits:
+                    </p>
+                  </div>
+                </div>
+
+                <div className="p-3 bg-zinc-50 rounded-xl border border-zinc-200/80 space-y-2">
+                  <span className="text-[10px] font-bold uppercase tracking-wider text-zinc-500 block">
+                    Recommended Ready Voices (Free & Paid Tiers)
+                  </span>
+                  <div className="grid grid-cols-2 gap-2">
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setSelectedVoiceId("pNInz6obpgDQGcFmaJgB");
+                        setShowVoiceBalanceModal(false);
+                        setTimeout(() => executeGenerate(pendingBatchMode, "pNInz6obpgDQGcFmaJgB"), 50);
+                      }}
+                      className="p-2.5 rounded-xl border border-emerald-300 bg-emerald-50/70 hover:bg-emerald-100 text-left transition cursor-pointer"
+                    >
+                      <div className="flex items-center justify-between">
+                        <span className="font-bold text-xs text-emerald-950">Adam</span>
+                        <span className="text-[9px] bg-emerald-200 text-emerald-900 font-bold px-1.5 py-0.2 rounded">Male</span>
+                      </div>
+                      <div className="text-[10px] text-emerald-800 mt-0.5">Commercial & Converting</div>
+                    </button>
+
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setSelectedVoiceId("EXAVITQu4vr4xnSDxMaL");
+                        setShowVoiceBalanceModal(false);
+                        setTimeout(() => executeGenerate(pendingBatchMode, "EXAVITQu4vr4xnSDxMaL"), 50);
+                      }}
+                      className="p-2.5 rounded-xl border border-emerald-300 bg-emerald-50/70 hover:bg-emerald-100 text-left transition cursor-pointer"
+                    >
+                      <div className="flex items-center justify-between">
+                        <span className="font-bold text-xs text-emerald-950">Bella</span>
+                        <span className="text-[9px] bg-emerald-200 text-emerald-900 font-bold px-1.5 py-0.2 rounded">Female</span>
+                      </div>
+                      <div className="text-[10px] text-emerald-800 mt-0.5">Soft & Beauty Lifestyle</div>
+                    </button>
+
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setSelectedVoiceId("ErXwobaYiN019PkySvjV");
+                        setShowVoiceBalanceModal(false);
+                        setTimeout(() => executeGenerate(pendingBatchMode, "ErXwobaYiN019PkySvjV"), 50);
+                      }}
+                      className="p-2.5 rounded-xl border border-zinc-200 bg-white hover:bg-zinc-50 text-left transition cursor-pointer"
+                    >
+                      <div className="flex items-center justify-between">
+                        <span className="font-bold text-xs text-zinc-900">Antoni</span>
+                        <span className="text-[9px] bg-zinc-100 text-zinc-700 font-bold px-1.5 py-0.2 rounded">Male</span>
+                      </div>
+                      <div className="text-[10px] text-zinc-500 mt-0.5">Corporate & Narration</div>
+                    </button>
+
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setSelectedVoiceId("pFZP5JQG7iQjIQuC4Bku");
+                        setShowVoiceBalanceModal(false);
+                        setTimeout(() => executeGenerate(pendingBatchMode, "pFZP5JQG7iQjIQuC4Bku"), 50);
+                      }}
+                      className="p-2.5 rounded-xl border border-zinc-200 bg-white hover:bg-zinc-50 text-left transition cursor-pointer"
+                    >
+                      <div className="flex items-center justify-between">
+                        <span className="font-bold text-xs text-zinc-900">Lily</span>
+                        <span className="text-[9px] bg-zinc-100 text-zinc-700 font-bold px-1.5 py-0.2 rounded">Female</span>
+                      </div>
+                      <div className="text-[10px] text-zinc-500 mt-0.5">Warm & Relatable UGC</div>
+                    </button>
+                  </div>
+                </div>
+
+                <div className="flex items-center justify-between pt-2 border-t border-zinc-100">
+                  <button
+                    type="button"
+                    onClick={() => setShowVoiceBalanceModal(false)}
+                    className="px-3 py-1.5 rounded-xl text-xs font-semibold text-zinc-600 hover:text-zinc-900 hover:bg-zinc-100 transition cursor-pointer"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setShowVoiceBalanceModal(false);
+                      executeGenerate(pendingBatchMode);
+                    }}
+                    className="px-3 py-1.5 rounded-xl text-xs font-semibold text-amber-900 bg-amber-100 hover:bg-amber-200 transition cursor-pointer"
+                  >
+                    Proceed with {activeVoice?.name} (I have paid balance)
+                  </button>
+                </div>
+              </div>
+            </div>
+          )}
         </div>
       </main>
     </div>

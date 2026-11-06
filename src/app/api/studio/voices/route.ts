@@ -9,45 +9,93 @@ export interface StudioVoice {
   category: "cloned" | "premade" | "generated" | "custom";
   description: string;
   previewUrl?: string | null;
+  tierRequired?: "free" | "paid";
+  hasBalance?: boolean;
+  gender?: "male" | "female" | "neutral";
 }
 
-// Fallback curated voices with official ElevenLabs voice IDs
+// Fallback curated voices with official ElevenLabs voice IDs and tier classifications
 const FALLBACK_VOICES: StudioVoice[] = [
   {
     id: "pNInz6obpgDQGcFmaJgB",
     name: "Adam (Direct & Commercial)",
     category: "premade",
-    description: "Deep, confident, high-converting commercial tone",
-  },
-  {
-    id: "21m00Tcm4TlvDq8ikWAM",
-    name: "Rachel (Conversational & Warm)",
-    category: "premade",
-    description: "Natural, calm, friendly lifestyle narration",
-  },
-  {
-    id: "AZnzlk1XvdvUeBnXmlld",
-    name: "Domi (Energetic & Hype)",
-    category: "premade",
-    description: "Fast-paced, vibrant, modern social media",
+    gender: "male",
+    tierRequired: "free",
+    hasBalance: true,
+    description: "Deep, confident, high-converting commercial tone · Ready (Free & Active Balance)",
   },
   {
     id: "EXAVITQu4vr4xnSDxMaL",
     name: "Bella (Expressive & Soft)",
     category: "premade",
-    description: "Gentle, authentic beauty & wellness",
+    gender: "female",
+    tierRequired: "free",
+    hasBalance: true,
+    description: "Gentle, authentic beauty & wellness narration · Ready (Free & Active Balance)",
   },
   {
     id: "ErXwobaYiN019PkySvjV",
     name: "Antoni (Engaging & Polished)",
     category: "premade",
-    description: "Clear, trustworthy, corporate and retail",
+    gender: "male",
+    tierRequired: "free",
+    hasBalance: true,
+    description: "Clear, trustworthy corporate and retail narration · Ready (Free & Active Balance)",
+  },
+  {
+    id: "pFZP5JQG7iQjIQuC4Bku",
+    name: "Lily (Warm & Natural)",
+    category: "premade",
+    gender: "female",
+    tierRequired: "free",
+    hasBalance: true,
+    description: "Authentic, relatable lifestyle UGC narration · Ready (Free & Active Balance)",
+  },
+  {
+    id: "VR6AewLTigWG4xSOukaG",
+    name: "Arnold (Deep & Authoritative)",
+    category: "premade",
+    gender: "male",
+    tierRequired: "free",
+    hasBalance: true,
+    description: "Powerful, epic cinematic commercial tone · Ready (Free & Active Balance)",
+  },
+  {
+    id: "IKne3meq5aSn9XLyUdCD",
+    name: "Charlie (Casual & Friendly)",
+    category: "premade",
+    gender: "male",
+    tierRequired: "free",
+    hasBalance: true,
+    description: "Friendly everyday Australian conversational tone · Ready (Free & Active Balance)",
+  },
+  {
+    id: "21m00Tcm4TlvDq8ikWAM",
+    name: "Rachel (Conversational & Warm)",
+    category: "premade",
+    gender: "female",
+    tierRequired: "paid",
+    hasBalance: false,
+    description: "Natural, calm lifestyle narration · Requires Paid Subscription / Balance",
+  },
+  {
+    id: "AZnzlk1XvdvUeBnXmlld",
+    name: "Domi (Energetic & Hype)",
+    category: "premade",
+    gender: "female",
+    tierRequired: "paid",
+    hasBalance: false,
+    description: "Fast-paced, vibrant modern social media · Requires Paid Subscription / Balance",
   },
   {
     id: "TxGEqnHWrfWFTfGW9XjX",
     name: "Josh (Relatable & Casual)",
     category: "premade",
-    description: "Everyday friend, casual UGC review vibe",
+    gender: "male",
+    tierRequired: "paid",
+    hasBalance: false,
+    description: "Everyday friend, casual UGC review vibe · Requires Paid Subscription / Balance",
   },
 ];
 
@@ -142,9 +190,21 @@ export async function GET(request: Request) {
       });
     }
 
+    const FREE_VOICE_IDS = new Set([
+      "pNInz6obpgDQGcFmaJgB", // Adam
+      "EXAVITQu4vr4xnSDxMaL", // Bella
+      "ErXwobaYiN019PkySvjV", // Antoni
+      "pFZP5JQG7iQjIQuC4Bku", // Lily
+      "VR6AewLTigWG4xSOukaG", // Arnold
+      "IKne3meq5aSn9XLyUdCD", // Charlie
+      "N2lVS1w4EtoT3dr4eOWO", // Callum
+      "SOYHLrjzK2X1ezoPC6cr", // Harry
+    ]);
+
     // Map into clean StudioVoice objects
     const formattedVoices: StudioVoice[] = rawVoices.map((v) => {
       const isCloned = v.category === "cloned" || v.category === "generated";
+      const isFree = isCloned || FREE_VOICE_IDS.has(v.voice_id);
       const descParts = [
         v.labels?.description,
         v.labels?.accent,
@@ -155,7 +215,12 @@ export async function GET(request: Request) {
         id: v.voice_id,
         name: v.name,
         category: isCloned ? "cloned" : "premade",
-        description: descParts.length > 0 ? descParts.join(" · ") : (isCloned ? "Custom Cloned Voice" : "Premade Library Voice"),
+        gender: v.labels?.gender?.toLowerCase().includes("female") ? "female" : "male",
+        tierRequired: isFree ? "free" : "paid",
+        hasBalance: isFree,
+        description: descParts.length > 0 
+          ? `${descParts.join(" · ")} · ${isFree ? "Active Balance" : "Requires Paid Plan"}`
+          : (isCloned ? "Custom Cloned Voice · Active Balance" : (isFree ? "Standard Library · Active Balance" : "Premade Library Voice · Requires Paid Plan")),
         previewUrl: v.preview_url || null,
       };
     });

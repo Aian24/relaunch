@@ -91,18 +91,49 @@ export async function POST(request: Request) {
     const elevenKey =
       process.env.ELEVENLABS_API_KEY ||
       "sk_0428106a3d5da07753d0467e2e6eb7efec4e55b3ec140ffc";
-    const voiceId =
+    let voiceId =
       requestedVoiceId ||
       process.env.DEFAULT_ELEVENLABS_VOICE_ID ||
       "pNInz6obpgDQGcFmaJgB"; // Adam (premade)
 
     let voiceoverUrl = "/audio/sample-vo.mp3";
     let wordTimestamps: Array<{ word: string; start: number; end: number }> = [];
+    let voiceNotice: string | null = null;
+
+    const parseWordAlignments = (alignment: any) => {
+      const timestamps: Array<{ word: string; start: number; end: number }> = [];
+      if (alignment?.characters && alignment?.character_start_times_seconds) {
+        let currentWord = "";
+        let wordStart = 0;
+        for (let i = 0; i < alignment.characters.length; i++) {
+          const char = alignment.characters[i];
+          const start = alignment.character_start_times_seconds[i];
+          const end = alignment.character_end_times_seconds[i];
+          if (char === " ") {
+            if (currentWord) {
+              timestamps.push({ word: currentWord, start: wordStart, end });
+              currentWord = "";
+            }
+          } else {
+            if (!currentWord) wordStart = start;
+            currentWord += char;
+          }
+        }
+        if (currentWord) {
+          timestamps.push({
+            word: currentWord,
+            start: wordStart,
+            end: alignment.character_end_times_seconds[alignment.characters.length - 1],
+          });
+        }
+      }
+      return timestamps;
+    };
 
     if (elevenKey) {
       try {
-        console.log(`[Studio Engine] Calling ElevenLabs for voiceover (${scriptBody.slice(0, 40)}...)...`);
-        const voRes = await fetch(
+        console.log(`[Studio Engine] Calling ElevenLabs for voiceover (${scriptBody.slice(0, 40)}...) with voice ${voiceId}...`);
+        let voRes = await fetch(
           `https://api.elevenlabs.io/v1/text-to-speech/${voiceId}/with-timestamps`,
           {
             method: "POST",
@@ -121,6 +152,36 @@ export async function POST(request: Request) {
           }
         );
 
+        // Auto-failover to Adam if chosen voice requires paid plan or fails quota
+        if (!voRes.ok && voiceId !== "pNInz6obpgDQGcFmaJgB") {
+          const errText = await voRes.text().catch(() => "");
+          console.warn(`[Studio Engine] Voice ${voiceId} returned status ${voRes.status} (${errText}). Retrying with active balance voice Adam (pNInz6obpgDQGcFmaJgB)...`);
+          voiceNotice = `Notice: Selected voice requires an ElevenLabs paid subscription / character balance (HTTP ${voRes.status}). Automatically rendered using Adam so your video has complete synchronized voiceover and captions.`;
+
+          const fallbackRes = await fetch(
+            `https://api.elevenlabs.io/v1/text-to-speech/pNInz6obpgDQGcFmaJgB/with-timestamps`,
+            {
+              method: "POST",
+              headers: {
+                "xi-api-key": elevenKey,
+                "Content-Type": "application/json",
+              },
+              body: JSON.stringify({
+                text: scriptBody,
+                model_id: "eleven_turbo_v2_5",
+                voice_settings: {
+                  stability: 0.5,
+                  similarity_boost: 0.8,
+                },
+              }),
+            }
+          );
+          if (fallbackRes.ok) {
+            voRes = fallbackRes;
+            voiceId = "pNInz6obpgDQGcFmaJgB";
+          }
+        }
+
         if (voRes.ok) {
           const voData = await voRes.json();
           if (voData.audio_base64) {
@@ -131,36 +192,11 @@ export async function POST(request: Request) {
             voiceoverUrl = `/storage/audio/${audioFileName}`;
 
             // Parse word timestamps from character alignments
-            const alignment = voData.alignment;
-            if (alignment?.characters && alignment?.character_start_times_seconds) {
-              let currentWord = "";
-              let wordStart = 0;
-              for (let i = 0; i < alignment.characters.length; i++) {
-                const char = alignment.characters[i];
-                const start = alignment.character_start_times_seconds[i];
-                const end = alignment.character_end_times_seconds[i];
-                if (char === " ") {
-                  if (currentWord) {
-                    wordTimestamps.push({ word: currentWord, start: wordStart, end });
-                    currentWord = "";
-                  }
-                } else {
-                  if (!currentWord) wordStart = start;
-                  currentWord += char;
-                }
-              }
-              if (currentWord) {
-                wordTimestamps.push({
-                  word: currentWord,
-                  start: wordStart,
-                  end: alignment.character_end_times_seconds[alignment.characters.length - 1],
-                });
-              }
-            }
-            console.log(`[Studio Engine] ✓ Live voiceover saved (${wordTimestamps.length} timed words)`);
+            wordTimestamps = parseWordAlignments(voData.alignment);
+            console.log(`[Studio Engine] ✓ Live voiceover saved (${wordTimestamps.length} timed words) using voice ${voiceId}`);
           }
         } else {
-          const errText = await voRes.text();
+          const errText = await voRes.text().catch(() => "");
           console.warn(`[Studio Engine] ElevenLabs fallback (${voRes.status}):`, errText);
         }
       } catch (e: any) {
@@ -1327,6 +1363,8 @@ export async function POST(request: Request) {
         wordCount: wordTimestamps.length,
         wordTimestamps: wordTimestamps,
         voiceId: voiceId,
+        requestedVoiceId: requestedVoiceId || voiceId,
+        warning: voiceNotice,
       },
       aiVideo: {
         isGenerated: true,
