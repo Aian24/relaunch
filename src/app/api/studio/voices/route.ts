@@ -99,7 +99,9 @@ export async function GET(request: Request) {
     });
   }
 
-  const elevenKey = process.env.ELEVENLABS_API_KEY;
+  const elevenKey =
+    process.env.ELEVENLABS_API_KEY ||
+    "sk_0428106a3d5da07753d0467e2e6eb7efec4e55b3ec140ffc";
 
   if (!elevenKey) {
     voiceCache = { voices: FALLBACK_VOICES, source: "fallback_no_key", timestamp: now };

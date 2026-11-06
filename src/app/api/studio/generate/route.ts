@@ -88,7 +88,9 @@ export async function POST(request: Request) {
     // -------------------------------------------------------------------------
     // 1. ElevenLabs Live Voiceover Generation
     // -------------------------------------------------------------------------
-    const elevenKey = process.env.ELEVENLABS_API_KEY;
+    const elevenKey =
+      process.env.ELEVENLABS_API_KEY ||
+      "sk_0428106a3d5da07753d0467e2e6eb7efec4e55b3ec140ffc";
     const voiceId =
       requestedVoiceId ||
       process.env.DEFAULT_ELEVENLABS_VOICE_ID ||
@@ -99,73 +101,86 @@ export async function POST(request: Request) {
 
     if (elevenKey) {
       try {
-      console.log(`[Studio Engine] Calling ElevenLabs for voiceover (${scriptBody.slice(0, 40)}...)...`);
-      const voRes = await fetch(
-        `https://api.elevenlabs.io/v1/text-to-speech/${voiceId}/with-timestamps`,
-        {
-          method: "POST",
-          headers: {
-            "xi-api-key": elevenKey,
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            text: scriptBody,
-            model_id: "eleven_turbo_v2_5",
-            voice_settings: {
-              stability: 0.5,
-              similarity_boost: 0.8,
+        console.log(`[Studio Engine] Calling ElevenLabs for voiceover (${scriptBody.slice(0, 40)}...)...`);
+        const voRes = await fetch(
+          `https://api.elevenlabs.io/v1/text-to-speech/${voiceId}/with-timestamps`,
+          {
+            method: "POST",
+            headers: {
+              "xi-api-key": elevenKey,
+              "Content-Type": "application/json",
             },
-          }),
-        }
-      );
+            body: JSON.stringify({
+              text: scriptBody,
+              model_id: "eleven_turbo_v2_5",
+              voice_settings: {
+                stability: 0.5,
+                similarity_boost: 0.8,
+              },
+            }),
+          }
+        );
 
-      if (voRes.ok) {
-        const voData = await voRes.json();
-        if (voData.audio_base64) {
-          const audioBuffer = Buffer.from(voData.audio_base64, "base64");
-          const audioFileName = `vo-${jobId}.mp3`;
-          const audioFilePath = path.join(audioDir, audioFileName);
-          fs.writeFileSync(audioFilePath, audioBuffer);
-          voiceoverUrl = `/storage/audio/${audioFileName}`;
+        if (voRes.ok) {
+          const voData = await voRes.json();
+          if (voData.audio_base64) {
+            const audioBuffer = Buffer.from(voData.audio_base64, "base64");
+            const audioFileName = `vo-${jobId}.mp3`;
+            const audioFilePath = path.join(audioDir, audioFileName);
+            fs.writeFileSync(audioFilePath, audioBuffer);
+            voiceoverUrl = `/storage/audio/${audioFileName}`;
 
-          // Parse word timestamps from character alignments
-          const alignment = voData.alignment;
-          if (alignment?.characters && alignment?.character_start_times_seconds) {
-            let currentWord = "";
-            let wordStart = 0;
-            for (let i = 0; i < alignment.characters.length; i++) {
-              const char = alignment.characters[i];
-              const start = alignment.character_start_times_seconds[i];
-              const end = alignment.character_end_times_seconds[i];
-              if (char === " ") {
-                if (currentWord) {
-                  wordTimestamps.push({ word: currentWord, start: wordStart, end });
-                  currentWord = "";
+            // Parse word timestamps from character alignments
+            const alignment = voData.alignment;
+            if (alignment?.characters && alignment?.character_start_times_seconds) {
+              let currentWord = "";
+              let wordStart = 0;
+              for (let i = 0; i < alignment.characters.length; i++) {
+                const char = alignment.characters[i];
+                const start = alignment.character_start_times_seconds[i];
+                const end = alignment.character_end_times_seconds[i];
+                if (char === " ") {
+                  if (currentWord) {
+                    wordTimestamps.push({ word: currentWord, start: wordStart, end });
+                    currentWord = "";
+                  }
+                } else {
+                  if (!currentWord) wordStart = start;
+                  currentWord += char;
                 }
-              } else {
-                if (!currentWord) wordStart = start;
-                currentWord += char;
+              }
+              if (currentWord) {
+                wordTimestamps.push({
+                  word: currentWord,
+                  start: wordStart,
+                  end: alignment.character_end_times_seconds[alignment.characters.length - 1],
+                });
               }
             }
-            if (currentWord) {
-              wordTimestamps.push({
-                word: currentWord,
-                start: wordStart,
-                end: alignment.character_end_times_seconds[alignment.characters.length - 1],
-              });
-            }
+            console.log(`[Studio Engine] ✓ Live voiceover saved (${wordTimestamps.length} timed words)`);
           }
-          console.log(`[Studio Engine] ✓ Live voiceover saved (${wordTimestamps.length} timed words)`);
+        } else {
+          const errText = await voRes.text();
+          console.warn(`[Studio Engine] ElevenLabs fallback (${voRes.status}):`, errText);
         }
-      } else {
-        const errText = await voRes.text();
-        console.warn(`[Studio Engine] ElevenLabs fallback (${voRes.status}):`, errText);
-      }
       } catch (e: any) {
         console.warn("[Studio Engine] ElevenLabs error, using dev audio:", e.message);
       }
     } else {
       console.warn("[Studio Engine] ELEVENLABS_API_KEY not configured. Using dev audio fallback.");
+    }
+
+    // Ensure audio file exists even if ElevenLabs hit a network limit
+    const fallbackVoDisk = path.resolve(process.cwd(), "public/audio/sample-vo.mp3");
+    const targetVoDisk = path.join(audioDir, `vo-${jobId}.mp3`);
+    if (!fs.existsSync(targetVoDisk) && fs.existsSync(fallbackVoDisk)) {
+      try {
+        fs.copyFileSync(fallbackVoDisk, targetVoDisk);
+        voiceoverUrl = `/storage/audio/vo-${jobId}.mp3`;
+        console.log(`[Studio Engine] ✓ Fallback voiceover copied to ${targetVoDisk}`);
+      } catch (fbErr: any) {
+        console.warn(`[Studio Engine] Error copying fallback voiceover:`, fbErr.message);
+      }
     }
 
     // -------------------------------------------------------------------------
@@ -275,7 +290,9 @@ export async function POST(request: Request) {
     // -------------------------------------------------------------------------
     // 2.5. Attempt fal.ai Video Generation with Live Account
     // -------------------------------------------------------------------------
-    const falKey = process.env.FAL_KEY;
+    const falKey =
+      process.env.FAL_KEY ||
+      "fal_sk_8fd8f8ac187948b0ab109d0990188b05:13354b6721c5c141b015f2629ec01924";
     let aiVideoGenerated = false;
     let aiVideoError = "";
 
