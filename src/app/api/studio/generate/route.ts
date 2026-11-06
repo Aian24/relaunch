@@ -652,21 +652,51 @@ export async function POST(request: Request) {
     const voFilePath = path.join(audioDir, `vo-${jobId}.mp3`);
 
     const findFfmpegBinary = (): { binary: string; hasDrawText: boolean } => {
+      // 1. Check npm ffmpeg-static package (runs on Linux x64 and Windows out of the box)
+      try {
+        const staticPath = require("ffmpeg-static");
+        if (staticPath && fs.existsSync(staticPath)) {
+          return { binary: staticPath, hasDrawText: true };
+        }
+      } catch {}
+
+      // 2. Windows Gyan build
       const gyanPath = "C:\\Users\\Administrator\\AppData\\Local\\Microsoft\\WinGet\\Packages\\Gyan.FFmpeg.Essentials_Microsoft.Winget.Source_8wekyb3d8bbwe\\ffmpeg-9.0.1-essentials_build\\bin\\ffmpeg.exe";
       if (fs.existsSync(gyanPath)) {
         return { binary: gyanPath, hasDrawText: true };
       }
-      const remotionPath = path.resolve(
-        process.cwd(),
-        "relaunch-studio-engine/render-worker/node_modules/@remotion/compositor-win32-x64-msvc/ffmpeg.exe"
-      );
-      if (fs.existsSync(remotionPath)) {
-        return { binary: remotionPath, hasDrawText: false };
+
+      // 3. Linux common paths on Plesk / Ubuntu / Debian / CentOS
+      for (const linuxPath of ["/usr/bin/ffmpeg", "/usr/local/bin/ffmpeg", "/bin/ffmpeg"]) {
+        if (fs.existsSync(linuxPath)) {
+          return { binary: linuxPath, hasDrawText: true };
+        }
       }
-      return { binary: "ffmpeg", hasDrawText: false };
+
+      // 4. Try PATH command resolution
+      try {
+        const whichCmd = process.platform === "win32" ? "where ffmpeg" : "which ffmpeg";
+        const found = execSync(whichCmd, { stdio: ["pipe", "pipe", "ignore"] }).toString().trim().split(/[\r\n]+/)[0];
+        if (found && fs.existsSync(found)) {
+          return { binary: found, hasDrawText: true };
+        }
+      } catch {}
+
+      return { binary: "ffmpeg", hasDrawText: true };
     };
 
     const { binary: ffmpegBinary, hasDrawText } = findFfmpegBinary();
+
+    // Check if FFmpeg is executable on this environment (Windows or Linux)
+    const isFfmpegAvailable = (): boolean => {
+      if (fs.existsSync(ffmpegBinary)) return true;
+      try {
+        execSync(`"${ffmpegBinary}" -version`, { stdio: "ignore" });
+        return true;
+      } catch {
+        return false;
+      }
+    };
 
     // -------------------------------------------------------------------------
     // 3. Multi-Ratio Video Assembly (9:16, 1:1, 4:5) — Dynamic 5-Scene Commercial Ad
@@ -711,10 +741,36 @@ export async function POST(request: Request) {
       ].filter(fs.existsSync);
     };
 
-    // Resolve font for high-impact social video ad captions (Arial Black preferred for bold TikTok/Reels aesthetic)
-    const adFontFile = fs.existsSync("C:/Windows/Fonts/ariblk.ttf")
-      ? "C\\:/Windows/Fonts/ariblk.ttf"
-      : "C\\:/Windows/Fonts/arialbd.ttf";
+    // Resolve font cross-platform (Windows & Linux) for high-impact social video ad captions
+    const resolveAdFont = (): string => {
+      const winCandidates = [
+        "C:/Windows/Fonts/ariblk.ttf",
+        "C:/Windows/Fonts/arialbd.ttf",
+        "C:/Windows/Fonts/calibrib.ttf",
+        "C:/Windows/Fonts/impact.ttf",
+      ];
+      for (const p of winCandidates) {
+        if (fs.existsSync(p)) {
+          return p.replace(/\\/g, "/").replace(/:/g, "\\:");
+        }
+      }
+      const linuxCandidates = [
+        "/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf",
+        "/usr/share/fonts/truetype/liberation/LiberationSans-Bold.ttf",
+        "/usr/share/fonts/dejavu/DejaVuSans-Bold.ttf",
+        "/usr/share/fonts/liberation/LiberationSans-Bold.ttf",
+        "/usr/share/fonts/truetype/freefont/FreeSansBold.ttf",
+        "/usr/share/fonts/opentype/noto/NotoSans-Bold.otf",
+      ];
+      for (const p of linuxCandidates) {
+        if (fs.existsSync(p)) {
+          return p;
+        }
+      }
+      return "";
+    };
+
+    const adFontFile = resolveAdFont();
 
     // Generates kinetic, TikTok/Reels-style ad captions with zero background box,
     // pure white Arial Black typography, heavy black stroke, drop shadow,
@@ -751,6 +807,7 @@ export async function POST(request: Request) {
       const dtFilters: string[] = [];
       const totalWords = words.length;
       let accumulatedWords = 0;
+      const fontOpt = fontPath ? `fontfile='${fontPath}':` : "";
 
       for (let i = 0; i < phrases.length; i++) {
         const phrase = phrases[i].toUpperCase().trim();
@@ -766,7 +823,7 @@ export async function POST(request: Request) {
         const safeText = phrase.replace(/'/g, "\\'").replace(/:/g, "\\:");
 
         dtFilters.push(
-          `drawtext=fontfile='${fontPath}':text='${safeText}':fontcolor=white:fontsize=${fSize}:bordercolor=black:borderw=5:shadowcolor=black@0.85:shadowx=3:shadowy=3:x=(w-text_w)/2:y=${yPos}:enable='between(t\\,${startT}\\,${endT})'`
+          `drawtext=${fontOpt}text='${safeText}':fontcolor=white:fontsize=${fSize}:bordercolor=black:borderw=5:shadowcolor=black@0.85:shadowx=3:shadowy=3:x=(w-text_w)/2:y=${yPos}:enable='between(t\\,${startT}\\,${endT})'`
         );
       }
 
@@ -795,14 +852,15 @@ export async function POST(request: Request) {
       const ctaFSize = cleanCta.length > 25 ? 44 : 52;
       const subFSize = cleanSub.length > 30 ? 30 : 36;
       const subRevealTime = Math.min(1.0, duration * 0.25).toFixed(2);
+      const fontOpt = fontPath ? `fontfile='${fontPath}':` : "";
 
-      const headline = `drawtext=fontfile='${fontPath}':text='${cleanCta}':fontcolor=white:fontsize=${ctaFSize}:bordercolor=black:borderw=6:shadowcolor=black@0.85:shadowx=4:shadowy=4:x=(w-text_w)/2:y=h-480`;
-      const sub = `drawtext=fontfile='${fontPath}':text='${cleanSub}':fontcolor=white:fontsize=${subFSize}:bordercolor=black:borderw=4:shadowcolor=black@0.85:shadowx=3:shadowy=3:x=(w-text_w)/2:y=h-380:enable='gte(t\\,${subRevealTime})'`;
+      const headline = `drawtext=${fontOpt}text='${cleanCta}':fontcolor=white:fontsize=${ctaFSize}:bordercolor=black:borderw=6:shadowcolor=black@0.85:shadowx=4:shadowy=4:x=(w-text_w)/2:y=h-480`;
+      const sub = `drawtext=${fontOpt}text='${cleanSub}':fontcolor=white:fontsize=${subFSize}:bordercolor=black:borderw=4:shadowcolor=black@0.85:shadowx=3:shadowy=3:x=(w-text_w)/2:y=h-380:enable='gte(t\\,${subRevealTime})'`;
 
       return `${headline},${sub}`;
     };
 
-    if (fs.existsSync(ffmpegBinary) && fs.existsSync(aiVideoFile)) {
+    if (isFfmpegAvailable() && fs.existsSync(aiVideoFile)) {
       if (hasCreatorHook && fs.existsSync(creatorHookFilePath)) {
         // CASE A: High-Converting 4-Scene Hybrid Ad (Creator Hook + AI Hero + AI Scene 2 + CTA Outro)
         console.log(`[Studio Engine] Assembling 4-Scene Commercial Ad (Creator: ${actor}, Hook In: ${inPoint}s + 2 Kling AI Shots + CTA Outro)...`);
@@ -1071,9 +1129,25 @@ export async function POST(request: Request) {
 
     if (!assembledSuccessfully) {
       if (fs.existsSync(aiVideoFile)) {
-        fs.copyFileSync(aiVideoFile, dest9x16);
-        fs.copyFileSync(aiVideoFile, dest1x1);
-        fs.copyFileSync(aiVideoFile, dest4x5);
+        // Fallback: Ensure voiceover is attached even if multi-scene assembly encountered an error
+        if (fs.existsSync(voFilePath) && isFfmpegAvailable()) {
+          try {
+            execSync(
+              `"${ffmpegBinary}" -y -i "${aiVideoFile}" -i "${voFilePath}" -map 0:v -map 1:a -c:v copy -c:a aac -b:a 192k -movflags +faststart "${dest9x16}"`,
+              { stdio: "pipe" }
+            );
+            fs.copyFileSync(dest9x16, dest1x1);
+            fs.copyFileSync(dest9x16, dest4x5);
+          } catch {
+            fs.copyFileSync(aiVideoFile, dest9x16);
+            fs.copyFileSync(aiVideoFile, dest1x1);
+            fs.copyFileSync(aiVideoFile, dest4x5);
+          }
+        } else {
+          fs.copyFileSync(aiVideoFile, dest9x16);
+          fs.copyFileSync(aiVideoFile, dest1x1);
+          fs.copyFileSync(aiVideoFile, dest4x5);
+        }
       }
     }
 
