@@ -469,7 +469,7 @@ export async function POST(request: Request) {
       if (!remoteUrl && queueData?.status_url) {
         console.log(`[Studio Engine] fal.ai job queued on ${endpoint} (${label}, Request ID: ${queueData?.request_id}). Polling...`);
         let attempts = 0;
-        const maxAttempts = 90;
+        const maxAttempts = 160;
         const pollIntervalMs = 2500;
         while (!remoteUrl && attempts < maxAttempts) {
           await new Promise((resolve) => setTimeout(resolve, pollIntervalMs));
@@ -502,7 +502,7 @@ export async function POST(request: Request) {
                 throw new Error(errMsg);
               } else {
                 if (attempts % 4 === 0) {
-                  const pct = Math.min(95, Math.round((attempts / 45) * 100));
+                  const pct = Math.min(95, Math.round((attempts / maxAttempts) * 100));
                   console.log(`[Studio Engine] fal.ai (${label}) rendering in progress (~${pct}% - attempt ${attempts}/${maxAttempts})...`);
                 }
               }
@@ -513,7 +513,7 @@ export async function POST(request: Request) {
         }
 
         if (!remoteUrl && attempts >= maxAttempts) {
-          throw new Error(`fal.ai job for ${label} timed out after 225s.`);
+          throw new Error(`fal.ai job for ${label} timed out after ${Math.round((maxAttempts * pollIntervalMs) / 1000)}s.`);
         }
       }
 
