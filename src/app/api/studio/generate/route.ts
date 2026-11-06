@@ -178,7 +178,7 @@ export async function POST(request: Request) {
     let creatorHookClip = "";
     let creatorHookFilePath = "";
 
-    if (actor === "haley" || actor === "emily") {
+    if (actor === "haley" || actor === "emily" || actor === "tyler") {
       if (creatorAssetId) {
         const asset = getCreatorClipById(creatorAssetId);
         if (asset && asset.src && asset.creatorId === actor) {
@@ -191,9 +191,12 @@ export async function POST(request: Request) {
         }
       }
       if (!hasCreatorHook) {
-        const defaultHook = actor === "emily"
-          ? "/creators/emily/hooks/emily-hook-01.mp4"
-          : "/creators/haley/hooks/haley-hook-01.mp4";
+        const defaultHook =
+          actor === "emily"
+            ? "/creators/emily/hooks/emily-hook-01.mp4"
+            : actor === "tyler"
+            ? "/creators/tyler/hooks/tyler-hook-01.mp4"
+            : "/creators/haley/hooks/haley-hook-01.mp4";
         const candidate = path.resolve(process.cwd(), "public", defaultHook.replace(/^\//, ""));
         if (fs.existsSync(candidate)) {
           creatorHookFilePath = candidate;
@@ -336,12 +339,14 @@ export async function POST(request: Request) {
     // Brand-specific commercial advertising theme to ensure Kling AI video matches user options
     let brandVisualTheme = "";
     const bNameLower = brandName.toLowerCase();
-    if (bNameLower.includes("dog") || bNameLower.includes("food") || bNameLower.includes("chicago") || bNameLower.includes("restaurant") || bNameLower.includes("burger")) {
-      brandVisualTheme = "delicious appetizing gourmet Chicago-style hot dog with yellow mustard, bright green sweet relish, freshly chopped onions, ripe tomato wedges, crisp pickle spear, sport peppers and celery salt in a warm steamed poppy seed bun, mouth-watering restaurant commercial advertising, dynamic slow-motion macro shot, sizzling background grill, warm studio lighting";
+    if (bNameLower.includes("dog") || bNameLower.includes("food") || bNameLower.includes("chicago") || bNameLower.includes("restaurant") || bNameLower.includes("burger") || bNameLower.includes("pizza") || bNameLower.includes("cafe")) {
+      brandVisualTheme = "delicious appetizing gourmet food commercial, vibrant restaurant ambiance, fresh sizzling ingredients, mouth-watering presentation, dynamic slow-motion macro shot, warm commercial studio lighting";
     } else if (bNameLower.includes("hotel") || bNameLower.includes("carmen") || bNameLower.includes("travel") || bNameLower.includes("vacation") || bNameLower.includes("resort")) {
       brandVisualTheme = "luxury boutique resort hotel suite with sunlit balcony overlooking azure ocean sunset, elegant modern luxury travel advertising motion, golden hour sunlight, 4K resort cinematography";
-    } else if (bNameLower.includes("turf") || bNameLower.includes("sport") || bNameLower.includes("golf") || bNameLower.includes("apparel") || bNameLower.includes("athletic")) {
+    } else if (bNameLower.includes("turf") || bNameLower.includes("sport") || bNameLower.includes("golf") || bNameLower.includes("apparel") || bNameLower.includes("athletic") || bNameLower.includes("fitness")) {
       brandVisualTheme = "premium athletic golf and coastal sports lifestyle apparel, dynamic slow-motion golf swing on a sun-drenched championship course fairway, crisp morning ocean breeze, modern technical performance sportswear, cinematic commercial lighting, 4K sports commercial cinematography";
+    } else if (bNameLower.includes("skin") || bNameLower.includes("dew") || bNameLower.includes("beauty") || bNameLower.includes("glow") || bNameLower.includes("cosmetic") || bNameLower.includes("wellness") || bNameLower.includes("lotion") || bNameLower.includes("cream") || bNameLower.includes("serum")) {
+      brandVisualTheme = "modern luxury clean skincare and beauty commercial, model with healthy glowing radiant skin, elegant cosmetic bottle macro reveal, fresh water droplets, soft aesthetic daylight, clean minimalist studio atmosphere, 4K 60fps commercial cinematography";
     } else if (
       bNameLower.includes("ai") ||
       bNameLower.includes("search") ||
@@ -349,16 +354,22 @@ export async function POST(request: Request) {
       bNameLower.includes("relaunch") ||
       bNameLower.includes("marketing") ||
       bNameLower.includes("audit") ||
-      bNameLower.includes("facebook")
+      bNameLower.includes("growth")
     ) {
-      brandVisualTheme = "modern bright creative agency studio, professional entrepreneur reviewing local business search growth on sleek smartphone, screen showing clean abstract glowing data visualizations and connectivity network nodes with strictly NO text and NO words, crisp daylight, shallow depth of field, 4K commercial cinematography, 60fps, photorealistic physical realism";
+      brandVisualTheme = "high-end commercial advertising: Confident local business owner in a bright modern creative office smiling as real customer booking notifications arrive on smartphone, professional business atmosphere, natural sunlight, cinematic depth of field, 4K commercial cinematography, 60fps, authentic physical realism";
     } else {
-      brandVisualTheme = `dynamic commercial advertising showcase for "${brandName}", ${creativeAngle}, dynamic product commercial motion, vibrant advertising lighting, 4K high visual clarity, clean sleek background without garbled text or alien writing`;
+      brandVisualTheme = `dynamic commercial advertising showcase for "${brandName}", ${creativeAngle || "high-converting"}, authentic product commercial motion, vibrant advertising lighting, 4K high visual clarity, clean sleek background without garbled text or alien writing`;
     }
+
+    const cleanScriptSummary = (scriptBody || "")
+      .replace(/https?:\/\/\S+/g, "")
+      .replace(/[^a-zA-Z0-9\s.,'-]/g, " ")
+      .trim()
+      .slice(0, 100);
 
     const finalPrompt = visualPrompt?.trim() && !visualPrompt.includes("Cinematic 1080p advertising b-roll")
       ? visualPrompt.trim()
-      : `High-converting TikTok Reels video ad commercial for "${brandName}". ${brandVisualTheme}, ${ctaText ? `featuring exclusive "${ctaText}" promotion` : ""}, 4K ultra-sharp advertising clarity, cinematic depth of field, 60fps`;
+      : `High-converting TikTok Reels video ad commercial for "${brandName}". Angle: ${creativeAngle || "Problem & Solution"}. Theme: ${brandVisualTheme}. Context: ${cleanScriptSummary}. ${ctaText ? `Call to action: "${ctaText}"` : ""}, 4K ultra-sharp advertising clarity, cinematic depth of field, 60fps`;
 
     const aiVideoClips: string[] = [];
 
@@ -463,23 +474,41 @@ export async function POST(request: Request) {
     if (falKey) {
       try {
         if (cdnImageUrls.length > 0) {
-          // MULTI-IMAGE KLING VIDEO: Every uploaded image is dispatched and animated via Kling Image-to-Video
-          console.log(`[Studio Engine] Dispatching Kling Image-to-Video in parallel for ${cdnImageUrls.length} uploaded image(s)...`);
+          // MULTI-SCENE KLING VIDEO: Dispatches distinct commercial camera angles in parallel
+          const imageJobConfigs = cdnImageUrls.length === 1
+            ? [
+                {
+                  imageUrl: cdnImageUrls[0],
+                  prompt: visualPrompt?.trim()
+                    ? `${visualPrompt.trim()}, dynamic commercial camera push-in and elegant reveal, 4K photorealistic cinematography`
+                    : `Commercial advertising video for ${brandName}. Dynamic camera push-in and elegant cinematic reveal of the subject in the reference image, ${brandVisualTheme}, crisp focus, 4K 60fps photorealistic cinematography, keep all original subject details, logos, colors, and shape sharp and stable`,
+                  label: "Product Hero Reveal",
+                },
+                {
+                  imageUrl: cdnImageUrls[0],
+                  prompt: visualPrompt?.trim()
+                    ? `${visualPrompt.trim()}, dynamic camera orbit and macro detail focus pull, 4K photorealistic cinematography`
+                    : `Dynamic commercial camera orbit around the featured ${brandName} subject from the reference image, ${brandVisualTheme}, elegant studio lighting reflections, macro detail focus pull, 4K 60fps photorealistic cinematography, keep all original details sharp and stable`,
+                  label: "Dynamic Orbit & Detail Cut",
+                },
+              ]
+            : cdnImageUrls.map((imageUrl, idx) => ({
+                imageUrl,
+                prompt: visualPrompt?.trim()
+                  ? `${visualPrompt.trim()}, dynamic commercial advertising motion, 4K photorealistic cinematography`
+                  : (idx === 0
+                      ? `Commercial advertising video for ${brandName}. Dynamic camera push-in and elegant parallax reveal of the subject in the reference image, ${brandVisualTheme}, crisp focus, 4K 60fps photorealistic cinematography, keep all original subject details, logos, colors, and shape sharp and stable`
+                      : `Dynamic commercial camera orbit around the featured ${brandName} subject from the reference image, ${brandVisualTheme}, elegant studio lighting reflections, crisp focus pull, 4K 60fps photorealistic cinematography, keep all original details sharp and stable`),
+                label: `Image #${idx + 1}`,
+              }));
 
-          const jobPromises = cdnImageUrls.map(async (imageUrl, idx) => {
-            const isFirst = idx === 0;
-            const actionPrompt = visualPrompt?.trim()
-              ? (isFirst
-                  ? `${visualPrompt.trim()}, dynamic commercial opening reveal featuring reference product, smooth camera movement, fluid commercial interaction, cinematic lighting, 4K 60fps photorealistic cinematography`
-                  : `${visualPrompt.trim()}, dynamic commercial product demonstration and feature highlight angle ${idx + 1}, fluid camera orbit, vibrant studio lighting, authentic advertising motion, 4K 60fps photorealistic cinematography`)
-              : (isFirst
-                  ? `Dynamic commercial advertising action featuring "${brandName}", opening hero reveal, seamless real-world interaction, cinematic camera orbit, vibrant commercial studio lighting, authentic fluid motion, physical realism, 4K 60fps`
-                  : `Dynamic commercial advertising showcase featuring "${brandName}", product demonstration angle ${idx + 1}, fluid camera movement, vibrant commercial studio lighting, physical realism, 4K 60fps`);
+          console.log(`[Studio Engine] Dispatching Kling Image-to-Video in parallel for ${imageJobConfigs.length} scene(s)...`);
 
+          const jobPromises = imageJobConfigs.map(async (cfg, idx) => {
             const body = {
-              prompt: `${actionPrompt}, strictly NO static freeze frame, dynamic real-world action`,
-              negative_prompt: "static frame, frozen camera, live wallpaper, screensaver, static photo, slideshow, subtle pan, 2D animation, distorted logo, morphing artifacts, low quality, blurry, watermark, bad anatomy, deformed, cartoon",
-              image_url: imageUrl,
+              prompt: `${cfg.prompt}, strictly NO static freeze frame, dynamic commercial action, keep original subject intact`,
+              negative_prompt: "morphing, distorted text, warped logos, mutated hands, extra limbs, floating objects, sci-fi holograms, cartoonish artifacts, blurry edges, jittery movement, static frame, frozen camera, low quality, bad anatomy, deformed",
+              image_url: cfg.imageUrl,
               duration: "5",
               aspect_ratio: "9:16",
             };
@@ -487,13 +516,13 @@ export async function POST(request: Request) {
             const remoteUrl = await runFalQueueJob(
               "fal-ai/kling-video/v1/standard/image-to-video",
               body,
-              `Image #${idx + 1}`
+              cfg.label
             );
 
             const destPartFile = `ai-${jobId}-part-${idx}.mp4`;
             const destPartPath = path.join(storageDir, destPartFile);
             await safeDownloadFile(remoteUrl, destPartPath);
-            console.log(`[Studio Engine] ✓ Downloaded Kling AI Video for Image #${idx + 1} (${destPartFile})`);
+            console.log(`[Studio Engine] ✓ Downloaded Kling AI Video for ${cfg.label} (${destPartFile})`);
             return { index: idx, path: destPartPath };
           });
 
@@ -510,7 +539,7 @@ export async function POST(request: Request) {
             }
             // Preserve primary video file at ai-${jobId}.mp4
             fs.copyFileSync(fulfilled[0].path, path.join(storageDir, `ai-${jobId}.mp4`));
-            console.log(`[Studio Engine] ✓ Successfully generated ${fulfilled.length}/${cdnImageUrls.length} Kling AI video parts!`);
+            console.log(`[Studio Engine] ✓ Successfully generated ${fulfilled.length}/${imageJobConfigs.length} Kling AI video parts!`);
           } else {
             const rejected = results.find((r) => r.status === "rejected");
             aiVideoError = rejected?.reason?.message || "All Kling image-to-video jobs failed";
@@ -527,24 +556,54 @@ export async function POST(request: Request) {
           aiVideoGenerated = true;
           aiVideoClips.push(aiDestPath);
         } else {
-          // Default: Kling 4K Text-to-Video
-          console.log(`[Studio Engine] Target: Kling 4K Text-to-Video for ${brandName}`);
-          const textPrompt = visualPrompt?.trim()
-            ? `${visualPrompt.trim()}, 4K photorealistic commercial advertising, clean commercial visuals without on-screen words or letters, 60fps`
-            : `${finalPrompt}, 4K photorealistic commercial advertising, clean commercial visuals without on-screen words or letters, 60fps`;
+          // Default: Kling 4K Text-to-Video — Generates 2 complementary scenes in parallel so ad never loops!
+          console.log(`[Studio Engine] Target: Kling 4K Multi-Scene Text-to-Video for ${brandName}`);
+          const textJobConfigs = [
+            {
+              prompt: visualPrompt?.trim()
+                ? `${visualPrompt.trim()}, commercial advertising hero shot, clean commercial visuals without on-screen words or letters, 60fps`
+                : `High-converting commercial advertising video for "${brandName}". Angle: ${creativeAngle}. Theme: ${brandVisualTheme}. Authentic product motion, 4K 60fps photorealistic cinematography, absolutely NO on-screen text, NO letters, NO words`,
+              label: "Scene 1: Hero Action",
+            },
+            {
+              prompt: visualPrompt?.trim()
+                ? `${visualPrompt.trim()}, customer experience and premium quality showcase, 60fps`
+                : `Dynamic commercial advertising scene for "${brandName}". ${brandVisualTheme}. Customer interaction and authentic commercial atmosphere, vibrant studio lighting, 4K 60fps, absolutely NO on-screen text, NO letters, NO words`,
+              label: "Scene 2: Customer / Feature Cut",
+            },
+          ];
 
-          const body = {
-            prompt: `${textPrompt}, strictly NO on-screen text, NO letters, NO words`,
-            negative_prompt: "text, words, letters, typography, gibberish, foreign language, alien glyphs, distorted letters, fake words, unreadable writing, symbols, blur, watermark, low quality, bad anatomy, deformed",
-            duration: "5",
-            aspect_ratio: "9:16",
-          };
-          const remoteUrl = await runFalQueueJob("fal-ai/kling-video/v1/standard/text-to-video", body, "Kling Text-to-Video");
-          const aiFile = `ai-${jobId}.mp4`;
-          const aiDestPath = path.join(storageDir, aiFile);
-          await safeDownloadFile(remoteUrl, aiDestPath);
-          aiVideoGenerated = true;
-          aiVideoClips.push(aiDestPath);
+          const textPromises = textJobConfigs.map(async (cfg, idx) => {
+            const body = {
+              prompt: `${cfg.prompt}, strictly NO on-screen text, NO letters, NO words`,
+              negative_prompt: "text, words, letters, typography, gibberish, foreign language, alien glyphs, distorted letters, fake words, unreadable writing, symbols, blur, watermark, low quality, bad anatomy, deformed",
+              duration: "5",
+              aspect_ratio: "9:16",
+            };
+            const remoteUrl = await runFalQueueJob("fal-ai/kling-video/v1/standard/text-to-video", body, cfg.label);
+            const partFile = `ai-${jobId}-part-${idx}.mp4`;
+            const partPath = path.join(storageDir, partFile);
+            await safeDownloadFile(remoteUrl, partPath);
+            return { index: idx, path: partPath };
+          });
+
+          const results = await Promise.allSettled(textPromises);
+          const fulfilled = results
+            .filter((r) => r.status === "fulfilled")
+            .map((r) => r.value)
+            .sort((a, b) => a.index - b.index);
+
+          if (fulfilled.length > 0) {
+            aiVideoGenerated = true;
+            for (const f of fulfilled) {
+              aiVideoClips.push(f.path);
+            }
+            fs.copyFileSync(fulfilled[0].path, path.join(storageDir, `ai-${jobId}.mp4`));
+            console.log(`[Studio Engine] ✓ Successfully generated ${fulfilled.length}/${textJobConfigs.length} Kling AI video parts!`);
+          } else {
+            const rejected = results.find((r) => r.status === "rejected");
+            aiVideoError = rejected?.reason?.message || "All Kling text-to-video jobs failed";
+          }
         }
       } catch (e: any) {
         aiVideoError = e.message;
@@ -592,104 +651,264 @@ export async function POST(request: Request) {
     const aiVideoFile = path.join(storageDir, `ai-${jobId}.mp4`);
     const voFilePath = path.join(audioDir, `vo-${jobId}.mp3`);
 
-    const ffmpegBinary = path.resolve(
-      process.cwd(),
-      "relaunch-studio-engine/render-worker/node_modules/@remotion/compositor-win32-x64-msvc/ffmpeg.exe"
-    );
+    const findFfmpegBinary = (): { binary: string; hasDrawText: boolean } => {
+      const gyanPath = "C:\\Users\\Administrator\\AppData\\Local\\Microsoft\\WinGet\\Packages\\Gyan.FFmpeg.Essentials_Microsoft.Winget.Source_8wekyb3d8bbwe\\ffmpeg-9.0.1-essentials_build\\bin\\ffmpeg.exe";
+      if (fs.existsSync(gyanPath)) {
+        return { binary: gyanPath, hasDrawText: true };
+      }
+      const remotionPath = path.resolve(
+        process.cwd(),
+        "relaunch-studio-engine/render-worker/node_modules/@remotion/compositor-win32-x64-msvc/ffmpeg.exe"
+      );
+      if (fs.existsSync(remotionPath)) {
+        return { binary: remotionPath, hasDrawText: false };
+      }
+      return { binary: "ffmpeg", hasDrawText: false };
+    };
+
+    const { binary: ffmpegBinary, hasDrawText } = findFfmpegBinary();
 
     // -------------------------------------------------------------------------
-    // 3. Multi-Ratio Video Assembly (9:16, 1:1, 4:5) — 100% PURE KLING AI VIDEO
+    // 3. Multi-Ratio Video Assembly (9:16, 1:1, 4:5) — Dynamic 5-Scene Commercial Ad
     // -------------------------------------------------------------------------
-    // ZERO local mock fallbacks, ZERO stock agency reels
+    // Fast-paced 3.5s–5.0s scene pacing, ZERO repetitive looping, Hook Headline & CTA Outro
     let assembledSuccessfully = false;
 
-    // Compute voiceover duration from word timestamps so video perfectly covers narration
+    // Compute voiceover duration from word timestamps so video perfectly covers narration (~18–22s)
     let voDuration = 16.5;
     if (wordTimestamps && wordTimestamps.length > 0) {
       const lastWord = wordTimestamps[wordTimestamps.length - 1];
       voDuration = Math.max(10.0, (lastWord.end || 0) + 1.0);
     }
 
+    const sanitizeForDrawText = (str: string): string => {
+      return str
+        .replace(/['":\\]/g, "")
+        .replace(/[\r\n]+/g, " ")
+        .trim()
+        .slice(0, 60);
+    };
 
-    // Helper to assemble commercial body covering ALL uploaded reference images
-    const assembleCommercialBodyVideo = (
-      outputPath: string,
-      targetDuration: number,
-      clips: string[],
-      ffBin: string,
-      dir: string,
-      jId: string,
-      prefix: string
-    ): void => {
-      const activeClips = clips.filter((c) => fs.existsSync(c));
-      if (activeClips.length === 0) {
-        throw new Error("No AI video clips available to assemble commercial body.");
+    const getCreatorBrollList = (actorName: string): string[] => {
+      const act = actorName.toLowerCase();
+      if (act === "tyler") {
+        return [
+          path.resolve(process.cwd(), "public/creators/tyler/broll/tyler-broll-01.mp4"),
+          path.resolve(process.cwd(), "public/creators/tyler/hooks/tyler-hook-02.mp4"),
+        ].filter(fs.existsSync);
+      }
+      if (act === "emily") {
+        return [
+          path.resolve(process.cwd(), "public/creators/emily/broll/emily-broll-01.mp4"),
+          path.resolve(process.cwd(), "public/creators/emily/broll/emily-broll-02.mp4"),
+          path.resolve(process.cwd(), "public/creators/emily/broll/emily-broll-03.mp4"),
+        ].filter(fs.existsSync);
+      }
+      return [
+        path.resolve(process.cwd(), "public/creators/haley/broll/haley-broll-01.mp4"),
+        path.resolve(process.cwd(), "public/creators/haley/broll/haley-broll-02.mp4"),
+        path.resolve(process.cwd(), "public/creators/haley/broll/haley-broll-06.mp4"),
+      ].filter(fs.existsSync);
+    };
+
+    // Resolve font for high-impact social video ad captions (Arial Black preferred for bold TikTok/Reels aesthetic)
+    const adFontFile = fs.existsSync("C:/Windows/Fonts/ariblk.ttf")
+      ? "C\\:/Windows/Fonts/ariblk.ttf"
+      : "C\\:/Windows/Fonts/arialbd.ttf";
+
+    // Generates kinetic, TikTok/Reels-style ad captions with zero background box,
+    // pure white Arial Black typography, heavy black stroke, drop shadow,
+    // and dynamic word reveal timed with creator speech.
+    const buildInteractiveAdCaptions = (
+      text: string,
+      totalDuration: number,
+      yPos = 240,
+      fontPath = adFontFile
+    ): string => {
+      const clean = String(text || "")
+        .replace(/['":\\]/g, "")
+        .replace(/[\r\n]+/g, " ")
+        .replace(/[.,!?;]+$/g, "")
+        .trim();
+      const words = clean.split(/\s+/).filter(Boolean);
+      if (words.length === 0) return "";
+
+      const phrases: string[] = [];
+      if (words.length <= 4) {
+        phrases.push(words.join(" "));
+      } else if (words.length <= 8) {
+        const mid = Math.ceil(words.length / 2);
+        phrases.push(words.slice(0, mid).join(" "));
+        phrases.push(words.slice(mid).join(" "));
+      } else {
+        const p1 = Math.round(words.length / 3);
+        const p2 = Math.round((words.length * 2) / 3);
+        phrases.push(words.slice(0, p1).join(" "));
+        phrases.push(words.slice(p1, p2).join(" "));
+        phrases.push(words.slice(p2).join(" "));
       }
 
-      if (activeClips.length === 1) {
-        execSync(
-          `"${ffBin}" -y -stream_loop -1 -i "${activeClips[0]}" -t ${targetDuration.toFixed(3)} -vf "scale=1080:1920:force_original_aspect_ratio=increase,crop=1080:1920" -pix_fmt yuv420p -c:v libx264 -preset fast -r 30 -an "${outputPath}"`,
-          { stdio: "pipe" }
+      const dtFilters: string[] = [];
+      const totalWords = words.length;
+      let accumulatedWords = 0;
+
+      for (let i = 0; i < phrases.length; i++) {
+        const phrase = phrases[i].toUpperCase().trim();
+        const phraseWordCount = phrases[i].split(/\s+/).length;
+        const startT = (totalDuration * (accumulatedWords / totalWords)).toFixed(2);
+        accumulatedWords += phraseWordCount;
+        const endT =
+          i === phrases.length - 1
+            ? totalDuration.toFixed(2)
+            : (totalDuration * (accumulatedWords / totalWords)).toFixed(2);
+
+        const fSize = phrase.length > 25 ? 40 : phrase.length > 18 ? 46 : 50;
+        const safeText = phrase.replace(/'/g, "\\'").replace(/:/g, "\\:");
+
+        dtFilters.push(
+          `drawtext=fontfile='${fontPath}':text='${safeText}':fontcolor=white:fontsize=${fSize}:bordercolor=black:borderw=5:shadowcolor=black@0.85:shadowx=3:shadowy=3:x=(w-text_w)/2:y=${yPos}:enable='between(t\\,${startT}\\,${endT})'`
         );
-        return;
       }
 
-      // MULTI-IMAGE COMMERCIAL: Each uploaded image has its OWN Kling AI Video clip!
-      const totalClips = activeClips.length;
-      console.log(`[Studio Engine] Assembling multi-image commercial sequence with ${totalClips} pure Kling AI video clips across ${targetDuration.toFixed(1)}s...`);
+      return dtFilters.join(",");
+    };
 
-      const perClipDur = Number((targetDuration / totalClips).toFixed(3));
-      const partFiles: string[] = [];
+    // Generates high-converting commercial outro CTA text with zero background box,
+    // pure white Arial Black typography, thick black stroke, and interactive two-stage reveal.
+    const buildInteractiveCtaFilters = (
+      ctaHeadline: string,
+      ctaSub: string,
+      duration: number,
+      fontPath = adFontFile
+    ): string => {
+      const cleanCta = String(ctaHeadline || "Claim Exclusive Offer")
+        .toUpperCase()
+        .replace(/['":\\]/g, "")
+        .replace(/[.,!?;]+$/g, "")
+        .trim();
+      const cleanSub = String(ctaSub || "Tap Link Below")
+        .toUpperCase()
+        .replace(/['":\\]/g, "")
+        .replace(/[.,!?;]+$/g, "")
+        .trim();
 
-      for (let k = 0; k < totalClips; k++) {
-        const clipPath = activeClips[k];
-        const partPath = path.join(dir, `${jId}-${prefix}-part-${k}.mp4`);
-        execSync(
-          `"${ffBin}" -y -stream_loop -1 -i "${clipPath}" -t ${perClipDur.toFixed(3)} -vf "scale=1080:1920:force_original_aspect_ratio=increase,crop=1080:1920" -pix_fmt yuv420p -c:v libx264 -preset fast -r 30 -an "${partPath}"`,
-          { stdio: "pipe" }
-        );
-        partFiles.push(partPath);
-      }
+      const ctaFSize = cleanCta.length > 25 ? 44 : 52;
+      const subFSize = cleanSub.length > 30 ? 30 : 36;
+      const subRevealTime = Math.min(1.0, duration * 0.25).toFixed(2);
 
-      // Concat all parts into outputPath
-      const concatFile = path.join(dir, `${jId}-${prefix}-concat.txt`);
-      fs.writeFileSync(concatFile, partFiles.map((p) => `file '${p.replace(/\\/g, "/")}'`).join("\n") + "\n");
+      const headline = `drawtext=fontfile='${fontPath}':text='${cleanCta}':fontcolor=white:fontsize=${ctaFSize}:bordercolor=black:borderw=6:shadowcolor=black@0.85:shadowx=4:shadowy=4:x=(w-text_w)/2:y=h-480`;
+      const sub = `drawtext=fontfile='${fontPath}':text='${cleanSub}':fontcolor=white:fontsize=${subFSize}:bordercolor=black:borderw=4:shadowcolor=black@0.85:shadowx=3:shadowy=3:x=(w-text_w)/2:y=h-380:enable='gte(t\\,${subRevealTime})'`;
 
-      execSync(
-        `"${ffBin}" -y -f concat -safe 0 -i "${concatFile}" -c:v libx264 -preset fast -r 30 -an "${outputPath}"`,
-        { stdio: "pipe" }
-      );
-
-      // Cleanup temp parts
-      partFiles.forEach((p) => { try { if (fs.existsSync(p)) fs.unlinkSync(p); } catch {} });
-      try { if (fs.existsSync(concatFile)) fs.unlinkSync(concatFile); } catch {}
+      return `${headline},${sub}`;
     };
 
     if (fs.existsSync(ffmpegBinary) && fs.existsSync(aiVideoFile)) {
       if (hasCreatorHook && fs.existsSync(creatorHookFilePath)) {
-        // CASE A: Creator Hook (Haley / Emily 0-3.5s) + PURE KLING AI VIDEO (3.5s to end)
-        console.log(`[Studio Engine] Assembling 2-part Hybrid Master with FFmpeg (Creator Hook: ${actor}, In: ${inPoint}s, Out: ${outPoint}s + 100% Pure Kling AI Video)...`);
+        // CASE A: High-Converting 4-Scene Hybrid Ad (Creator Hook + AI Hero + AI Scene 2 + CTA Outro)
+        console.log(`[Studio Engine] Assembling 4-Scene Commercial Ad (Creator: ${actor}, Hook In: ${inPoint}s + 2 Kling AI Shots + CTA Outro)...`);
         const seg1Path = path.join(storageDir, `${jobId}-seg1.mp4`);
         const seg2Path = path.join(storageDir, `${jobId}-seg2.mp4`);
+        const seg3Path = path.join(storageDir, `${jobId}-seg3.mp4`);
+        const seg4Path = path.join(storageDir, `${jobId}-seg4.mp4`);
         const concatList = path.join(storageDir, `${jobId}-concat.txt`);
         const tempCombined = path.join(storageDir, `${jobId}-temp-combined.mp4`);
 
+        const createdSegFiles: string[] = [];
+
         try {
-          // 1. Trim Creator Hook to exact [inPoint, outPoint], preserving authentic voice and 1080x1920 scaling
           const inStr = inPoint.toFixed(3);
           const durStr = hookDuration.toFixed(3);
+
+          // 1. Scene 1 (Hook / 0 – 3.5s): Authentic Creator Video Take + Kinetic White Ad Captions (No BG Box)
+          const hookCaptions = buildInteractiveAdCaptions(
+            hookText || "Stop scrolling if you want real results",
+            hookDuration,
+            240,
+            adFontFile
+          );
+          let seg1Vf = "scale=1080:1920:force_original_aspect_ratio=increase,crop=1080:1920";
+          if (hasDrawText && hookCaptions) {
+            seg1Vf += `,${hookCaptions}`;
+          }
+
+          try {
+            execSync(
+              `"${ffmpegBinary}" -y -ss ${inStr} -i "${creatorHookFilePath}" -t ${durStr} -vf "${seg1Vf}" -pix_fmt yuv420p -c:v libx264 -preset fast -r 30 -c:a aac -b:a 192k -ar 48000 -ac 2 "${seg1Path}"`,
+              { stdio: "pipe" }
+            );
+          } catch {
+            // Fallback without drawtext if font error occurs
+            execSync(
+              `"${ffmpegBinary}" -y -ss ${inStr} -i "${creatorHookFilePath}" -t ${durStr} -vf "scale=1080:1920:force_original_aspect_ratio=increase,crop=1080:1920" -pix_fmt yuv420p -c:v libx264 -preset fast -r 30 -c:a aac -b:a 192k -ar 48000 -ac 2 "${seg1Path}"`,
+              { stdio: "pipe" }
+            );
+          }
+          createdSegFiles.push(seg1Path);
+
+          // 2. Scene 2 (Core AI Hero Action / 3.5s – 8.5s = 5.0s): Kling AI Hero Clip (Played Once, No Loops)
+          const heroAiClip = (aiVideoClips[0] && fs.existsSync(aiVideoClips[0])) ? aiVideoClips[0] : aiVideoFile;
           execSync(
-            `"${ffmpegBinary}" -y -ss ${inStr} -i "${creatorHookFilePath}" -t ${durStr} -vf "scale=1080:1920:force_original_aspect_ratio=increase,crop=1080:1920" -pix_fmt yuv420p -c:v libx264 -preset fast -r 30 -c:a aac -b:a 192k -ar 48000 -ac 2 "${seg1Path}"`,
+            `"${ffmpegBinary}" -y -ss 0.0 -i "${heroAiClip}" -t 5.0 -vf "scale=1080:1920:force_original_aspect_ratio=increase,crop=1080:1920" -pix_fmt yuv420p -c:v libx264 -preset fast -r 30 -an "${seg2Path}"`,
             { stdio: "pipe" }
           );
+          createdSegFiles.push(seg2Path);
 
-          // 2. Scene 2: PURE KLING AI VIDEO covering all uploaded reference images across body narration
-          assembleCommercialBodyVideo(seg2Path, voDuration, aiVideoClips, ffmpegBinary, storageDir, jobId, "seg2");
+          // 3. Scene 3 (Feature & Transformation / 8.5s – 13.5s = 5.0s): 100% Unique AI Clip 2 (or dynamic macro cut)
+          const hasClip2 = aiVideoClips[1] && fs.existsSync(aiVideoClips[1]);
+          const scene3Source = hasClip2 ? aiVideoClips[1] : heroAiClip;
+          const scene3Vf = hasClip2
+            ? "scale=1080:1920:force_original_aspect_ratio=increase,crop=1080:1920"
+            : "scale=1080:1920:force_original_aspect_ratio=increase,crop=900:1600,scale=1080:1920";
 
-          // 3. Concatenate Scene 1 (Creator Hook) + Scene 2 (Pure Kling AI Video)
+          execSync(
+            `"${ffmpegBinary}" -y -ss 0.0 -i "${scene3Source}" -t 5.0 -vf "${scene3Vf}" -pix_fmt yuv420p -c:v libx264 -preset fast -r 30 -an "${seg3Path}"`,
+            { stdio: "pipe" }
+          );
+          createdSegFiles.push(seg3Path);
+
+          // 4. Scene 4 (Closing CTA Outro & End Card / 13.5s to End = ~3.5s–5.0s): Branded End Card Matching Rest of VO
+          const remainingVo = Math.max(3.2, voDuration - 10.0);
+          const hasClip3 = aiVideoClips[2] && fs.existsSync(aiVideoClips[2]);
+          const scene4Source = hasClip3 ? aiVideoClips[2] : (hasClip2 ? aiVideoClips[1] : heroAiClip);
+
+          let ctaSubtext = "relaunch.us";
+          if (brandName.toLowerCase().includes("ai") || brandName.toLowerCase().includes("relaunch")) {
+            ctaSubtext = "relaunch.us/ai-recommendations";
+          } else if (ctaText.toLowerCase().includes("http") || ctaText.toLowerCase().includes(".com")) {
+            ctaSubtext = ctaText.toLowerCase().replace(/https?:\/\//, "").split("/")[0];
+          } else {
+            ctaSubtext = "Tap Link Below to Claim Offer";
+          }
+
+          const ctaFilters = buildInteractiveCtaFilters(
+            ctaText || "Claim Exclusive Offer",
+            ctaSubtext,
+            remainingVo,
+            adFontFile
+          );
+
+          let seg4Vf = "scale=1080:1920:force_original_aspect_ratio=increase,crop=1080:1920";
+          if (hasDrawText && ctaFilters) {
+            seg4Vf += `,${ctaFilters}`;
+          }
+
+          try {
+            execSync(
+              `"${ffmpegBinary}" -y -ss 0.0 -i "${scene4Source}" -t ${remainingVo.toFixed(3)} -vf "${seg4Vf}" -pix_fmt yuv420p -c:v libx264 -preset fast -r 30 -an "${seg4Path}"`,
+              { stdio: "pipe" }
+            );
+          } catch {
+            execSync(
+              `"${ffmpegBinary}" -y -ss 0.0 -i "${scene4Source}" -t ${remainingVo.toFixed(3)} -vf "scale=1080:1920:force_original_aspect_ratio=increase,crop=1080:1920" -pix_fmt yuv420p -c:v libx264 -preset fast -r 30 -an "${seg4Path}"`,
+              { stdio: "pipe" }
+            );
+          }
+          createdSegFiles.push(seg4Path);
+
+          // Concat Scenes 1 through 4
           fs.writeFileSync(
             concatList,
-            `file '${seg1Path.replace(/\\/g, "/")}'\nfile '${seg2Path.replace(/\\/g, "/")}'\n`
+            createdSegFiles.map((p) => `file '${p.replace(/\\/g, "/")}'`).join("\n") + "\n"
           );
 
           execSync(
@@ -697,7 +916,7 @@ export async function POST(request: Request) {
             { stdio: "pipe" }
           );
 
-          // 4. Sequential Audio Stitching: Creator voice on Hook (0 to hookDuration), then ElevenLabs Voiceover on Body!
+          // 5. Sequential Audio Stitching: Creator voice on Hook (0 to hookDuration), then ElevenLabs Voiceover on Body!
           if (fs.existsSync(voFilePath)) {
             const audioCmd = `"${ffmpegBinary}" -y -i "${tempCombined}" -i "${seg1Path}" -i "${voFilePath}" -filter_complex "[1:a]atrim=0:${durStr},asetpts=PTS-STARTPTS,aformat=sample_rates=48000:channel_layouts=stereo[a1];[2:a]aformat=sample_rates=48000:channel_layouts=stereo[a2];[a1][a2]concat=n=2:v=0:a=1[aout]" -map 0:v -map "[aout]" -c:v copy -c:a aac -b:a 192k -movflags +faststart "${dest9x16}"`;
             execSync(audioCmd, { stdio: "pipe" });
@@ -706,22 +925,91 @@ export async function POST(request: Request) {
           }
 
           assembledSuccessfully = true;
-          console.log(`[Studio Engine] ✓ Hybrid Creator + Pure Kling AI Video Ad assembled successfully!`);
+          console.log(`[Studio Engine] ✓ 4-Scene Commercial Ad (Zero Loops + Kinetic White Captions + Outro) assembled successfully!`);
         } catch (ffErr: any) {
-          console.warn(`[Studio Engine] Hybrid assembly error:`, ffErr.message);
+          console.warn(`[Studio Engine] 4-Scene assembly error:`, ffErr.message);
         } finally {
-          [seg1Path, seg2Path, concatList, tempCombined].forEach((tmp) => {
+          [...createdSegFiles, concatList, tempCombined].forEach((tmp) => {
             try { if (fs.existsSync(tmp)) fs.unlinkSync(tmp); } catch {}
           });
         }
       } else {
-        // CASE B: Pure Kling AI Video Mode (e.g. Emma Davis, Marcus, Sarah, David - NO substitute faces)
-        console.log(`[Studio Engine] Assembling 100% PURE KLING AI Video Ad (Creator: ${actor} - No UGC Video Take) with ElevenLabs voiceover from 0s to end...`);
+        // CASE B: Pure Kling AI Video Mode (No Creator Take) with ElevenLabs voiceover from 0s to end
+        console.log(`[Studio Engine] Assembling Multi-Scene Pure Commercial Ad (No UGC Video Take) with ElevenLabs voiceover from 0s to end...`);
         const tempCombined = path.join(storageDir, `${jobId}-temp-combined.mp4`);
+        const concatList = path.join(storageDir, `${jobId}-concat.txt`);
+        const pureParts: string[] = [];
 
         try {
-          // Assemble commercial body covering all uploaded reference images across full voiceover
-          assembleCommercialBodyVideo(tempCombined, voDuration, aiVideoClips, ffmpegBinary, storageDir, jobId, "pure");
+          const heroAiClip = (aiVideoClips[0] && fs.existsSync(aiVideoClips[0])) ? aiVideoClips[0] : aiVideoFile;
+
+          // Scene 1 (0 to 5.0s): Hero AI Clip + Kinetic White Ad Hook Headline (No BG Box)
+          const p1Path = path.join(storageDir, `${jobId}-pure-1.mp4`);
+          const pureHookCaptions = buildInteractiveAdCaptions(
+            hookText || "Stop scrolling if you want real results",
+            5.0,
+            240,
+            adFontFile
+          );
+          let p1Vf = "scale=1080:1920:force_original_aspect_ratio=increase,crop=1080:1920";
+          if (hasDrawText && pureHookCaptions) {
+            p1Vf += `,${pureHookCaptions}`;
+          }
+          execSync(
+            `"${ffmpegBinary}" -y -ss 0.0 -i "${heroAiClip}" -t 5.0 -vf "${p1Vf}" -pix_fmt yuv420p -c:v libx264 -preset fast -r 30 -an "${p1Path}"`,
+            { stdio: "pipe" }
+          );
+          pureParts.push(p1Path);
+
+          // Scene 2 (5.0s to 10.0s): 2nd Image AI Clip OR Commercial B-roll
+          const p2Path = path.join(storageDir, `${jobId}-pure-2.mp4`);
+          const scene2Source = (aiVideoClips[1] && fs.existsSync(aiVideoClips[1])) ? aiVideoClips[1] : heroAiClip;
+          execSync(
+            `"${ffmpegBinary}" -y -ss 0.0 -i "${scene2Source}" -t 5.0 -vf "scale=1080:1920:force_original_aspect_ratio=increase,crop=1080:1920" -pix_fmt yuv420p -c:v libx264 -preset fast -r 30 -an "${p2Path}"`,
+            { stdio: "pipe" }
+          );
+          pureParts.push(p2Path);
+
+          // Scene 3 (10.0s to End): Closing Scene + Kinetic White Ad CTA End Card (No BG Box)
+          const p3Path = path.join(storageDir, `${jobId}-pure-3.mp4`);
+          const remainingVo = Math.max(3.5, voDuration - 10.0);
+          const scene3Source = (aiVideoClips[2] && fs.existsSync(aiVideoClips[2])) ? aiVideoClips[2] : (aiVideoClips[1] || heroAiClip);
+
+          let pureCtaSub = "relaunch.us";
+          if (brandName.toLowerCase().includes("ai") || brandName.toLowerCase().includes("relaunch")) {
+            pureCtaSub = "relaunch.us/ai-recommendations";
+          } else if (ctaText.toLowerCase().includes("http") || ctaText.toLowerCase().includes(".com")) {
+            pureCtaSub = ctaText.toLowerCase().replace(/https?:\/\//, "").split("/")[0];
+          } else {
+            pureCtaSub = "Tap Link Below to Claim Offer";
+          }
+
+          const pureCtaFilters = buildInteractiveCtaFilters(
+            ctaText || "Claim Exclusive Offer",
+            pureCtaSub,
+            remainingVo,
+            adFontFile
+          );
+
+          let p3Vf = "scale=1080:1920:force_original_aspect_ratio=increase,crop=1080:1920";
+          if (hasDrawText && pureCtaFilters) {
+            p3Vf += `,${pureCtaFilters}`;
+          }
+          execSync(
+            `"${ffmpegBinary}" -y -ss 0.0 -i "${scene3Source}" -t ${remainingVo.toFixed(3)} -vf "${p3Vf}" -pix_fmt yuv420p -c:v libx264 -preset fast -r 30 -an "${p3Path}"`,
+            { stdio: "pipe" }
+          );
+          pureParts.push(p3Path);
+
+          // Concat pure scenes
+          fs.writeFileSync(
+            concatList,
+            pureParts.map((p) => `file '${p.replace(/\\/g, "/")}'`).join("\n") + "\n"
+          );
+          execSync(
+            `"${ffmpegBinary}" -y -f concat -safe 0 -i "${concatList}" -c:v libx264 -preset fast -r 30 -an "${tempCombined}"`,
+            { stdio: "pipe" }
+          );
 
           // Stitch ElevenLabs voiceover from 0s to end
           if (fs.existsSync(voFilePath)) {
@@ -730,15 +1018,17 @@ export async function POST(request: Request) {
               { stdio: "pipe" }
             );
           } else {
-            fs.copyFileSync(tempCombined, dest9x16);
+            execSync(`"${ffmpegBinary}" -y -i "${tempCombined}" -c copy -movflags +faststart "${dest9x16}"`, { stdio: "pipe" });
           }
 
           assembledSuccessfully = true;
-          console.log(`[Studio Engine] ✓ 100% Pure Kling AI Video Ad assembled successfully!`);
-        } catch (pureErr: any) {
-          console.warn(`[Studio Engine] Pure Kling assembly error:`, pureErr.message);
+          console.log(`[Studio Engine] ✓ Multi-Scene Pure Commercial Ad (Zero Loops + Kinetic White Captions + Outro) assembled successfully!`);
+        } catch (ffErr: any) {
+          console.warn(`[Studio Engine] Multi-Scene Pure Commercial assembly error:`, ffErr.message);
         } finally {
-          try { if (fs.existsSync(tempCombined)) fs.unlinkSync(tempCombined); } catch {}
+          [...pureParts, concatList, tempCombined].forEach((tmp) => {
+            try { if (fs.existsSync(tmp)) fs.unlinkSync(tmp); } catch {}
+          });
         }
       }
     }
@@ -798,6 +1088,7 @@ export async function POST(request: Request) {
     const actorNames: Record<string, string> = {
       haley: "Haley (@haleycreative)",
       emily: "Emily (@emilycreative)",
+      tyler: "Tyler (@tylercreative)",
       emma: "Emma Davis (@trendspotlight)",
       marcus: "Marcus Vance (@everydayreviews)",
       sarah: "Sarah Jenkins (@glowwithsarah)",

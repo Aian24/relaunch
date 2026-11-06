@@ -2,7 +2,7 @@
 
 export const dynamic = "force-dynamic";
 
-import React, { useState, useRef, useEffect, useMemo } from "react";
+import React, { useState, useRef, useEffect, useMemo, useCallback } from "react";
 import Link from "next/link";
 import {
   ArrowLeft,
@@ -413,10 +413,61 @@ export default function StudioVideoGenerator() {
   const [isLoadingVoices, setIsLoadingVoices] = useState(false);
 
   const angleDataMap = useMemo(() => getAngleContent(brandName, brandOffer), [brandName, brandOffer]);
-  const currentAngleData = angleDataMap[selectedAngle];
 
-  const [selectedHook, setSelectedHook] = useState(currentAngleData.hooks[0]);
-  const [scriptBody, setScriptBody] = useState(currentAngleData.body);
+  // Helper to safely resolve any angle key, slug, or title to a valid angleDataMap key
+  const resolveAngleKey = useCallback((input: string | null | undefined, dataMap: Record<string, AngleContent>): string => {
+    if (!input) return "problem";
+    const trimmed = input.trim();
+    if (dataMap[trimmed]) return trimmed;
+
+    const lower = trimmed.toLowerCase();
+    const directKey = Object.keys(dataMap).find((k) => k.toLowerCase() === lower);
+    if (directKey) return directKey;
+
+    const entry = Object.entries(dataMap).find(([k, v]) => {
+      const t = v.title.toLowerCase();
+      return (
+        t === lower ||
+        t.includes(lower) ||
+        lower.includes(t) ||
+        (lower.includes("problem") && k === "problem") ||
+        (lower.includes("comparison") && k === "comparison") ||
+        (lower.includes("10 vs 3") && k === "comparison") ||
+        (lower.includes("vs") && k === "comparison") ||
+        (lower.includes("ugc") && k === "ugc") ||
+        (lower.includes("audit") && k === "ugc") ||
+        (lower.includes("checklist") && k === "ugc") ||
+        (lower.includes("review") && k === "ugc") ||
+        (lower.includes("hack") && k === "hack") ||
+        (lower.includes("listicle") && k === "listicle") ||
+        (lower.includes("reasons") && k === "listicle") ||
+        (lower.includes("founder") && k === "founder") ||
+        (lower.includes("fomo") && k === "fomo") ||
+        (lower.includes("urgency") && k === "fomo") ||
+        (lower.includes("promo") && k === "fomo")
+      );
+    });
+    return entry ? entry[0] : (Object.keys(dataMap)[0] || "problem");
+  }, []);
+
+  const currentAngleData = useMemo(() => {
+    if (angleDataMap[selectedAngle]) {
+      return angleDataMap[selectedAngle];
+    }
+    const matchedKey = resolveAngleKey(selectedAngle, angleDataMap);
+    if (angleDataMap[matchedKey]) {
+      return angleDataMap[matchedKey];
+    }
+    return angleDataMap["problem"] || Object.values(angleDataMap)[0] || {
+      title: "Problem & Solution",
+      badge: "Scale",
+      hooks: ["Your next customer just asked AI who to call."],
+      body: "Claim your free AI audit today.",
+    };
+  }, [angleDataMap, selectedAngle, resolveAngleKey]);
+
+  const [selectedHook, setSelectedHook] = useState(currentAngleData?.hooks?.[0] || "");
+  const [scriptBody, setScriptBody] = useState(currentAngleData?.body || "");
   const [isEditingHook, setIsEditingHook] = useState(false);
 
   // Product Media State (Supports BOTH Video & Image)
@@ -508,17 +559,33 @@ export default function StudioVideoGenerator() {
 
   const [draftRestored, setDraftRestored] = useState(false);
   const [hasLoadedDraft, setHasLoadedDraft] = useState(false);
+  const [revisionContext, setRevisionContext] = useState<{ revisionId: string; notes: string; brand: string } | null>(null);
+  const hasHydratedDraftRef = useRef(false);
+  const isHydratingInitialStateRef = useRef(true);
+  const abortControllerRef = useRef<AbortController | null>(null);
+  const progressIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   // Restore draft from localStorage on initial client mount
   useEffect(() => {
+    if (hasHydratedDraftRef.current) return;
+    hasHydratedDraftRef.current = true;
+
     try {
-      const saved = localStorage.getItem("relaunch_studio_generator_draft");
+      const saved = typeof window !== "undefined" ? localStorage.getItem("relaunch_studio_generator_draft") : null;
+      let initBrand = "Chicago Dog 42";
+      let initOffer = "15% off first pickup order";
+
       if (saved) {
         const parsed = JSON.parse(saved);
-        if (parsed.brandName) setBrandName(parsed.brandName);
-        if (parsed.brandOffer) setBrandOffer(parsed.brandOffer);
+        if (parsed.brandName) {
+          initBrand = parsed.brandName;
+          setBrandName(parsed.brandName);
+        }
+        if (parsed.brandOffer) {
+          initOffer = parsed.brandOffer;
+          setBrandOffer(parsed.brandOffer);
+        }
         if (parsed.selectedPresetId) setSelectedPresetId(parsed.selectedPresetId);
-        if (parsed.selectedAngle) setSelectedAngle(parsed.selectedAngle);
         if (parsed.selectedActor) setSelectedActor(parsed.selectedActor);
         if (parsed.selectedCreatorAssetId) setSelectedCreatorAssetId(parsed.selectedCreatorAssetId);
         if (typeof parsed.trimStart === "number") setTrimStart(parsed.trimStart);
@@ -527,14 +594,54 @@ export default function StudioVideoGenerator() {
         if (parsed.selectedVoiceId) setSelectedVoiceId(parsed.selectedVoiceId);
         if (parsed.selectedHook) setSelectedHook(parsed.selectedHook);
         if (parsed.scriptBody) setScriptBody(parsed.scriptBody);
+        if (parsed.selectedAngle) {
+          const map = getAngleContent(initBrand, initOffer);
+          setSelectedAngle(resolveAngleKey(parsed.selectedAngle, map));
+        }
         setDraftRestored(true);
+      }
+
+      if (typeof window !== "undefined") {
+        const params = new URLSearchParams(window.location.search);
+        const qRevId = params.get("revisionId");
+        const qNotes = params.get("notes");
+        const qBrand = params.get("brand");
+        const qHook = params.get("hook");
+        const qScript = params.get("script");
+        const qOffer = params.get("offer");
+        const qAngle = params.get("angle");
+        const qActor = params.get("actor");
+
+        if (qRevId || qNotes) {
+          if (qBrand) {
+            initBrand = qBrand;
+            setBrandName(qBrand);
+          }
+          if (qOffer) {
+            initOffer = qOffer;
+            setBrandOffer(qOffer);
+          }
+          if (qActor) setSelectedActor(qActor);
+          if (qAngle) {
+            const map = getAngleContent(initBrand, initOffer);
+            setSelectedAngle(resolveAngleKey(qAngle, map));
+          }
+          if (qHook) setSelectedHook(qHook);
+          if (qScript) setScriptBody(qScript);
+          setRevisionContext({
+            revisionId: qRevId || "REV-01",
+            notes: qNotes || "Reviewer requested adjustments to this ad.",
+            brand: qBrand || "Client Ad",
+          });
+        }
       }
     } catch (e) {
       // ignore parse errors
     } finally {
       setHasLoadedDraft(true);
+      isHydratingInitialStateRef.current = false;
     }
-  }, []);
+  }, [resolveAngleKey]);
 
   // Debounced auto-save to localStorage
   useEffect(() => {
@@ -681,13 +788,14 @@ export default function StudioVideoGenerator() {
 
   // Update hook & body when angle or brand details change
   useEffect(() => {
-    const angleObj = angleDataMap[selectedAngle];
+    if (isHydratingInitialStateRef.current) return;
+    const angleObj = currentAngleData;
     if (angleObj) {
-      setSelectedHook(angleObj.hooks[0]);
-      setScriptBody(angleObj.body);
+      setSelectedHook(angleObj.hooks[0] || "");
+      setScriptBody(angleObj.body || "");
       setIsEditingHook(false);
     }
-  }, [selectedAngle, angleDataMap]);
+  }, [selectedAngle, currentAngleData]);
 
   // Handle Preset Switching
   const handleSelectPreset = (preset: BrandPreset) => {
@@ -695,26 +803,62 @@ export default function StudioVideoGenerator() {
     setBrandName(preset.name);
     setBrandOffer(preset.offer);
 
+    // Clear revision banner & clean URL query params so preset takes full precedence
+    setRevisionContext(null);
+    if (typeof window !== "undefined" && window.location.search) {
+      window.history.replaceState({}, "", window.location.pathname);
+    }
+
+    // Reset angle to "problem" and eagerly populate hook/body from the new brand content
+    const newAngleMap = getAngleContent(preset.name, preset.offer);
+    const defaultAngle = newAngleMap["problem"] || Object.values(newAngleMap)[0];
+    setSelectedAngle("problem");
+    if (defaultAngle) {
+      setSelectedHook(defaultAngle.hooks[0] || "");
+      setScriptBody(defaultAngle.body || "");
+      setIsEditingHook(false);
+    }
+
+    // Reset visual prompt to let AI automatically generate brand-accurate prompt
+    setVisualPrompt("");
+
     if (preset.id === "ai-recommendations") {
       setUploadedMediaSrc(null);
       setUploadedMediaName(null);
       setUploadedMediaBase64(null);
       setUploadedMediaType(null);
-      setSelectedAngle("problem");
-      setSelectedHook("Your next customer just asked AI who to call.");
-      setScriptBody("Traditional search gave them 10 choices. AI gives them 3. If AI has mixed-up info on your business, someone else gets the call. ReLaunch fixes what AI reads about you so you get recommended first. Claim your free AI audit today at relaunch.us/ai-recommendations.");
-      setGeneratedResult(null);
-      setGenerationError(null);
-      return;
+    } else {
+      setUploadedImages([]);
+      setUploadedMediaSrc(null);
+      setUploadedMediaName(null);
+      setUploadedMediaBase64(null);
+      setUploadedMediaType(null);
     }
 
-    setUploadedImages([]);
-    setUploadedMediaSrc(null);
-    setUploadedMediaName(null);
-    setUploadedMediaBase64(null);
-    setUploadedMediaType(null);
     setGeneratedResult(null);
     setGenerationError(null);
+
+    // Persist immediately to localStorage
+    try {
+      localStorage.setItem(
+        "relaunch_studio_generator_draft",
+        JSON.stringify({
+          selectedPresetId: preset.id,
+          brandName: preset.name,
+          brandOffer: preset.offer,
+          selectedAngle: "problem",
+          selectedActor,
+          selectedCreatorAssetId,
+          trimStart,
+          trimEnd,
+          videoModel,
+          selectedVoiceId,
+          selectedHook: defaultAngle?.hooks[0] || "",
+          scriptBody: defaultAngle?.body || "",
+          updatedAt: Date.now(),
+        })
+      );
+    } catch {}
   };
 
   // Sync active video playback
@@ -880,10 +1024,27 @@ export default function StudioVideoGenerator() {
 
   // Shuffle Hook
   const handleShuffleHook = () => {
-    const hooks = currentAngleData.hooks;
+    const hooks = currentAngleData?.hooks || [];
+    if (!hooks.length) return;
     const currentIdx = hooks.indexOf(selectedHook);
     const nextIdx = (currentIdx + 1) % hooks.length;
     setSelectedHook(hooks[nextIdx]);
+  };
+
+  // Cancel generation handler
+  const handleCancelGeneration = () => {
+    if (abortControllerRef.current) {
+      abortControllerRef.current.abort();
+      abortControllerRef.current = null;
+    }
+    if (progressIntervalRef.current) {
+      clearInterval(progressIntervalRef.current);
+      progressIntervalRef.current = null;
+    }
+    setIsGenerating(false);
+    setGenProgress(0);
+    setGenStepText("");
+    setGenerationError({ title: "Generation Cancelled", message: "Video generation was cancelled." });
   };
 
   // Video Generation via Studio Engine API (supports single or 5-angle batch)
@@ -897,6 +1058,10 @@ export default function StudioVideoGenerator() {
         ? "Connecting to Studio Engine & preparing 5-angle campaign matrix..."
         : "Connecting to Studio Engine & analyzing creative brief..."
     );
+
+    // Create abort controller for this generation
+    const controller = new AbortController();
+    abortControllerRef.current = controller;
 
     // Smooth, realistic progress simulation matching real fal.ai & ElevenLabs execution (~70-85s)
     const progressInterval = setInterval(() => {
@@ -924,11 +1089,13 @@ export default function StudioVideoGenerator() {
         return prev;
       });
     }, 1200);
+    progressIntervalRef.current = progressInterval;
 
     try {
       const res = await fetch("/api/studio/generate", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
+        signal: controller.signal,
         body: JSON.stringify({
           brandName: brandName.trim() || "My Brand",
           creativeAngle: currentAngleData.title,
@@ -945,11 +1112,7 @@ export default function StudioVideoGenerator() {
           mediaSource: uploadedImages[0]?.base64 || uploadedImages[0]?.src || (uploadedMediaBase64 || uploadedMediaSrc || ""),
           mediaType: uploadedImages.length > 0 ? "image" : (uploadedMediaType || "prompt_only"),
           imagesCount: uploadedImages.length,
-          visualPrompt: visualPrompt.trim()
-            ? visualPrompt.trim()
-            : (selectedPresetId === "ai-recommendations" || brandName.toLowerCase().includes("ai"))
-            ? "High-converting commercial advertising b-roll for AI Recommendations, modern creative workspace, entrepreneur analyzing AI search engine results on smartphone and laptop, sleek minimalist abstract data graphics with strictly no text and no letters, clean bright daylight, 4K 60fps photorealistic cinematography, absolutely no gibberish text, no foreign letters, clean English commercial visuals"
-            : `Cinematic 1080p advertising b-roll of ${brandName}, dramatic studio lighting, dynamic product motion, physical realism, 60fps, clean sleek background without garbled text or alien writing`,
+          visualPrompt: visualPrompt.trim() ? visualPrompt.trim() : undefined,
           aiModel: videoModel === "grok" ? "grok-1.5" : videoModel === "seedance" ? "seedance-fast" : "kling-1080p",
           isBatch: asBatch,
         }),
@@ -1062,6 +1225,17 @@ export default function StudioVideoGenerator() {
       setIsGenerating(false);
     } catch (err: any) {
       clearInterval(progressInterval);
+      if (err.name === "AbortError" || abortControllerRef.current?.signal.aborted) {
+        console.log("[Studio Engine] Video generation cancelled by user.");
+        setIsGenerating(false);
+        setGenProgress(0);
+        setGenStepText("");
+        setGenerationError({
+          title: "Generation Cancelled",
+          message: "Video ad generation was cancelled by user.",
+        });
+        return;
+      }
       console.error("[Generation Failed]", err);
       setIsGenerating(false);
       setGenProgress(0);
@@ -1193,17 +1367,18 @@ export default function StudioVideoGenerator() {
         </div>
 
         {/* Center: Brand Quick Switcher */}
-        <div className="hidden md:flex items-center gap-1.5 bg-zinc-100/90 border border-zinc-200 rounded-xl p-1">
-          <span className="text-[11px] font-bold text-zinc-500 px-2 uppercase tracking-wider">Preset:</span>
+        <div className="flex items-center gap-1.5 bg-zinc-100/90 border border-zinc-200 rounded-xl p-1 overflow-x-auto max-w-[50vw] sm:max-w-none scrollbar-none">
+          <span className="text-[11px] font-bold text-zinc-500 px-2 uppercase tracking-wider whitespace-nowrap shrink-0">Preset:</span>
           {BRAND_PRESETS.map((p) => {
-            const isSelected = selectedPresetId === p.id && brandName === p.name;
+            const isSelected = selectedPresetId === p.id;
             return (
               <button
+                type="button"
                 key={p.id}
                 onClick={() => handleSelectPreset(p)}
-                className={`px-3 py-1 rounded-lg text-xs font-bold transition cursor-pointer ${
+                className={`px-3 py-1 rounded-lg text-xs font-bold transition cursor-pointer whitespace-nowrap shrink-0 ${
                   isSelected
-                    ? "bg-[#FF6700] text-white shadow-sm"
+                    ? "bg-[#FF6700] text-white shadow-sm ring-1 ring-[#FF6700]"
                     : "text-zinc-600 hover:text-zinc-900 hover:bg-white"
                 }`}
               >
@@ -1276,6 +1451,36 @@ export default function StudioVideoGenerator() {
             mobileTab === "controls" ? "block" : "hidden lg:block"
           }`}
         >
+          {/* REVISION MODE BANNER */}
+          {revisionContext && (
+            <div className="bg-amber-50/90 border border-amber-300 rounded-2xl p-3.5 shadow-xs space-y-1.5 animate-in fade-in">
+              <div className="flex items-center justify-between">
+                <span className="text-xs font-bold text-amber-950 flex items-center gap-1.5">
+                  <RefreshCw className="w-3.5 h-3.5 text-amber-600" />
+                  <span>Revision Mode</span>
+                  <span className="text-[10px] font-mono bg-amber-200/60 text-amber-900 px-1.5 py-0.2 rounded font-bold">
+                    {revisionContext.revisionId}
+                  </span>
+                </span>
+                <button
+                  type="button"
+                  onClick={() => setRevisionContext(null)}
+                  className="text-amber-500 hover:text-amber-800 p-0.5 rounded cursor-pointer"
+                  title="Dismiss revision banner"
+                >
+                  <X className="w-3.5 h-3.5" />
+                </button>
+              </div>
+              <div className="text-xs text-amber-900 bg-white/80 border border-amber-200 rounded-xl p-2.5 leading-relaxed font-medium">
+                <strong className="text-amber-700 block text-[10px] uppercase tracking-wider mb-0.5">Change Request from Reviewer:</strong>
+                &ldquo;{revisionContext.notes}&rdquo;
+              </div>
+              <p className="text-[10px] text-amber-700 leading-tight">
+                Adjust the script, hook, or visuals below to address the feedback and click <strong>Generate AI Video</strong>.
+              </p>
+            </div>
+          )}
+
           {/* STEP 1: BRAND & OFFER */}
           <div className="bg-white border border-zinc-200 rounded-2xl p-4 shadow-sm space-y-3">
             <div className="flex items-center justify-between">
@@ -1495,7 +1700,7 @@ export default function StudioVideoGenerator() {
               {angleDropdownOpen && (
                 <div className="absolute top-full left-0 right-0 mt-1 bg-white border border-zinc-200 rounded-xl p-1 shadow-xl z-50 space-y-0.5 max-h-56 overflow-y-auto">
                   {Object.entries(angleDataMap).map(([key, data]) => {
-                    const isSelected = selectedAngle === key;
+                    const isSelected = selectedAngle === key || currentAngleData?.title === data.title;
                     return (
                       <div
                         key={key}
@@ -2099,12 +2304,23 @@ export default function StudioVideoGenerator() {
               <RefreshCw className={`w-4 h-4 ${isGenerating ? "animate-spin" : ""}`} />
               {isGenerating
                 ? generationMode === "batch"
-                  ? "Rendering 5-Angle Campaign Batch..."
-                  : "Rendering AI Commercial..."
-                : generationMode === "batch"
-                ? "Generate 5-Angle Creative Batch (15 Assets)"
-                : "Generate AI Video Ad"}
+                ? "Rendering 5-Angle Campaign Batch..."
+                : "Rendering AI Commercial..."
+              : generationMode === "batch"
+              ? "Generate 5-Angle Creative Batch (15 Assets)"
+              : "Generate AI Video Ad"}
             </button>
+
+            {isGenerating && (
+              <button
+                type="button"
+                onClick={handleCancelGeneration}
+                className="w-full mt-2 py-2.5 rounded-xl font-bold text-xs text-[#FF6700] hover:text-white bg-orange-50 hover:bg-[#FF6700] border border-orange-200 hover:border-[#FF6700] transition flex items-center justify-center gap-1.5 cursor-pointer shadow-xs"
+              >
+                <X className="w-4 h-4" />
+                <span>Cancel Generation</span>
+              </button>
+            )}
           </div>
         </div>
 
@@ -2367,6 +2583,14 @@ export default function StudioVideoGenerator() {
                     style={{ width: `${Math.round(genProgress)}%` }}
                   />
                 </div>
+                <button
+                  type="button"
+                  onClick={handleCancelGeneration}
+                  className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-bold text-zinc-700 hover:text-[#7F48ED] bg-purple-50 hover:bg-purple-100 border border-purple-200 hover:border-[#7F48ED]/30 transition cursor-pointer shadow-xs"
+                >
+                  <X className="w-3.5 h-3.5 text-[#7F48ED]" />
+                  <span>Cancel Generation</span>
+                </button>
               </div>
             )}
 
@@ -2499,12 +2723,12 @@ export default function StudioVideoGenerator() {
                         className="w-full h-full object-cover"
                       />
                       {/* Top Header Badge */}
-                      <div className="absolute top-8 left-3.5 right-3.5 z-20 flex items-center justify-between pointer-events-none">
-                        <div className="flex items-center gap-1.5 bg-black/75 backdrop-blur-md px-2.5 py-1 rounded-full border border-white/20 text-white shadow-xl">
-                          <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
-                          <span className="text-[10px] font-bold">1. Hook: {activeCreator.name}</span>
+                      <div className="absolute top-8 left-3.5 right-3.5 z-20 flex items-start justify-between gap-2 flex-wrap pointer-events-none">
+                        <div className="flex items-center gap-1.5 bg-black/75 backdrop-blur-md px-2.5 py-1 rounded-full border border-white/20 text-white shadow-xl min-w-0">
+                          <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse shrink-0" />
+                          <span className="text-[10px] font-bold truncate">1. Hook: {activeCreator.name}</span>
                         </div>
-                        <div className="bg-[#7F48ED] text-white text-[9px] font-bold px-2 py-0.5 rounded-full shadow">
+                        <div className="bg-[#7F48ED] text-white text-[9px] font-bold px-2 py-0.5 rounded-full shadow whitespace-nowrap shrink-0">
                           Pure Kling AI to Follow
                         </div>
                       </div>
@@ -2765,12 +2989,12 @@ export default function StudioVideoGenerator() {
                         className="w-full h-full object-cover"
                       />
                       {/* Top Header Badge */}
-                      <div className="absolute top-3.5 left-3.5 right-3.5 z-20 flex items-center justify-between pointer-events-none">
-                        <div className="flex items-center gap-2 bg-black/75 backdrop-blur-md px-3 py-1.5 rounded-full border border-white/20 text-white shadow-xl">
-                          <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
-                          <span className="text-xs font-bold">1. Creator Hook (0–3.5s): {activeCreator.name}</span>
+                      <div className="absolute top-3.5 left-3.5 right-3.5 z-20 flex items-start justify-between gap-2 flex-wrap pointer-events-none">
+                        <div className="flex items-center gap-2 bg-black/75 backdrop-blur-md px-3 py-1.5 rounded-full border border-white/20 text-white shadow-xl min-w-0">
+                          <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse shrink-0" />
+                          <span className="text-xs font-bold truncate">1. Creator Hook (0–3.5s): {activeCreator.name}</span>
                         </div>
-                        <div className="bg-[#7F48ED] text-white text-[10px] font-bold px-2.5 py-1 rounded-full shadow-lg">
+                        <div className="bg-[#7F48ED] text-white text-[10px] font-bold px-2.5 py-1 rounded-full shadow-lg whitespace-nowrap shrink-0">
                           Followed by Pure Kling AI
                         </div>
                       </div>

@@ -63,5 +63,7 @@ relaunch-studio-engine/**/.env*
 *.mov
 public/videos/Haley UGC/
 public/videos/Emily UGC/
+public/creators/*.mp4
+public/creators/tyler/*.jpg
 *PLAN.md
 RELAUNCH_STUDIO_DEV_NEXTSTEPS_PLAN.md

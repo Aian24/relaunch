@@ -50,7 +50,9 @@ interface VariantItem {
   video1x1: string;
   video4x5: string;
   thumbnail: string;
-  status: "needs_review" | "approved" | "rejected";
+  status: "needs_review" | "approved" | "rejected" | "recut";
+  reviewNotes?: string;
+  reviewDecision?: string;
   disclosureApplied: boolean;
   audioLufs: number;
   scriptBody: string;
@@ -360,12 +362,19 @@ export default function StudioReviewPortal() {
         },
       } : {};
 
+      const updatedStatus = decision === "approve" ? "approved" : decision === "reject" ? "rejected" : "recut";
+
       // If it's a locally generated variant, update localStorage directly
       try {
         const localSaved = JSON.parse(localStorage.getItem("relaunch_studio_generated_variants") || "[]");
         const updatedLocal = localSaved.map((item: any) =>
           item.id === selectedVariant.id
-            ? { ...item, status: decision === "approve" ? "approved" : decision === "reject" ? "rejected" : "needs_review", ...verifiedMeta }
+            ? {
+                ...item,
+                status: updatedStatus,
+                reviewNotes: decision === "recut" ? recutNotes : item.reviewNotes,
+                ...verifiedMeta,
+              }
             : item
         );
         localStorage.setItem("relaunch_studio_generated_variants", JSON.stringify(updatedLocal));
@@ -392,26 +401,32 @@ export default function StudioReviewPortal() {
         return;
       }
 
-      const updatedStatus = decision === "approve" ? "approved" : decision === "reject" ? "rejected" : "needs_review";
+      const updatedItem: VariantItem = {
+        ...selectedVariant,
+        status: updatedStatus,
+        reviewNotes: decision === "recut" ? recutNotes : selectedVariant.reviewNotes,
+        reviewDecision: decision,
+        verifiedBy: operatorName || "Robert Clark (QA Operator)",
+        verifiedAt: new Date().toISOString(),
+        ...verifiedMeta,
+      };
 
       // Update local state with audit stamp
       setVariants((prev) =>
         prev.map((v) =>
           v.id === selectedVariant.id
-            ? { ...v, status: updatedStatus, ...verifiedMeta }
+            ? updatedItem
             : v
         )
       );
-      setSelectedVariant((prev) =>
-        prev ? { ...prev, status: updatedStatus, ...verifiedMeta } : null
-      );
+      setSelectedVariant(updatedItem);
 
       if (decision === "approve") {
         setApprovedCount((prev) => prev + 1);
         showToast("Creator sign-off recorded! Ad verified & moved to Approved Vault.");
         // Auto advance to next pending ad
         const nextPending = variants.find(
-          (v) => v.id !== selectedVariant.id && v.status === "needs_review"
+          (v) => v.id !== selectedVariant.id && (v.status === "needs_review" || v.status === "recut")
         );
         if (nextPending) {
           setTimeout(() => setSelectedVariant(nextPending), 600);
@@ -419,9 +434,8 @@ export default function StudioReviewPortal() {
       } else if (decision === "reject") {
         showToast("Ad marked as declined.");
       } else if (decision === "recut") {
-        showToast("Change request received! Recut queued.");
+        showToast("✓ Change request recorded! Recut queued for this ad.");
         setRecutModalOpen(false);
-        setRecutNotes("");
       }
     } catch {
       showToast("Error recording response. Please try again.");
@@ -541,6 +555,11 @@ export default function StudioReviewPortal() {
                 <span className="h-7 px-2.5 bg-zinc-100 text-zinc-600 border border-zinc-200 text-[11px] font-bold rounded-lg flex items-center shrink-0">
                   <span>Declined</span>
                 </span>
+              ) : selectedVariant.status === "recut" ? (
+                <span className="h-7 px-2.5 bg-amber-50 text-amber-800 border border-amber-200 text-[11px] font-bold rounded-lg flex items-center gap-1.5 shrink-0">
+                  <RefreshCw className="w-3 h-3 text-amber-600" />
+                  <span>Changes Requested</span>
+                </span>
               ) : (
                 <span className="h-7 px-2.5 bg-orange-50 text-[#FF6700] border border-orange-200 text-[11px] font-bold rounded-lg flex items-center gap-1.5 shrink-0">
                   <span className="w-1.5 h-1.5 rounded-full bg-[#FF6700]" />
@@ -565,8 +584,71 @@ export default function StudioReviewPortal() {
             />
           </div>
 
-          {/* Primary Action Button / Approval Seal */}
-          {selectedVariant.status === "approved" ? (
+          {/* Primary Action Button / Approval Seal / Changes Requested Box */}
+          {selectedVariant.status === "recut" ? (
+            <div className="bg-amber-50/90 border border-amber-200 rounded-2xl p-4 space-y-3 shadow-xs">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <div className="w-6 h-6 rounded-lg bg-amber-100 border border-amber-200 flex items-center justify-center text-amber-700 shrink-0">
+                    <RefreshCw className="w-3.5 h-3.5" />
+                  </div>
+                  <div>
+                    <h4 className="text-xs font-bold text-amber-950">Changes Requested</h4>
+                    <span className="text-[10px] text-amber-700 font-mono">Status: Recut Required</span>
+                  </div>
+                </div>
+                <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-amber-200/60 text-amber-900 border border-amber-300">
+                  In Revision
+                </span>
+              </div>
+
+              {selectedVariant.reviewNotes ? (
+                <div className="bg-white/95 border border-amber-200 rounded-xl p-3 text-xs space-y-1">
+                  <div className="text-[10px] font-bold text-amber-700 uppercase tracking-wider flex items-center gap-1">
+                    <span>Reviewer Feedback Note</span>
+                  </div>
+                  <p className="text-zinc-800 leading-relaxed font-medium italic">
+                    &ldquo;{selectedVariant.reviewNotes}&rdquo;
+                  </p>
+                  <div className="text-[10px] text-zinc-400 font-mono pt-1 border-t border-zinc-100 flex items-center justify-between">
+                    <span>By: {selectedVariant.verifiedBy || operatorName || "QA Reviewer"}</span>
+                    <span>{selectedVariant.verifiedAt ? new Date(selectedVariant.verifiedAt).toLocaleDateString() : "Today"}</span>
+                  </div>
+                </div>
+              ) : null}
+
+              {/* Direct Link to Generator to Revise Ad */}
+              <Link
+                href={`/studio/generate?revisionId=${selectedVariant.id}&brand=${encodeURIComponent(selectedVariant.clientName)}&hook=${encodeURIComponent(selectedVariant.hookText)}&angle=${encodeURIComponent(selectedVariant.angle)}&script=${encodeURIComponent(selectedVariant.scriptBody)}&offer=${encodeURIComponent(selectedVariant.ctaText || "")}&notes=${encodeURIComponent(selectedVariant.reviewNotes || "")}${selectedVariant.creatorActor ? `&actor=${encodeURIComponent(selectedVariant.creatorActor)}` : ""}`}
+                className="w-full py-2.5 px-3 bg-[#FF6700] hover:bg-[#E55C00] active:bg-[#CC5200] text-white text-xs font-bold rounded-xl transition flex items-center justify-center gap-1.5 shadow-xs cursor-pointer"
+              >
+                <Sparkles className="w-3.5 h-3.5" />
+                <span>Open in Generator to Revise</span>
+              </Link>
+
+              <div className="flex items-center gap-2 pt-1 border-t border-amber-200/60">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setRecutNotes(selectedVariant.reviewNotes || "");
+                    setRecutModalOpen(true);
+                  }}
+                  className="flex-1 py-1.5 px-2.5 bg-white hover:bg-zinc-50 border border-amber-200 text-zinc-700 rounded-xl text-[11px] font-semibold transition cursor-pointer text-center"
+                >
+                  Edit Feedback Notes
+                </button>
+                <button
+                  type="button"
+                  onClick={() => handleDecision("approve")}
+                  disabled={!allChecksPassed}
+                  className="py-1.5 px-2.5 bg-emerald-600 hover:bg-emerald-700 disabled:opacity-40 text-white rounded-xl text-[11px] font-bold transition cursor-pointer text-center"
+                  title="Approve ad if changes were resolved"
+                >
+                  Approve Instead
+                </button>
+              </div>
+            </div>
+          ) : selectedVariant.status === "approved" ? (
             <div className="bg-emerald-50 border border-emerald-200 rounded-xl p-3.5 space-y-2">
               <div className="flex items-center gap-2">
                 <div className="w-5 h-5 rounded-full bg-emerald-500 text-white flex items-center justify-center shrink-0">
@@ -644,7 +726,10 @@ export default function StudioReviewPortal() {
           <div className="grid grid-cols-2 gap-2 pt-1">
             <button
               disabled={isSubmitting}
-              onClick={() => setRecutModalOpen(true)}
+              onClick={() => {
+                if (selectedVariant?.reviewNotes) setRecutNotes(selectedVariant.reviewNotes);
+                setRecutModalOpen(true);
+              }}
               className="py-2.5 px-3 rounded-xl bg-[#FF6700] hover:bg-[#E55C00] active:bg-[#CC5200] text-white text-xs font-bold flex items-center justify-center gap-1.5 shadow-xs transition-all cursor-pointer"
             >
               <RefreshCw className="w-3.5 h-3.5" />
@@ -1123,7 +1208,7 @@ export default function StudioReviewPortal() {
                 >
                   {filteredVariants.map((item, index) => (
                     <option key={item.id} value={item.id}>
-                      Ad #{index + 1}: {item.clientName} ({item.status === "approved" ? "Approved" : "Review"})
+                      Ad #{index + 1}: {item.clientName} ({item.status === "approved" ? "Approved" : item.status === "recut" ? "Recut" : "Review"})
                     </option>
                   ))}
                 </select>

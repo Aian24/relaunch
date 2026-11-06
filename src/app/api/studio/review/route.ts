@@ -47,7 +47,9 @@ export async function GET(request: Request) {
     video1x1: job.variants.v1x1 || "/videos/chicago-dog-social-1.mp4",
     video4x5: job.variants.v4x5 || "/videos/chicago-dog-social-1.mp4",
     thumbnail: job.variants.thumbnail || "/images/howitworksstudio.jpg",
-    status: job.status === "approved" ? "approved" : job.status === "rejected" ? "rejected" : "needs_review",
+    status: job.status === "approved" ? "approved" : job.status === "rejected" ? "rejected" : job.status === "recut" ? "recut" : "needs_review",
+    reviewNotes: job.reviewLog?.notes,
+    reviewDecision: job.reviewLog?.decision,
     disclosureApplied: job.complianceChecks.disclosureState,
     audioLufs: -14.0,
     scriptBody: job.script.body,
@@ -68,6 +70,7 @@ export async function GET(request: Request) {
   }));
 
   const needsReviewCount = allVariants.filter((v) => v.status === "needs_review").length;
+  const recutCount = allVariants.filter((v) => v.status === "recut").length;
   const approvedCount = allVariants.filter((v) => v.status === "approved").length;
   const rejectedCount = allVariants.filter((v) => v.status === "rejected").length;
 
@@ -76,7 +79,9 @@ export async function GET(request: Request) {
 
   let filtered = allVariants;
   if (statusFilter === "pending") {
-    filtered = allVariants.filter((v) => v.status === "needs_review");
+    filtered = allVariants.filter((v) => v.status === "needs_review" || v.status === "recut");
+  } else if (statusFilter === "recut") {
+    filtered = allVariants.filter((v) => v.status === "recut");
   } else if (statusFilter === "approved") {
     filtered = allVariants.filter((v) => v.status === "approved");
   } else if (statusFilter === "rejected") {
@@ -88,8 +93,10 @@ export async function GET(request: Request) {
     count: filtered.length,
     totalCount: allVariants.length,
     needsReviewCount,
+    recutCount,
     approvedCount,
     rejectedCount,
+    pendingCount: needsReviewCount + recutCount,
     variants: filtered,
   });
 }
