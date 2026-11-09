@@ -55,45 +55,66 @@ interface BrandPreset {
   id: string;
   name: string;
   category: string;
-  offer: string;
+  brandName: string;
+  brandOffer: string;
+  angleKey: string;
+  visualPrompt: string;
 }
 
 const BRAND_PRESETS: BrandPreset[] = [
   {
     id: "ai-recommendations",
     name: "AI Recommendations",
-    category: "AI Search Optimization (GEO)",
-    offer: "Free AI Search Audit at relaunch.us/ai-recommendations",
+    category: "AI & Search",
+    brandName: "AI Recommendations",
+    brandOffer: "Free AI Visibility Audit",
+    angleKey: "problem",
+    visualPrompt: "Confident local business owner in a modern bright creative studio smiling as customer bookings arrive on smartphone, 4K commercial cinematography, natural sunlight, cinematic depth of field, 60fps",
   },
   {
-    id: "chicago-dog",
+    id: "chicago-dog-42",
     name: "Chicago Dog 42",
     category: "Food & Dining",
-    offer: "15% off first pickup order",
+    brandName: "Chicago Dog 42",
+    brandOffer: "$5 Off First Jumbo Combo",
+    angleKey: "listicle",
+    visualPrompt: "Mouthwatering authentic Chicago hot dog with yellow mustard, bright green neon relish, chopped onions, tomato wedges, pickle spear, sport peppers and celery salt on a warm poppy seed bun, fresh sizzling grill smoke, vibrant appetizing commercial food lighting, 4K 60fps",
   },
   {
     id: "turf-life",
     name: "Turf Life",
-    category: "Golf & Sports Apparel",
-    offer: "15% off performance sports apparel",
+    category: "Athleisure & Sports",
+    brandName: "Turf Life",
+    brandOffer: "20% Off Spring Turf Gear",
+    angleKey: "comparison",
+    visualPrompt: "Premium athletic coastal golf apparel, dynamic slow-motion golf swing on a sun-drenched championship fairway, crisp morning ocean breeze, technical performance fabric, cinematic commercial sports lighting, 4K 60fps",
   },
   {
     id: "carmen-hotel",
     name: "Carmen Hotel",
-    category: "Luxury Travel",
-    offer: "Free breakfast + $50 spa credit",
+    category: "Hospitality & Travel",
+    brandName: "Carmen Hotel",
+    brandOffer: "Weekend VIP Suite Package",
+    angleKey: "hack",
+    visualPrompt: "Luxury boutique oceanfront hotel, turquoise infinity rooftop pool overlooking Caribbean waves at golden hour, elegant cabanas, champagne glasses clinking, sunset glow, 4K luxury travel commercial cinematography",
   },
   {
-    id: "dewpoint-skin",
+    id: "dewpoint-skincare",
     name: "Dewpoint Skincare",
-    category: "Clean Beauty & Wellness",
-    offer: "20% off Clean Barrier Starter Set",
+    category: "Beauty & Wellness",
+    brandName: "Dewpoint Skincare",
+    brandOffer: "25% Off Hydration Duo",
+    angleKey: "ugc",
+    visualPrompt: "Modern luxury clean skincare commercial, model with radiant glowing dewy skin applying lightweight barrier serum, fresh micro water droplets, minimalist aesthetic daylight studio, 4K 60fps",
   },
   {
-    id: "relaunch-growth",
+    id: "relaunch-studio",
     name: "ReLaunch Studio",
-    category: "Digital Growth & Agency",
-    offer: "Book a 3-Ad Pilot Campaign",
+    category: "Agency & Growth",
+    brandName: "ReLaunch Studio",
+    brandOffer: "5 Free Video Ad Variants",
+    angleKey: "problem",
+    visualPrompt: "High-velocity creative ad agency dashboard, dynamic montage of viral TikTok and Instagram Reels ad creative metrics, glowing purple and orange analytics, 4K commercial motion",
   },
 ];
 
@@ -195,6 +216,312 @@ const DEFAULT_STUDIO_VOICES: StudioVoice[] = [
 function getAngleContent(brandName: string, offer: string): Record<string, AngleContent> {
   const brand = brandName.trim() || "My Brand";
   const cta = offer.trim() || "Exclusive Offer";
+
+  if (brand.toLowerCase().includes("chicago dog") || brand.toLowerCase().includes("hot dog")) {
+    return {
+      listicle: {
+        title: "3 Reasons Why",
+        badge: "Clicks",
+        hooks: [
+          "3 reasons why Chicago Dog 42 is the most legendary dog in town.",
+          "Reason #3 is why foodies drive 40 miles for this hot dog.",
+          "Before you grab lunch today, look at this Chicago classic.",
+          "3 signs you've found an authentic Chicago-style hot dog.",
+        ],
+        body: "Here is why Chicago Dog 42 is taking over your feed: 100% all-beef Vienna hot dog, neon green relish, and dragged completely through the garden on a steamed poppy seed bun. Grab $5 off your first combo today at chicagodog42.com.",
+      },
+      problem: {
+        title: "Problem & Solution",
+        badge: "Scale",
+        hooks: [
+          "Tired of boring, rubbery fast food hot dogs?",
+          "The real reason most hot dog joints leave you disappointed.",
+          "Stop scrolling if you're craving genuine Chicago street flavor.",
+          "Why real Chicagoans refuse to put ketchup on a hot dog.",
+        ],
+        body: "Tired of bland fast food that leaves you disappointed? Chicago Dog 42 delivers authentic, snappy Vienna beef piled high with fresh tomatoes, sport peppers, and celery salt. Claim your $5 off voucher today at chicagodog42.com.",
+      },
+      comparison: {
+        title: "Us vs. Them",
+        badge: "Conversions",
+        hooks: [
+          "Standard drive-thru hot dogs vs Chicago Dog 42: look at the difference.",
+          "Don't settle for lukewarm hot dogs when Chicago Dog 42 is right here.",
+          "Can you spot why authentic Chicago style is 10x better?",
+          "The honest truth about what goes into a genuine Chicago dog.",
+        ],
+        body: "Generic fast food spots cut corners with cheap hot dogs and stale buns. At Chicago Dog 42, every single dog is steamed to order with authentic neon relish and snappy Vienna beef. Order yours today at chicagodog42.com.",
+      },
+      ugc: {
+        title: "Creator Taste Test",
+        badge: "Trust",
+        hooks: [
+          "My honest first bite reaction to Chicago Dog 42.",
+          "I drove across town to test the most hyped hot dog in the city.",
+          "Here is what happens when you try Chicago Dog 42 for the first time.",
+          "Is Chicago Dog 42 actually the best hot dog in the city? Let's find out.",
+        ],
+        body: "I finally stopped by Chicago Dog 42 to see if the hype was real. The snap on this Vienna beef dog is insane, and the sport peppers give it the perfect kick. Tap below to get $5 off your first combo.",
+      },
+      hack: {
+        title: "Secret Foodie Hack",
+        badge: "Curiosity",
+        hooks: [
+          "The secret lunch shortcut every foodie in the city uses.",
+          "I wish I discovered Chicago Dog 42 months ago.",
+          "The best kept lunch secret in the entire neighborhood.",
+          "Stop overpaying for mediocre lunch when this exists.",
+        ],
+        body: "Here is the ultimate lunch hack: Chicago Dog 42. Snappy all-beef hot dogs, crispy crinkle-cut fries, and an ice-cold drink all ready in under 3 minutes. Claim your discount at chicagodog42.com.",
+      },
+      founder: {
+        title: "Behind the Scenes / Craft",
+        badge: "Authenticity",
+        hooks: [
+          "Why we refuse to compromise on authentic Chicago street food.",
+          "Behind the scenes of how Chicago Dog 42 prepares every single dog.",
+          "What actually goes into dragging a hot dog through the garden.",
+          "Why Chicago Dog 42 will never use anything but Vienna beef.",
+        ],
+        body: "At Chicago Dog 42, we take Chicago street tradition seriously. Steamed poppy seed buns, kosher pickle spears, and authentic Vienna beef. Taste real Chicago pride today at chicagodog42.com.",
+      },
+      fomo: {
+        title: "Limited Promo & Urgency",
+        badge: "Scarcity",
+        hooks: [
+          "Claim your $5 off voucher before this week's drop sells out.",
+          "Special lunch drop: $5 off your first Chicago Dog 42 combo.",
+          "Hungry for lunch? Grab $5 off today only at Chicago Dog 42.",
+          "Don't miss the most hyped Chicago hot dog in the city.",
+        ],
+        body: "Grab $5 off your first jumbo combo at Chicago Dog 42 today before this lunch promo expires. Visit chicagodog42.com to claim yours.",
+      },
+    };
+  }
+
+  if (brand.toLowerCase().includes("turf life") || brand.toLowerCase().includes("golf")) {
+    return {
+      comparison: {
+        title: "Us vs. Them",
+        badge: "Conversions",
+        hooks: [
+          "Traditional stiff golf polos vs Turf Life 4-way coastal stretch.",
+          "Don't wear heavy, soaked cotton on the course when Turf Life exists.",
+          "Can you spot the difference on your backswing? Look closely.",
+          "Why amateur golfers and pros are switching to Turf Life apparel.",
+        ],
+        body: "Old-school golf apparel is stiff, heavy, and traps heat. Turf Life is engineered with featherlight 4-way stretch and UPF 50+ coastal breathability that moves with your swing. Unlock 20% off spring gear today at turflife.com.",
+      },
+      problem: {
+        title: "Problem & Solution",
+        badge: "Scale",
+        hooks: [
+          "Stop scrolling if you hate stiff, restrictive golf apparel.",
+          "The real reason you feel fatigued after 18 holes in the heat.",
+          "If your golf polo isn't breathing in the humidity, you need this.",
+          "Why traditional golf apparel is ruining your summer game.",
+        ],
+        body: "Nothing ruins a round faster than heavy, restrictive gear in the summer heat. Turf Life brings performance athletic stretch from the course straight to the coast. Claim your exclusive 20% off spring discount today at turflife.com.",
+      },
+      ugc: {
+        title: "Creator Course Test",
+        badge: "Trust",
+        hooks: [
+          "Testing Turf Life through a full 18-hole tournament round.",
+          "My honest review of Turf Life coastal golf apparel.",
+          "Here is what happens when you switch to 4-way stretch performance polos.",
+          "Why this is the only golf polo I pack in my bag now.",
+        ],
+        body: "I wore Turf Life for 18 holes in 85-degree humidity. It stayed completely dry, completely unrestricted on every drive, and looks sharp at the clubhouse. Tap below to get 20% off your spring kit.",
+      },
+      listicle: {
+        title: "3 Reasons Why",
+        badge: "Clicks",
+        hooks: [
+          "3 reasons why golfers are tossing their old polos for Turf Life.",
+          "Reason #3 will change how comfortable you feel on the back nine.",
+          "3 facts about high-performance coastal activewear you need to know.",
+          "Why this athletic golf apparel is selling out every drop.",
+        ],
+        body: "Here is why Turf Life is dominating the course: moisture-wicking cooling fabric, wrinkle-resistant 4-way stretch, and effortless coastal style. Claim your 20% off at turflife.com.",
+      },
+      hack: {
+        title: "Secret Course Hack",
+        badge: "Curiosity",
+        hooks: [
+          "The course hack that keeps you cool through all 18 holes.",
+          "I wish I stopped wearing heavy golf shirts years ago.",
+          "The apparel upgrade every serious player needs this season.",
+          "How to stay cool and look sharp from the fairway to dinner.",
+        ],
+        body: "Here is the game-changer: Turf Life. Built for championship fairways and relaxed coastal evenings with zero compromise on comfort. Grab 20% off your first order at turflife.com.",
+      },
+      founder: {
+        title: "Behind the Scenes / Craft",
+        badge: "Authenticity",
+        hooks: [
+          "Why we started Turf Life to disrupt old-school golf apparel.",
+          "Behind the scenes of developing our coastal athletic fabrics.",
+          "We tested 30 fabric blends before perfecting Turf Life stretch.",
+          "What goes into designing golf gear that transitions to the coast.",
+        ],
+        body: "We built Turf Life because traditional golf gear felt like cardboard. We engineered performance wear that breathes under pressure and looks sharp everywhere. Claim your 20% off at turflife.com.",
+      },
+      fomo: {
+        title: "Limited Promo & Urgency",
+        badge: "Scarcity",
+        hooks: [
+          "Unlock 20% off spring Turf Life gear before sizes sell out.",
+          "Exclusive spring drop: 20% off all performance golf apparel.",
+          "Upgrade your golf wardrobe today with 20% off Turf Life.",
+          "Limited spring inventory: grab your Turf Life kit today.",
+        ],
+        body: "Spring inventory is moving fast. Claim your exclusive 20% discount on all Turf Life athletic apparel today at turflife.com before sizes run out.",
+      },
+    };
+  }
+
+  if (brand.toLowerCase().includes("carmen") || brand.toLowerCase().includes("hotel") || brand.toLowerCase().includes("resort")) {
+    return {
+      hack: {
+        title: "Secret Travel Hack",
+        badge: "Curiosity",
+        hooks: [
+          "The secret oceanfront VIP getaway nobody told you about.",
+          "I wish I knew about Carmen Hotel before booking overpriced resorts.",
+          "The boutique luxury escape everyone is booking this month.",
+          "How to get a VIP suite at Carmen Hotel for the price of a standard room.",
+        ],
+        body: "Here is the ultimate travel secret: Carmen Hotel. Stunning beachfront suites, private rooftop infinity pool, and sunset champagne dining with zero crowded resort chaos. Book your VIP weekend package today at carmenhotel.com.",
+      },
+      ugc: {
+        title: "Creator Property Tour",
+        badge: "Trust",
+        hooks: [
+          "Come stay with me at Carmen Hotel: the ultimate oceanfront boutique.",
+          "My honest review of Carmen Hotel after a weekend stay.",
+          "Is Carmen Hotel actually worth the hype? Look at this rooftop view.",
+          "Touring the most aesthetic beachfront suite in the Caribbean.",
+        ],
+        body: "We checked into Carmen Hotel for the weekend and the ocean views from the rooftop pool are unreal. Private cabanas, five-star dining, and direct beach access. Tap below to unlock their exclusive weekend VIP package.",
+      },
+      problem: {
+        title: "Problem & Solution",
+        badge: "Scale",
+        hooks: [
+          "Tired of crowded, noisy mega-resorts that ruin your vacation?",
+          "The real reason standard hotel vacations leave you exhausted.",
+          "Stop scrolling if you need a real, peaceful luxury escape.",
+          "Why travelers are choosing boutique luxury over corporate hotel chains.",
+        ],
+        body: "Tired of chaotic mega-resorts with no privacy? Carmen Hotel gives you an intimate luxury beachfront haven with world-class personalized service. Reserve your VIP suite package at carmenhotel.com.",
+      },
+      listicle: {
+        title: "3 Reasons Why",
+        badge: "Clicks",
+        hooks: [
+          "3 reasons why Carmen Hotel is the #1 boutique stay this season.",
+          "Reason #2 is why guests keep rebooking year after year.",
+          "3 things that make Carmen Hotel completely different from big resorts.",
+          "Why you need to book your next getaway at Carmen Hotel.",
+        ],
+        body: "Here are 3 reasons to visit Carmen Hotel: private rooftop infinity views, chef-curated coastal dining, and steps away from crystal-clear ocean waters. Reserve your suite at carmenhotel.com.",
+      },
+      founder: {
+        title: "Behind the Scenes / Craft",
+        badge: "Authenticity",
+        hooks: [
+          "Why we designed Carmen Hotel as an intimate boutique sanctuary.",
+          "Behind the scenes of our rooftop oceanfront dining experience.",
+          "The architectural design story behind Carmen Hotel.",
+          "How Carmen Hotel delivers five-star luxury with boutique warmth.",
+        ],
+        body: "Carmen Hotel was built for travelers who cherish intimate luxury over crowded mass resorts. Experience the magic of oceanfront relaxation and book your stay at carmenhotel.com.",
+      },
+      fomo: {
+        title: "Limited Promo & Urgency",
+        badge: "Scarcity",
+        hooks: [
+          "Limited weekend VIP suite packages available at Carmen Hotel.",
+          "Book your oceanfront escape today and receive VIP suite perks.",
+          "Weekend dates are filling fast: claim your Carmen Hotel package.",
+          "Exclusive VIP stay promotion: book directly and save 25%.",
+        ],
+        body: "Weekend availability is strictly limited. Reserve your luxury oceanfront suite at Carmen Hotel today at carmenhotel.com to unlock complimentary VIP perks.",
+      },
+    };
+  }
+
+  if (brand.toLowerCase().includes("dewpoint") || brand.toLowerCase().includes("skin") || brand.toLowerCase().includes("glow")) {
+    return {
+      ugc: {
+        title: "Creator Glow Review",
+        badge: "Trust",
+        hooks: [
+          "My honest 14-day skin barrier review with Dewpoint Skincare.",
+          "I stopped wearing heavy foundation after using Dewpoint for a week.",
+          "Here is what happened to my dry, irritated skin with Dewpoint.",
+          "Is Dewpoint Skincare actually worth the hype? Let's check my skin barrier.",
+        ],
+        body: "I finally tested Dewpoint Skincare on my sensitive skin. The lightweight hydration barrier serum gave me an instant dewy glow without any greasy shine. Right now you can get 25% off their Hydration Duo at dewpointskincare.com.",
+      },
+      problem: {
+        title: "Problem & Solution",
+        badge: "Scale",
+        hooks: [
+          "Struggling with dry, flaky skin that makeup clings to?",
+          "The real reason your skin barrier keeps breaking out and drying out.",
+          "Stop scrolling if your skin feels tight and dull by 2 PM.",
+          "Why heavy creams are actually clogging your pores instead of hydrating.",
+        ],
+        body: "Heavy creams sit on top of your skin and clog pores without real hydration. Dewpoint locks in deep 72-hour barrier repair with bio-identical ceramides and hyaluronic acid. Claim 25% off your duo today at dewpointskincare.com.",
+      },
+      listicle: {
+        title: "3 Reasons Why",
+        badge: "Clicks",
+        hooks: [
+          "3 reasons dermatologists and estheticians love Dewpoint Skincare.",
+          "Reason #3 is why everyone with sensitive skin is switching to Dewpoint.",
+          "3 signs your skin barrier is damaged and how Dewpoint fixes it.",
+          "Why this clean hydration duo sells out every restock.",
+        ],
+        body: "Here is why Dewpoint stands out: clean clinical actives, zero pore-clogging fillers, and verified barrier repair in 7 days. Grab 25% off the Hydration Duo at dewpointskincare.com.",
+      },
+      hack: {
+        title: "Secret Glow Hack",
+        badge: "Curiosity",
+        hooks: [
+          "The morning glow hack that replaced my 7-step skincare routine.",
+          "I wish I stopped over-complicating my skincare years ago.",
+          "The single barrier serum that transformed my morning skin routine.",
+          "How to get glass skin all day without sticky residue.",
+        ],
+        body: "Here is the shortcut to glass skin: Dewpoint Hydration Duo. Just two simple steps to lock in pure dewy moisture that lasts all day long. Claim 25% off before this promotion ends at dewpointskincare.com.",
+      },
+      founder: {
+        title: "Behind the Scenes / Craft",
+        badge: "Authenticity",
+        hooks: [
+          "Why we formulated Dewpoint to heal the skin barrier naturally.",
+          "Behind the scenes in our clinical clean skincare lab.",
+          "We spent two years perfecting the Dewpoint hydration ratio.",
+          "What clean skincare actually means to the Dewpoint founders.",
+        ],
+        body: "We created Dewpoint because skincare aisles were packed with irritating fragrances and filler oils. Dewpoint gives your barrier exactly what it needs to heal and glow. Discover yours at dewpointskincare.com.",
+      },
+      fomo: {
+        title: "Limited Promo & Urgency",
+        badge: "Scarcity",
+        hooks: [
+          "Claim 25% off the Dewpoint Hydration Duo before this batch sells out.",
+          "Restock alert: 25% off the viral Dewpoint Skincare duo today.",
+          "Don't let dry skin ruin your glow: 25% off Dewpoint right now.",
+          "Limited batch available: claim your Dewpoint discount today.",
+        ],
+        body: "Our previous batch sold out in 48 hours. Grab 25% off the Dewpoint Hydration Duo today at dewpointskincare.com while current inventory lasts.",
+      },
+    };
+  }
   if (brand.toLowerCase().includes("ai recommend") || brand.toLowerCase().includes("relaunch")) {
     return {
       problem: {
@@ -441,11 +768,16 @@ function getActiveCaption(
   };
 }
 
+
 export default function StudioVideoGenerator() {
   // Brand & Campaign Setup State
-  const [selectedPresetId, setSelectedPresetId] = useState<string>("chicago-dog");
+  const [selectedPresetId, setSelectedPresetId] = useState<string>("chicago-dog-42");
   const [brandName, setBrandName] = useState("Chicago Dog 42");
-  const [brandOffer, setBrandOffer] = useState("15% off first pickup order");
+  const [brandOffer, setBrandOffer] = useState("$5 Off First Jumbo Combo");
+  const [presetDropdownOpen, setPresetDropdownOpen] = useState(false);
+  const presetDropdownRef = useRef<HTMLDivElement>(null);
+  const [elapsedSeconds, setElapsedSeconds] = useState(0);
+  const elapsedTimerRef = useRef<any>(null);
 
   // Creative Angle & Copy
   const [selectedAngle, setSelectedAngle] = useState<string>("problem");
@@ -614,7 +946,27 @@ export default function StudioVideoGenerator() {
   const hasHydratedDraftRef = useRef(false);
   const isHydratingInitialStateRef = useRef(true);
   const abortControllerRef = useRef<AbortController | null>(null);
+  const currentClientJobIdRef = useRef<string | null>(null);
   const progressIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
+
+  // Estimated total generation seconds based on model & uploaded images
+  const estimatedTotalSeconds = useMemo(() => {
+    let base = 120; // default for Kling text-to-video
+    if (uploadedImages.length > 0) base = 75; // image-to-video
+    if (videoModel === "seedance") base = 30;
+    if (videoModel === "grok") base = 45;
+    if (generationMode === "batch") base = Math.round(base * 1.35);
+    return base;
+  }, [uploadedImages.length, videoModel, generationMode]);
+
+  const etaSecondsRemaining = Math.max(5, estimatedTotalSeconds - elapsedSeconds);
+  const etaFormatted =
+    etaSecondsRemaining >= 60
+      ? `~${Math.floor(etaSecondsRemaining / 60)}m ${etaSecondsRemaining % 60}s remaining`
+      : `~${etaSecondsRemaining}s remaining`;
+
+  // Interactive Loader Micro-Interactions (Sparks)
+  const [sparkCount, setSparkCount] = useState(0);
 
   // Restore draft from localStorage on initial client mount
   useEffect(() => {
@@ -740,7 +1092,7 @@ export default function StudioVideoGenerator() {
   const handleResetDraft = () => {
     try {
       localStorage.removeItem("relaunch_studio_generator_draft");
-    } catch (e) {}
+    } catch (e) { }
     setSelectedPresetId("chicago-dog");
     setBrandName("Chicago Dog 42");
     setBrandOffer("15% off first pickup order");
@@ -809,8 +1161,8 @@ export default function StudioVideoGenerator() {
   // Determine active video source (strictly real generated result or uploaded user video — ZERO demo video fallback)
   const activeVideoSrc = generatedResult
     ? (aspectRatio === "9:16"
-        ? generatedResult.variants.v9x16
-        : aspectRatio === "1:1"
+      ? generatedResult.variants.v9x16
+      : aspectRatio === "1:1"
         ? generatedResult.variants.v1x1
         : generatedResult.variants.v4x5)
     : (uploadedMediaType === "video" ? uploadedMediaSrc : null);
@@ -818,6 +1170,9 @@ export default function StudioVideoGenerator() {
   // Close dropdowns on click outside
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
+      if (presetDropdownRef.current && !presetDropdownRef.current.contains(event.target as Node)) {
+        setPresetDropdownOpen(false);
+      }
       if (angleDropdownRef.current && !angleDropdownRef.current.contains(event.target as Node)) {
         setAngleDropdownOpen(false);
       }
@@ -851,8 +1206,9 @@ export default function StudioVideoGenerator() {
   // Handle Preset Switching
   const handleSelectPreset = (preset: BrandPreset) => {
     setSelectedPresetId(preset.id);
-    setBrandName(preset.name);
-    setBrandOffer(preset.offer);
+    setBrandName(preset.brandName);
+    setBrandOffer(preset.brandOffer);
+    setPresetDropdownOpen(false);
 
     // Clear revision banner & clean URL query params so preset takes full precedence
     setRevisionContext(null);
@@ -860,18 +1216,19 @@ export default function StudioVideoGenerator() {
       window.history.replaceState({}, "", window.location.pathname);
     }
 
-    // Reset angle to "problem" and eagerly populate hook/body from the new brand content
-    const newAngleMap = getAngleContent(preset.name, preset.offer);
-    const defaultAngle = newAngleMap["problem"] || Object.values(newAngleMap)[0];
-    setSelectedAngle("problem");
-    if (defaultAngle) {
-      setSelectedHook(defaultAngle.hooks[0] || "");
-      setScriptBody(defaultAngle.body || "");
+    // Set angle to preset's angle and populate hook/body from the new brand content
+    const targetAngle = preset.angleKey || "problem";
+    const newAngleMap = getAngleContent(preset.brandName, preset.brandOffer);
+    const targetAngleContent = newAngleMap[targetAngle] || newAngleMap["problem"] || Object.values(newAngleMap)[0];
+    setSelectedAngle(targetAngle);
+    if (targetAngleContent) {
+      setSelectedHook(targetAngleContent.hooks[0] || "");
+      setScriptBody(targetAngleContent.body || "");
       setIsEditingHook(false);
     }
 
-    // Reset visual prompt to let AI automatically generate brand-accurate prompt
-    setVisualPrompt("");
+    // Set visual prompt from preset
+    setVisualPrompt(preset.visualPrompt || "");
 
     if (preset.id === "ai-recommendations") {
       setUploadedMediaSrc(null);
@@ -895,21 +1252,22 @@ export default function StudioVideoGenerator() {
         "relaunch_studio_generator_draft",
         JSON.stringify({
           selectedPresetId: preset.id,
-          brandName: preset.name,
-          brandOffer: preset.offer,
-          selectedAngle: "problem",
+          brandName: preset.brandName,
+          brandOffer: preset.brandOffer,
+          selectedAngle: targetAngle,
           selectedActor,
           selectedCreatorAssetId,
           trimStart,
           trimEnd,
           videoModel,
           selectedVoiceId,
-          selectedHook: defaultAngle?.hooks[0] || "",
-          scriptBody: defaultAngle?.body || "",
+          selectedHook: targetAngleContent?.hooks[0] || "",
+          scriptBody: targetAngleContent?.body || "",
+          visualPrompt: preset.visualPrompt || "",
           updatedAt: Date.now(),
         })
       );
-    } catch {}
+    } catch { }
   };
 
   // Sync active video playback
@@ -1092,10 +1450,25 @@ export default function StudioVideoGenerator() {
       clearInterval(progressIntervalRef.current);
       progressIntervalRef.current = null;
     }
+    if (elapsedTimerRef.current) {
+      clearInterval(elapsedTimerRef.current);
+      elapsedTimerRef.current = null;
+    }
+
+    // Instantly notify server so background fal.ai polling loops abort immediately
+    const activeJobId = currentClientJobIdRef.current;
+    if (activeJobId) {
+      fetch("/api/studio/generate?action=cancel", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ clientJobId: activeJobId }),
+      }).catch(() => {});
+    }
+
     setIsGenerating(false);
     setGenProgress(0);
     setGenStepText("");
-    setGenerationError({ title: "Generation Cancelled", message: "Video generation was cancelled." });
+    setGenerationError({ title: "Generation Cancelled", message: "Video generation was cancelled by user." });
   };
 
   // Core generator executor
@@ -1113,6 +1486,18 @@ export default function StudioVideoGenerator() {
         ? "Connecting to Studio Engine & preparing 5-angle campaign matrix..."
         : "Connecting to Studio Engine & analyzing creative brief..."
     );
+
+    // Track unique client job ID for instant server cancellation
+    const newClientJobId = `job-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`;
+    currentClientJobIdRef.current = newClientJobId;
+
+    // Track live elapsed time for dynamic ETA calculation
+    setElapsedSeconds(0);
+    const startSecTime = Date.now();
+    if (elapsedTimerRef.current) clearInterval(elapsedTimerRef.current);
+    elapsedTimerRef.current = setInterval(() => {
+      setElapsedSeconds(Math.floor((Date.now() - startSecTime) / 1000));
+    }, 1000);
 
     // Create abort controller for this generation
     const controller = new AbortController();
@@ -1152,6 +1537,7 @@ export default function StudioVideoGenerator() {
         headers: { "Content-Type": "application/json" },
         signal: controller.signal,
         body: JSON.stringify({
+          clientJobId: newClientJobId,
           brandName: brandName.trim() || "My Brand",
           creativeAngle: currentAngleData.title,
           hookType: selectedAngle,
@@ -1174,6 +1560,10 @@ export default function StudioVideoGenerator() {
       });
 
       clearInterval(progressInterval);
+      if (elapsedTimerRef.current) {
+        clearInterval(elapsedTimerRef.current);
+        elapsedTimerRef.current = null;
+      }
 
       if (!res.ok) {
         const errJson = await res.json().catch(() => ({}));
@@ -1280,6 +1670,10 @@ export default function StudioVideoGenerator() {
       setIsGenerating(false);
     } catch (err: any) {
       clearInterval(progressInterval);
+      if (elapsedTimerRef.current) {
+        clearInterval(elapsedTimerRef.current);
+        elapsedTimerRef.current = null;
+      }
       if (err.name === "AbortError" || abortControllerRef.current?.signal.aborted) {
         console.log("[Studio Engine] Video generation cancelled by user.");
         setIsGenerating(false);
@@ -1361,7 +1755,7 @@ export default function StudioVideoGenerator() {
         setIsMuted(false);
       }
       videoRef.current?.play().then(() => setIsPlaying(true)).catch(() => setIsPlaying(false));
-      audioRef.current?.play().catch(() => {});
+      audioRef.current?.play().catch(() => { });
       setIsPlaying(true);
     }
   };
@@ -1376,7 +1770,7 @@ export default function StudioVideoGenerator() {
     if (audioRef.current) {
       audioRef.current.muted = nextMuted;
       audioRef.current.volume = nextMuted ? 0 : 1;
-      if (!nextMuted && isPlaying) audioRef.current.play().catch(() => {});
+      if (!nextMuted && isPlaying) audioRef.current.play().catch(() => { });
     }
   };
 
@@ -1384,7 +1778,7 @@ export default function StudioVideoGenerator() {
     setCurrentTime(targetSeconds);
     if (audioRef.current) {
       audioRef.current.currentTime = targetSeconds;
-      if (isPlaying) audioRef.current.play().catch(() => {});
+      if (isPlaying) audioRef.current.play().catch(() => { });
     }
     if (videoRef.current) {
       videoRef.current.currentTime = targetSeconds % (videoRef.current.duration || 5);
@@ -1434,28 +1828,6 @@ export default function StudioVideoGenerator() {
           )}
         </div>
 
-        {/* Center: Brand Quick Switcher */}
-        <div className="flex items-center gap-1.5 bg-zinc-100/90 border border-zinc-200 rounded-xl p-1 overflow-x-auto max-w-[50vw] sm:max-w-none scrollbar-none">
-          <span className="text-[11px] font-bold text-zinc-500 px-2 uppercase tracking-wider whitespace-nowrap shrink-0">Preset:</span>
-          {BRAND_PRESETS.map((p) => {
-            const isSelected = selectedPresetId === p.id;
-            return (
-              <button
-                type="button"
-                key={p.id}
-                onClick={() => handleSelectPreset(p)}
-                className={`px-3 py-1 rounded-lg text-xs font-bold transition cursor-pointer whitespace-nowrap shrink-0 ${
-                  isSelected
-                    ? "bg-[#FF6700] text-white shadow-sm ring-1 ring-[#FF6700]"
-                    : "text-zinc-600 hover:text-zinc-900 hover:bg-white"
-                }`}
-              >
-                {p.name}
-              </button>
-            );
-          })}
-        </div>
-
         {/* Right: Review Room & Approved Vault Actions */}
         <div className="flex items-center gap-1.5 sm:gap-2.5 shrink-0">
           <Link
@@ -1484,11 +1856,10 @@ export default function StudioVideoGenerator() {
         <button
           type="button"
           onClick={() => setMobileTab("controls")}
-          className={`flex-1 py-1.5 text-xs font-bold rounded-lg transition cursor-pointer flex items-center justify-center gap-1.5 ${
-            mobileTab === "controls"
+          className={`flex-1 py-1.5 text-xs font-bold rounded-lg transition cursor-pointer flex items-center justify-center gap-1.5 ${mobileTab === "controls"
               ? "bg-white text-zinc-900 shadow-sm"
               : "text-zinc-600 hover:text-zinc-900"
-          }`}
+            }`}
         >
           <Sliders className="w-3.5 h-3.5 text-[#7F48ED]" />
           <span>Brief &amp; Script</span>
@@ -1496,11 +1867,10 @@ export default function StudioVideoGenerator() {
         <button
           type="button"
           onClick={() => setMobileTab("preview")}
-          className={`flex-1 py-1.5 text-xs font-bold rounded-lg transition cursor-pointer flex items-center justify-center gap-1.5 ${
-            mobileTab === "preview"
+          className={`flex-1 py-1.5 text-xs font-bold rounded-lg transition cursor-pointer flex items-center justify-center gap-1.5 ${mobileTab === "preview"
               ? "bg-[#7F48ED] text-white shadow-sm"
               : "text-zinc-600 hover:text-zinc-900"
-          }`}
+            }`}
         >
           <Video className="w-3.5 h-3.5" />
           <span>Live Stage</span>
@@ -1515,9 +1885,8 @@ export default function StudioVideoGenerator() {
         {/* ============================================================== */}
         <div
           ref={sidebarRef}
-          className={`w-full lg:w-[460px] xl:w-[480px] shrink-0 bg-white border-r border-zinc-200/90 p-4 sm:p-5 pb-28 space-y-4 h-auto lg:h-full lg:overflow-y-auto min-h-0 ${
-            mobileTab === "controls" ? "block" : "hidden lg:block"
-          }`}
+          className={`w-full lg:w-[460px] xl:w-[480px] shrink-0 bg-white border-r border-zinc-200/90 p-4 sm:p-5 pb-28 space-y-4 h-auto lg:h-full lg:overflow-y-auto min-h-0 ${mobileTab === "controls" ? "block" : "hidden lg:block"
+            }`}
         >
           {/* REVISION MODE BANNER */}
           {revisionContext && (
@@ -1559,6 +1928,75 @@ export default function StudioVideoGenerator() {
             </div>
 
             <div className="space-y-2.5">
+              {/* Quick Brand Preset Dropdown */}
+              <div className="relative" ref={presetDropdownRef}>
+                <div className="flex items-center justify-between mb-1">
+                  <label className="text-[10px] font-bold uppercase tracking-wider text-zinc-500 flex items-center gap-1">
+                    <Sparkles className="w-3 h-3 text-[#7F48ED]" />
+                    <span>Preset</span>
+                  </label>
+                  <span className="text-[9px] text-[#7F48ED] font-bold">1-Click Auto-Fill</span>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setPresetDropdownOpen(!presetDropdownOpen)}
+                  className="w-full text-left bg-purple-50/60 hover:bg-purple-100/70 border border-purple-200 hover:border-purple-300 rounded-xl px-3 py-2 text-xs text-zinc-900 flex items-center justify-between cursor-pointer focus:outline-none focus:border-[#7F48ED] font-semibold transition shadow-2xs"
+                >
+                  <div className="flex items-center gap-2 truncate min-w-0">
+                    <span className="w-2 h-2 rounded-full bg-[#7F48ED] shrink-0" />
+                    <span className="truncate font-bold text-zinc-900">
+                      {BRAND_PRESETS.find((p) => p.id === selectedPresetId)?.name || "Select Brand Preset"}
+                    </span>
+                    <span className="text-[10px] text-zinc-500 font-normal truncate hidden sm:inline">
+                      ({BRAND_PRESETS.find((p) => p.id === selectedPresetId)?.category})
+                    </span>
+                  </div>
+                  <ChevronDown className={`w-3.5 h-3.5 text-zinc-500 shrink-0 transition-transform ${presetDropdownOpen ? "rotate-180" : ""}`} />
+                </button>
+
+                {presetDropdownOpen && (
+                  <div
+                    onWheel={(e) => e.stopPropagation()}
+                    className="absolute top-full left-0 right-0 mt-1.5 bg-white border border-zinc-200 rounded-2xl p-1.5 shadow-2xl z-50 space-y-1 max-h-72 overflow-y-auto overscroll-contain [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-zinc-300"
+                    style={{ scrollbarWidth: "thin" }}
+                  >
+                    <div className="px-2.5 py-1 text-[10px] font-bold text-zinc-400 uppercase tracking-wider border-b border-zinc-100 mb-1 flex items-center justify-between">
+                      <span>Verified Brand Presets</span>
+                      <span className="text-[9px] text-[#7F48ED] font-bold">6 Ready</span>
+                    </div>
+                    {BRAND_PRESETS.map((preset) => {
+                      const isSelected = selectedPresetId === preset.id;
+                      return (
+                        <div
+                          key={preset.id}
+                          onClick={() => handleSelectPreset(preset)}
+                          className={`px-3 py-2 rounded-xl text-xs cursor-pointer transition flex items-start justify-between gap-2 ${isSelected
+                              ? "bg-[#7F48ED] text-white font-medium shadow-xs"
+                              : "text-zinc-700 hover:bg-zinc-100"
+                            }`}
+                        >
+                          <div className="min-w-0 flex-1">
+                            <div className="flex items-center gap-1.5">
+                              <span className={`font-bold ${isSelected ? "text-white" : "text-zinc-900"}`}>
+                                {preset.name}
+                              </span>
+                              <span className={`text-[9px] px-1.5 py-0.2 rounded font-bold uppercase ${isSelected ? "bg-white/20 text-white" : "bg-purple-100 text-[#7F48ED]"
+                                }`}>
+                                {preset.category}
+                              </span>
+                            </div>
+                            <div className={`text-[10px] truncate mt-0.5 ${isSelected ? "text-purple-100" : "text-zinc-500"}`}>
+                              Offer: {preset.brandOffer}
+                            </div>
+                          </div>
+                          {isSelected && <Check className="w-4 h-4 shrink-0 mt-0.5 text-white" />}
+                        </div>
+                      );
+                    })}
+                  </div>
+                )}
+              </div>
+
               <div>
                 <label className="text-[11px] font-bold text-zinc-600 block mb-1">
                   Brand Name
@@ -1621,11 +2059,10 @@ export default function StudioVideoGenerator() {
                       {uploadedImages.map((img, idx) => (
                         <div
                           key={img.id}
-                          className={`relative rounded-xl border p-1.5 flex flex-col justify-between group transition ${
-                            idx === 0
+                          className={`relative rounded-xl border p-1.5 flex flex-col justify-between group transition ${idx === 0
                               ? "bg-purple-50/80 border-[#7F48ED] shadow-xs ring-1 ring-[#7F48ED]/30"
                               : "bg-zinc-50 border-zinc-200 hover:border-zinc-300"
-                          }`}
+                            }`}
                         >
                           <div className="relative aspect-square w-full rounded-lg overflow-hidden bg-zinc-900 mb-1">
                             <img src={img.src} alt={img.name} className="w-full h-full object-cover" />
@@ -1776,17 +2213,15 @@ export default function StudioVideoGenerator() {
                           setSelectedAngle(key);
                           setAngleDropdownOpen(false);
                         }}
-                        className={`px-3 py-2 rounded-lg text-xs cursor-pointer transition flex items-center justify-between ${
-                          isSelected
+                        className={`px-3 py-2 rounded-lg text-xs cursor-pointer transition flex items-center justify-between ${isSelected
                             ? "bg-[#7F48ED] text-white font-bold shadow-sm"
                             : "text-zinc-700 hover:bg-[#FF6700]/10 hover:text-[#FF6700]"
-                        }`}
+                          }`}
                       >
                         <div className="flex items-center gap-2 truncate min-w-0 pr-1">
                           <span className="font-bold truncate">{data.title}</span>
-                          <span className={`text-[10px] font-mono px-1.5 py-0.5 rounded truncate ${
-                            isSelected ? "bg-white/20 text-white" : "bg-zinc-100 text-zinc-600"
-                          }`}>
+                          <span className={`text-[10px] font-mono px-1.5 py-0.5 rounded truncate ${isSelected ? "bg-white/20 text-white" : "bg-zinc-100 text-zinc-600"
+                            }`}>
                             {data.badge}
                           </span>
                         </div>
@@ -1954,17 +2389,15 @@ export default function StudioVideoGenerator() {
                           }
                           setCreatorDropdownOpen(false);
                         }}
-                        className={`px-3 py-2 rounded-lg text-xs cursor-pointer transition flex items-center justify-between ${
-                          isSelected
+                        className={`px-3 py-2 rounded-lg text-xs cursor-pointer transition flex items-center justify-between ${isSelected
                             ? "bg-[#7F48ED] text-white font-bold shadow-sm"
                             : "text-zinc-700 hover:bg-[#FF6700]/10 hover:text-[#FF6700]"
-                        }`}
+                          }`}
                       >
                         <div className="flex items-center gap-2.5 min-w-0">
                           <div
-                            className={`w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-bold shrink-0 ${
-                              isSelected ? "bg-white/20 text-white" : "bg-zinc-100 text-zinc-600"
-                            }`}
+                            className={`w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-bold shrink-0 ${isSelected ? "bg-white/20 text-white" : "bg-zinc-100 text-zinc-600"
+                              }`}
                           >
                             {cr.name.charAt(0)}
                           </div>
@@ -1994,167 +2427,162 @@ export default function StudioVideoGenerator() {
               )}
             </div>
 
-{/* Conditional: UGC Creator Footage & Trimmer VS Pure Kling AI Video Mode */
-            activeCreator?.hasVideoTakes && activeCreatorAsset ? (
-              <>
-            {/* Creator Footage Dropdown (Uniform to other dropdowns) */}
-            <div className="space-y-1 relative" ref={footageDropdownRef}>
-              <div className="flex items-center justify-between">
-                <label className="text-[10px] font-bold text-zinc-500 uppercase tracking-wider block">
-                  Creator Footage
-                </label>
-                <span className="text-[10px] font-mono text-[#7F48ED] font-bold">
-                  {assetTab === "hooks" ? `${creatorHooksList.length} Hooks Available` : `${creatorBrollList.length} B-Roll Cuts`}
-                </span>
-              </div>
-              <button
-                type="button"
-                onClick={() => {
-                  setFootageDropdownOpen(!footageDropdownOpen);
-                  setCreatorDropdownOpen(false);
-                  setModelDropdownOpen(false);
-                  setVoiceDropdownOpen(false);
-                  setAngleDropdownOpen(false);
-                }}
-                className="w-full text-left bg-zinc-50 border border-zinc-200 hover:border-[#7F48ED] rounded-xl px-3 py-2 text-xs text-zinc-900 flex items-center justify-between cursor-pointer focus:outline-none focus:border-[#7F48ED] font-semibold transition"
-              >
-                <div className="flex items-center gap-2 truncate min-w-0">
-                  <span className="w-5 h-5 rounded-full bg-[#7F48ED]/10 text-[#7F48ED] flex items-center justify-center text-[10px] font-black shrink-0">
-                    {activeCreatorAsset.type === "hook" ? "H" : "B"}
-                  </span>
-                  <div className="truncate">
-                    <span className="font-bold text-zinc-900">{activeCreatorAsset.label}</span>
-                    <span className="text-zinc-500 text-[11px] ml-1.5 font-normal">
-                      ({activeCreatorAsset.durationSeconds}s)
-                    </span>
-                  </div>
-                </div>
-                <ChevronDown className={`w-3.5 h-3.5 text-zinc-500 shrink-0 transition-transform ${footageDropdownOpen ? "rotate-180" : ""}`} />
-              </button>
-
-              {footageDropdownOpen && (
-                <div
-                  onWheel={(e) => e.stopPropagation()}
-                  className="absolute top-full left-0 right-0 mt-1 bg-white border border-zinc-200 rounded-xl p-1.5 shadow-xl z-50 space-y-1 max-h-64 overflow-y-auto overscroll-contain"
-                  style={{ scrollbarWidth: "thin" }}
-                >
-                  {/* Category Filter Tabs inside dropdown */}
-                  <div className="flex items-center gap-1 bg-zinc-100 p-0.5 rounded-lg text-[10px] font-bold mb-1">
+            {/* Conditional: UGC Creator Footage & Trimmer VS Pure Kling AI Video Mode */
+              activeCreator?.hasVideoTakes && activeCreatorAsset ? (
+                <>
+                  {/* Creator Footage Dropdown (Uniform to other dropdowns) */}
+                  <div className="space-y-1 relative" ref={footageDropdownRef}>
+                    <div className="flex items-center justify-between">
+                      <label className="text-[10px] font-bold text-zinc-500 uppercase tracking-wider block">
+                        Creator Footage
+                      </label>
+                      <span className="text-[10px] font-mono text-[#7F48ED] font-bold">
+                        {assetTab === "hooks" ? `${creatorHooksList.length} Hooks Available` : `${creatorBrollList.length} B-Roll Cuts`}
+                      </span>
+                    </div>
                     <button
                       type="button"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        setAssetTab("hooks");
+                      onClick={() => {
+                        setFootageDropdownOpen(!footageDropdownOpen);
+                        setCreatorDropdownOpen(false);
+                        setModelDropdownOpen(false);
+                        setVoiceDropdownOpen(false);
+                        setAngleDropdownOpen(false);
                       }}
-                      className={`flex-1 py-1 rounded-md transition cursor-pointer text-center ${
-                        assetTab === "hooks"
-                          ? "bg-white text-[#7F48ED] shadow-xs"
-                          : "text-zinc-500 hover:text-zinc-900"
-                      }`}
+                      className="w-full text-left bg-zinc-50 border border-zinc-200 hover:border-[#7F48ED] rounded-xl px-3 py-2 text-xs text-zinc-900 flex items-center justify-between cursor-pointer focus:outline-none focus:border-[#7F48ED] font-semibold transition"
                     >
-                      Opening Hooks ({creatorHooksList.length})
-                    </button>
-                    <button
-                      type="button"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        setAssetTab("broll");
-                      }}
-                      className={`flex-1 py-1 rounded-md transition cursor-pointer text-center ${
-                        assetTab === "broll"
-                          ? "bg-white text-[#7F48ED] shadow-xs"
-                          : "text-zinc-500 hover:text-zinc-900"
-                      }`}
-                    >
-                      B-Roll Motion ({creatorBrollList.length})
-                    </button>
-                  </div>
-
-                  {/* Dropdown Options List */}
-                  {(assetTab === "hooks" ? creatorHooksList : creatorBrollList).map((clip) => {
-                    const isSelected = selectedCreatorAssetId === clip.id;
-                    return (
-                      <div
-                        key={clip.id}
-                        onClick={() => {
-                          setSelectedCreatorAssetId(clip.id);
-                          setTrimStart(clip.recommendedTrim.start);
-                          setTrimEnd(clip.recommendedTrim.end);
-                          if (clip.spokenText) {
-                            setSelectedHook(clip.spokenText);
-                          }
-                          if (videoRef.current) {
-                            videoRef.current.currentTime = clip.recommendedTrim.start;
-                          }
-                          setFootageDropdownOpen(false);
-                        }}
-                        className={`px-2.5 py-2 rounded-lg text-xs cursor-pointer transition flex items-center justify-between ${
-                          isSelected
-                            ? "bg-[#7F48ED] text-white font-bold shadow-xs"
-                            : "text-zinc-700 hover:bg-[#FF6700]/10 hover:text-[#FF6700]"
-                        }`}
-                      >
-                        <div className="flex flex-col min-w-0 pr-1">
-                          <div className="flex items-center gap-1.5">
-                            <span className="font-bold truncate">{clip.label}</span>
-                            <span className={`text-[9px] font-mono px-1.5 py-0.2 rounded shrink-0 ${
-                              isSelected ? "bg-white/20 text-white" : "bg-zinc-100 text-zinc-600"
-                            }`}>
-                              {clip.durationSeconds}s
-                            </span>
-                          </div>
-                          {clip.spokenText && (
-                            <span className={`text-[10px] truncate mt-0.5 ${
-                              isSelected ? "text-purple-100" : "text-zinc-500 italic"
-                            }`}>
-                              &ldquo;{clip.spokenText}&rdquo;
-                            </span>
-                          )}
+                      <div className="flex items-center gap-2 truncate min-w-0">
+                        <span className="w-5 h-5 rounded-full bg-[#7F48ED]/10 text-[#7F48ED] flex items-center justify-center text-[10px] font-black shrink-0">
+                          {activeCreatorAsset.type === "hook" ? "H" : "B"}
+                        </span>
+                        <div className="truncate">
+                          <span className="font-bold text-zinc-900">{activeCreatorAsset.label}</span>
+                          <span className="text-zinc-500 text-[11px] ml-1.5 font-normal">
+                            ({activeCreatorAsset.durationSeconds}s)
+                          </span>
                         </div>
-                        {isSelected && <Check className="w-3.5 h-3.5 shrink-0 ml-1.5" />}
                       </div>
-                    );
-                  })}
+                      <ChevronDown className={`w-3.5 h-3.5 text-zinc-500 shrink-0 transition-transform ${footageDropdownOpen ? "rotate-180" : ""}`} />
+                    </button>
+
+                    {footageDropdownOpen && (
+                      <div
+                        onWheel={(e) => e.stopPropagation()}
+                        className="absolute top-full left-0 right-0 mt-1 bg-white border border-zinc-200 rounded-xl p-1.5 shadow-xl z-50 space-y-1 max-h-64 overflow-y-auto overscroll-contain"
+                        style={{ scrollbarWidth: "thin" }}
+                      >
+                        {/* Category Filter Tabs inside dropdown */}
+                        <div className="flex items-center gap-1 bg-zinc-100 p-0.5 rounded-lg text-[10px] font-bold mb-1">
+                          <button
+                            type="button"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              setAssetTab("hooks");
+                            }}
+                            className={`flex-1 py-1 rounded-md transition cursor-pointer text-center ${assetTab === "hooks"
+                                ? "bg-white text-[#7F48ED] shadow-xs"
+                                : "text-zinc-500 hover:text-zinc-900"
+                              }`}
+                          >
+                            Opening Hooks ({creatorHooksList.length})
+                          </button>
+                          <button
+                            type="button"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              setAssetTab("broll");
+                            }}
+                            className={`flex-1 py-1 rounded-md transition cursor-pointer text-center ${assetTab === "broll"
+                                ? "bg-white text-[#7F48ED] shadow-xs"
+                                : "text-zinc-500 hover:text-zinc-900"
+                              }`}
+                          >
+                            B-Roll Motion ({creatorBrollList.length})
+                          </button>
+                        </div>
+
+                        {/* Dropdown Options List */}
+                        {(assetTab === "hooks" ? creatorHooksList : creatorBrollList).map((clip) => {
+                          const isSelected = selectedCreatorAssetId === clip.id;
+                          return (
+                            <div
+                              key={clip.id}
+                              onClick={() => {
+                                setSelectedCreatorAssetId(clip.id);
+                                setTrimStart(clip.recommendedTrim.start);
+                                setTrimEnd(clip.recommendedTrim.end);
+                                if (clip.spokenText) {
+                                  setSelectedHook(clip.spokenText);
+                                }
+                                if (videoRef.current) {
+                                  videoRef.current.currentTime = clip.recommendedTrim.start;
+                                }
+                                setFootageDropdownOpen(false);
+                              }}
+                              className={`px-2.5 py-2 rounded-lg text-xs cursor-pointer transition flex items-center justify-between ${isSelected
+                                  ? "bg-[#7F48ED] text-white font-bold shadow-xs"
+                                  : "text-zinc-700 hover:bg-[#FF6700]/10 hover:text-[#FF6700]"
+                                }`}
+                            >
+                              <div className="flex flex-col min-w-0 pr-1">
+                                <div className="flex items-center gap-1.5">
+                                  <span className="font-bold truncate">{clip.label}</span>
+                                  <span className={`text-[9px] font-mono px-1.5 py-0.2 rounded shrink-0 ${isSelected ? "bg-white/20 text-white" : "bg-zinc-100 text-zinc-600"
+                                    }`}>
+                                    {clip.durationSeconds}s
+                                  </span>
+                                </div>
+                                {clip.spokenText && (
+                                  <span className={`text-[10px] truncate mt-0.5 ${isSelected ? "text-purple-100" : "text-zinc-500 italic"
+                                    }`}>
+                                    &ldquo;{clip.spokenText}&rdquo;
+                                  </span>
+                                )}
+                              </div>
+                              {isSelected && <Check className="w-3.5 h-3.5 shrink-0 ml-1.5" />}
+                            </div>
+                          );
+                        })}
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Interactive Hook Trimmer Component (In/Out Selection from Raw 10–29s Take) */}
+                  {activeCreatorAsset && activeCreatorAsset.type === "hook" && (
+                    <div className="pt-2 border-t border-zinc-100">
+                      <HookTrimmer
+                        clip={activeCreatorAsset}
+                        trimStart={trimStart}
+                        trimEnd={trimEnd}
+                        onTrimChange={(start, end) => {
+                          setTrimStart(start);
+                          setTrimEnd(end);
+                        }}
+                      />
+                    </div>
+                  )}
+
+                </>
+              ) : (
+                /* Pure Kling AI Mode Information Banner when Creator has no UGC video takes */
+                <div className="p-3.5 bg-gradient-to-br from-purple-50/90 to-indigo-50/70 border border-purple-200/90 rounded-2xl space-y-2 shadow-xs">
+                  <div className="flex items-center gap-2">
+                    <div className="w-7 h-7 rounded-xl bg-[#7F48ED] flex items-center justify-center text-white shadow-xs">
+                      <Sparkles className="w-4 h-4 text-amber-300" />
+                    </div>
+                    <div>
+                      <div className="text-xs font-bold text-zinc-900 flex items-center gap-1.5">
+                        <span>100% Pure Kling AI Video Mode</span>
+                        <span className="text-[9px] font-mono px-1.5 py-0.2 bg-purple-100 text-[#7F48ED] rounded font-bold">No Local Stock Clips</span>
+                      </div>
+                      <div className="text-[10px] text-zinc-500 font-medium">Selected Creator: {activeCreator.name} ({activeCreator.handle})</div>
+                    </div>
+                  </div>
+                  <p className="text-[11px] text-zinc-600 leading-relaxed">
+                    <strong>{activeCreator.name}</strong> powers authentic voiceover narration. Because {activeCreator.name} does not have camera takes yet, this ad generates as a <strong>100% Pure Kling AI Commercial Video</strong> from 0s to end. No substitute actors or local videos will be used.
+                  </p>
                 </div>
               )}
-            </div>
-
-            {/* Interactive Hook Trimmer Component (In/Out Selection from Raw 10–29s Take) */}
-            {activeCreatorAsset && activeCreatorAsset.type === "hook" && (
-              <div className="pt-2 border-t border-zinc-100">
-                <HookTrimmer
-                  clip={activeCreatorAsset}
-                  trimStart={trimStart}
-                  trimEnd={trimEnd}
-                  onTrimChange={(start, end) => {
-                    setTrimStart(start);
-                    setTrimEnd(end);
-                  }}
-                />
-              </div>
-            )}
-
-              </>
-            ) : (
-              /* Pure Kling AI Mode Information Banner when Creator has no UGC video takes */
-              <div className="p-3.5 bg-gradient-to-br from-purple-50/90 to-indigo-50/70 border border-purple-200/90 rounded-2xl space-y-2 shadow-xs">
-                <div className="flex items-center gap-2">
-                  <div className="w-7 h-7 rounded-xl bg-[#7F48ED] flex items-center justify-center text-white shadow-xs">
-                    <Sparkles className="w-4 h-4 text-amber-300" />
-                  </div>
-                  <div>
-                    <div className="text-xs font-bold text-zinc-900 flex items-center gap-1.5">
-                      <span>100% Pure Kling AI Video Mode</span>
-                      <span className="text-[9px] font-mono px-1.5 py-0.2 bg-purple-100 text-[#7F48ED] rounded font-bold">No Local Stock Clips</span>
-                    </div>
-                    <div className="text-[10px] text-zinc-500 font-medium">Selected Creator: {activeCreator.name} ({activeCreator.handle})</div>
-                  </div>
-                </div>
-                <p className="text-[11px] text-zinc-600 leading-relaxed">
-                  <strong>{activeCreator.name}</strong> powers authentic voiceover narration. Because {activeCreator.name} does not have camera takes yet, this ad generates as a <strong>100% Pure Kling AI Commercial Video</strong> from 0s to end. No substitute actors or local videos will be used.
-                </p>
-              </div>
-            )}
 
             {/* AI Engine & Voice Cadence */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 pt-2 border-t border-zinc-100">
@@ -2193,11 +2621,10 @@ export default function StudioVideoGenerator() {
                             setVideoModel(m.id as any);
                             setModelDropdownOpen(false);
                           }}
-                          className={`px-3 py-1.5 rounded-lg text-xs cursor-pointer transition flex items-center justify-between ${
-                            isSelected
+                          className={`px-3 py-1.5 rounded-lg text-xs cursor-pointer transition flex items-center justify-between ${isSelected
                               ? "bg-[#7F48ED] text-white font-bold"
                               : "text-zinc-700 hover:bg-[#FF6700] hover:text-white"
-                          }`}
+                            }`}
                         >
                           <span>{m.label}</span>
                           {isSelected && <Check className="w-3.5 h-3.5 shrink-0" />}
@@ -2231,16 +2658,16 @@ export default function StudioVideoGenerator() {
                 >
                   <div className="flex items-center gap-1.5 truncate min-w-0">
                     <span className="truncate font-bold text-zinc-900">
-                      {activeVoice?.name.split(" ")[0] || "Select Voice"}
+                      {activeVoice?.name.replace(/\s*\(.*\)/, "") || "Select Voice"}
                     </span>
-                    <span className="text-[10px] text-zinc-500 font-normal truncate hidden xs:inline">
+                    <span className="text-[10px] text-zinc-500 font-normal truncate">
                       ({activeVoice?.gender === "female" ? "Female" : "Male"})
                     </span>
                   </div>
                   <div className="flex items-center gap-1 shrink-0">
                     {activeVoice?.tierRequired === "paid" ? (
                       <span className="text-[9px] bg-amber-100 text-amber-900 border border-amber-300 px-1.5 py-0.5 rounded font-bold">
-                        🔒 Paid Tier
+                        🔒 Paid Plan
                       </span>
                     ) : (
                       <span className="text-[9px] bg-emerald-100 text-emerald-900 border border-emerald-300 px-1.5 py-0.5 rounded font-bold flex items-center gap-1">
@@ -2255,17 +2682,27 @@ export default function StudioVideoGenerator() {
                 {voiceDropdownOpen && (
                   <div
                     onWheel={(e) => e.stopPropagation()}
-                    className="absolute bottom-full right-0 w-[310px] sm:w-[340px] max-w-[90vw] mb-1.5 bg-white border border-zinc-200 rounded-2xl p-1.5 shadow-2xl z-50 space-y-1 max-h-72 overflow-y-auto overscroll-contain"
+                    className="absolute bottom-full right-0 w-[330px] sm:w-[380px] max-w-[92vw] mb-2 bg-white border border-zinc-200 rounded-2xl p-2 shadow-2xl z-50 space-y-1.5 max-h-80 overflow-y-auto overscroll-contain"
                     style={{ scrollbarWidth: "thin" }}
                   >
-                    <div className="px-2 py-1 text-[10px] font-bold text-zinc-400 uppercase tracking-wider border-b border-zinc-100 mb-1 flex items-center justify-between">
-                      <span>Available Voiceovers</span>
-                      <span className="text-[9px] text-emerald-600 font-medium">● Free Active Tier</span>
+                    {/* Header */}
+                    <div className="px-2 py-1 text-[10px] font-bold text-zinc-400 uppercase tracking-wider border-b border-zinc-100 flex items-center justify-between">
+                      <span>ElevenLabs Voiceovers</span>
+                      <span className="text-[9px] text-emerald-600 font-medium font-mono">● Active Balance Ready</span>
                     </div>
-                    {availableVoices.map((v) => {
+
+                    {/* Section 1: Ready / Free Voices (With Active Balance) */}
+                    <div className="px-2 pt-1 pb-0.5 text-[9px] font-black uppercase tracking-wider text-emerald-700 bg-emerald-50/70 rounded-lg flex items-center justify-between">
+                      <span>✓ Ready Voices (Active Balance)</span>
+                      <span className="font-mono text-[8px] text-emerald-800">100% Guaranteed</span>
+                    </div>
+
+                    {availableVoices.filter((v) => v.tierRequired !== "paid").map((v) => {
                       const isSelected = selectedVoiceId === v.id;
                       const isCloned = v.category === "cloned";
-                      const isPaidOnly = v.tierRequired === "paid";
+                      const cleanName = v.name.replace(/\s*\(.*\)/, "");
+                      const subStyle = v.name.includes("(") ? v.name.replace(/^[^(]*\(([^)]*)\).*$/, "$1") : v.gender;
+
                       return (
                         <div
                           key={v.id}
@@ -2273,16 +2710,19 @@ export default function StudioVideoGenerator() {
                             setSelectedVoiceId(v.id);
                             setVoiceDropdownOpen(false);
                           }}
-                          className={`px-3 py-2 rounded-xl text-xs cursor-pointer transition flex items-start justify-between gap-2 ${
+                          className={`px-3 py-2 rounded-xl text-xs cursor-pointer transition flex items-center justify-between gap-2.5 ${
                             isSelected
                               ? "bg-[#7F48ED] text-white font-medium shadow-xs"
                               : "text-zinc-700 hover:bg-zinc-100"
                           }`}
                         >
                           <div className="min-w-0 flex-1">
-                            <div className="flex items-center gap-1.5 flex-wrap">
+                            <div className="flex items-center gap-1.5">
                               <span className={`font-bold ${isSelected ? "text-white" : "text-zinc-900"}`}>
-                                {v.name}
+                                {cleanName}
+                              </span>
+                              <span className={`text-[10px] ${isSelected ? "text-purple-200" : "text-zinc-500"}`}>
+                                · {subStyle}
                               </span>
                               {isCloned && (
                                 <span className={`text-[9px] px-1.5 py-0.2 rounded font-bold uppercase ${
@@ -2291,28 +2731,75 @@ export default function StudioVideoGenerator() {
                                   CLONED
                                 </span>
                               )}
-                              {isPaidOnly ? (
-                                <span className={`text-[9px] px-1.5 py-0.2 rounded font-bold uppercase ${
-                                  isSelected ? "bg-amber-400 text-zinc-950 font-black" : "bg-amber-100 text-amber-800 border border-amber-300"
-                                }`}>
-                                  🔒 Paid Plan
-                                </span>
-                              ) : (
-                                <span className={`text-[9px] px-1.5 py-0.2 rounded font-bold uppercase ${
-                                  isSelected ? "bg-emerald-300 text-emerald-950 font-black" : "bg-emerald-50 text-emerald-800 border border-emerald-300"
-                                }`}>
-                                  ● Active Balance
-                                </span>
-                              )}
+                              <span className={`ml-auto text-[9px] px-1.5 py-0.5 rounded font-bold uppercase whitespace-nowrap ${
+                                isSelected ? "bg-emerald-300 text-emerald-950 font-black" : "bg-emerald-50 text-emerald-800 border border-emerald-300"
+                              }`}>
+                                ● Active Balance
+                              </span>
                             </div>
-                            <div className={`text-[11px] leading-tight mt-0.5 ${isSelected ? "text-purple-100" : "text-zinc-500"}`}>
-                              {v.description}
+                            <div className={`text-[11px] leading-tight mt-0.5 line-clamp-1 ${
+                              isSelected ? "text-purple-100" : "text-zinc-500"
+                            }`}>
+                              {v.description.replace(/\s*·\s*Ready.*$/, "")}
                             </div>
                           </div>
-                          {isSelected && <Check className="w-4 h-4 shrink-0 mt-0.5 text-white" />}
+                          {isSelected && <Check className="w-4 h-4 shrink-0 text-white" />}
                         </div>
                       );
                     })}
+
+                    {/* Section 2: Paid Plan Voices */}
+                    {availableVoices.some((v) => v.tierRequired === "paid") && (
+                      <>
+                        <div className="px-2 pt-2 pb-0.5 text-[9px] font-black uppercase tracking-wider text-amber-800 bg-amber-50/70 rounded-lg flex items-center justify-between mt-2">
+                          <span>🔒 Paid Plan Required</span>
+                          <span className="font-mono text-[8px] text-amber-700">ElevenLabs HTTP 402</span>
+                        </div>
+
+                        {availableVoices.filter((v) => v.tierRequired === "paid").map((v) => {
+                          const isSelected = selectedVoiceId === v.id;
+                          const cleanName = v.name.replace(/\s*\(.*\)/, "");
+                          const subStyle = v.name.includes("(") ? v.name.replace(/^[^(]*\(([^)]*)\).*$/, "$1") : v.gender;
+
+                          return (
+                            <div
+                              key={v.id}
+                              onClick={() => {
+                                setSelectedVoiceId(v.id);
+                                setVoiceDropdownOpen(false);
+                              }}
+                              className={`px-3 py-2 rounded-xl text-xs cursor-pointer transition flex items-center justify-between gap-2.5 ${
+                                isSelected
+                                  ? "bg-amber-500 text-zinc-950 font-medium shadow-xs"
+                                  : "text-zinc-700 hover:bg-zinc-100 opacity-90"
+                              }`}
+                            >
+                              <div className="min-w-0 flex-1">
+                                <div className="flex items-center gap-1.5">
+                                  <span className={`font-bold ${isSelected ? "text-zinc-950 font-black" : "text-zinc-900"}`}>
+                                    {cleanName}
+                                  </span>
+                                  <span className={`text-[10px] ${isSelected ? "text-amber-950" : "text-zinc-500"}`}>
+                                    · {subStyle}
+                                  </span>
+                                  <span className={`ml-auto text-[9px] px-1.5 py-0.5 rounded font-bold uppercase whitespace-nowrap ${
+                                    isSelected ? "bg-zinc-950 text-white" : "bg-amber-100 text-amber-800 border border-amber-300"
+                                  }`}>
+                                    🔒 Paid Plan
+                                  </span>
+                                </div>
+                                <div className={`text-[11px] leading-tight mt-0.5 line-clamp-1 ${
+                                  isSelected ? "text-zinc-900" : "text-zinc-500"
+                                }`}>
+                                  {v.description.replace(/\s*·\s*Requires.*$/, "")}
+                                </div>
+                              </div>
+                              {isSelected && <Check className="w-4 h-4 shrink-0 text-zinc-950" />}
+                            </div>
+                          );
+                        })}
+                      </>
+                    )}
                   </div>
                 )}
 
@@ -2326,7 +2813,7 @@ export default function StudioVideoGenerator() {
                           <span>{activeVoice.name} requires Paid Balance</span>
                         </div>
                         <p className="text-[10px] text-amber-900 leading-tight mt-0.5">
-                          ElevenLabs restricts library voices on free API keys (HTTP 402). 
+                          ElevenLabs restricts library voices on free API keys (HTTP 402).
                           Please use a voice with active balance so your ad generates with full voiceover.
                         </p>
                         <div className="flex items-center gap-1 mt-1.5 flex-wrap">
@@ -2366,11 +2853,10 @@ export default function StudioVideoGenerator() {
               <button
                 type="button"
                 onClick={() => setSoftLabelDisclosure(!softLabelDisclosure)}
-                className={`px-2.5 py-1 rounded-md text-[10px] font-mono font-bold transition cursor-pointer border ${
-                  softLabelDisclosure
+                className={`px-2.5 py-1 rounded-md text-[10px] font-mono font-bold transition cursor-pointer border ${softLabelDisclosure
                     ? "bg-[#FF6700] text-white border-[#FF6700]"
                     : "bg-zinc-100 text-zinc-500 border-zinc-200 hover:text-zinc-800"
-                }`}
+                  }`}
               >
                 {softLabelDisclosure ? "ON" : "OFF (Default)"}
               </button>
@@ -2384,11 +2870,10 @@ export default function StudioVideoGenerator() {
               <button
                 type="button"
                 onClick={() => setGenerationMode("single")}
-                className={`flex-1 py-1.5 rounded-lg text-xs font-bold transition flex items-center justify-center gap-1.5 cursor-pointer ${
-                  generationMode === "single"
+                className={`flex-1 py-1.5 rounded-lg text-xs font-bold transition flex items-center justify-center gap-1.5 cursor-pointer ${generationMode === "single"
                     ? "bg-white text-zinc-900 shadow-sm"
                     : "text-zinc-600 hover:text-zinc-900"
-                }`}
+                  }`}
               >
                 <Sparkles className="w-3.5 h-3.5 text-[#7F48ED]" />
                 <span>Single Ad Master</span>
@@ -2396,11 +2881,10 @@ export default function StudioVideoGenerator() {
               <button
                 type="button"
                 onClick={() => setGenerationMode("batch")}
-                className={`flex-1 py-1.5 rounded-lg text-xs font-bold transition flex items-center justify-center gap-1.5 cursor-pointer ${
-                  generationMode === "batch"
+                className={`flex-1 py-1.5 rounded-lg text-xs font-bold transition flex items-center justify-center gap-1.5 cursor-pointer ${generationMode === "batch"
                     ? "bg-[#7F48ED] text-white shadow-sm"
                     : "text-zinc-600 hover:text-zinc-900"
-                }`}
+                  }`}
               >
                 <Layers className="w-3.5 h-3.5" />
                 <span>5-Angle Batch</span>
@@ -2451,11 +2935,11 @@ export default function StudioVideoGenerator() {
               <RefreshCw className={`w-4 h-4 ${isGenerating ? "animate-spin" : ""}`} />
               {isGenerating
                 ? generationMode === "batch"
-                ? "Rendering 5-Angle Campaign Batch..."
-                : "Rendering AI Commercial..."
-              : generationMode === "batch"
-              ? "Generate 5-Angle Creative Batch (15 Assets)"
-              : "Generate AI Video Ad"}
+                  ? "Rendering 5-Angle Campaign Batch..."
+                  : "Rendering AI Commercial..."
+                : generationMode === "batch"
+                  ? "Generate 5-Angle Creative Batch (15 Assets)"
+                  : "Generate AI Video Ad"}
             </button>
 
             {isGenerating && (
@@ -2468,6 +2952,26 @@ export default function StudioVideoGenerator() {
                 <span>Cancel Generation</span>
               </button>
             )}
+          </div>
+
+          {/* MOBILE FIXED BOTTOM ACTION DOCK (Visible on mobile controls tab) */}
+          <div className="lg:hidden fixed bottom-0 left-0 right-0 p-3 bg-white/95 backdrop-blur-md border-t border-zinc-200 z-30 shadow-2xl flex items-center justify-between gap-3">
+            <div className="min-w-0 flex-1">
+              <div className="text-[10px] text-zinc-500 font-bold uppercase tracking-wider truncate">
+                {brandName}
+              </div>
+              <div className="text-xs font-black text-zinc-900 truncate">
+                {brandOffer}
+              </div>
+            </div>
+            <button
+              onClick={() => handleGenerate(generationMode === "batch")}
+              disabled={isGenerating}
+              className="py-2.5 px-4 rounded-xl font-black text-xs transition shadow-md shadow-[#7F48ED]/25 flex items-center justify-center gap-1.5 cursor-pointer bg-[#7F48ED] hover:bg-[#6b35d6] text-white disabled:opacity-50 shrink-0"
+            >
+              <RefreshCw className={`w-3.5 h-3.5 ${isGenerating ? "animate-spin" : ""}`} />
+              <span>{isGenerating ? "Rendering..." : "Generate AI Ad"}</span>
+            </button>
           </div>
         </div>
 
@@ -2482,27 +2986,24 @@ export default function StudioVideoGenerator() {
               <span className="text-xs font-bold text-zinc-500 mr-1 hidden sm:inline uppercase tracking-wider">Format:</span>
               <button
                 onClick={() => setAspectRatio("9:16")}
-                className={`px-3 py-1.5 rounded-xl text-xs font-bold transition flex items-center gap-1.5 cursor-pointer ${
-                  aspectRatio === "9:16" ? "bg-[#7F48ED] text-white shadow-sm" : "text-zinc-600 hover:bg-zinc-100"
-                }`}
+                className={`px-3 py-1.5 rounded-xl text-xs font-bold transition flex items-center gap-1.5 cursor-pointer ${aspectRatio === "9:16" ? "bg-[#7F48ED] text-white shadow-sm" : "text-zinc-600 hover:bg-zinc-100"
+                  }`}
               >
                 <Smartphone className="w-3.5 h-3.5" />
                 9:16 Vertical
               </button>
               <button
                 onClick={() => setAspectRatio("1:1")}
-                className={`px-3 py-1.5 rounded-xl text-xs font-bold transition flex items-center gap-1.5 cursor-pointer ${
-                  aspectRatio === "1:1" ? "bg-[#7F48ED] text-white shadow-sm" : "text-zinc-600 hover:bg-zinc-100"
-                }`}
+                className={`px-3 py-1.5 rounded-xl text-xs font-bold transition flex items-center gap-1.5 cursor-pointer ${aspectRatio === "1:1" ? "bg-[#7F48ED] text-white shadow-sm" : "text-zinc-600 hover:bg-zinc-100"
+                  }`}
               >
                 <Square className="w-3.5 h-3.5" />
                 1:1 Square
               </button>
               <button
                 onClick={() => setAspectRatio("4:5")}
-                className={`px-3 py-1.5 rounded-xl text-xs font-bold transition flex items-center gap-1.5 cursor-pointer ${
-                  aspectRatio === "4:5" ? "bg-[#7F48ED] text-white shadow-sm" : "text-zinc-600 hover:bg-zinc-100"
-                }`}
+                className={`px-3 py-1.5 rounded-xl text-xs font-bold transition flex items-center gap-1.5 cursor-pointer ${aspectRatio === "4:5" ? "bg-[#7F48ED] text-white shadow-sm" : "text-zinc-600 hover:bg-zinc-100"
+                  }`}
               >
                 4:5 Portrait
               </button>
@@ -2512,11 +3013,10 @@ export default function StudioVideoGenerator() {
             <div className="flex items-center gap-2">
               <button
                 onClick={() => setShowPhoneFrame(!showPhoneFrame)}
-                className={`px-3 py-1.5 rounded-xl text-xs font-bold border transition flex items-center gap-1.5 cursor-pointer ${
-                  showPhoneFrame
+                className={`px-3 py-1.5 rounded-xl text-xs font-bold border transition flex items-center gap-1.5 cursor-pointer ${showPhoneFrame
                     ? "bg-[#FF6700] text-white border-[#FF6700]"
                     : "bg-zinc-50 text-zinc-700 border-zinc-200 hover:bg-zinc-100"
-                }`}
+                  }`}
               >
                 <Smartphone className="w-3.5 h-3.5" />
                 {showPhoneFrame ? "Phone View" : "Studio Canvas"}
@@ -2524,11 +3024,10 @@ export default function StudioVideoGenerator() {
 
               <button
                 onClick={() => setShowCaptions(!showCaptions)}
-                className={`px-3 py-1.5 rounded-xl text-xs font-bold border transition hidden sm:inline-flex items-center gap-1 cursor-pointer ${
-                  showCaptions
+                className={`px-3 py-1.5 rounded-xl text-xs font-bold border transition hidden sm:inline-flex items-center gap-1 cursor-pointer ${showCaptions
                     ? "bg-purple-100 text-[#7F48ED] border-purple-300"
                     : "bg-zinc-50 text-zinc-600 border-zinc-200 hover:bg-zinc-100"
-                }`}
+                  }`}
               >
                 <Zap className="w-3.5 h-3.5" />
                 Captions {showCaptions ? "ON" : "OFF"}
@@ -2659,11 +3158,10 @@ export default function StudioVideoGenerator() {
               <button
                 type="button"
                 onClick={() => seekToSegment(0)}
-                className={`col-span-3 rounded-lg px-1 truncate flex items-center justify-center transition-all cursor-pointer ${
-                  generatedResult && currentTime < 3.5
+                className={`col-span-3 rounded-lg px-1 truncate flex items-center justify-center transition-all cursor-pointer ${generatedResult && currentTime < 3.5
                     ? "bg-[#7F48ED] text-white shadow-md ring-2 ring-[#7F48ED]/40 font-black scale-[1.01]"
                     : "bg-purple-50 hover:bg-purple-100 border border-purple-200 text-[#7F48ED]"
-                }`}
+                  }`}
                 title="0–3.5s: Real Creator Fronted Hook"
               >
                 0-3s Creator Hook
@@ -2671,11 +3169,10 @@ export default function StudioVideoGenerator() {
               <button
                 type="button"
                 onClick={() => seekToSegment(3.5)}
-                className={`col-span-5 rounded-lg px-1 truncate flex items-center justify-center transition-all cursor-pointer ${
-                  generatedResult && currentTime >= 3.5 && currentTime < 15.0
+                className={`col-span-5 rounded-lg px-1 truncate flex items-center justify-center transition-all cursor-pointer ${generatedResult && currentTime >= 3.5 && currentTime < 15.0
                     ? "bg-[#FF6700] text-white shadow-md ring-2 ring-[#FF6700]/40 font-black scale-[1.01]"
                     : "bg-orange-50 hover:bg-orange-100 border border-orange-200 text-[#FF6700]"
-                }`}
+                  }`}
                 title={`3.5–15s Product: ${uploadedMediaName || brandName}`}
               >
                 {uploadedMediaName || (Boolean(generatedResult?.clientMedia?.url || uploadedMediaSrc) ? "3-15s Product: Client Asset" : "3-15s AI Commercial Motion")}
@@ -2683,11 +3180,10 @@ export default function StudioVideoGenerator() {
               <button
                 type="button"
                 onClick={() => seekToSegment(15.0)}
-                className={`col-span-4 rounded-lg px-1 truncate flex items-center justify-center transition-all cursor-pointer ${
-                  generatedResult && currentTime >= 15.0
+                className={`col-span-4 rounded-lg px-1 truncate flex items-center justify-center transition-all cursor-pointer ${generatedResult && currentTime >= 15.0
                     ? "bg-[#7F48ED] text-white shadow-md ring-2 ring-[#7F48ED]/40 font-black scale-[1.01]"
                     : "bg-purple-50 hover:bg-purple-100 border border-purple-200 text-purple-700"
-                }`}
+                  }`}
                 title="15–22s: AI Scenes & Motion CTA"
               >
                 15-22s AI Scenes &amp; CTA
@@ -2709,35 +3205,119 @@ export default function StudioVideoGenerator() {
           <div className="w-full shrink-0 flex items-center justify-center py-2 relative">
             {/* Master audio is embedded directly into the video stream for synchronized playback */}
 
-            {/* Generation Progress Overlay (Clean White Backlit) */}
+            {/* Modern Interactive Studio Rendering Stage (Purple & Orange Theme) */}
             {isGenerating && (
-              <div className="absolute inset-0 bg-white/95 backdrop-blur-md z-40 flex flex-col items-center justify-center p-6 text-center space-y-5 rounded-2xl border border-zinc-200 shadow-2xl">
-                <div className="w-16 h-16 rounded-full border-4 border-[#7F48ED] border-t-transparent animate-spin" />
-                <div className="space-y-1 max-w-sm">
-                  <div className="text-xs font-mono font-black text-[#FF6700] tracking-wider">
-                    {Math.round(genProgress)}% COMPLETED
+              <div className="absolute inset-0 bg-zinc-950/95 backdrop-blur-2xl z-40 flex flex-col items-center justify-center p-4 sm:p-6 text-center rounded-3xl border border-zinc-800 shadow-2xl animate-in fade-in duration-300">
+                <div className="w-full max-w-md bg-zinc-900/95 border border-[#7F48ED]/30 rounded-3xl p-6 sm:p-8 shadow-[0_0_60px_rgba(127,72,237,0.22)] space-y-4 text-center">
+                  
+                  {/* Interactive Full-Width ReLaunch Animated Video Screen */}
+                  <div className="relative mx-auto flex items-center justify-center my-2">
+                    {/* Glowing Purple/Orange Aura */}
+                    <div className="absolute -inset-2 rounded-2xl bg-gradient-to-r from-[#7F48ED]/40 via-[#FF6700]/30 to-[#7F48ED]/40 blur-xl animate-pulse" />
+                    
+                    {/* Glowing Animated Gradient Frame with Spark Boost Interaction */}
+                    <button
+                      type="button"
+                      onClick={() => setSparkCount((c) => c + 1)}
+                      title="Tap ReLaunch logo to boost sparks!"
+                      className="relative p-[2px] rounded-2xl bg-gradient-to-r from-[#7F48ED] via-[#FF6700] to-[#7F48ED] shadow-[0_0_35px_rgba(127,72,237,0.35)] cursor-pointer hover:scale-105 active:scale-95 transition-transform duration-200 group"
+                    >
+                      <div className="relative w-64 sm:w-72 aspect-video rounded-[14px] overflow-hidden bg-black flex items-center justify-center">
+                        <video
+                          src="/logo.mp4"
+                          autoPlay
+                          loop
+                          muted
+                          playsInline
+                          className="w-full h-full object-contain pointer-events-none"
+                        />
+                        {/* Live AI Rendering Tag */}
+                        <div className="absolute top-2 right-2 flex items-center gap-1 px-1.5 py-0.5 rounded-full bg-black/75 border border-white/15 text-[8px] font-mono text-white">
+                          <span className="w-1.5 h-1.5 rounded-full bg-[#FF6700] animate-pulse" />
+                          <span>AI LIVE</span>
+                        </div>
+                      </div>
+                    </button>
                   </div>
-                  <h4 className="text-sm sm:text-base font-bold text-zinc-900">
-                    {genStepText || "Rendering AI Ad Master..."}
-                  </h4>
-                  <p className="text-xs text-zinc-500">
-                    Synthesizing voiceover, visual frames, and composite tracks.
-                  </p>
+
+                  {/* Spark Boost Pill (Shows when tapped) */}
+                  {sparkCount > 0 && (
+                    <div className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-gradient-to-r from-[#7F48ED]/20 to-[#FF6700]/20 border border-[#FF6700]/40 text-[10px] font-mono font-bold text-[#FF6700] animate-bounce">
+                      <span>✨ {sparkCount} Boost Sparks! Keep tapping</span>
+                    </div>
+                  )}
+
+                  {/* Brand & Step Notice */}
+                  <div className="space-y-0.5">
+                    <div className="text-[10px] font-black uppercase tracking-wider text-[#FF6700]">
+                      Generating Commercial Ad
+                    </div>
+                    <h3 className="text-lg font-black text-white truncate px-2">
+                      {brandName || "My Brand"}
+                    </h3>
+                    <p className="text-xs text-zinc-300 font-medium h-4 truncate px-2">
+                      {genStepText || "Rendering commercial master..."}
+                    </p>
+                  </div>
+
+                  {/* Modern Circular Loader Ring (Purple & Orange Theme - 100% Smooth Infinite Rotation) */}
+                  <div className="flex items-center justify-center my-2">
+                    <div className="relative w-10 h-10 flex items-center justify-center">
+                      {/* Ambient Glowing Halo */}
+                      <div className="absolute inset-0 rounded-full bg-gradient-to-tr from-[#7F48ED]/25 via-[#FF6700]/20 to-[#7F48ED]/25 blur-sm" />
+
+                      {/* Static Track Ring */}
+                      <div className="absolute w-8 h-8 rounded-full border-2 border-zinc-800" />
+
+                      {/* Continuous Infinite Spinning Dual-Tone Ring (Linear, No Reset/No Snap) */}
+                      <div
+                        className="w-8 h-8 rounded-full border-2 border-transparent border-t-[#FF6700] border-r-[#7F48ED] animate-spin"
+                        style={{
+                          animationDuration: "0.85s",
+                          animationTimingFunction: "linear",
+                          animationIterationCount: "infinite",
+                        }}
+                      />
+
+                      {/* Pulsing Core Spark */}
+                      <div className="absolute w-2 h-2 rounded-full bg-gradient-to-tr from-[#7F48ED] to-[#FF6700] shadow-[0_0_8px_#FF6700] animate-pulse" />
+                    </div>
+                  </div>
+
+                  {/* High-Precision Purple-to-Orange Progress Bar */}
+                  <div className="space-y-1.5">
+                    <div className="w-full h-2.5 bg-zinc-800 rounded-full overflow-hidden p-0.5 border border-zinc-700/40">
+                      <div
+                        className="h-full bg-gradient-to-r from-[#7F48ED] to-[#FF6700] rounded-full transition-all duration-300 shadow-[0_0_12px_rgba(255,103,0,0.5)]"
+                        style={{ width: `${Math.max(4, Math.min(genProgress, 100))}%` }}
+                      />
+                    </div>
+                    <div className="flex items-center justify-between text-xs font-mono px-0.5">
+                      <span className="text-[#FF6700] font-black">
+                        {Math.round(genProgress)}%
+                      </span>
+                      <span className="text-[#7F48ED] font-bold">
+                        ETA: {etaFormatted}
+                      </span>
+                    </div>
+                  </div>
+
+                  {/* Elapsed Timer */}
+                  <div className="text-[11px] font-mono text-zinc-400">
+                    Elapsed: {Math.floor(elapsedSeconds / 60)}m {elapsedSeconds % 60}s
+                  </div>
+
+
+                  {/* Cancel Button (Purple & Orange Themed) */}
+                  <button
+                    type="button"
+                    onClick={handleCancelGeneration}
+                    className="w-full py-2.5 px-4 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-2 cursor-pointer shadow-sm text-white bg-gradient-to-r from-[#7F48ED]/20 to-[#FF6700]/20 hover:from-[#7F48ED] hover:to-[#FF6700] border border-[#7F48ED]/50 hover:border-[#FF6700] hover:shadow-[0_0_20px_rgba(255,103,0,0.3)] group"
+                  >
+                    <X className="w-4 h-4 text-[#FF6700] group-hover:text-white group-hover:rotate-90 transition-transform" />
+                    <span>Cancel Generation</span>
+                  </button>
                 </div>
-                <div className="w-64 h-2 bg-zinc-100 rounded-full overflow-hidden border border-zinc-200">
-                  <div
-                    className="h-full bg-gradient-to-r from-[#7F48ED] to-[#FF6700] transition-all duration-300"
-                    style={{ width: `${Math.round(genProgress)}%` }}
-                  />
-                </div>
-                <button
-                  type="button"
-                  onClick={handleCancelGeneration}
-                  className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-bold text-zinc-700 hover:text-[#7F48ED] bg-purple-50 hover:bg-purple-100 border border-purple-200 hover:border-[#7F48ED]/30 transition cursor-pointer shadow-xs"
-                >
-                  <X className="w-3.5 h-3.5 text-[#7F48ED]" />
-                  <span>Cancel Generation</span>
-                </button>
               </div>
             )}
 
@@ -2810,15 +3390,14 @@ export default function StudioVideoGenerator() {
                                     return (
                                       <span
                                         key={wIdx}
-                                        className={`font-heading font-black text-[11px] sm:text-xs tracking-wide uppercase transition-all duration-75 ${
-                                          isCurrent
+                                        className={`font-heading font-black text-[11px] sm:text-xs tracking-wide uppercase transition-all duration-75 ${isCurrent
                                             ? "text-[#FFE600] scale-110 drop-shadow-[0_2px_8px_rgba(255,230,0,0.6)] font-black"
                                             : activeCap.phase === "hook"
-                                            ? "text-yellow-100 drop-shadow-[0_2px_4px_rgba(0,0,0,0.9)]"
-                                            : activeCap.phase === "cta"
-                                            ? "text-amber-200 drop-shadow-[0_2px_4px_rgba(0,0,0,0.9)]"
-                                            : "text-white drop-shadow-[0_2px_4px_rgba(0,0,0,0.9)] opacity-95"
-                                        }`}
+                                              ? "text-yellow-100 drop-shadow-[0_2px_4px_rgba(0,0,0,0.9)]"
+                                              : activeCap.phase === "cta"
+                                                ? "text-amber-200 drop-shadow-[0_2px_4px_rgba(0,0,0,0.9)]"
+                                                : "text-white drop-shadow-[0_2px_4px_rgba(0,0,0,0.9)] opacity-95"
+                                          }`}
                                       >
                                         {w}
                                       </span>
@@ -2931,7 +3510,7 @@ export default function StudioVideoGenerator() {
                   )
                 ) : (
                   <div className="absolute inset-0 w-full h-full flex flex-col items-center justify-center p-6 text-center bg-[#090D16] text-white">
-                    <div className="w-12 h-12 rounded-2xl bg-[#7F48ED]/20 border border-[#7F48ED]/30 flex items-center justify-center mb-3">
+                    <div className="w-14 h-14 rounded-2xl bg-[#7F48ED]/15 border border-[#7F48ED]/30 flex items-center justify-center mb-3 shadow-lg shadow-[#7F48ED]/20">
                       <Sparkles className="w-6 h-6 text-[#FF6700]" />
                     </div>
                     <span className="text-[10px] font-bold text-[#FF6700] uppercase tracking-wider mb-1">
@@ -2986,13 +3565,12 @@ export default function StudioVideoGenerator() {
             ) : (
               /* Clean Studio Canvas Player */
               <div
-                className={`relative flex items-center justify-center transition-all duration-300 overflow-hidden bg-black rounded-2xl border border-zinc-300/80 shadow-2xl ${
-                  aspectRatio === "9:16"
+                className={`relative flex items-center justify-center transition-all duration-300 overflow-hidden bg-black rounded-2xl border border-zinc-300/80 shadow-2xl ${aspectRatio === "9:16"
                     ? "h-[min(650px,calc(100vh-200px))] min-h-[520px] aspect-[9/16]"
                     : aspectRatio === "1:1"
-                    ? "h-[min(540px,calc(100vh-220px))] min-h-[460px] aspect-square"
-                    : "h-[min(590px,calc(100vh-210px))] min-h-[490px] aspect-[4/5]"
-                }`}
+                      ? "h-[min(540px,calc(100vh-220px))] min-h-[460px] aspect-square"
+                      : "h-[min(590px,calc(100vh-210px))] min-h-[490px] aspect-[4/5]"
+                  }`}
               >
                 {/* 3-PART HYBRID AD ENGINE PLAYBACK */}
                 {generatedResult ? (
@@ -3064,15 +3642,14 @@ export default function StudioVideoGenerator() {
                                     return (
                                       <span
                                         key={wIdx}
-                                        className={`font-heading font-black text-xs sm:text-sm tracking-wide uppercase transition-all duration-75 ${
-                                          isCurrent
+                                        className={`font-heading font-black text-xs sm:text-sm tracking-wide uppercase transition-all duration-75 ${isCurrent
                                             ? "text-[#FFE600] scale-110 drop-shadow-[0_2px_8px_rgba(255,230,0,0.6)] font-black"
                                             : activeCap.phase === "hook"
-                                            ? "text-yellow-100 drop-shadow-[0_2px_4px_rgba(0,0,0,0.9)]"
-                                            : activeCap.phase === "cta"
-                                            ? "text-amber-200 drop-shadow-[0_2px_4px_rgba(0,0,0,0.9)]"
-                                            : "text-white drop-shadow-[0_2px_4px_rgba(0,0,0,0.9)] opacity-95"
-                                        }`}
+                                              ? "text-yellow-100 drop-shadow-[0_2px_4px_rgba(0,0,0,0.9)]"
+                                              : activeCap.phase === "cta"
+                                                ? "text-amber-200 drop-shadow-[0_2px_4px_rgba(0,0,0,0.9)]"
+                                                : "text-white drop-shadow-[0_2px_4px_rgba(0,0,0,0.9)] opacity-95"
+                                          }`}
                                       >
                                         {w}
                                       </span>
@@ -3210,7 +3787,7 @@ export default function StudioVideoGenerator() {
                 ) : (
                   /* Zero Demo Video Empty State: Clean Stage Ready for Generation */
                   <div className="w-full h-full flex flex-col items-center justify-center p-4 sm:p-5 text-center bg-[#090D16] text-white select-none">
-                    <div className="w-14 h-14 rounded-2xl bg-[#7F48ED]/15 border border-[#7F48ED]/30 flex items-center justify-center mb-3">
+                    <div className="w-14 h-14 rounded-2xl bg-[#7F48ED]/15 border border-[#7F48ED]/30 flex items-center justify-center mb-3 shadow-lg shadow-[#7F48ED]/20">
                       <Sparkles className="w-7 h-7 text-[#FF6700]" />
                     </div>
                     <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/10 text-[10px] font-bold text-zinc-300 uppercase tracking-wider mb-2">
@@ -3285,7 +3862,7 @@ export default function StudioVideoGenerator() {
                       Voice Balance / Subscription Notice
                     </h3>
                     <p className="text-xs text-zinc-600 mt-1 leading-relaxed">
-                      You selected <strong className="text-zinc-900">{activeVoice?.name}</strong>. 
+                      You selected <strong className="text-zinc-900">{activeVoice?.name}</strong>.
                       ElevenLabs restricts library voices on Free accounts (<code className="text-amber-800 bg-amber-50 px-1 py-0.5 rounded font-mono text-[11px]">HTTP 402 Payment Required</code>).
                     </p>
                     <p className="text-xs text-zinc-600 mt-1 leading-relaxed">

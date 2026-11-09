@@ -22,8 +22,25 @@ export const dynamic = "force-dynamic";
  * 6. Registers new AdJob in review queue with status: 'needs_review'
  */
 
+// In-memory registry of cancelled job IDs to abort background tasks immediately
+const activeCancelledJobIds = new Set<string>();
+
 export async function POST(request: Request) {
   try {
+    const url = new URL(request.url);
+
+    // Fast-path: Explicit cancellation ping from client
+    if (url.searchParams.get("action") === "cancel") {
+      const cancelBody = await request.json().catch(() => ({}));
+      const cancelId = String(cancelBody.clientJobId || cancelBody.jobId || "").trim();
+      if (cancelId) {
+        activeCancelledJobIds.add(cancelId);
+        console.log(`[Studio Engine] 🛑 Cancellation registered for job: ${cancelId}`);
+        setTimeout(() => activeCancelledJobIds.delete(cancelId), 120000);
+      }
+      return NextResponse.json({ success: true, cancelled: cancelId });
+    }
+
     // 0. Security Shield: Rate Limiting by IP (Max 5 generations per 10 min)
     const clientIp = getClientIp(request);
     const rateCheck = checkRateLimit(`studio_generate_${clientIp}`, 5, 10 * 60 * 1000);
@@ -45,6 +62,20 @@ export async function POST(request: Request) {
     }
 
     const body = await request.json().catch(() => ({}));
+    const clientJobId = String(body.clientJobId || body.jobId || "").trim();
+
+    // Helper to detect if user pressed Cancel in the frontend
+    const isCancelled = (): boolean => {
+      if (request.signal?.aborted) return true;
+      if (clientJobId && activeCancelledJobIds.has(clientJobId)) return true;
+      return false;
+    };
+
+    if (isCancelled()) {
+      console.log(`[Studio Engine] 🛑 Generation aborted before starting: ${clientJobId}`);
+      return NextResponse.json({ success: false, cancelled: true }, { status: 499 });
+    }
+
     const rawBrandName = String(body.brandName || "My Brand").trim().slice(0, 80);
     const brandName = rawBrandName || "My Brand";
     const creativeAngle = String(body.creativeAngle || "Problem & Solution").trim().slice(0, 80);
@@ -472,6 +503,18 @@ export async function POST(request: Request) {
         const maxAttempts = 160;
         const pollIntervalMs = 2500;
         while (!remoteUrl && attempts < maxAttempts) {
+          if (isCancelled()) {
+            console.log(`[Studio Engine] 🛑 Cancellation detected for ${label}. Halting fal.ai polling loop immediately.`);
+            if (queueData?.cancel_url) {
+              safeJsonRequest(queueData.cancel_url, {
+                method: "POST",
+                headers: { Authorization: `Key ${falKey}` },
+                timeoutMs: 5000,
+              }).catch(() => {});
+            }
+            throw new Error("Generation cancelled by user.");
+          }
+
           await new Promise((resolve) => setTimeout(resolve, pollIntervalMs));
           attempts++;
           try {
@@ -559,8 +602,8 @@ export async function POST(request: Request) {
 
           const jobPromises = imageJobConfigs.map(async (cfg, idx) => {
             const body = {
-              prompt: `${cfg.prompt}, strictly NO static freeze frame, dynamic commercial action, keep original subject intact`,
-              negative_prompt: "morphing, distorted text, warped logos, mutated hands, extra limbs, floating objects, sci-fi holograms, cartoonish artifacts, blurry edges, jittery movement, static frame, frozen camera, low quality, bad anatomy, deformed",
+              prompt: `${cfg.prompt}, strictly NO static freeze frame, dynamic commercial action, keep original subject intact, authentic English commercial aesthetics`,
+              negative_prompt: "non-english text, foreign characters, chinese, kanji, cyrillic, russian, arabic, hindi, alien glyphs, distorted text, fake words, unreadable writing, morphing, warped logos, mutated hands, extra limbs, floating objects, sci-fi holograms, cartoonish artifacts, blurry edges, jittery movement, static frame, frozen camera, low quality, bad anatomy, deformed",
               image_url: cfg.imageUrl,
               duration: "5",
               aspect_ratio: "9:16",
@@ -628,8 +671,8 @@ export async function POST(request: Request) {
 
           const textPromises = textJobConfigs.map(async (cfg, idx) => {
             const body = {
-              prompt: `${cfg.prompt}, strictly NO on-screen text, NO letters, NO words`,
-              negative_prompt: "text, words, letters, typography, gibberish, foreign language, alien glyphs, distorted letters, fake words, unreadable writing, symbols, blur, watermark, low quality, bad anatomy, deformed",
+              prompt: `${cfg.prompt}, strictly NO on-screen text, NO letters, NO words, authentic English commercial advertising only`,
+              negative_prompt: "non-english text, foreign characters, chinese, kanji, cyrillic, russian, arabic, hindi, alien glyphs, text, words, letters, typography, gibberish, foreign language, distorted letters, fake words, unreadable writing, symbols, blur, watermark, low quality, bad anatomy, deformed",
               duration: "5",
               aspect_ratio: "9:16",
             };
@@ -884,33 +927,44 @@ export async function POST(request: Request) {
     };
 
     // Generates high-converting commercial outro CTA text with zero background box,
-    // pure white Arial Black typography, thick black stroke, and interactive two-stage reveal.
+    // pure white Arial Black typography, thick black stroke, showing exact Brand Name & Offer.
     const buildInteractiveCtaFilters = (
+      brandTitle: string,
       ctaHeadline: string,
       ctaSub: string,
       duration: number,
       fontPath = adFontFile
     ): string => {
-      const cleanCta = String(ctaHeadline || "Claim Exclusive Offer")
+      const cleanBrand = String(brandTitle || "EXCLUSIVE")
         .toUpperCase()
         .replace(/['":\\]/g, "")
         .replace(/[.,!?;]+$/g, "")
         .trim();
-      const cleanSub = String(ctaSub || "Tap Link Below")
+      const cleanCta = String(ctaHeadline || "Special Limited Offer")
+        .toUpperCase()
+        .replace(/['":\\]/g, "")
+        .replace(/[.,!?;]+$/g, "")
+        .trim();
+      const cleanSub = String(ctaSub || "Tap Link Below To Claim")
         .toUpperCase()
         .replace(/['":\\]/g, "")
         .replace(/[.,!?;]+$/g, "")
         .trim();
 
+      const brandFSize = cleanBrand.length > 25 ? 32 : 40;
       const ctaFSize = cleanCta.length > 25 ? 44 : 52;
-      const subFSize = cleanSub.length > 30 ? 30 : 36;
+      const subFSize = cleanSub.length > 30 ? 28 : 34;
       const subRevealTime = Math.min(1.0, duration * 0.25).toFixed(2);
       const fontOpt = fontPath ? `fontfile='${fontPath}':` : "";
 
-      const headline = `drawtext=${fontOpt}text='${cleanCta}':fontcolor=white:fontsize=${ctaFSize}:bordercolor=black:borderw=6:shadowcolor=black@0.85:shadowx=4:shadowy=4:x=(w-text_w)/2:y=h-480`;
-      const sub = `drawtext=${fontOpt}text='${cleanSub}':fontcolor=white:fontsize=${subFSize}:bordercolor=black:borderw=4:shadowcolor=black@0.85:shadowx=3:shadowy=3:x=(w-text_w)/2:y=h-380:enable='gte(t\\,${subRevealTime})'`;
+      // Top: Brand Name in high-impact typography
+      const brandLine = `drawtext=${fontOpt}text='${cleanBrand}':fontcolor=white:fontsize=${brandFSize}:bordercolor=black:borderw=5:shadowcolor=black@0.9:shadowx=3:shadowy=3:x=(w-text_w)/2:y=h-580`;
+      // Middle: Exact Offer Headline
+      const headline = `drawtext=${fontOpt}text='${cleanCta}':fontcolor=white:fontsize=${ctaFSize}:bordercolor=black:borderw=6:shadowcolor=black@0.9:shadowx=4:shadowy=4:x=(w-text_w)/2:y=h-480`;
+      // Bottom: CTA Subtext / Link
+      const sub = `drawtext=${fontOpt}text='${cleanSub}':fontcolor=white:fontsize=${subFSize}:bordercolor=black:borderw=4:shadowcolor=black@0.9:shadowx=3:shadowy=3:x=(w-text_w)/2:y=h-380:enable='gte(t\\,${subRevealTime})'`;
 
-      return `${headline},${sub}`;
+      return `${brandLine},${headline},${sub}`;
     };
 
     if (isFfmpegAvailable() && fs.existsSync(aiVideoFile)) {
@@ -982,16 +1036,17 @@ export async function POST(request: Request) {
           const hasClip3 = aiVideoClips[2] && fs.existsSync(aiVideoClips[2]);
           const scene4Source = hasClip3 ? aiVideoClips[2] : (hasClip2 ? aiVideoClips[1] : heroAiClip);
 
-          let ctaSubtext = "relaunch.us";
-          if (brandName.toLowerCase().includes("ai") || brandName.toLowerCase().includes("relaunch")) {
-            ctaSubtext = "relaunch.us/ai-recommendations";
-          } else if (ctaText.toLowerCase().includes("http") || ctaText.toLowerCase().includes(".com")) {
+          let ctaSubtext = "Tap Link Below to Claim Offer";
+          if (ctaText.toLowerCase().includes("http") || ctaText.toLowerCase().includes(".com")) {
             ctaSubtext = ctaText.toLowerCase().replace(/https?:\/\//, "").split("/")[0];
+          } else if (brandName.toLowerCase().includes("ai") || brandName.toLowerCase().includes("relaunch")) {
+            ctaSubtext = "relaunch.us/ai-recommendations";
           } else {
             ctaSubtext = "Tap Link Below to Claim Offer";
           }
 
           const ctaFilters = buildInteractiveCtaFilters(
+            brandName || "Exclusive Brand",
             ctaText || "Claim Exclusive Offer",
             ctaSubtext,
             remainingVo,
@@ -1086,16 +1141,17 @@ export async function POST(request: Request) {
           const remainingVo = Math.max(3.5, voDuration - 10.0);
           const scene3Source = (aiVideoClips[2] && fs.existsSync(aiVideoClips[2])) ? aiVideoClips[2] : (aiVideoClips[1] || heroAiClip);
 
-          let pureCtaSub = "relaunch.us";
-          if (brandName.toLowerCase().includes("ai") || brandName.toLowerCase().includes("relaunch")) {
-            pureCtaSub = "relaunch.us/ai-recommendations";
-          } else if (ctaText.toLowerCase().includes("http") || ctaText.toLowerCase().includes(".com")) {
+          let pureCtaSub = "Tap Link Below to Claim Offer";
+          if (ctaText.toLowerCase().includes("http") || ctaText.toLowerCase().includes(".com")) {
             pureCtaSub = ctaText.toLowerCase().replace(/https?:\/\//, "").split("/")[0];
+          } else if (brandName.toLowerCase().includes("ai") || brandName.toLowerCase().includes("relaunch")) {
+            pureCtaSub = "relaunch.us/ai-recommendations";
           } else {
             pureCtaSub = "Tap Link Below to Claim Offer";
           }
 
           const pureCtaFilters = buildInteractiveCtaFilters(
+            brandName || "Exclusive Brand",
             ctaText || "Claim Exclusive Offer",
             pureCtaSub,
             remainingVo,
@@ -1380,6 +1436,13 @@ export async function POST(request: Request) {
         : "AI video ad successfully generated with live ElevenLabs voiceover and 3-part hybrid composition.",
     });
   } catch (err: any) {
+    if (err.message?.includes("cancelled by user") || request.signal?.aborted) {
+      console.log(`[Studio Engine] 🛑 Generation job successfully halted upon user cancellation.`);
+      return NextResponse.json(
+        { success: false, cancelled: true, message: "Generation cancelled by user." },
+        { status: 499 }
+      );
+    }
     console.error("[Studio Engine Error]", err);
     return NextResponse.json(
       { error: "Failed to generate ad variant: " + err.message },
