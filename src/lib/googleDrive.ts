@@ -217,52 +217,57 @@ export async function syncDeliverablesToGoogleDrive(params: {
           console.warn("[Google Drive Sync] Summary push warning:", sumErr);
         }
 
-        // 2. Upload media files (thumbnail + video variants) one by one
-        for (const [key, relPath] of Object.entries(deliveryMap)) {
+        // 2. Upload media files (thumbnail + video variants) concurrently without stalling approval
+        const mediaUploadPromises = Object.entries(deliveryMap).map(async ([key, relPath]) => {
           const absPath = path.join(process.cwd(), "public", relPath.replace(/^\//, ""));
-          if (fs.existsSync(absPath)) {
-            const stats = fs.statSync(absPath);
-            // Skip text files already uploaded, process media < 35MB
-            if (stats.size >= 1024 * 1024 && stats.size < 35 * 1024 * 1024) {
-              const fileBuffer = fs.readFileSync(absPath);
-              const filename = path.basename(absPath);
-              let mimeType = filename.endsWith(".jpg") || filename.endsWith(".jpeg") ? "image/jpeg" : "video/mp4";
+          if (!fs.existsSync(absPath)) return;
+          const stats = fs.statSync(absPath);
+          // Process media < 35MB
+          if (stats.size >= 1024 * 1024 && stats.size < 35 * 1024 * 1024) {
+            const fileBuffer = fs.readFileSync(absPath);
+            const filename = path.basename(absPath);
+            const mimeType = filename.endsWith(".jpg") || filename.endsWith(".jpeg") ? "image/jpeg" : "video/mp4";
 
-              const mediaPayload = JSON.stringify({
-                targetFolderId: folderId,
-                subfolderName,
-                brandName,
-                jobId,
-                files: [
-                  {
-                    filename,
-                    mimeType,
-                    base64: fileBuffer.toString("base64"),
-                  },
-                ],
+            const mediaPayload = JSON.stringify({
+              targetFolderId: folderId,
+              subfolderName,
+              brandName,
+              jobId,
+              files: [
+                {
+                  filename,
+                  mimeType,
+                  base64: fileBuffer.toString("base64"),
+                },
+              ],
+            });
+
+            try {
+              const mediaRes = await fetch(webhookUrl, {
+                method: "POST",
+                headers: {
+                  "Content-Type": "application/json",
+                  "Content-Length": Buffer.byteLength(mediaPayload).toString(),
+                },
+                body: mediaPayload,
+                redirect: "follow",
+                signal: AbortSignal.timeout(15000),
               });
-
-              try {
-                const mediaRes = await fetch(webhookUrl, {
-                  method: "POST",
-                  headers: {
-                    "Content-Type": "application/json",
-                    "Content-Length": Buffer.byteLength(mediaPayload).toString(),
-                  },
-                  body: mediaPayload,
-                  redirect: "follow",
-                  signal: AbortSignal.timeout(90000),
-                });
-                const mediaJson: any = await mediaRes.json().catch(() => null);
-                if (mediaJson?.files?.[0]?.url) {
-                  uploadedDriveFiles[key] = mediaJson.files[0].url;
-                }
-              } catch (singleErr) {
-                console.warn(`[Google Drive Sync] Could not upload ${filename} to Drive:`, singleErr);
+              const mediaJson: any = await mediaRes.json().catch(() => null);
+              if (mediaJson?.files?.[0]?.url) {
+                uploadedDriveFiles[key] = mediaJson.files[0].url;
               }
+            } catch (singleErr) {
+              console.warn(`[Google Drive Sync] Could not upload ${filename} to Drive:`, singleErr);
             }
           }
-        }
+        });
+
+        // Await concurrently with a 2.5s maximum hold so approval completes promptly
+        await Promise.race([
+          Promise.allSettled(mediaUploadPromises),
+          new Promise((resolve) => setTimeout(resolve, 2500)),
+        ]);
 
         console.log(`[Google Drive Sync] Dispatched deliverable package to Google Apps Script for ${jobId}`);
         return {

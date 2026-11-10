@@ -232,6 +232,8 @@ export default function StudioReviewPortal() {
   };
   const [toastMessage, setToastMessage] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isApproving, setIsApproving] = useState(false);
+  const [approvalStep, setApprovalStep] = useState<string>("Packaging campaign deliverables...");
 
   const videoRef = useRef<HTMLVideoElement>(null);
   const videoContainerRef = useRef<HTMLDivElement>(null);
@@ -346,6 +348,10 @@ export default function StudioReviewPortal() {
       return;
     }
 
+    if (decision === "approve") {
+      setIsApproving(true);
+      setApprovalStep("Verifying quality compliance & packaging deliverables...");
+    }
     setIsSubmitting(true);
 
     try {
@@ -441,12 +447,24 @@ export default function StudioReviewPortal() {
       showToast("Error recording response. Please try again.");
     } finally {
       setIsSubmitting(false);
+      setIsApproving(false);
     }
   };
 
   const handleClientApprove = async () => {
-    if (!selectedVariant) return;
+    if (!selectedVariant || isSubmitting || isApproving) return;
+    setIsApproving(true);
     setIsSubmitting(true);
+    setApprovalStep("Verifying quality compliance & creator rights...");
+
+    const timer1 = setTimeout(() => {
+      setApprovalStep("Generating Meta Ads CSV & TikTok Launch Kits...");
+    }, 600);
+
+    const timer2 = setTimeout(() => {
+      setApprovalStep("Packaging master videos & unlocking deliverables...");
+    }, 1400);
+
     try {
       const res = await fetch("/api/studio/review", {
         method: "POST",
@@ -467,6 +485,7 @@ export default function StudioReviewPortal() {
       if (!res.ok) {
         showToast(data.error || "Failed to record approval");
         setIsSubmitting(false);
+        setIsApproving(false);
         return;
       }
       const updated: VariantItem = {
@@ -482,7 +501,10 @@ export default function StudioReviewPortal() {
     } catch {
       showToast("Error recording client approval.");
     } finally {
+      clearTimeout(timer1);
+      clearTimeout(timer2);
       setIsSubmitting(false);
+      setIsApproving(false);
     }
   };
 
@@ -750,16 +772,25 @@ export default function StudioReviewPortal() {
                 </div>
               )}
               <button
-                disabled={isSubmitting || !allChecksPassed}
+                disabled={isSubmitting || isApproving || !allChecksPassed}
                 onClick={() => handleDecision("approve")}
                 className={`w-full py-3 px-4 rounded-xl text-sm font-bold text-white shadow-sm flex items-center justify-center gap-2 transition-all ${
-                  allChecksPassed
+                  allChecksPassed && !isSubmitting && !isApproving
                     ? "bg-[#7F48ED] hover:bg-[#6C34DE] active:bg-[#5B25C7] cursor-pointer active:scale-[0.99]"
                     : "bg-zinc-200 text-zinc-400 border border-zinc-200 cursor-not-allowed"
                 }`}
               >
-                <CheckCircle2 className="w-4 h-4 stroke-[2.5]" />
-                <span>{allChecksPassed ? "Approve Ad & Deliver to Drive" : "Approval Locked (Checks Required)"}</span>
+                {isApproving ? (
+                  <>
+                    <div className="w-4 h-4 rounded-full border-2 border-white/30 border-t-white animate-spin shrink-0" />
+                    <span>Packaging &amp; Approving...</span>
+                  </>
+                ) : (
+                  <>
+                    <CheckCircle2 className="w-4 h-4 stroke-[2.5]" />
+                    <span>{allChecksPassed ? "Approve Ad & Deliver to Drive" : "Approval Locked (Checks Required)"}</span>
+                  </>
+                )}
               </button>
             </div>
           )}
@@ -767,21 +798,21 @@ export default function StudioReviewPortal() {
           {/* Secondary Actions: Solid Orange Button & Clean Decline */}
           <div className="grid grid-cols-2 gap-2 pt-1">
             <button
-              disabled={isSubmitting}
+              disabled={isSubmitting || isApproving}
               onClick={() => {
                 if (selectedVariant?.reviewNotes) setRecutNotes(selectedVariant.reviewNotes);
                 setRecutModalOpen(true);
               }}
-              className="py-2.5 px-3 rounded-xl bg-[#FF6700] hover:bg-[#E55C00] active:bg-[#CC5200] text-white text-xs font-bold flex items-center justify-center gap-1.5 shadow-xs transition-all cursor-pointer"
+              className="py-2.5 px-3 rounded-xl bg-[#FF6700] hover:bg-[#E55C00] active:bg-[#CC5200] text-white text-xs font-bold flex items-center justify-center gap-1.5 shadow-xs transition-all cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
             >
               <RefreshCw className="w-3.5 h-3.5" />
               <span>Request Changes</span>
             </button>
 
             <button
-              disabled={isSubmitting}
+              disabled={isSubmitting || isApproving}
               onClick={() => handleDecision("reject")}
-              className="py-2.5 px-3 rounded-xl bg-zinc-100 hover:bg-zinc-200 border border-zinc-200 text-zinc-700 hover:text-zinc-900 text-xs font-semibold flex items-center justify-center gap-1.5 transition-all cursor-pointer"
+              className="py-2.5 px-3 rounded-xl bg-zinc-100 hover:bg-zinc-200 border border-zinc-200 text-zinc-700 hover:text-zinc-900 text-xs font-semibold flex items-center justify-center gap-1.5 transition-all cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
             >
               <XCircle className="w-3.5 h-3.5" />
               <span>Decline Ad</span>
@@ -1216,32 +1247,48 @@ export default function StudioReviewPortal() {
                   <button
                     type="button"
                     onClick={handleClientApprove}
-                    disabled={isSubmitting}
-                    className="w-full py-3 px-4 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-bold transition shadow-sm cursor-pointer"
+                    disabled={isSubmitting || isApproving}
+                    className="w-full py-3 px-4 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-bold transition shadow-sm cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed flex items-center justify-center gap-2"
                   >
-                    Approve Current Cut Instead
+                    {isApproving ? (
+                      <>
+                        <div className="w-4 h-4 rounded-full border-2 border-white/30 border-t-white animate-spin shrink-0" />
+                        <span>Approving Current Cut...</span>
+                      </>
+                    ) : (
+                      <span>Approve Current Cut Instead</span>
+                    )}
                   </button>
                 </div>
               ) : (
                 <div className="space-y-3">
                   <button
                     type="button"
-                    disabled={isSubmitting}
+                    disabled={isSubmitting || isApproving}
                     onClick={handleClientApprove}
-                    className="w-full py-3.5 px-4 rounded-xl text-sm font-bold text-white bg-emerald-600 hover:bg-emerald-500 active:bg-emerald-700 transition shadow-md shadow-emerald-600/20 flex items-center justify-center gap-2 cursor-pointer"
+                    className="w-full py-3.5 px-4 rounded-xl text-sm font-bold text-white bg-emerald-600 hover:bg-emerald-500 active:bg-emerald-700 transition shadow-md shadow-emerald-600/20 flex items-center justify-center gap-2 cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed"
                   >
-                    <CheckCircle2 className="w-5 h-5 stroke-[2.5]" />
-                    <span>{isSubmitting ? "Recording Approval..." : "Approve Ad Deliverables"}</span>
+                    {isApproving ? (
+                      <>
+                        <div className="w-5 h-5 rounded-full border-2 border-white/30 border-t-white animate-spin shrink-0" />
+                        <span>Approving &amp; Packaging Deliverables...</span>
+                      </>
+                    ) : (
+                      <>
+                        <CheckCircle2 className="w-5 h-5 stroke-[2.5]" />
+                        <span>Approve Ad Deliverables</span>
+                      </>
+                    )}
                   </button>
 
                   <button
                     type="button"
-                    disabled={isSubmitting}
+                    disabled={isSubmitting || isApproving}
                     onClick={() => {
                       if (selectedVariant?.reviewNotes) setRecutNotes(selectedVariant.reviewNotes);
                       setRecutModalOpen(true);
                     }}
-                    className="w-full py-2.5 px-3 rounded-xl bg-zinc-100 hover:bg-zinc-200 border border-zinc-200 text-zinc-700 hover:text-zinc-950 text-xs font-bold transition flex items-center justify-center gap-1.5 cursor-pointer"
+                    className="w-full py-2.5 px-3 rounded-xl bg-zinc-100 hover:bg-zinc-200 border border-zinc-200 text-zinc-700 hover:text-zinc-950 text-xs font-bold transition flex items-center justify-center gap-1.5 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
                   >
                     <RefreshCw className="w-3.5 h-3.5 text-[#FF6700]" />
                     <span>Request Quick Revisions</span>
@@ -2263,6 +2310,48 @@ export default function StudioReviewPortal() {
               >
                 Understood, Close
               </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* 4.5. Approval Processing Overlay Modal */}
+      {isApproving && (
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 select-none animate-in fade-in duration-200">
+          <div className="bg-white rounded-3xl border border-zinc-200 p-6 sm:p-8 max-w-md w-full shadow-2xl text-center space-y-5 animate-in zoom-in-95 duration-200">
+            {/* Animated Circular Spinner (Pure Circle Loader Only) */}
+            <div className="relative w-16 h-16 mx-auto flex items-center justify-center my-1">
+              <div className="w-16 h-16 rounded-full border-4 border-zinc-100 border-t-[#7F48ED] border-r-[#FF6700] animate-spin" />
+            </div>
+
+            <div className="space-y-1.5">
+              <h3 className="text-lg font-black text-zinc-900 tracking-tight">
+                Approving Ad Deliverables
+              </h3>
+              <p className="text-xs text-zinc-500 font-medium leading-relaxed">
+                Packaging campaign deliverables, generating ad launch kits, and unlocking Google Drive files.
+              </p>
+            </div>
+
+            {/* Live Step Progress Box */}
+            <div className="bg-zinc-50 rounded-2xl p-4 border border-zinc-200/80 text-left space-y-2.5 font-medium text-xs">
+              <div className="flex items-center gap-2.5 text-emerald-700">
+                <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
+                <span>Quality &amp; safe zone compliance verified</span>
+              </div>
+              <div className="flex items-center gap-2.5 text-zinc-900 font-bold">
+                <div className="w-4 h-4 rounded-full border-2 border-zinc-200 border-t-[#7F48ED] animate-spin shrink-0" />
+                <span>{approvalStep}</span>
+              </div>
+              <div className="flex items-center gap-2.5 text-zinc-400">
+                <span className="w-4 h-4 rounded-full border-2 border-zinc-300 flex items-center justify-center text-[9px] shrink-0 font-bold">3</span>
+                <span>Unlocking 1-click ZIP &amp; Drive deliveries</span>
+              </div>
+            </div>
+
+            <div className="flex items-center justify-center gap-2 text-[11px] text-zinc-500 font-medium">
+              <span className="w-1.5 h-1.5 rounded-full bg-[#FF6700] animate-ping shrink-0" />
+              <span>Please wait a moment while assets are finalized</span>
             </div>
           </div>
         </div>
