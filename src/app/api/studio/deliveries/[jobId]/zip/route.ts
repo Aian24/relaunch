@@ -3,6 +3,7 @@ import fs from "fs";
 import path from "path";
 import { getAdJobById } from "@/lib/adJob";
 import { buildZipArchive, ZipFileInput } from "@/lib/zipBuilder";
+import { generateMetaCampaignCsv, generateTikTokAdKitText } from "@/lib/googleDrive";
 
 export const dynamic = "force-dynamic";
 
@@ -74,6 +75,36 @@ export async function GET(
       name: `ad-copy-meta.txt`,
       content: copyContent,
     });
+
+    // Add Meta Ads Manager import CSV
+    try {
+      const metaCsv = generateMetaCampaignCsv(job.brandName, job.id, {
+        hookText: job.hookText,
+        scriptBody: job.script?.body,
+        ctaText: job.script?.ctaText,
+      });
+      filesToZip.push({
+        name: `meta-campaign-import.csv`,
+        content: Buffer.from(metaCsv, "utf8"),
+      });
+    } catch (e) {
+      console.warn("Could not generate meta-campaign-import.csv for ZIP", e);
+    }
+
+    // Add TikTok Spark Ad Kit
+    try {
+      const tiktokKit = generateTikTokAdKitText(job.brandName, job.id, {
+        hookText: job.hookText,
+        scriptBody: job.script?.body,
+        ctaText: job.script?.ctaText,
+      });
+      filesToZip.push({
+        name: `tiktok-ad-kit.txt`,
+        content: Buffer.from(tiktokKit, "utf8"),
+      });
+    } catch (e) {
+      console.warn("Could not generate tiktok-ad-kit.txt for ZIP", e);
+    }
   }
 
   if (filesToZip.length === 0) {

@@ -1,7 +1,5 @@
 "use client";
 
-export const dynamic = "force-dynamic";
-
 import React, { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 import {
@@ -36,6 +34,8 @@ import {
   AlertTriangle,
   ShieldAlert,
   X,
+  Eye,
+  Users,
 } from "lucide-react";
 
 interface VariantItem {
@@ -439,6 +439,48 @@ export default function StudioReviewPortal() {
       }
     } catch {
       showToast("Error recording response. Please try again.");
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const handleClientApprove = async () => {
+    if (!selectedVariant) return;
+    setIsSubmitting(true);
+    try {
+      const res = await fetch("/api/studio/review", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          variantId: selectedVariant.id,
+          decision: "approve",
+          reviewerName: `${selectedVariant.clientName} (Client Sign-Off)`,
+          complianceChecks: {
+            creatorVerification: true,
+            scriptClaims: true,
+            clientFootagePresent: true,
+            disclosureState: true,
+          },
+        }),
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        showToast(data.error || "Failed to record approval");
+        setIsSubmitting(false);
+        return;
+      }
+      const updated: VariantItem = {
+        ...selectedVariant,
+        status: "approved",
+        verifiedBy: `${selectedVariant.clientName} (Client Sign-Off)`,
+        verifiedAt: new Date().toISOString(),
+      };
+      setVariants((prev) => prev.map((v) => (v.id === selectedVariant.id ? updated : v)));
+      setSelectedVariant(updated);
+      setApprovedCount((c) => c + 1);
+      showToast("✓ Deliverables approved! Campaign assets unlocked.");
+    } catch {
+      showToast("Error recording client approval.");
     } finally {
       setIsSubmitting(false);
     }
@@ -911,6 +953,365 @@ export default function StudioReviewPortal() {
     );
   };
 
+  const renderClientReviewPortal = () => {
+    if (!selectedVariant) {
+      return (
+        <div className="flex-1 w-full p-3 sm:p-4 lg:p-5 flex items-center justify-center text-center">
+          <div className="bg-white rounded-2xl border border-zinc-200 p-8 max-w-md shadow-sm">
+            <h3 className="text-base font-bold text-zinc-900 mb-1">Ad Deliverable Not Found</h3>
+            <p className="text-xs text-zinc-500 mb-4">Please verify the link or check with the ReLaunch team.</p>
+            <button
+              onClick={() => setIsClientMode(false)}
+              className="px-4 py-2 bg-[#7F48ED] text-white text-xs font-bold rounded-xl cursor-pointer"
+            >
+              Open Studio Queue
+            </button>
+          </div>
+        </div>
+      );
+    }
+
+    const currentVideoSrc =
+      aspectRatio === "9:16"
+        ? selectedVariant.video9x16
+        : aspectRatio === "1:1"
+        ? selectedVariant.video1x1
+        : selectedVariant.video4x5;
+
+    return (
+      <div className="flex-1 w-full p-3 sm:p-4 lg:p-5 space-y-4 sm:space-y-5 overflow-y-auto">
+        {/* Client Top Header Banner — Edge-to-Edge Matching Studio Workstations */}
+        <div className="bg-white rounded-2xl border border-zinc-200 p-4 sm:p-5 shadow-sm flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+          <div className="space-y-1">
+            <div className="flex items-center gap-2 flex-wrap">
+              <span className="px-2.5 py-0.5 rounded-full bg-[#7F48ED]/10 text-[#7F48ED] border border-[#7F48ED]/20 text-[11px] font-bold uppercase tracking-wider flex items-center gap-1">
+                <ShieldCheck className="w-3.5 h-3.5 text-[#7F48ED]" />
+                Client Deliverable Review
+              </span>
+              <span className="text-zinc-300 text-xs hidden sm:inline">•</span>
+              <span className="text-xs font-bold text-zinc-700 bg-zinc-100 px-2.5 py-0.5 rounded-full border border-zinc-200">
+                {selectedVariant.clientName}
+              </span>
+            </div>
+            <h1 className="text-lg sm:text-2xl font-black text-zinc-900 tracking-tight">
+              {selectedVariant.hookText || "Commercial Video Ad Campaign"}
+            </h1>
+            <p className="text-xs sm:text-sm text-zinc-500 max-w-4xl">
+              Review your ad creative across vertical, square, and portrait formats. Once approved, all master files and Google Drive links unlock immediately.
+            </p>
+          </div>
+
+          <div className="flex items-center gap-2 shrink-0">
+            {selectedVariant.status === "approved" ? (
+              <span className="px-3 py-1.5 rounded-xl bg-emerald-50 text-emerald-800 border border-emerald-200 text-xs font-bold flex items-center gap-1.5 shadow-xs">
+                <CheckCircle2 className="w-4 h-4 text-emerald-600" />
+                <span>Deliverables Approved</span>
+              </span>
+            ) : selectedVariant.status === "recut" ? (
+              <span className="px-3 py-1.5 rounded-xl bg-amber-50 text-amber-800 border border-amber-200 text-xs font-bold flex items-center gap-1.5 shadow-xs">
+                <RefreshCw className="w-4 h-4 text-amber-600" />
+                <span>Revisions in Progress</span>
+              </span>
+            ) : (
+              <span className="px-3 py-1.5 rounded-xl bg-orange-50 text-[#FF6700] border border-orange-200 text-xs font-bold flex items-center gap-1.5 shadow-xs">
+                <span className="w-2 h-2 rounded-full bg-[#FF6700] animate-pulse" />
+                <span>Ready for Client Sign-Off</span>
+              </span>
+            )}
+            <button
+              onClick={() => setIsClientMode(false)}
+              className="px-3 py-1.5 rounded-xl bg-zinc-100 hover:bg-zinc-200 text-zinc-600 text-xs font-semibold transition cursor-pointer"
+              title="Switch to internal operator mode"
+            >
+              Operator View
+            </button>
+          </div>
+        </div>
+
+        {/* Client Dual-Column Review Stage — Full Width 12-Column Grid */}
+        <div className="grid grid-cols-1 xl:grid-cols-12 gap-4 lg:gap-5 items-start">
+          {/* Left Column: Video Viewport & Ratio Controls */}
+          <div className="xl:col-span-7 2xl:col-span-7 bg-white rounded-2xl border border-zinc-200 p-4 sm:p-5 shadow-sm flex flex-col items-center gap-3.5">
+            {/* Format Ratio Selector */}
+            <div className="flex items-center justify-between w-full max-w-md bg-zinc-100 p-1 rounded-2xl border border-zinc-200">
+              {(["9:16", "1:1", "4:5"] as const).map((r) => (
+                <button
+                  key={r}
+                  onClick={() => setAspectRatio(r)}
+                  className={`flex-1 py-1.5 rounded-xl text-xs font-bold transition flex items-center justify-center gap-1.5 cursor-pointer ${
+                    aspectRatio === r
+                      ? "bg-white text-zinc-950 shadow-sm"
+                      : "text-zinc-600 hover:text-zinc-950"
+                  }`}
+                >
+                  {r === "9:16" ? <Smartphone className="w-3.5 h-3.5 text-[#7F48ED]" /> : <Square className="w-3.5 h-3.5 text-[#FF6700]" />}
+                  <span>{r === "9:16" ? "9:16 Reel" : r === "1:1" ? "1:1 Feed" : "4:5 Portrait"}</span>
+                </button>
+              ))}
+            </div>
+
+            {/* Video Player Display */}
+            <div
+              ref={videoContainerRef}
+              onClick={togglePlay}
+              className={`relative bg-[#090D16] rounded-2xl overflow-hidden border border-zinc-300 shadow-xl cursor-pointer flex items-center justify-center select-none group ${
+                aspectRatio === "9:16"
+                  ? "h-[500px] sm:h-[560px] xl:h-[620px] aspect-[9/16] w-auto max-w-full"
+                  : aspectRatio === "1:1"
+                  ? "h-[380px] sm:h-[460px] xl:h-[520px] aspect-square w-auto max-w-full"
+                  : "h-[440px] sm:h-[520px] xl:h-[580px] aspect-[4/5] w-auto max-w-full"
+              }`}
+            >
+              <video
+                ref={videoRef}
+                src={currentVideoSrc}
+                loop
+                autoPlay
+                muted={isMuted}
+                playsInline
+                className="w-full h-full object-cover transition-all"
+              />
+
+              {!isPlaying && (
+                <div className="absolute inset-0 bg-black/40 backdrop-blur-[2px] flex items-center justify-center transition-all z-20">
+                  <div className="w-16 h-16 rounded-full bg-[#7F48ED] text-white flex items-center justify-center shadow-xl shadow-[#7F48ED]/50">
+                    <Play className="w-7 h-7 fill-white ml-0.5" />
+                  </div>
+                </div>
+              )}
+
+              {/* In-Video Badges */}
+              <div className="absolute top-3 left-3 z-20 bg-white/95 text-zinc-900 text-[10px] font-bold px-2.5 py-1 rounded-lg border border-zinc-200 shadow-xs flex items-center gap-1.5">
+                <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                <span>{aspectRatio} · 1080p · 60 FPS</span>
+              </div>
+
+              {/* Floating Controls */}
+              <div className="absolute top-3 right-3 z-20 flex items-center gap-2">
+                <button
+                  type="button"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    toggleMute();
+                  }}
+                  className="w-8 h-8 rounded-full bg-white/95 text-zinc-900 border border-zinc-200 flex items-center justify-center shadow-sm hover:scale-105 transition cursor-pointer"
+                  title={isMuted ? "Unmute" : "Mute"}
+                >
+                  {isMuted ? <VolumeX className="w-4 h-4 text-[#FF6700]" /> : <Volume2 className="w-4 h-4 text-emerald-600" />}
+                </button>
+                <button
+                  type="button"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    toggleFullscreen();
+                  }}
+                  className="w-8 h-8 rounded-full bg-white/95 text-zinc-900 border border-zinc-200 flex items-center justify-center shadow-sm hover:scale-105 transition cursor-pointer"
+                  title="Fullscreen"
+                >
+                  <Maximize2 className="w-4 h-4" />
+                </button>
+              </div>
+            </div>
+
+            <p className="text-[11px] text-zinc-500 font-medium text-center">
+              Tap anywhere on video to play/pause · Sound is muted by default for browser safety
+            </p>
+          </div>
+
+          {/* Right Column: Sign-Off Actions, Brief & Quality Guarantee */}
+          <div className="xl:col-span-5 2xl:col-span-5 flex flex-col gap-4">
+            {/* Primary Action Card */}
+            <div className="bg-white rounded-2xl border border-zinc-200 p-5 shadow-sm space-y-4">
+              <div className="flex items-center justify-between pb-3 border-b border-zinc-100">
+                <span className="text-xs font-bold uppercase tracking-wider text-zinc-900">
+                  Campaign Approval
+                </span>
+                <span className="text-xs font-mono font-bold text-zinc-500">
+                  Job #{selectedVariant.id}
+                </span>
+              </div>
+
+              {selectedVariant.status === "approved" ? (
+                <div className="space-y-3">
+                  <div className="bg-emerald-50 border border-emerald-200 rounded-xl p-4 space-y-2">
+                    <div className="flex items-center gap-2">
+                      <div className="w-6 h-6 rounded-full bg-emerald-500 text-white flex items-center justify-center shrink-0">
+                        <Check className="w-3.5 h-3.5 stroke-[3]" />
+                      </div>
+                      <span className="text-sm font-bold text-emerald-900">
+                        Campaign Approved &amp; Unlocked!
+                      </span>
+                    </div>
+                    <p className="text-xs text-emerald-800 leading-relaxed">
+                      All deliverables have been packaged for Meta &amp; TikTok. You can download the video files or open the Google Drive folder below.
+                    </p>
+                  </div>
+
+                  {/* 1-Click ZIP Download */}
+                  <a
+                    href={`/api/studio/deliveries/${selectedVariant.id}/zip`}
+                    download={`${selectedVariant.clientName.toLowerCase().replace(/\s+/g, "-")}-${selectedVariant.id}-campaign-kit.zip`}
+                    className="w-full flex items-center justify-center gap-2 py-3 px-4 rounded-xl bg-gradient-to-r from-[#7F48ED] to-indigo-600 hover:from-[#713be2] hover:to-indigo-700 text-white text-xs font-bold transition shadow-sm cursor-pointer"
+                  >
+                    <Download className="w-4 h-4" />
+                    <span>Download Full Campaign Kit (.ZIP)</span>
+                  </a>
+
+                  {/* Individual Format Downloads */}
+                  <div className="grid grid-cols-3 gap-2">
+                    <a
+                      href={selectedVariant.video9x16}
+                      download={`${selectedVariant.id}-9x16.mp4`}
+                      className="py-2 px-2 rounded-lg bg-zinc-50 hover:bg-zinc-100 border border-zinc-200 text-zinc-800 text-xs font-bold text-center transition cursor-pointer"
+                    >
+                      9:16 Reel
+                    </a>
+                    <a
+                      href={selectedVariant.video1x1}
+                      download={`${selectedVariant.id}-1x1.mp4`}
+                      className="py-2 px-2 rounded-lg bg-zinc-50 hover:bg-zinc-100 border border-zinc-200 text-zinc-800 text-xs font-bold text-center transition cursor-pointer"
+                    >
+                      1:1 Square
+                    </a>
+                    <a
+                      href={selectedVariant.video4x5}
+                      download={`${selectedVariant.id}-4x5.mp4`}
+                      className="py-2 px-2 rounded-lg bg-zinc-50 hover:bg-zinc-100 border border-zinc-200 text-zinc-800 text-xs font-bold text-center transition cursor-pointer"
+                    >
+                      4:5 Portrait
+                    </a>
+                  </div>
+
+                  {/* Google Drive Link */}
+                  <a
+                    href={`https://drive.google.com/drive/folders/${selectedVariant.delivery?.googleDriveFolderId || "1HWnNVUDgq3d0uI5Fcd54aS3Iim7U97Vx"}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="w-full flex items-center justify-center gap-1.5 py-2.5 px-3 rounded-xl bg-emerald-50 hover:bg-emerald-100 border border-emerald-200 text-emerald-800 text-xs font-bold transition cursor-pointer"
+                  >
+                    <FolderOpen className="w-4 h-4 text-emerald-600" />
+                    <span>Open in Google Drive</span>
+                    <ExternalLink className="w-3 h-3 text-emerald-600" />
+                  </a>
+                </div>
+              ) : selectedVariant.status === "recut" ? (
+                <div className="space-y-3">
+                  <div className="bg-amber-50 border border-amber-200 rounded-xl p-4 space-y-2">
+                    <div className="flex items-center gap-2">
+                      <RefreshCw className="w-4 h-4 text-amber-700 animate-spin" />
+                      <span className="text-sm font-bold text-amber-900">
+                        Revision Request Received
+                      </span>
+                    </div>
+                    {selectedVariant.reviewNotes && (
+                      <p className="text-xs text-amber-800 italic bg-white/70 p-2.5 rounded-lg border border-amber-200">
+                        &ldquo;{selectedVariant.reviewNotes}&rdquo;
+                      </p>
+                    )}
+                    <p className="text-xs text-amber-700">
+                      Our production team is applying your updates and will notify you as soon as the revised cut is ready.
+                    </p>
+                  </div>
+
+                  <button
+                    type="button"
+                    onClick={handleClientApprove}
+                    disabled={isSubmitting}
+                    className="w-full py-3 px-4 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-bold transition shadow-sm cursor-pointer"
+                  >
+                    Approve Current Cut Instead
+                  </button>
+                </div>
+              ) : (
+                <div className="space-y-3">
+                  <button
+                    type="button"
+                    disabled={isSubmitting}
+                    onClick={handleClientApprove}
+                    className="w-full py-3.5 px-4 rounded-xl text-sm font-bold text-white bg-emerald-600 hover:bg-emerald-500 active:bg-emerald-700 transition shadow-md shadow-emerald-600/20 flex items-center justify-center gap-2 cursor-pointer"
+                  >
+                    <CheckCircle2 className="w-5 h-5 stroke-[2.5]" />
+                    <span>{isSubmitting ? "Recording Approval..." : "Approve Ad Deliverables"}</span>
+                  </button>
+
+                  <button
+                    type="button"
+                    disabled={isSubmitting}
+                    onClick={() => {
+                      if (selectedVariant?.reviewNotes) setRecutNotes(selectedVariant.reviewNotes);
+                      setRecutModalOpen(true);
+                    }}
+                    className="w-full py-2.5 px-3 rounded-xl bg-zinc-100 hover:bg-zinc-200 border border-zinc-200 text-zinc-700 hover:text-zinc-950 text-xs font-bold transition flex items-center justify-center gap-1.5 cursor-pointer"
+                  >
+                    <RefreshCw className="w-3.5 h-3.5 text-[#FF6700]" />
+                    <span>Request Quick Revisions</span>
+                  </button>
+                </div>
+              )}
+            </div>
+
+            {/* Script & Brief Summary Card */}
+            <div className="bg-white rounded-2xl border border-zinc-200 p-5 shadow-sm space-y-3">
+              <div className="flex items-center gap-2 pb-2 border-b border-zinc-100">
+                <FileText className="w-4 h-4 text-[#7F48ED]" />
+                <h3 className="text-xs font-bold uppercase tracking-wider text-zinc-900">
+                  Script &amp; Messaging Overview
+                </h3>
+              </div>
+
+              <div className="space-y-2 text-xs">
+                <div>
+                  <span className="text-[10px] font-bold text-zinc-400 uppercase tracking-wider block">Opening Hook</span>
+                  <p className="text-zinc-900 font-bold mt-0.5">&ldquo;{selectedVariant.hookText}&rdquo;</p>
+                </div>
+
+                <div>
+                  <span className="text-[10px] font-bold text-zinc-400 uppercase tracking-wider block">Full Voiceover Script</span>
+                  <p className="text-zinc-700 mt-0.5 leading-relaxed bg-zinc-50 p-2.5 rounded-xl border border-zinc-100">
+                    {selectedVariant.scriptBody}
+                  </p>
+                </div>
+
+                <div>
+                  <span className="text-[10px] font-bold text-zinc-400 uppercase tracking-wider block">Call to Action</span>
+                  <p className="text-emerald-700 font-bold mt-0.5">{selectedVariant.ctaText || "Learn More"}</p>
+                </div>
+              </div>
+            </div>
+
+            {/* Quality Standard Guarantee Card */}
+            <div className="bg-white rounded-2xl border border-zinc-200 p-4 shadow-sm space-y-2.5">
+              <div className="flex items-center gap-2">
+                <ShieldCheck className="w-4 h-4 text-emerald-600" />
+                <span className="text-xs font-bold text-zinc-900 uppercase tracking-wider">
+                  Verified Production Standards
+                </span>
+              </div>
+              <div className="grid grid-cols-2 gap-2 text-[11px] text-zinc-600">
+                <div className="p-2 rounded-xl bg-zinc-50 border border-zinc-100">
+                  <strong className="text-zinc-900 block font-semibold">Audio Standard:</strong>
+                  <span>-14 LUFS Broadcast Normalized</span>
+                </div>
+                <div className="p-2 rounded-xl bg-zinc-50 border border-zinc-100">
+                  <strong className="text-zinc-900 block font-semibold">Captions:</strong>
+                  <span>Dynamic Animated Word Sync</span>
+                </div>
+                <div className="p-2 rounded-xl bg-zinc-50 border border-zinc-100">
+                  <strong className="text-zinc-900 block font-semibold">Safe Zones:</strong>
+                  <span>Reels &amp; TikTok Compliant</span>
+                </div>
+                <div className="p-2 rounded-xl bg-zinc-50 border border-zinc-100">
+                  <strong className="text-zinc-900 block font-semibold">Resolution:</strong>
+                  <span>1080p Crystal Clear Multi-Format</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  };
+
   return (
     <div className="min-h-screen bg-[#F8F9FC] text-[#090D16] flex flex-col font-sans selection:bg-[#7F48ED]/20 selection:text-[#7F48ED]">
       {/* 1. Top Header Bar — Clean White with Orange & Purple Accents */}
@@ -966,6 +1367,16 @@ export default function StudioReviewPortal() {
             </span>
           </Link>
 
+          {/* Creators Tab */}
+          <Link
+            href="/studio/creators"
+            className="hidden sm:inline-flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 bg-zinc-100 hover:bg-zinc-200 text-zinc-700 hover:text-zinc-950 rounded-xl text-xs font-bold transition-all border border-zinc-200 cursor-pointer shrink-0"
+            title="Open Creator Intake & Visual Trimmer"
+          >
+            <Users className="w-3.5 h-3.5 text-[#7F48ED]" />
+            <span>Creators</span>
+          </Link>
+
           {/* Deleted Trash Queue Tab */}
           <Link
             href="/studio/deleted"
@@ -975,6 +1386,33 @@ export default function StudioReviewPortal() {
             <Trash2 className="w-3.5 h-3.5 text-red-500" />
             <span className="hidden sm:inline">Trash</span>
           </Link>
+
+          {/* Share Client Link Pill */}
+          <button
+            type="button"
+            onClick={copyClientReviewLink}
+            className="hidden sm:inline-flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 bg-purple-50 hover:bg-purple-100 text-[#7F48ED] rounded-xl text-xs font-bold transition-all border border-purple-200 cursor-pointer shrink-0"
+            title="Copy shareable client sign-off link"
+          >
+            <Share2 className="w-3.5 h-3.5 text-[#7F48ED]" />
+            <span>Share Client Link</span>
+          </button>
+
+          {/* Client Mode Toggle */}
+          <button
+            type="button"
+            onClick={() => setIsClientMode(!isClientMode)}
+            className={`inline-flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 rounded-xl text-xs font-bold transition-all border cursor-pointer shrink-0 ${
+              isClientMode
+                ? "bg-[#7F48ED] text-white border-[#7F48ED]"
+                : "bg-zinc-100 hover:bg-zinc-200 text-zinc-700 border-zinc-200"
+            }`}
+            title="Toggle between Client Review and Operator QA mode"
+          >
+            <Eye className="w-3.5 h-3.5" />
+            <span className="hidden sm:inline">{isClientMode ? "Operator Mode" : "Client View"}</span>
+            <span className="sm:hidden">{isClientMode ? "Operator" : "Client"}</span>
+          </button>
 
           {/* Create Ad Button */}
           <Link
@@ -989,7 +1427,10 @@ export default function StudioReviewPortal() {
       </header>
 
       {/* 2. Main Studio Workstation — Spacious Light Workspace */}
-      <div className="flex-1 w-full p-3 sm:p-4 lg:p-5 flex flex-col lg:flex-row gap-4 lg:gap-5 lg:h-[calc(100vh-4rem)] lg:overflow-hidden">
+      {isClientMode ? (
+        renderClientReviewPortal()
+      ) : (
+        <div className="flex-1 w-full p-3 sm:p-4 lg:p-5 flex flex-col lg:flex-row gap-4 lg:gap-5 lg:h-[calc(100vh-4rem)] lg:overflow-hidden">
         {/* Left Panel: Ad Queue (Clean White Cards) */}
         <aside className="hidden lg:flex lg:w-[320px] xl:w-[360px] 2xl:w-[400px] shrink-0 bg-white rounded-2xl border border-zinc-200 p-4 flex-col h-full overflow-hidden shadow-sm">
           <div className="flex flex-col gap-2.5 pb-2.5 border-b border-zinc-200 shrink-0">
@@ -1642,6 +2083,7 @@ export default function StudioReviewPortal() {
           {renderDecisionAndBrief()}
         </aside>
       </div>
+      )}
 
       {/* 3. Change Request Notes Modal (Clean Light Card) */}
       {recutModalOpen && (

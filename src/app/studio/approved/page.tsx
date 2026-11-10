@@ -33,6 +33,7 @@ import {
   Maximize2,
   Minimize2,
   RefreshCw,
+  Users,
 } from "lucide-react";
 
 interface ApprovedVariant {
@@ -298,6 +299,16 @@ export default function ApprovedDeliverablesVaultPage() {
             <FolderCheck className="w-3.5 h-3.5 text-emerald-600" />
             <span>Vault ({deliverables.length})</span>
           </div>
+
+          {/* Creators Link */}
+          <Link
+            href="/studio/creators"
+            className="hidden sm:inline-flex items-center gap-1 sm:gap-1.5 px-2 sm:px-3 py-1.5 bg-zinc-100 hover:bg-zinc-200 text-zinc-700 hover:text-zinc-950 rounded-xl text-xs font-bold transition-all border border-zinc-200 cursor-pointer shrink-0"
+            title="Open Creator Intake & Visual Trimmer"
+          >
+            <Users className="w-3.5 h-3.5 text-[#7F48ED]" />
+            <span>Creators</span>
+          </Link>
 
           <Link
             href="/studio/deleted"
@@ -679,16 +690,39 @@ export default function ApprovedDeliverablesVaultPage() {
                     </div>
 
                     {/* 1-Click Complete Campaign Kit (.ZIP) */}
-                    <div className="pt-2">
+                    <div className="pt-2 space-y-1.5">
                       <a
                         href={`/api/studio/deliveries/${item.id}/zip`}
                         download={`${item.clientName.toLowerCase().replace(/\s+/g, "-")}-${item.id}-campaign-kit.zip`}
                         className="w-full flex items-center justify-center gap-2 py-2.5 px-3 rounded-xl bg-gradient-to-r from-[#7F48ED] to-indigo-600 hover:from-[#713be2] hover:to-indigo-700 active:from-[#6532d0] active:to-indigo-800 text-white text-xs font-bold transition shadow-xs cursor-pointer min-h-[40px]"
-                        title="Download complete campaign package: 9:16, 1:1, 4:5 MP4s, cover thumbnail and Meta ad copy"
+                        title="Download complete campaign package: 9:16, 1:1, 4:5 MP4s, cover thumbnail, Meta Ads CSV, and TikTok Launch Kit"
                       >
                         <Download className="w-4 h-4 text-white shrink-0" />
-                        <span>Download Full Campaign Kit (ZIP)</span>
+                        <span>Download Full Campaign Kit (ZIP + Meta CSV)</span>
                       </a>
+
+                      {/* Ready-to-Launch Meta & TikTok Quick Downloads */}
+                      <div className="grid grid-cols-2 gap-1.5 text-[11px] font-bold">
+                        <a
+                          href={`/deliveries/${item.id}/meta-campaign-import.csv`}
+                          download={`${item.clientName.toLowerCase().replace(/\s+/g, "-")}-${item.id}-meta-import.csv`}
+                          className="flex items-center justify-center gap-1 py-1.5 px-2 rounded-lg bg-zinc-50 hover:bg-zinc-100 border border-zinc-200 text-zinc-700 hover:text-zinc-950 transition cursor-pointer truncate"
+                          title="Download Meta Ads Manager bulk-import CSV"
+                        >
+                          <FileText className="w-3 h-3 text-[#7F48ED] shrink-0" />
+                          <span className="truncate">Meta Ads CSV</span>
+                        </a>
+
+                        <a
+                          href={`/deliveries/${item.id}/tiktok-ad-kit.txt`}
+                          download={`${item.clientName.toLowerCase().replace(/\s+/g, "-")}-${item.id}-tiktok-kit.txt`}
+                          className="flex items-center justify-center gap-1 py-1.5 px-2 rounded-lg bg-zinc-50 hover:bg-zinc-100 border border-zinc-200 text-zinc-700 hover:text-zinc-950 transition cursor-pointer truncate"
+                          title="Download TikTok Spark Ad Setup Kit"
+                        >
+                          <FileText className="w-3 h-3 text-[#FF6700] shrink-0" />
+                          <span className="truncate">TikTok Ad Kit</span>
+                        </a>
+                      </div>
                     </div>
 
                     {/* Cloud delivery & Review Link */}

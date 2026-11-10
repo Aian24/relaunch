@@ -108,6 +108,24 @@ export async function syncDeliverablesToGoogleDrive(params: {
     console.warn("[Google Drive Sync] Failed to write ad-copy-meta.txt:", err);
   }
 
+  // Create Meta Ads Manager bulk-import CSV
+  try {
+    const metaCsvContent = generateMetaCampaignCsv(brandName, jobId, metadata);
+    fs.writeFileSync(path.join(deliveryDir, "meta-campaign-import.csv"), metaCsvContent, "utf8");
+    deliveryMap["metaCsv"] = `/deliveries/${jobId}/meta-campaign-import.csv`;
+  } catch (err) {
+    console.warn("[Google Drive Sync] Failed to write meta-campaign-import.csv:", err);
+  }
+
+  // Create TikTok Spark Ad & Campaign Launch Kit
+  try {
+    const tikTokKitContent = generateTikTokAdKitText(brandName, jobId, metadata);
+    fs.writeFileSync(path.join(deliveryDir, "tiktok-ad-kit.txt"), tikTokKitContent, "utf8");
+    deliveryMap["tiktokKit"] = `/deliveries/${jobId}/tiktok-ad-kit.txt`;
+  } catch (err) {
+    console.warn("[Google Drive Sync] Failed to write tiktok-ad-kit.txt:", err);
+  }
+
   // Write delivery manifest JSON
   const manifestData = {
     jobId,
@@ -353,4 +371,131 @@ export async function syncDeliverablesToGoogleDrive(params: {
     files: deliveryMap,
     syncedAt: new Date().toISOString(),
   };
+}
+
+/**
+ * Generate standard Meta Ads Manager import CSV
+ */
+export function generateMetaCampaignCsv(
+  brandName: string,
+  jobId: string,
+  metadata: Record<string, any> = {}
+): string {
+  const hook = metadata.hookText || "Discover the difference today";
+  const body = metadata.scriptBody || "";
+  const cta = metadata.ctaText || "Learn More";
+  const safeBrand = brandName.trim();
+  const landingUrl =
+    metadata.websiteUrl ||
+    `https://relaunch.us/${safeBrand.toLowerCase().replace(/[^a-z0-9]/g, "-")}`;
+
+  const primary1 = `${hook} — ${body} Tap to learn more: ${cta}`;
+  const primary2 = `Are you making this common mistake? Most businesses lose customers every day without realizing it. ${safeBrand} fixes this immediately.`;
+  const primary3 = `✓ Proven results · Fast onboarding · 100% satisfaction guarantee. See why everyone is choosing ${safeBrand}.`;
+
+  const headline1 = hook.slice(0, 50);
+  const headline2 = `Get Started with ${safeBrand}`;
+  const headline3 = `Limited Time Offer — Claim Now`;
+
+  const escapeCsv = (str: string) =>
+    `"${str.replace(/"/g, '""').replace(/\r?\n/g, " ")}"`;
+
+  const headers = [
+    "Campaign Name",
+    "Campaign Objective",
+    "Buying Type",
+    "Ad Set Name",
+    "Optimization Goal",
+    "Billing Event",
+    "Status",
+    "Ad Name",
+    "Creative Type",
+    "Ad Format",
+    "Primary Text 1",
+    "Primary Text 2",
+    "Primary Text 3",
+    "Headline 1",
+    "Headline 2",
+    "Headline 3",
+    "Description",
+    "Call to Action",
+    "Website URL",
+  ];
+
+  const row = [
+    escapeCsv(`${safeBrand} - Scale Ad Campaign`),
+    escapeCsv("OUTCOME_SALES"),
+    escapeCsv("AUCTION"),
+    escapeCsv(`Broad - ${safeBrand} - All Placements`),
+    escapeCsv("OFFSITE_CONVERSIONS"),
+    escapeCsv("IMPRESSIONS"),
+    escapeCsv("ACTIVE"),
+    escapeCsv(`${safeBrand} - Ad #${jobId}`),
+    escapeCsv("VIDEO"),
+    escapeCsv("SINGLE_VIDEO"),
+    escapeCsv(primary1),
+    escapeCsv(primary2),
+    escapeCsv(primary3),
+    escapeCsv(headline1),
+    escapeCsv(headline2),
+    escapeCsv(headline3),
+    escapeCsv(`Official ${safeBrand} Promotion`),
+    escapeCsv("LEARN_MORE"),
+    escapeCsv(landingUrl),
+  ];
+
+  return [headers.join(","), row.join(",")].join("\n");
+}
+
+/**
+ * Generate TikTok Spark Ad & Campaign Launch instructions
+ */
+export function generateTikTokAdKitText(
+  brandName: string,
+  jobId: string,
+  metadata: Record<string, any> = {}
+): string {
+  const hook = metadata.hookText || "";
+  const body = metadata.scriptBody || "";
+  const cta = metadata.ctaText || "Claim Offer";
+  const safeBrand = brandName.trim();
+  const hashtagBase = safeBrand.toLowerCase().replace(/[^a-z0-9]/g, "");
+
+  return [
+    `=================================================================`,
+    `RELAUNCH STUDIO — TIKTOK ADS & SPARK AD CAMPAIGN LAUNCH KIT`,
+    `Brand: ${brandName}`,
+    `Job ID: ${jobId}`,
+    `Generated At: ${new Date().toUTCString()}`,
+    `=================================================================`,
+    ``,
+    `1. CAMPAIGN SETUP RECOMMENDATIONS:`,
+    `- Campaign Objective: Website Conversions / Lead Generation`,
+    `- Placement: TikTok Only (Feed & Search Placements)`,
+    `- Recommended Age: 25–54+`,
+    `- Bidding Strategy: Lowest Cost (Broad Targeting with Pixel Optimization)`,
+    ``,
+    `2. RECOMMENDED TIKTOK CAPTIONS:`,
+    `Option A (Direct Hook):`,
+    `"${hook} Link in bio to claim your exclusive offer 🔥 #${hashtagBase} #smallbusiness #growth #relaunch"`,
+    ``,
+    `Option B (Problem / Curiosity):`,
+    `"If you're not doing this in 2026, you're falling behind. Here's what changed everything for us 👇 #${hashtagBase} #businesstips #success"`,
+    ``,
+    `3. CALL TO ACTION (INTERACTIVE ADD-ON):`,
+    `- Primary Button: "${cta}"`,
+    `- Dynamic Countdown Sticker: Recommended (48h urgency boost)`,
+    ``,
+    `4. AUDIO & SOUND DESIGN SETTINGS:`,
+    `- Voiceover LUFS: Normalized to -14 LUFS`,
+    `- Recommended Background Music: Trending Lo-Fi or Energetic Commercial Beat`,
+    `- Background Music Volume: Ducked by -18 dB to keep dialogue ultra-clear`,
+    ``,
+    `5. SPARK AD AUTHORIZATION GUIDE:`,
+    `- If running as a Spark Ad through the creator's TikTok profile:`,
+    `  1. Request 30-day Spark Ad authorization code from creator handle.`,
+    `  2. In TikTok Ads Manager, go to Assets > Creative > Spark Ads > Apply for Authorization.`,
+    `  3. Paste the Spark code and select this 9:16 vertical video master.`,
+    `=================================================================`,
+  ].join("\n");
 }

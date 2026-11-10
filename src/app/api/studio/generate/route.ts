@@ -750,7 +750,8 @@ export async function POST(request: Request) {
     const findFfmpegBinary = (): { binary: string; hasDrawText: boolean } => {
       // 1. Check npm ffmpeg-static package (runs on Linux x64 and Windows out of the box)
       try {
-        const staticPath = require("ffmpeg-static");
+        const dynamicReq = eval("require");
+        const staticPath = dynamicReq("ffmpeg-static");
         if (staticPath && fs.existsSync(staticPath)) {
           return { binary: staticPath, hasDrawText: true };
         }

@@ -1,7 +1,5 @@
 "use client";
 
-export const dynamic = "force-dynamic";
-
 import React, { useState, useRef, useEffect, useMemo, useCallback } from "react";
 import Link from "next/link";
 import {
@@ -39,8 +37,9 @@ import {
   Sliders,
   ExternalLink,
   Plus,
+  Users,
 } from "lucide-react";
-import { CREATOR_ROSTER } from "@/data/creatorRoster";
+import { CREATOR_ROSTER, CreatorProfile } from "@/data/creatorRoster";
 import { CREATOR_ASSETS, CreatorClipAsset, getCreatorClips, getCreatorClipById } from "@/data/creatorAssets";
 import HookTrimmer from "@/components/studio/HookTrimmer";
 
@@ -874,23 +873,40 @@ export default function StudioVideoGenerator() {
   const [softLabelDisclosure, setSoftLabelDisclosure] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
+  // Dynamic UGC Creator Roster & Assets State (supports un-hardcoded creators like Jeo)
+  const [dynamicRoster, setDynamicRoster] = useState<CreatorProfile[]>(CREATOR_ROSTER);
+  const [dynamicAssets, setDynamicAssets] = useState<CreatorClipAsset[]>(CREATOR_ASSETS);
+
   // Dropdown States
   const [modelDropdownOpen, setModelDropdownOpen] = useState(false);
   const [voiceDropdownOpen, setVoiceDropdownOpen] = useState(false);
   const [footageDropdownOpen, setFootageDropdownOpen] = useState(false);
 
+  // Load custom creators & assets from API
+  useEffect(() => {
+    fetch("/api/studio/creators")
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.roster && Array.isArray(data.roster)) setDynamicRoster(data.roster);
+        if (data.assets && Array.isArray(data.assets)) setDynamicAssets(data.assets);
+      })
+      .catch((err) => console.warn("Could not load dynamic creators in generator:", err));
+  }, []);
+
   const activeCreatorAsset = useMemo(() => {
     if (!selectedCreatorAssetId) return null;
-    return getCreatorClipById(selectedCreatorAssetId) || null;
-  }, [selectedCreatorAssetId]);
+    return dynamicAssets.find((a) => a.id === selectedCreatorAssetId) || getCreatorClipById(selectedCreatorAssetId) || null;
+  }, [dynamicAssets, selectedCreatorAssetId]);
 
   const creatorHooksList = useMemo(() => {
-    return getCreatorClips(selectedActor, "hook");
-  }, [selectedActor]);
+    const list = dynamicAssets.filter((a) => a.creatorId === selectedActor && a.type === "hook");
+    return list.length > 0 ? list : getCreatorClips(selectedActor, "hook");
+  }, [dynamicAssets, selectedActor]);
 
   const creatorBrollList = useMemo(() => {
-    return getCreatorClips(selectedActor, "broll");
-  }, [selectedActor]);
+    const list = dynamicAssets.filter((a) => a.creatorId === selectedActor && a.type === "broll");
+    return list.length > 0 ? list : getCreatorClips(selectedActor, "broll");
+  }, [dynamicAssets, selectedActor]);
 
   // Generation & Player State
   const [isGenerating, setIsGenerating] = useState(false);
@@ -1106,8 +1122,8 @@ export default function StudioVideoGenerator() {
   };
 
   const activeCreator = useMemo(() => {
-    return CREATOR_ROSTER.find((c) => c.actorPresetId === selectedActor) || CREATOR_ROSTER[0];
-  }, [selectedActor]);
+    return dynamicRoster.find((c) => c.actorPresetId === selectedActor) || dynamicRoster[0] || CREATOR_ROSTER[0];
+  }, [dynamicRoster, selectedActor]);
 
   const activeVoice = useMemo(() => {
     return availableVoices.find((v) => v.id === selectedVoiceId) || availableVoices[0] || DEFAULT_STUDIO_VOICES[0];
@@ -1828,8 +1844,17 @@ export default function StudioVideoGenerator() {
           )}
         </div>
 
-        {/* Right: Review Room & Approved Vault Actions */}
+        {/* Right: Creators, Approved Vault & Review Room Actions */}
         <div className="flex items-center gap-1.5 sm:gap-2.5 shrink-0">
+          <Link
+            href="/studio/creators"
+            className="hidden sm:inline-flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 rounded-xl text-xs font-bold text-zinc-700 hover:text-zinc-950 bg-zinc-100 hover:bg-zinc-200 border border-zinc-200 transition cursor-pointer shrink-0"
+            title="Open Creator Footage Intake & Visual Trimmer"
+          >
+            <Users className="w-3.5 h-3.5 text-[#7F48ED]" />
+            <span>Creators</span>
+          </Link>
+
           <Link
             href="/studio/approved"
             className="hidden sm:inline-flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 rounded-xl text-xs font-bold text-zinc-700 hover:text-zinc-950 bg-zinc-100 hover:bg-zinc-200 border border-zinc-200 transition cursor-pointer shrink-0"
@@ -2326,7 +2351,7 @@ export default function StudioVideoGenerator() {
                   Whitelisted Creator
                 </label>
                 <span className="text-[10px] font-mono text-[#7F48ED] font-bold">
-                  {CREATOR_ROSTER.length} Creators
+                  {dynamicRoster.length} Creators
                 </span>
               </div>
               <button
@@ -2364,10 +2389,10 @@ export default function StudioVideoGenerator() {
               {creatorDropdownOpen && (
                 <div
                   onWheel={(e) => e.stopPropagation()}
-                  className="absolute top-full left-0 right-0 mt-1 bg-white border border-zinc-200 rounded-xl p-1 shadow-xl z-50 space-y-0.5 max-h-60 overflow-y-auto overscroll-contain"
+                  className="absolute top-full left-0 right-0 mt-1 bg-white border border-zinc-200 rounded-xl p-1 shadow-xl z-50 space-y-0.5 max-h-64 overflow-y-auto overscroll-contain"
                   style={{ scrollbarWidth: "thin" }}
                 >
-                  {CREATOR_ROSTER.map((cr) => {
+                  {dynamicRoster.map((cr) => {
                     const isSelected = selectedActor === cr.actorPresetId;
                     return (
                       <div
@@ -2375,11 +2400,12 @@ export default function StudioVideoGenerator() {
                         onClick={() => {
                           setSelectedActor(cr.actorPresetId);
                           if (cr.hasVideoTakes) {
-                            const defaultClip = getCreatorClips(cr.actorPresetId, "hook")[0];
+                            const dynamicClips = dynamicAssets.filter((a) => a.creatorId === cr.actorPresetId && a.type === "hook");
+                            const defaultClip = dynamicClips[0] || getCreatorClips(cr.actorPresetId, "hook")[0];
                             if (defaultClip) {
                               setSelectedCreatorAssetId(defaultClip.id);
-                              setTrimStart(defaultClip.recommendedTrim.start);
-                              setTrimEnd(defaultClip.recommendedTrim.end);
+                              setTrimStart(defaultClip.recommendedTrim?.start ?? 0);
+                              setTrimEnd(defaultClip.recommendedTrim?.end ?? 3.8);
                               if (defaultClip.spokenText) {
                                 setSelectedHook(defaultClip.spokenText);
                               }
@@ -2423,6 +2449,17 @@ export default function StudioVideoGenerator() {
                       </div>
                     );
                   })}
+
+                  {/* + Onboard New Creator Shortcut */}
+                  <div className="pt-1.5 mt-1 border-t border-zinc-100 px-1">
+                    <Link
+                      href="/studio/creators/new"
+                      className="w-full flex items-center justify-center gap-1.5 py-2 px-3 rounded-lg bg-zinc-50 hover:bg-[#7F48ED]/10 text-[#7F48ED] font-bold text-xs transition border border-dashed border-zinc-300 hover:border-[#7F48ED]"
+                    >
+                      <Plus className="w-3.5 h-3.5 text-[#7F48ED]" />
+                      <span>+ Onboard New UGC Creator</span>
+                    </Link>
+                  </div>
                 </div>
               )}
             </div>
