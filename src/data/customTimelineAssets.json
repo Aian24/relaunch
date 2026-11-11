@@ -1,0 +1,25 @@
+{
+  "musicTracks": [
+    {
+      "id": "custom-track-1794365043983",
+      "title": "Midnight Synthwave Groove",
+      "genre": "Retro Synthwave",
+      "bpm": 110,
+      "vibe": "Cyberpunk & Sleek Luxury",
+      "src": "/audio/music/tech-driving-beat.mp3",
+      "provider": "Epidemic Sound",
+      "licenseNote": "Client Approved Commercial Track",
+      "isCustom": true
+    }
+  ],
+  "ctaTemplates": [
+    {
+      "id": "custom-cta-1794365032907",
+      "name": "Limited Holiday Drop",
+      "badge": "Holiday 50% OFF",
+      "description": "Festive banner",
+      "styleVariant": "promo-stamp",
+      "isCustom": true
+    }
+  ]
+}

@@ -21,6 +21,8 @@ export interface AdJobComplianceChecks {
   scriptClaims: boolean;           // No misleading or unsubstantiated claims
   clientFootagePresent: boolean;   // Authentic client product/location footage confirmed
   disclosureState: boolean;        // AI disclosure badge confirmed burned into media
+  creativeDirectorSignOff?: boolean; // Human Creative Director taste gate sign-off
+  cdSignOffNotes?: string;         // Creative Director editorial notes
 }
 
 export interface AdJob {
@@ -55,6 +57,10 @@ export interface AdJob {
     v1x1?: string;
     v4x5?: string;
     thumbnail?: string;
+    v4k?: string;
+    vClean?: string;
+    stemVo?: string;
+    stemMusic?: string;
   };
   complianceChecks: AdJobComplianceChecks;
   status: AdJobStatus;

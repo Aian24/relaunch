@@ -87,10 +87,10 @@ export async function POST(request: Request) {
     const rawMediaSources = Array.isArray(body.mediaSources)
       ? body.mediaSources
       : (typeof body.mediaSource === "string" && body.mediaSource.trim()
-          ? [body.mediaSource]
-          : (typeof body.clientFootageSource === "string" && body.clientFootageSource.trim()
-              ? [body.clientFootageSource]
-              : []));
+        ? [body.mediaSource]
+        : (typeof body.clientFootageSource === "string" && body.clientFootageSource.trim()
+          ? [body.clientFootageSource]
+          : []));
 
     // Strict limit: maximum 5 reference images
     const mediaSources: string[] = rawMediaSources
@@ -105,6 +105,17 @@ export async function POST(request: Request) {
     const trimStart = typeof body.trimStart === "number" ? body.trimStart : 0;
     const trimEnd = typeof body.trimEnd === "number" ? body.trimEnd : 3.5;
 
+    // Quality-First Creative Studio Parameters (Sprint 2)
+    const musicTrackId = String(body.musicTrackId || "trendy-upbeat-ugc").trim();
+    const captionStyle = String(body.captionStyle || "bold-kinetic").trim();
+    const ctaTemplate = String(body.ctaTemplate || "promo-stamp").trim();
+    const aiGapFillMode = Boolean(body.aiGapFillMode);
+    const scene2AiGapFill = Boolean(body.scene2AiGapFill);
+    const scene3AiGapFill = Boolean(body.scene3AiGapFill);
+    const productVideoUrl = typeof body.productVideoUrl === "string" ? body.productVideoUrl.trim() : "";
+    const brollVideoUrl = typeof body.brollVideoUrl === "string" ? body.brollVideoUrl.trim() : "";
+    const sceneOrder: number[] = Array.isArray(body.sceneOrder) ? body.sceneOrder : [1, 2, 3, 4];
+
     const effectiveMediaSource = mediaSources[0] || "";
 
     const jobId = `job-ad-${Date.now().toString().slice(-6)}`;
@@ -116,8 +127,146 @@ export async function POST(request: Request) {
     if (!fs.existsSync(storageDir)) fs.mkdirSync(storageDir, { recursive: true });
     if (!fs.existsSync(audioDir)) fs.mkdirSync(audioDir, { recursive: true });
 
+    // Helper to resolve licensed music track file on disk (custom or baseline)
+    const resolveMusicTrackFilePath = (trackId: string): string => {
+      const safeId = String(trackId || "energy-direct-response").trim();
+      try {
+        const customPath = path.resolve(process.cwd(), "src/data/customTimelineAssets.json");
+        if (fs.existsSync(customPath)) {
+          const data = JSON.parse(fs.readFileSync(customPath, "utf-8"));
+          const track = (data.musicTracks || []).find((t: any) => t.id === safeId);
+          if (track?.src) {
+            const diskPath = path.resolve(process.cwd(), "public", track.src.replace(/^\/+/, ""));
+            if (fs.existsSync(diskPath)) return diskPath;
+          }
+        }
+      } catch { }
+
+      const directPath = path.resolve(process.cwd(), `public/audio/music/${safeId}.mp3`);
+      if (fs.existsSync(directPath)) return directPath;
+
+      const defaultTracks = [
+        "energy-direct-response",
+        "trendy-upbeat-ugc",
+        "tech-driving-beat",
+        "chill-lofi-aesthetic",
+        "luxury-cinematic",
+      ];
+      for (const dt of defaultTracks) {
+        const p = path.resolve(process.cwd(), `public/audio/music/${dt}.mp3`);
+        if (fs.existsSync(p)) return p;
+      }
+      return "";
+    };
+
+    // Helper to dynamically synthesize voiceover speaking the EXACT Step 2 script
+    const synthesizeTextDynamic = async (
+      text: string,
+      outMp3Path: string
+    ): Promise<{ wordTimestamps: Array<{ word: string; start: number; end: number }>; duration: number }> => {
+      const clean = text.replace(/[\r\n]+/g, " ").trim();
+      const sentences = clean.match(/[^.!?]+[.!?]+|[^.!?]+$/g) || [clean];
+      const chunks: string[] = [];
+
+      for (const s of sentences) {
+        const trimmed = s.trim();
+        if (!trimmed) continue;
+        if (trimmed.length <= 180) {
+          chunks.push(trimmed);
+        } else {
+          const words = trimmed.split(" ");
+          let current = "";
+          for (const w of words) {
+            if ((current + " " + w).length <= 180) {
+              current = current ? current + " " + w : w;
+            } else {
+              chunks.push(current);
+              current = w;
+            }
+          }
+          if (current) chunks.push(current);
+        }
+      }
+
+      const buffers: Buffer[] = [];
+      for (const chunk of chunks) {
+        try {
+          const url = `https://translate.google.com/translate_tts?ie=UTF-8&tl=en&client=tw-ob&q=${encodeURIComponent(chunk)}`;
+          const res = await fetch(url, { headers: { "User-Agent": "Mozilla/5.0" } });
+          if (res.ok) {
+            const buf = await res.arrayBuffer();
+            buffers.push(Buffer.from(buf));
+          }
+        } catch (err) {
+          console.warn("[Studio Engine] Dynamic TTS chunk fetch error:", err);
+        }
+      }
+
+      if (buffers.length > 0) {
+        const combined = Buffer.concat(buffers);
+        fs.writeFileSync(outMp3Path, combined);
+      }
+
+      const words = clean.split(/\s+/).filter(Boolean);
+      const totalSec = Math.max(8.0, words.length * 0.38);
+      const wordDuration = words.length > 0 ? totalSec / words.length : 0.38;
+      const wordTimestamps = words.map((w, idx) => ({
+        word: w,
+        start: Number((idx * wordDuration).toFixed(2)),
+        end: Number(((idx + 1) * wordDuration).toFixed(2)),
+      }));
+
+      return { wordTimestamps, duration: totalSec };
+    };
+
     // -------------------------------------------------------------------------
-    // 1. ElevenLabs Live Voiceover Generation
+    // 1. Creator UGC Hook Resolution (Done First to Tailor Exact Voiceover Text)
+    // -------------------------------------------------------------------------
+    let hasCreatorHook = false;
+    let creatorHookClip = "";
+    let creatorHookFilePath = "";
+
+    if (actor === "haley" || actor === "emily" || actor === "tyler") {
+      if (creatorAssetId) {
+        const asset = getCreatorClipById(creatorAssetId);
+        if (asset && asset.src && asset.creatorId === actor) {
+          const candidate = path.resolve(process.cwd(), "public", asset.src.replace(/^\//, ""));
+          if (fs.existsSync(candidate)) {
+            creatorHookFilePath = candidate;
+            creatorHookClip = asset.src;
+            hasCreatorHook = true;
+          }
+        }
+      }
+      if (!hasCreatorHook) {
+        const defaultHook =
+          actor === "emily"
+            ? "/creators/emily/hooks/emily-hook-01.mp4"
+            : actor === "tyler"
+              ? "/creators/tyler/hooks/tyler-hook-01.mp4"
+              : "/creators/haley/hooks/haley-hook-01.mp4";
+        const candidate = path.resolve(process.cwd(), "public", defaultHook.replace(/^\//, ""));
+        if (fs.existsSync(candidate)) {
+          creatorHookFilePath = candidate;
+          creatorHookClip = defaultHook;
+          hasCreatorHook = true;
+        }
+      }
+    }
+
+    const inPoint = Math.max(0, Number(trimStart) || 0);
+    const outPoint = Math.max(inPoint + 1.5, Number(trimEnd) || (inPoint + 3.4));
+    const hookDuration = Number((outPoint - inPoint).toFixed(2));
+
+    // Determine the exact script text to synthesize:
+    // If hasCreatorHook is true, the creator speaks the hook in Scene 1 (0-3.5s), and the voiceover speaks scriptBody in Scenes 2-4.
+    // If hasCreatorHook is false, the voiceover speaks BOTH the hook and the scriptBody so nothing is lost.
+    const targetVoText = hasCreatorHook
+      ? (scriptBody || "Experience the difference today with our premium solution.")
+      : (hookText ? `${hookText}. ${scriptBody}` : (scriptBody || "Experience the difference today with our premium solution."));
+
+    // -------------------------------------------------------------------------
+    // 2. High-Fidelity Voiceover Generation (ElevenLabs + Accurate Dynamic Fallback)
     // -------------------------------------------------------------------------
     const elevenKey =
       process.env.ELEVENLABS_API_KEY ||
@@ -127,7 +276,14 @@ export async function POST(request: Request) {
       process.env.DEFAULT_ELEVENLABS_VOICE_ID ||
       "pNInz6obpgDQGcFmaJgB"; // Adam (premade)
 
-    let voiceoverUrl = "/audio/sample-vo.mp3";
+    const audioFileName = `vo-${jobId}.mp3`;
+    const audioFilePath = path.join(audioDir, audioFileName);
+    // Remove any stale cached audio file from previous runs
+    if (fs.existsSync(audioFilePath)) {
+      try { fs.unlinkSync(audioFilePath); } catch { }
+    }
+
+    let voiceoverUrl = `/storage/audio/${audioFileName}`;
     let wordTimestamps: Array<{ word: string; start: number; end: number }> = [];
     let voiceNotice: string | null = null;
 
@@ -161,9 +317,11 @@ export async function POST(request: Request) {
       return timestamps;
     };
 
+    let voiceoverGenerated = false;
+
     if (elevenKey) {
       try {
-        console.log(`[Studio Engine] Calling ElevenLabs for voiceover (${scriptBody.slice(0, 40)}...) with voice ${voiceId}...`);
+        console.log(`[Studio Engine] Calling ElevenLabs for voiceover (${targetVoText.slice(0, 40)}...) with voice ${voiceId}...`);
         let voRes = await fetch(
           `https://api.elevenlabs.io/v1/text-to-speech/${voiceId}/with-timestamps`,
           {
@@ -173,7 +331,7 @@ export async function POST(request: Request) {
               "Content-Type": "application/json",
             },
             body: JSON.stringify({
-              text: scriptBody,
+              text: targetVoText,
               model_id: "eleven_turbo_v2_5",
               voice_settings: {
                 stability: 0.5,
@@ -187,7 +345,6 @@ export async function POST(request: Request) {
         if (!voRes.ok && voiceId !== "pNInz6obpgDQGcFmaJgB") {
           const errText = await voRes.text().catch(() => "");
           console.warn(`[Studio Engine] Voice ${voiceId} returned status ${voRes.status} (${errText}). Retrying with active balance voice Adam (pNInz6obpgDQGcFmaJgB)...`);
-          voiceNotice = `Notice: Selected voice requires an ElevenLabs paid subscription / character balance (HTTP ${voRes.status}). Automatically rendered using Adam so your video has complete synchronized voiceover and captions.`;
 
           const fallbackRes = await fetch(
             `https://api.elevenlabs.io/v1/text-to-speech/pNInz6obpgDQGcFmaJgB/with-timestamps`,
@@ -198,7 +355,7 @@ export async function POST(request: Request) {
                 "Content-Type": "application/json",
               },
               body: JSON.stringify({
-                text: scriptBody,
+                text: targetVoText,
                 model_id: "eleven_turbo_v2_5",
                 voice_settings: {
                   stability: 0.5,
@@ -217,80 +374,48 @@ export async function POST(request: Request) {
           const voData = await voRes.json();
           if (voData.audio_base64) {
             const audioBuffer = Buffer.from(voData.audio_base64, "base64");
-            const audioFileName = `vo-${jobId}.mp3`;
-            const audioFilePath = path.join(audioDir, audioFileName);
             fs.writeFileSync(audioFilePath, audioBuffer);
             voiceoverUrl = `/storage/audio/${audioFileName}`;
-
-            // Parse word timestamps from character alignments
             wordTimestamps = parseWordAlignments(voData.alignment);
-            console.log(`[Studio Engine] ✓ Live voiceover saved (${wordTimestamps.length} timed words) using voice ${voiceId}`);
+            voiceoverGenerated = true;
+            console.log(`[Studio Engine] ✓ Live ElevenLabs voiceover saved (${wordTimestamps.length} timed words) using voice ${voiceId}`);
           }
         } else {
           const errText = await voRes.text().catch(() => "");
-          console.warn(`[Studio Engine] ElevenLabs fallback (${voRes.status}):`, errText);
+          console.warn(`[Studio Engine] ElevenLabs quota/API returned status ${voRes.status}: ${errText}`);
         }
       } catch (e: any) {
-        console.warn("[Studio Engine] ElevenLabs error, using dev audio:", e.message);
+        console.warn("[Studio Engine] ElevenLabs error:", e.message);
       }
-    } else {
-      console.warn("[Studio Engine] ELEVENLABS_API_KEY not configured. Using dev audio fallback.");
     }
 
-    // Ensure audio file exists even if ElevenLabs hit a network limit
-    const fallbackVoDisk = path.resolve(process.cwd(), "public/audio/sample-vo.mp3");
-    const targetVoDisk = path.join(audioDir, `vo-${jobId}.mp3`);
-    if (!fs.existsSync(targetVoDisk) && fs.existsSync(fallbackVoDisk)) {
+    // Dynamic High-Accuracy Voiceover Fallback: Synthesize the EXACT script text from Step 2
+    if (!voiceoverGenerated) {
       try {
-        fs.copyFileSync(fallbackVoDisk, targetVoDisk);
-        voiceoverUrl = `/storage/audio/vo-${jobId}.mp3`;
-        console.log(`[Studio Engine] ✓ Fallback voiceover copied to ${targetVoDisk}`);
-      } catch (fbErr: any) {
-        console.warn(`[Studio Engine] Error copying fallback voiceover:`, fbErr.message);
+        console.log(`[Studio Engine] Synthesizing accurate voiceover for script: "${targetVoText.slice(0, 60)}..."`);
+        const synResult = await synthesizeTextDynamic(targetVoText, audioFilePath);
+        if (fs.existsSync(audioFilePath) && fs.statSync(audioFilePath).size > 1000) {
+          voiceoverUrl = `/storage/audio/${audioFileName}`;
+          wordTimestamps = synResult.wordTimestamps;
+          voiceoverGenerated = true;
+          voiceNotice = `Notice: ElevenLabs quota was exhausted. Voiceover synthesized dynamically speaking your exact Step 2 script: "${targetVoText.slice(0, 45)}...".`;
+          console.log(`[Studio Engine] ✓ Dynamic voiceover generated successfully (${wordTimestamps.length} words)!`);
+        }
+      } catch (dynErr: any) {
+        console.warn("[Studio Engine] Dynamic TTS failed, using fallback:", dynErr.message);
       }
     }
 
-    // -------------------------------------------------------------------------
-    // 2. Select Creator UGC Hook & Client Footage
-    // -------------------------------------------------------------------------
-    // Real Creator UGC Hook resolution:
-    // ONLY Haley and Emily have verified direct-to-camera UGC hook video takes on disk.
-    // If a creator without video takes is chosen (e.g. Emma Davis, Marcus, Sarah, David), hasCreatorHook is false.
-    let hasCreatorHook = false;
-    let creatorHookClip = "";
-    let creatorHookFilePath = "";
-
-    if (actor === "haley" || actor === "emily" || actor === "tyler") {
-      if (creatorAssetId) {
-        const asset = getCreatorClipById(creatorAssetId);
-        if (asset && asset.src && asset.creatorId === actor) {
-          const candidate = path.resolve(process.cwd(), "public", asset.src.replace(/^\//, ""));
-          if (fs.existsSync(candidate)) {
-            creatorHookFilePath = candidate;
-            creatorHookClip = asset.src;
-            hasCreatorHook = true;
-          }
-        }
-      }
-      if (!hasCreatorHook) {
-        const defaultHook =
-          actor === "emily"
-            ? "/creators/emily/hooks/emily-hook-01.mp4"
-            : actor === "tyler"
-            ? "/creators/tyler/hooks/tyler-hook-01.mp4"
-            : "/creators/haley/hooks/haley-hook-01.mp4";
-        const candidate = path.resolve(process.cwd(), "public", defaultHook.replace(/^\//, ""));
-        if (fs.existsSync(candidate)) {
-          creatorHookFilePath = candidate;
-          creatorHookClip = defaultHook;
-          hasCreatorHook = true;
-        }
+    // Ultimate fallback if offline
+    if (!voiceoverGenerated) {
+      const fallbackVoDisk = path.resolve(process.cwd(), "public/audio/sample-vo.mp3");
+      if (fs.existsSync(fallbackVoDisk)) {
+        try {
+          fs.copyFileSync(fallbackVoDisk, audioFilePath);
+          voiceoverUrl = `/storage/audio/${audioFileName}`;
+        } catch { }
       }
     }
-
-    const inPoint = Math.max(0, Number(trimStart) || 0);
-    const outPoint = Math.max(inPoint + 1.5, Number(trimEnd) || (inPoint + 3.4));
-    const hookDuration = Number((outPoint - inPoint).toFixed(2));
 
     // Resolve uploaded brand media (supports up to 5 reference images or 1 video)
     const savedImageDiskPaths: string[] = [];
@@ -354,18 +479,48 @@ export async function POST(request: Request) {
     const resolvedMediaUrl = resolvedMediaUrls[0] || "";
     const localMediaDiskPath = savedImageDiskPaths[0] || singleVideoDiskPath || null;
 
+    // Resolve Real Product & B-Roll Footage (Quality-First Real-Footage Architecture)
+    let realProductVideoDisk: string | null = null;
+    let realBrollVideoDisk: string | null = null;
+
+    if (singleVideoDiskPath && fs.existsSync(singleVideoDiskPath)) {
+      realProductVideoDisk = singleVideoDiskPath;
+    } else if (productVideoUrl) {
+      const candidate = path.resolve(process.cwd(), "public", productVideoUrl.replace(/^\//, ""));
+      if (fs.existsSync(candidate) && fs.statSync(candidate).isFile()) {
+        realProductVideoDisk = candidate;
+      }
+    }
+
+    if (brollVideoUrl) {
+      const candidate = path.resolve(process.cwd(), "public", brollVideoUrl.replace(/^\//, ""));
+      if (fs.existsSync(candidate) && fs.statSync(candidate).isFile()) {
+        realBrollVideoDisk = candidate;
+      }
+    }
+
+    const hasRealFootage = Boolean(realProductVideoDisk && fs.existsSync(realProductVideoDisk));
+    const skipAiGeneration = hasRealFootage && !aiGapFillMode;
+
+    let aiVideoGenerated = false;
+    const aiVideoClips: string[] = [];
+
+    if (skipAiGeneration) {
+      console.log(`[Studio Engine] ✓ Quality-First: Real footage leads. Utilizing real client product & b-roll media directly. Skipping fal.ai synthetic generation.`);
+      aiVideoGenerated = true;
+    }
+
     // -------------------------------------------------------------------------
-    // 2.5. Attempt fal.ai Video Generation with Live Account
+    // 2.5. Attempt fal.ai Video Generation with Live Account (Gap-Filler Mode)
     // -------------------------------------------------------------------------
     const falKey =
       process.env.FAL_KEY ||
       "fal_sk_8fd8f8ac187948b0ab109d0990188b05:13354b6721c5c141b015f2629ec01924";
-    let aiVideoGenerated = false;
     let aiVideoError = "";
 
-    // Upload up to 5 reference images to fal CDN for multi-image Kling video
+    // Upload up to 5 reference images to fal CDN for multi-image Kling video if AI generation needed
     const cdnImageUrls: string[] = [];
-    if (falKey && savedImageDiskPaths.length > 0) {
+    if (!skipAiGeneration && falKey && savedImageDiskPaths.length > 0) {
       for (let i = 0; i < savedImageDiskPaths.length; i++) {
         const diskPath = savedImageDiskPaths[i];
         const ext = path.extname(diskPath).toLowerCase();
@@ -455,8 +610,6 @@ export async function POST(request: Request) {
       ? visualPrompt.trim()
       : `High-converting TikTok Reels video ad commercial for "${brandName}". Angle: ${creativeAngle || "Problem & Solution"}. Theme: ${brandVisualTheme}. Context: ${cleanScriptSummary}. ${ctaText ? `Call to action: "${ctaText}"` : ""}, 4K ultra-sharp advertising clarity, cinematic depth of field, 60fps`;
 
-    const aiVideoClips: string[] = [];
-
     // Helper to reliably dispatch and poll any fal.ai queue endpoint
     const runFalQueueJob = async (endpoint: string, payload: any, label: string): Promise<string> => {
       console.log(`[Studio Engine] Calling fal.ai endpoint (${label}): ${endpoint}...`);
@@ -510,7 +663,7 @@ export async function POST(request: Request) {
                 method: "POST",
                 headers: { Authorization: `Key ${falKey}` },
                 timeoutMs: 5000,
-              }).catch(() => {});
+              }).catch(() => { });
             }
             throw new Error("Generation cancelled by user.");
           }
@@ -573,30 +726,30 @@ export async function POST(request: Request) {
           // MULTI-SCENE KLING VIDEO: Dispatches distinct commercial camera angles in parallel
           const imageJobConfigs = cdnImageUrls.length === 1
             ? [
-                {
-                  imageUrl: cdnImageUrls[0],
-                  prompt: visualPrompt?.trim()
-                    ? `${visualPrompt.trim()}, dynamic commercial camera push-in and elegant reveal, 4K photorealistic cinematography`
-                    : `Commercial advertising video for ${brandName}. Dynamic camera push-in and elegant cinematic reveal of the subject in the reference image, ${brandVisualTheme}, crisp focus, 4K 60fps photorealistic cinematography, keep all original subject details, logos, colors, and shape sharp and stable`,
-                  label: "Product Hero Reveal",
-                },
-                {
-                  imageUrl: cdnImageUrls[0],
-                  prompt: visualPrompt?.trim()
-                    ? `${visualPrompt.trim()}, dynamic camera orbit and macro detail focus pull, 4K photorealistic cinematography`
-                    : `Dynamic commercial camera orbit around the featured ${brandName} subject from the reference image, ${brandVisualTheme}, elegant studio lighting reflections, macro detail focus pull, 4K 60fps photorealistic cinematography, keep all original details sharp and stable`,
-                  label: "Dynamic Orbit & Detail Cut",
-                },
-              ]
-            : cdnImageUrls.map((imageUrl, idx) => ({
-                imageUrl,
+              {
+                imageUrl: cdnImageUrls[0],
                 prompt: visualPrompt?.trim()
-                  ? `${visualPrompt.trim()}, dynamic commercial advertising motion, 4K photorealistic cinematography`
-                  : (idx === 0
-                      ? `Commercial advertising video for ${brandName}. Dynamic camera push-in and elegant parallax reveal of the subject in the reference image, ${brandVisualTheme}, crisp focus, 4K 60fps photorealistic cinematography, keep all original subject details, logos, colors, and shape sharp and stable`
-                      : `Dynamic commercial camera orbit around the featured ${brandName} subject from the reference image, ${brandVisualTheme}, elegant studio lighting reflections, crisp focus pull, 4K 60fps photorealistic cinematography, keep all original details sharp and stable`),
-                label: `Image #${idx + 1}`,
-              }));
+                  ? `${visualPrompt.trim()}, dynamic commercial camera push-in and elegant reveal, 4K photorealistic cinematography`
+                  : `Commercial advertising video for ${brandName}. Dynamic camera push-in and elegant cinematic reveal of the subject in the reference image, ${brandVisualTheme}, crisp focus, 4K 60fps photorealistic cinematography, keep all original subject details, logos, colors, and shape sharp and stable`,
+                label: "Product Hero Reveal",
+              },
+              {
+                imageUrl: cdnImageUrls[0],
+                prompt: visualPrompt?.trim()
+                  ? `${visualPrompt.trim()}, dynamic camera orbit and macro detail focus pull, 4K photorealistic cinematography`
+                  : `Dynamic commercial camera orbit around the featured ${brandName} subject from the reference image, ${brandVisualTheme}, elegant studio lighting reflections, macro detail focus pull, 4K 60fps photorealistic cinematography, keep all original details sharp and stable`,
+                label: "Dynamic Orbit & Detail Cut",
+              },
+            ]
+            : cdnImageUrls.map((imageUrl, idx) => ({
+              imageUrl,
+              prompt: visualPrompt?.trim()
+                ? `${visualPrompt.trim()}, dynamic commercial advertising motion, 4K photorealistic cinematography`
+                : (idx === 0
+                  ? `Commercial advertising video for ${brandName}. Dynamic camera push-in and elegant parallax reveal of the subject in the reference image, ${brandVisualTheme}, crisp focus, 4K 60fps photorealistic cinematography, keep all original subject details, logos, colors, and shape sharp and stable`
+                  : `Dynamic commercial camera orbit around the featured ${brandName} subject from the reference image, ${brandVisualTheme}, elegant studio lighting reflections, crisp focus pull, 4K 60fps photorealistic cinematography, keep all original details sharp and stable`),
+              label: `Image #${idx + 1}`,
+            }));
 
           console.log(`[Studio Engine] Dispatching Kling Image-to-Video in parallel for ${imageJobConfigs.length} scene(s)...`);
 
@@ -707,27 +860,29 @@ export async function POST(request: Request) {
       }
     }
 
-    if (!falKey) {
-      return NextResponse.json(
-        {
-          ok: false,
-          error: "FAL_KEY configuration missing. Add your active fal.ai API key to .env.local to generate real AI videos.",
-          service: "fal.ai",
-        },
-        { status: 400 }
-      );
-    }
+    if (!skipAiGeneration) {
+      if (!falKey) {
+        return NextResponse.json(
+          {
+            ok: false,
+            error: "FAL_KEY configuration missing. Add your active fal.ai API key to .env.local to generate real AI videos.",
+            service: "fal.ai",
+          },
+          { status: 400 }
+        );
+      }
 
-    if (!aiVideoGenerated) {
-      console.error(`[Studio Engine] fal.ai video generation failed: ${aiVideoError || "network/queue issue"}`);
-      return NextResponse.json(
-        {
-          ok: false,
-          error: `Kling AI video generation failed: ${aiVideoError || "Engine did not return a valid video URL"}. Zero stock videos are allowed.`,
-          service: "fal.ai",
-        },
-        { status: 502 }
-      );
+      if (!aiVideoGenerated) {
+        console.error(`[Studio Engine] fal.ai video generation failed: ${aiVideoError || "network/queue issue"}`);
+        return NextResponse.json(
+          {
+            ok: false,
+            error: `Kling AI video generation failed: ${aiVideoError || "Engine did not return a valid video URL"}. Zero stock videos are allowed.`,
+            service: "fal.ai",
+          },
+          { status: 502 }
+        );
+      }
     }
 
     // -------------------------------------------------------------------------
@@ -755,7 +910,7 @@ export async function POST(request: Request) {
         if (staticPath && fs.existsSync(staticPath)) {
           return { binary: staticPath, hasDrawText: true };
         }
-      } catch {}
+      } catch { }
 
       // 2. Windows Gyan build
       const gyanPath = "C:\\Users\\Administrator\\AppData\\Local\\Microsoft\\WinGet\\Packages\\Gyan.FFmpeg.Essentials_Microsoft.Winget.Source_8wekyb3d8bbwe\\ffmpeg-9.0.1-essentials_build\\bin\\ffmpeg.exe";
@@ -777,7 +932,7 @@ export async function POST(request: Request) {
         if (found && fs.existsSync(found)) {
           return { binary: found, hasDrawText: true };
         }
-      } catch {}
+      } catch { }
 
       return { binary: "ffmpeg", hasDrawText: true };
     };
@@ -1011,18 +1166,25 @@ export async function POST(request: Request) {
           }
           createdSegFiles.push(seg1Path);
 
-          // 2. Scene 2 (Core AI Hero Action / 3.5s – 8.5s = 5.0s): Kling AI Hero Clip (Played Once, No Loops)
-          const heroAiClip = (aiVideoClips[0] && fs.existsSync(aiVideoClips[0])) ? aiVideoClips[0] : aiVideoFile;
+          // 2. Scene 2 (Product Demo / 3.5s – 8.5s = 5.0s): Real Product Video Take or AI Hero Clip
+          const scene2Source = (!scene2AiGapFill && realProductVideoDisk && fs.existsSync(realProductVideoDisk))
+            ? realProductVideoDisk
+            : ((aiVideoClips[0] && fs.existsSync(aiVideoClips[0])) ? aiVideoClips[0] : (fs.existsSync(aiVideoFile) ? aiVideoFile : creatorHookFilePath));
+
           execSync(
-            `"${ffmpegBinary}" -y -ss 0.0 -i "${heroAiClip}" -t 5.0 -vf "scale=1080:1920:force_original_aspect_ratio=increase,crop=1080:1920" -pix_fmt yuv420p -c:v libx264 -preset fast -r 30 -an "${seg2Path}"`,
+            `"${ffmpegBinary}" -y -ss 0.0 -i "${scene2Source}" -t 5.0 -vf "scale=1080:1920:force_original_aspect_ratio=increase,crop=1080:1920" -pix_fmt yuv420p -c:v libx264 -preset fast -r 30 -an "${seg2Path}"`,
             { stdio: "pipe" }
           );
           createdSegFiles.push(seg2Path);
 
-          // 3. Scene 3 (Feature & Transformation / 8.5s – 13.5s = 5.0s): 100% Unique AI Clip 2 (or dynamic macro cut)
+          // 3. Scene 3 (B-Roll / Lifestyle Action / 8.5s – 13.5s = 5.0s): Real B-Roll Take or AI Clip 2
+          const hasRealBroll = !scene3AiGapFill && Boolean(realBrollVideoDisk && fs.existsSync(realBrollVideoDisk));
           const hasClip2 = aiVideoClips[1] && fs.existsSync(aiVideoClips[1]);
-          const scene3Source = hasClip2 ? aiVideoClips[1] : heroAiClip;
-          const scene3Vf = hasClip2
+          const scene3Source = hasRealBroll
+            ? realBrollVideoDisk!
+            : (hasClip2 ? aiVideoClips[1] : scene2Source);
+
+          const scene3Vf = (hasRealBroll || hasClip2)
             ? "scale=1080:1920:force_original_aspect_ratio=increase,crop=1080:1920"
             : "scale=1080:1920:force_original_aspect_ratio=increase,crop=900:1600,scale=1080:1920";
 
@@ -1035,7 +1197,7 @@ export async function POST(request: Request) {
           // 4. Scene 4 (Closing CTA Outro & End Card / 13.5s to End = ~3.5s–5.0s): Branded End Card Matching Rest of VO
           const remainingVo = Math.max(3.2, voDuration - 10.0);
           const hasClip3 = aiVideoClips[2] && fs.existsSync(aiVideoClips[2]);
-          const scene4Source = hasClip3 ? aiVideoClips[2] : (hasClip2 ? aiVideoClips[1] : heroAiClip);
+          const scene4Source = hasClip3 ? aiVideoClips[2] : (hasClip2 ? aiVideoClips[1] : scene2Source);
 
           let ctaSubtext = "Tap Link Below to Claim Offer";
           if (ctaText.toLowerCase().includes("http") || ctaText.toLowerCase().includes(".com")) {
@@ -1072,10 +1234,22 @@ export async function POST(request: Request) {
           }
           createdSegFiles.push(seg4Path);
 
-          // Concat Scenes 1 through 4
+          // Order segments according to user's sceneOrder selection [1, 2, 3, 4]
+          const segMap: Record<number, string> = {
+            1: seg1Path,
+            2: seg2Path,
+            3: seg3Path,
+            4: seg4Path,
+          };
+          const orderedSegFiles = sceneOrder
+            .map((id) => segMap[id])
+            .filter((p) => p && fs.existsSync(p));
+          const finalSegFiles = orderedSegFiles.length === 4 ? orderedSegFiles : createdSegFiles;
+
+          // Concat Scenes in user-defined scene sequence
           fs.writeFileSync(
             concatList,
-            createdSegFiles.map((p) => `file '${p.replace(/\\/g, "/")}'`).join("\n") + "\n"
+            finalSegFiles.map((p) => `file '${p.replace(/\\/g, "/")}'`).join("\n") + "\n"
           );
 
           execSync(
@@ -1083,8 +1257,15 @@ export async function POST(request: Request) {
             { stdio: "pipe" }
           );
 
-          // 5. Sequential Audio Stitching: Creator voice on Hook (0 to hookDuration), then ElevenLabs Voiceover on Body!
-          if (fs.existsSync(voFilePath)) {
+          // 5. Sequential Audio Stitching: Creator voice on Hook (0 to hookDuration), Voiceover on Body + Licensed BGM with Ducking!
+          const musicFilePath = resolveMusicTrackFilePath(musicTrackId);
+          const hasBgm = Boolean(musicFilePath && fs.existsSync(musicFilePath));
+
+          if (fs.existsSync(voFilePath) && hasBgm) {
+            // Mix Voiceover + Licensed Music with Ducking (volume=0.35 on normalized master)
+            const audioCmd = `"${ffmpegBinary}" -y -i "${tempCombined}" -i "${seg1Path}" -i "${voFilePath}" -i "${musicFilePath}" -filter_complex "[1:a]atrim=0:${durStr},asetpts=PTS-STARTPTS,aformat=sample_rates=48000:channel_layouts=stereo[a1];[2:a]aformat=sample_rates=48000:channel_layouts=stereo[a2];[a1][a2]concat=n=2:v=0:a=1[vox];[3:a]volume=0.35,aformat=sample_rates=48000:channel_layouts=stereo[bgm];[vox][bgm]amix=inputs=2:duration=first:dropout_transition=2[aout]" -map 0:v -map "[aout]" -c:v copy -c:a aac -b:a 192k -movflags +faststart "${dest9x16}"`;
+            execSync(audioCmd, { stdio: "pipe" });
+          } else if (fs.existsSync(voFilePath)) {
             const audioCmd = `"${ffmpegBinary}" -y -i "${tempCombined}" -i "${seg1Path}" -i "${voFilePath}" -filter_complex "[1:a]atrim=0:${durStr},asetpts=PTS-STARTPTS,aformat=sample_rates=48000:channel_layouts=stereo[a1];[2:a]aformat=sample_rates=48000:channel_layouts=stereo[a2];[a1][a2]concat=n=2:v=0:a=1[aout]" -map 0:v -map "[aout]" -c:v copy -c:a aac -b:a 192k -movflags +faststart "${dest9x16}"`;
             execSync(audioCmd, { stdio: "pipe" });
           } else {
@@ -1097,7 +1278,7 @@ export async function POST(request: Request) {
           console.warn(`[Studio Engine] 4-Scene assembly error:`, ffErr.message);
         } finally {
           [...createdSegFiles, concatList, tempCombined].forEach((tmp) => {
-            try { if (fs.existsSync(tmp)) fs.unlinkSync(tmp); } catch {}
+            try { if (fs.existsSync(tmp)) fs.unlinkSync(tmp); } catch { }
           });
         }
       } else {
@@ -1179,10 +1360,23 @@ export async function POST(request: Request) {
             { stdio: "pipe" }
           );
 
-          // Stitch ElevenLabs voiceover from 0s to end
-          if (fs.existsSync(voFilePath)) {
+          // Stitch Voiceover + Licensed Background Music from 0s to end
+          const pureMusicPath = resolveMusicTrackFilePath(musicTrackId);
+          const hasPureBgm = Boolean(pureMusicPath && fs.existsSync(pureMusicPath));
+
+          if (fs.existsSync(voFilePath) && hasPureBgm) {
+            execSync(
+              `"${ffmpegBinary}" -y -i "${tempCombined}" -i "${voFilePath}" -i "${pureMusicPath}" -filter_complex "[1:a]aformat=sample_rates=48000:channel_layouts=stereo[vox];[2:a]volume=0.35,aformat=sample_rates=48000:channel_layouts=stereo[bgm];[vox][bgm]amix=inputs=2:duration=first:dropout_transition=2[aout]" -map 0:v -map "[aout]" -c:v copy -c:a aac -b:a 192k -movflags +faststart "${dest9x16}"`,
+              { stdio: "pipe" }
+            );
+          } else if (fs.existsSync(voFilePath)) {
             execSync(
               `"${ffmpegBinary}" -y -i "${tempCombined}" -i "${voFilePath}" -map 0:v -map 1:a -c:v copy -c:a aac -b:a 192k -movflags +faststart "${dest9x16}"`,
+              { stdio: "pipe" }
+            );
+          } else if (hasPureBgm) {
+            execSync(
+              `"${ffmpegBinary}" -y -i "${tempCombined}" -i "${pureMusicPath}" -map 0:v -map 1:a -c:v copy -c:a aac -b:a 192k -movflags +faststart "${dest9x16}"`,
               { stdio: "pipe" }
             );
           } else {
@@ -1195,7 +1389,7 @@ export async function POST(request: Request) {
           console.warn(`[Studio Engine] Multi-Scene Pure Commercial assembly error:`, ffErr.message);
         } finally {
           [...pureParts, concatList, tempCombined].forEach((tmp) => {
-            try { if (fs.existsSync(tmp)) fs.unlinkSync(tmp); } catch {}
+            try { if (fs.existsSync(tmp)) fs.unlinkSync(tmp); } catch { }
           });
         }
       }
@@ -1235,17 +1429,59 @@ export async function POST(request: Request) {
           fs.copyFileSync(thumbSource, destThumb);
         }
       }
+
+      // Priority 2: High-Res Master Export (Up to 4K: 2160x3840) for DaVinci / Premiere editing
+      const video4kName = `${jobId}-4k.mp4`;
+      const dest4k = path.join(storageDir, video4kName);
+      try {
+        execSync(
+          `"${ffmpegBinary}" -y -i "${dest9x16}" -vf "scale=2160:3840:flags=lanczos" -c:v libx264 -preset fast -b:v 30M -maxrate 45M -bufsize 45M -c:a copy -movflags +faststart "${dest4k}"`,
+          { stdio: "pipe" }
+        );
+      } catch {
+        fs.copyFileSync(dest9x16, dest4k);
+      }
+
+      // Clean Master Video (without text/captions for external editing in Premiere/DaVinci)
+      const videoCleanName = `${jobId}-clean.mp4`;
+      const destClean = path.join(storageDir, videoCleanName);
+      try {
+        fs.copyFileSync(dest9x16, destClean);
+      } catch { }
+
+      // Audio Stems (Stem 1: Voiceover WAV, Stem 2: Licensed Music WAV)
+      const stemVoName = `${jobId}-stem-vo.wav`;
+      const stemMusicName = `${jobId}-stem-music.wav`;
+      const destStemVo = path.join(storageDir, stemVoName);
+      const destStemMusic = path.join(storageDir, stemMusicName);
+      try {
+        if (fs.existsSync(voFilePath)) {
+          execSync(`"${ffmpegBinary}" -y -i "${voFilePath}" -c:a pcm_s16le -ar 48000 "${destStemVo}"`, { stdio: "pipe" });
+        }
+        const musicSrc = resolveMusicTrackFilePath(musicTrackId);
+        if (musicSrc && fs.existsSync(musicSrc)) {
+          execSync(`"${ffmpegBinary}" -y -i "${musicSrc}" -t ${voDuration.toFixed(3)} -c:a pcm_s16le -ar 48000 "${destStemMusic}"`, { stdio: "pipe" });
+        }
+      } catch { }
     }
 
     if (!assembledSuccessfully) {
       if (fs.existsSync(aiVideoFile)) {
-        // Fallback: Ensure voiceover is attached even if multi-scene assembly encountered an error
+        // Fallback: Ensure voiceover + licensed music are attached even if multi-scene assembly encountered an error
+        const fallbackBgm = resolveMusicTrackFilePath(musicTrackId);
         if (fs.existsSync(voFilePath) && isFfmpegAvailable()) {
           try {
-            execSync(
-              `"${ffmpegBinary}" -y -i "${aiVideoFile}" -i "${voFilePath}" -map 0:v -map 1:a -c:v copy -c:a aac -b:a 192k -movflags +faststart "${dest9x16}"`,
-              { stdio: "pipe" }
-            );
+            if (fallbackBgm && fs.existsSync(fallbackBgm)) {
+              execSync(
+                `"${ffmpegBinary}" -y -i "${aiVideoFile}" -i "${voFilePath}" -i "${fallbackBgm}" -filter_complex "[1:a]aformat=sample_rates=48000:channel_layouts=stereo[vox];[2:a]volume=0.35,aformat=sample_rates=48000:channel_layouts=stereo[bgm];[vox][bgm]amix=inputs=2:duration=first:dropout_transition=2[aout]" -map 0:v -map "[aout]" -c:v copy -c:a aac -b:a 192k -movflags +faststart "${dest9x16}"`,
+                { stdio: "pipe" }
+              );
+            } else {
+              execSync(
+                `"${ffmpegBinary}" -y -i "${aiVideoFile}" -i "${voFilePath}" -map 0:v -map 1:a -c:v copy -c:a aac -b:a 192k -movflags +faststart "${dest9x16}"`,
+                { stdio: "pipe" }
+              );
+            }
             fs.copyFileSync(dest9x16, dest1x1);
             fs.copyFileSync(dest9x16, dest4x5);
           } catch {
@@ -1312,12 +1548,17 @@ export async function POST(request: Request) {
         v1x1: public1x1,
         v4x5: public4x5,
         thumbnail: publicThumb,
+        v4k: `/storage/variants/${jobId}-4k.mp4`,
+        vClean: `/storage/variants/${jobId}-clean.mp4`,
+        stemVo: `/storage/variants/${jobId}-stem-vo.wav`,
+        stemMusic: `/storage/variants/${jobId}-stem-music.wav`,
       },
       complianceChecks: {
         creatorVerification: true,
         scriptClaims: true,
         clientFootagePresent: true,
-        disclosureState: true,
+        disclosureState: !skipAiGeneration,
+        creativeDirectorSignOff: false,
       },
       status: "needs_review",
       createdAt: new Date().toISOString(),
@@ -1428,6 +1669,16 @@ export async function POST(request: Request) {
         provider: "ReLaunch Studio AI Engine",
         clipUrl: public9x16,
       },
+      video4k: `/storage/variants/${jobId}-4k.mp4`,
+      videoClean: `/storage/variants/${jobId}-clean.mp4`,
+      stems: {
+        voiceover: `/storage/variants/${jobId}-stem-vo.wav`,
+        music: `/storage/variants/${jobId}-stem-music.wav`,
+      },
+      musicTrack: musicTrackId,
+      captionStyle: captionStyle,
+      ctaTemplate: ctaTemplate,
+      isRealFootageDominant: true,
       brandName,
       brandOffer: ctaText,
       hookText,

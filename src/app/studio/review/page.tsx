@@ -36,6 +36,7 @@ import {
   X,
   Eye,
   Users,
+  Zap,
 } from "lucide-react";
 
 interface VariantItem {
@@ -64,12 +65,21 @@ interface VariantItem {
   verifiedBy?: string;
   verifiedAt?: string;
   auditId?: string;
+  variants?: { v9x16: string; v1x1: string; v4x5: string; v4k?: string; vClean?: string };
   complianceChecks?: {
     creatorVerification: boolean;
     scriptClaims: boolean;
     clientFootagePresent: boolean;
     disclosureState: boolean;
+    creativeDirectorSignOff?: boolean;
   };
+  v4k?: string;
+  vClean?: string;
+  stems?: { voiceover?: string; music?: string };
+  ctaTemplate?: string;
+  captionStyle?: string;
+  musicTrack?: string;
+  isRealFootageDominant?: boolean;
   creatorHookClip?: string;
   voiceoverUrl?: string;
   wordTimestamps?: Array<{ word: string; start: number; end: number }>;
@@ -94,13 +104,14 @@ export default function StudioReviewPortal() {
   const [approvedCount, setApprovedCount] = useState(0);
   const [queueFilter, setQueueFilter] = useState<"pending" | "all">("pending");
 
-  // Reviewer / QA Operator State & 4 Compliance Gates
-  const [operatorName, setOperatorName] = useState("Robert Clark");
+  // Reviewer / QA Operator State & 5 Compliance Gates (4 Automated/Technical + 1 Human CD Taste Gate)
+  const [operatorName, setOperatorName] = useState("Robert Clark (Creative Director)");
   const [checks, setChecks] = useState({
     creatorVerification: false,
     scriptClaims: false,
     clientFootagePresent: false,
     disclosureState: false,
+    creativeDirectorSignOff: false,
   });
 
   const toggleCheck = (key: keyof typeof checks) => {
@@ -115,11 +126,12 @@ export default function StudioReviewPortal() {
       scriptClaims: true,
       clientFootagePresent: true,
       disclosureState: true,
+      creativeDirectorSignOff: true,
     });
   };
 
   const numPassed = Object.values(checks).filter(Boolean).length;
-  const allChecksPassed = numPassed === 4;
+  const allChecksPassed = numPassed === 5;
 
   const [showRubric, setShowRubric] = useState(false);
   const [isClientMode, setIsClientMode] = useState(false);
@@ -149,6 +161,7 @@ export default function StudioReviewPortal() {
           scriptClaims: true,
           clientFootagePresent: true,
           disclosureState: true,
+          creativeDirectorSignOff: true,
         });
       } else if (selectedVariant.complianceChecks) {
         setChecks({
@@ -156,6 +169,7 @@ export default function StudioReviewPortal() {
           scriptClaims: Boolean(selectedVariant.complianceChecks.scriptClaims),
           clientFootagePresent: Boolean(selectedVariant.complianceChecks.clientFootagePresent),
           disclosureState: Boolean(selectedVariant.complianceChecks.disclosureState),
+          creativeDirectorSignOff: Boolean(selectedVariant.complianceChecks.creativeDirectorSignOff),
         });
       } else {
         setChecks({
@@ -163,6 +177,7 @@ export default function StudioReviewPortal() {
           scriptClaims: false,
           clientFootagePresent: false,
           disclosureState: false,
+          creativeDirectorSignOff: false,
         });
       }
     }
@@ -344,20 +359,20 @@ export default function StudioReviewPortal() {
     if (!selectedVariant) return;
 
     if (decision === "approve" && !allChecksPassed) {
-      showToast("All 4 quality compliance gates must pass before approving this ad.");
+      showToast("All 5 quality gates (including Creative Director Taste Gate) must pass before approving this ad.");
       return;
     }
 
     if (decision === "approve") {
       setIsApproving(true);
-      setApprovalStep("Verifying quality compliance & packaging deliverables...");
+      setApprovalStep("Verifying CD taste gate & packaging 4K deliverables...");
     }
     setIsSubmitting(true);
 
     try {
       // Compliance sign-off audit stamp
       const verifiedMeta = decision === "approve" ? {
-        verifiedBy: operatorName || "Robert Clark (QA Operator)",
+        verifiedBy: operatorName || "Robert Clark (Creative Director)",
         verifiedAt: new Date().toISOString(),
         auditId: `AUDIT-${selectedVariant.id.toUpperCase()}`,
         complianceChecks: checks,
@@ -726,8 +741,9 @@ export default function StudioReviewPortal() {
               <div className="text-[11px] font-mono text-zinc-700 space-y-0.5 border-t border-emerald-200/60 pt-2">
                 <div><strong className="text-zinc-900">Auditor:</strong> {selectedVariant.verifiedBy || operatorName}</div>
                 <div><strong className="text-zinc-900">Audit ID:</strong> {selectedVariant.auditId || `AUDIT-${selectedVariant.id.toUpperCase()}`}</div>
+                <div><strong className="text-zinc-900">Creative Director:</strong> Robert Clark (Taste Gate Signed Off)</div>
                 <div><strong className="text-zinc-900">Approved At:</strong> {selectedVariant.verifiedAt ? new Date(selectedVariant.verifiedAt).toLocaleString() : new Date().toLocaleString()}</div>
-                <div><strong className="text-zinc-900">Status:</strong> 4/4 Checks Verified · Pilot Approved</div>
+                <div><strong className="text-zinc-900">Status:</strong> 5/5 Quality Gates Verified · Studio Master Approved</div>
               </div>
 
               {/* Google Drive Delivery layer badge */}
@@ -768,7 +784,7 @@ export default function StudioReviewPortal() {
               {!allChecksPassed && (
                 <div className="bg-orange-50 border border-orange-200 text-orange-800 text-[11px] p-2 rounded-xl flex items-center gap-1.5 font-medium">
                   <AlertTriangle className="w-3.5 h-3.5 text-orange-600 shrink-0" />
-                  <span>Pass all 4 quality gates ({numPassed}/4 passed) to enable approval.</span>
+                  <span>Pass all 5 quality gates ({numPassed}/5 passed) including CD taste sign-off to enable approval.</span>
                 </div>
               )}
               <button
@@ -830,21 +846,60 @@ export default function StudioReviewPortal() {
               )}
             </div>
             {selectedVariant.status === "approved" ? (
-              <div className="p-2.5 rounded-xl bg-emerald-50 border border-emerald-200 flex items-center justify-between">
-                <span className="text-xs text-emerald-900 font-medium">Export Ready for Client Delivery</span>
-                <a
-                  href={aspectRatio === "9:16" ? selectedVariant.video9x16 : aspectRatio === "1:1" ? selectedVariant.video1x1 : selectedVariant.video4x5}
-                  download={`${selectedVariant.id}-${aspectRatio}.mp4`}
-                  className="px-3 py-1 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold transition flex items-center gap-1 cursor-pointer shadow-xs"
-                >
-                  <Download className="w-3.5 h-3.5" />
-                  <span>Download MP4</span>
-                </a>
+              <div className="p-3 rounded-xl bg-emerald-50 border border-emerald-200 space-y-2">
+                <div className="flex items-center justify-between">
+                  <span className="text-xs text-emerald-900 font-bold">Studio Master Export Ready</span>
+                  <a
+                    href={aspectRatio === "9:16" ? selectedVariant.video9x16 : aspectRatio === "1:1" ? selectedVariant.video1x1 : selectedVariant.video4x5}
+                    download={`${selectedVariant.id}-${aspectRatio}.mp4`}
+                    className="px-3 py-1 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold transition flex items-center gap-1 cursor-pointer shadow-xs"
+                  >
+                    <Download className="w-3.5 h-3.5" />
+                    <span>Download MP4</span>
+                  </a>
+                </div>
+
+                {/* 4K Pro Master & Stems Deliverable Options */}
+                <div className="flex items-center gap-2 pt-1.5 border-t border-emerald-200/60 flex-wrap">
+                  {(selectedVariant.v4k || selectedVariant.variants?.v4k) && (
+                    <a
+                      href={selectedVariant.v4k || selectedVariant.variants?.v4k}
+                      download={`${selectedVariant.id}-4k-master.mp4`}
+                      className="px-2.5 py-1 rounded-md bg-purple-100 hover:bg-purple-200 border border-purple-300 text-purple-900 text-[10px] font-extrabold transition inline-flex items-center gap-1"
+                      title="4K UHD Master (2160x3840, CRF 16) for Premiere / DaVinci finishing"
+                    >
+                      <Zap className="w-3 h-3 text-[#7F48ED]" />
+                      <span>4K Pro Master</span>
+                    </a>
+                  )}
+
+                  {(selectedVariant.vClean || selectedVariant.variants?.vClean) && (
+                    <a
+                      href={selectedVariant.vClean || selectedVariant.variants?.vClean}
+                      download={`${selectedVariant.id}-clean-cut.mp4`}
+                      className="px-2.5 py-1 rounded-md bg-white hover:bg-zinc-50 border border-zinc-300 text-zinc-800 text-[10px] font-bold transition inline-flex items-center gap-1"
+                      title="Clean video cut with zero overlays or burned captions"
+                    >
+                      <span>Clean Master</span>
+                    </a>
+                  )}
+
+                  {selectedVariant.stems?.voiceover && (
+                    <a
+                      href={selectedVariant.stems.voiceover}
+                      download={`${selectedVariant.id}-stem-vo.wav`}
+                      className="px-2 py-1 rounded-md bg-white hover:bg-zinc-50 border border-zinc-200 text-zinc-700 text-[10px] font-semibold transition"
+                      title="Clean lossless voiceover stem"
+                    >
+                      <span>VO Stem</span>
+                    </a>
+                  )}
+                </div>
               </div>
             ) : (
               <div className="p-2.5 rounded-xl bg-orange-50/50 border border-dashed border-orange-200 text-[11px] text-zinc-600 flex items-center gap-2">
                 <ShieldAlert className="w-4 h-4 text-[#FF6700] shrink-0" />
-                <span>Delivery locked. Pass all 4 quality gates and approve to enable client delivery.</span>
+                <span>Delivery locked. Pass all 5 quality gates (including CD Taste Gate) and approve to enable client delivery.</span>
               </div>
             )}
           </div>
@@ -1998,17 +2053,17 @@ export default function StudioReviewPortal() {
           </div>
         </div>
 
-        {/* Bottom Bar: 4 Interactive Quality Compliance Gates */}
+        {/* Bottom Bar: 5 Interactive Quality Compliance Gates */}
         {selectedVariant && (
             <div className="w-full flex flex-col items-center justify-center pt-2.5 sm:pt-3 border-t border-zinc-200 shrink-0 gap-2">
-              <div className="flex items-center justify-between w-full max-w-2xl px-1 sm:px-2 text-[11px] sm:text-xs">
+              <div className="flex items-center justify-between w-full max-w-4xl px-1 sm:px-2 text-[11px] sm:text-xs">
                 <div className="flex items-center gap-1 sm:gap-1.5 min-w-0 flex-wrap">
                   <ShieldCheck className={`w-3.5 h-3.5 sm:w-4 sm:h-4 shrink-0 ${allChecksPassed ? "text-emerald-600" : "text-[#FF6700]"}`} />
                   <span className="text-zinc-700 font-bold uppercase tracking-wider text-[10px] sm:text-[11px] whitespace-nowrap">
-                    Compliance:
+                    Quality Gate:
                   </span>
                   <span className={`font-bold whitespace-nowrap text-[10px] sm:text-[11px] ${allChecksPassed ? "text-emerald-600" : "text-[#FF6700]"}`}>
-                    {numPassed}/4 Passed
+                    {numPassed}/5 Passed
                   </span>
                   <button
                     type="button"
@@ -2031,7 +2086,7 @@ export default function StudioReviewPortal() {
                 </button>
               </div>
 
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2 w-full max-w-2xl px-1 sm:px-2 text-[11px]">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-2 w-full max-w-4xl px-1 sm:px-2 text-[11px]">
                 {/* Check 1: Creator UGC */}
                 <button
                   type="button"
@@ -2105,14 +2160,35 @@ export default function StudioReviewPortal() {
                       ? "bg-emerald-50 border-emerald-300 text-emerald-800 shadow-xs"
                       : "bg-orange-50/60 border-orange-200 text-orange-800 hover:bg-orange-100/60"
                   }`}
-                  title="Disclosure State: AI-Generated Media watermark confirmed visible"
+                  title="Disclosure State: AI-Generated Media watermark confirmed visible on AI gap-fill"
                 >
                   <div className="flex items-center gap-1.5 truncate">
                     <span className={`w-2 h-2 rounded-full shrink-0 ${checks.disclosureState ? "bg-emerald-500" : "bg-[#FF6700]"}`} />
-                    <span className="font-semibold truncate">4. AI Watermark</span>
+                    <span className="font-semibold truncate">4. AI Label</span>
                   </div>
                   <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded ${checks.disclosureState ? "bg-emerald-100 text-emerald-800" : "bg-orange-100 text-orange-800"}`}>
                     {checks.disclosureState ? "PASS" : "CHECK"}
+                  </span>
+                </button>
+
+                {/* Check 5: Human Creative Director Taste Sign-Off */}
+                <button
+                  type="button"
+                  disabled={selectedVariant?.status === "approved"}
+                  onClick={() => toggleCheck("creativeDirectorSignOff")}
+                  className={`flex items-center justify-between p-2 sm:p-2.5 rounded-xl border transition-all cursor-pointer ${
+                    checks.creativeDirectorSignOff
+                      ? "bg-purple-50 border-purple-300 text-purple-900 shadow-xs ring-1 ring-purple-300"
+                      : "bg-purple-50/40 border-purple-200 text-purple-800 hover:bg-purple-100/60"
+                  }`}
+                  title="Creative Director Taste Gate: Verified 0–3s hook pacing, audio ducking mix, visual rhythm, & brand craft by Robert Clark"
+                >
+                  <div className="flex items-center gap-1.5 truncate">
+                    <span className={`w-2 h-2 rounded-full shrink-0 ${checks.creativeDirectorSignOff ? "bg-[#7F48ED]" : "bg-purple-300"}`} />
+                    <span className="font-bold truncate text-[10px] sm:text-[11px]">5. CD Taste Gate</span>
+                  </div>
+                  <span className={`text-[9px] font-extrabold px-1.5 py-0.5 rounded ${checks.creativeDirectorSignOff ? "bg-purple-200 text-purple-950" : "bg-purple-100 text-purple-800"}`}>
+                    {checks.creativeDirectorSignOff ? "PASS" : "SIGN"}
                   </span>
                 </button>
               </div>

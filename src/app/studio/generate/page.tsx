@@ -38,10 +38,21 @@ import {
   ExternalLink,
   Plus,
   Users,
+  Scissors,
+  GripVertical,
 } from "lucide-react";
 import { CREATOR_ROSTER, CreatorProfile } from "@/data/creatorRoster";
 import { CREATOR_ASSETS, CreatorClipAsset, getCreatorClips, getCreatorClipById } from "@/data/creatorAssets";
 import HookTrimmer from "@/components/studio/HookTrimmer";
+import MasterAssetsModal from "@/components/studio/MasterAssetsModal";
+import {
+  LICENSED_MUSIC_LIBRARY,
+  BRANDED_CTA_TEMPLATES,
+  CAPTION_STYLES,
+  MusicTrack,
+  CtaTemplate,
+  CaptionStyle,
+} from "@/data/timelineAssets";
 
 interface AngleContent {
   title: string;
@@ -58,6 +69,9 @@ interface BrandPreset {
   brandOffer: string;
   angleKey: string;
   visualPrompt: string;
+  productVideo?: string;
+  brollVideo?: string;
+  musicTrackId?: string;
 }
 
 const BRAND_PRESETS: BrandPreset[] = [
@@ -69,6 +83,9 @@ const BRAND_PRESETS: BrandPreset[] = [
     brandOffer: "Free AI Visibility Audit",
     angleKey: "problem",
     visualPrompt: "Confident local business owner in a modern bright creative studio smiling as customer bookings arrive on smartphone, 4K commercial cinematography, natural sunlight, cinematic depth of field, 60fps",
+    productVideo: "/videos/work-hero-reel.mp4",
+    brollVideo: "/videos/outdoor/trailline-mountain-ridge.mp4",
+    musicTrackId: "tech-driving-beat",
   },
   {
     id: "chicago-dog-42",
@@ -78,6 +95,9 @@ const BRAND_PRESETS: BrandPreset[] = [
     brandOffer: "$5 Off First Jumbo Combo",
     angleKey: "listicle",
     visualPrompt: "Mouthwatering authentic Chicago hot dog with yellow mustard, bright green neon relish, chopped onions, tomato wedges, pickle spear, sport peppers and celery salt on a warm poppy seed bun, fresh sizzling grill smoke, vibrant appetizing commercial food lighting, 4K 60fps",
+    productVideo: "/videos/chicago-dog-hero.mp4",
+    brollVideo: "/videos/chicago-dog-social-1.mp4",
+    musicTrackId: "energy-direct-response",
   },
   {
     id: "turf-life",
@@ -87,6 +107,9 @@ const BRAND_PRESETS: BrandPreset[] = [
     brandOffer: "20% Off Spring Turf Gear",
     angleKey: "comparison",
     visualPrompt: "Premium athletic coastal golf apparel, dynamic slow-motion golf swing on a sun-drenched championship fairway, crisp morning ocean breeze, technical performance fabric, cinematic commercial sports lighting, 4K 60fps",
+    productVideo: "/videos/turf-life-hero.mp4",
+    brollVideo: "/videos/turflife-real-video.mp4",
+    musicTrackId: "trendy-upbeat-ugc",
   },
   {
     id: "carmen-hotel",
@@ -96,6 +119,9 @@ const BRAND_PRESETS: BrandPreset[] = [
     brandOffer: "Weekend VIP Suite Package",
     angleKey: "hack",
     visualPrompt: "Luxury boutique oceanfront hotel, turquoise infinity rooftop pool overlooking Caribbean waves at golden hour, elegant cabanas, champagne glasses clinking, sunset glow, 4K luxury travel commercial cinematography",
+    productVideo: "/videos/carmen-hotel-hero.mp4",
+    brollVideo: "/videos/carmen-hotel-body.mp4",
+    musicTrackId: "luxury-cinematic",
   },
   {
     id: "dewpoint-skincare",
@@ -105,6 +131,9 @@ const BRAND_PRESETS: BrandPreset[] = [
     brandOffer: "25% Off Hydration Duo",
     angleKey: "ugc",
     visualPrompt: "Modern luxury clean skincare commercial, model with radiant glowing dewy skin applying lightweight barrier serum, fresh micro water droplets, minimalist aesthetic daylight studio, 4K 60fps",
+    productVideo: "/videos/reels/dewpoint-ceramide-cream.mp4",
+    brollVideo: "/videos/reels/dewpoint-floral-mist.mp4",
+    musicTrackId: "chill-lofi-aesthetic",
   },
   {
     id: "relaunch-studio",
@@ -114,6 +143,9 @@ const BRAND_PRESETS: BrandPreset[] = [
     brandOffer: "5 Free Video Ad Variants",
     angleKey: "problem",
     visualPrompt: "High-velocity creative ad agency dashboard, dynamic montage of viral TikTok and Instagram Reels ad creative metrics, glowing purple and orange analytics, 4K commercial motion",
+    productVideo: "/videos/work-hero-reel.mp4",
+    brollVideo: "/videos/dance-fusion/dance-reel-2.mp4",
+    musicTrackId: "trendy-upbeat-ugc",
   },
 ];
 
@@ -794,6 +826,106 @@ export default function StudioVideoGenerator() {
   const [showVoiceBalanceModal, setShowVoiceBalanceModal] = useState<boolean>(false);
   const [pendingBatchMode, setPendingBatchMode] = useState<boolean>(false);
 
+  // Quality-First Creative Studio State (Sprint 2 Architecture)
+  const [musicLibrary, setMusicLibrary] = useState<MusicTrack[]>(LICENSED_MUSIC_LIBRARY);
+  const [ctaTemplatesList, setCtaTemplatesList] = useState<CtaTemplate[]>(BRANDED_CTA_TEMPLATES);
+  const [captionStylesList, setCaptionStylesList] = useState<CaptionStyle[]>(CAPTION_STYLES);
+  const [showMasterAssetsModal, setShowMasterAssetsModal] = useState<boolean>(false);
+  const [masterAssetModalTab, setMasterAssetModalTab] = useState<"music" | "cta">("music");
+  const [selectedMusicTrackId, setSelectedMusicTrackId] = useState<string>("energy-direct-response");
+  const [selectedCaptionStyle, setSelectedCaptionStyle] = useState<string>("bold-kinetic");
+  const [selectedCtaTemplate, setSelectedCtaTemplate] = useState<string>("promo-stamp");
+  const [aiGapFillMode, setAiGapFillMode] = useState<boolean>(false);
+  const [sceneOrder, setSceneOrder] = useState<number[]>([1, 2, 3, 4]); // 1: Hook, 2: Product Demo, 3: B-Roll, 4: Motion CTA
+  const [scene2AiGapFill, setScene2AiGapFill] = useState<boolean>(false);
+  const [scene3AiGapFill, setScene3AiGapFill] = useState<boolean>(false);
+  const [musicPlayingId, setMusicPlayingId] = useState<string | null>(null);
+  const musicAudioRef = useRef<HTMLAudioElement | null>(null);
+
+  // Space-Saver Accordion & Compact UI State
+  const [step1Open, setStep1Open] = useState(true);
+  const [step2Open, setStep2Open] = useState(true);
+  const [step3Open, setStep3Open] = useState(true);
+  const [step4Open, setStep4Open] = useState(false);
+  const [showVisualPrompt, setShowVisualPrompt] = useState(false);
+  const [showTrimmer, setShowTrimmer] = useState(false);
+  const [timelineExpanded, setTimelineExpanded] = useState(false); // Collapsed by default into compact strip to save vertical space
+  const [activeScrubScene, setActiveScrubScene] = useState<number | null>(null);
+
+  const togglePreviewMusic = (track: MusicTrack) => {
+    if (musicPlayingId === track.id) {
+      if (musicAudioRef.current) {
+        musicAudioRef.current.pause();
+      }
+      setMusicPlayingId(null);
+    } else {
+      if (!musicAudioRef.current) {
+        musicAudioRef.current = new Audio();
+      }
+      musicAudioRef.current.pause();
+      musicAudioRef.current.src = track.src;
+      musicAudioRef.current.volume = 0.5;
+      musicAudioRef.current.onended = () => {
+        setMusicPlayingId(null);
+      };
+      musicAudioRef.current.play().then(() => {
+        setMusicPlayingId(track.id);
+      }).catch((err) => {
+        console.warn("Audio preview playback prevented or failed:", err);
+        setMusicPlayingId(null);
+      });
+      setSelectedMusicTrackId(track.id);
+    }
+  };
+
+  const [draggedSceneIdx, setDraggedSceneIdx] = useState<number | null>(null);
+  const [dragOverSceneIdx, setDragOverSceneIdx] = useState<number | null>(null);
+
+  const handleDragStart = (e: React.DragEvent, index: number) => {
+    setDraggedSceneIdx(index);
+    e.dataTransfer.effectAllowed = "move";
+    e.dataTransfer.setData("text/plain", index.toString());
+  };
+
+  const handleDragOver = (e: React.DragEvent, index: number) => {
+    e.preventDefault();
+    e.dataTransfer.dropEffect = "move";
+    if (dragOverSceneIdx !== index) {
+      setDragOverSceneIdx(index);
+    }
+  };
+
+  const handleDrop = (e: React.DragEvent, targetIndex: number) => {
+    e.preventDefault();
+    if (draggedSceneIdx !== null && draggedSceneIdx !== targetIndex) {
+      setSceneOrder((prev) => {
+        const next = [...prev];
+        const [movedItem] = next.splice(draggedSceneIdx, 1);
+        next.splice(targetIndex, 0, movedItem);
+        return next;
+      });
+    }
+    setDraggedSceneIdx(null);
+    setDragOverSceneIdx(null);
+  };
+
+  const handleDragEnd = () => {
+    setDraggedSceneIdx(null);
+    setDragOverSceneIdx(null);
+  };
+
+  const moveScene = (index: number, direction: "left" | "right") => {
+    setSceneOrder((prev) => {
+      const newOrder = [...prev];
+      const targetIndex = direction === "left" ? index - 1 : index + 1;
+      if (targetIndex < 0 || targetIndex >= newOrder.length) return prev;
+      const temp = newOrder[index];
+      newOrder[index] = newOrder[targetIndex];
+      newOrder[targetIndex] = temp;
+      return newOrder;
+    });
+  };
+
   const angleDataMap = useMemo(() => getAngleContent(brandName, brandOffer), [brandName, brandOffer]);
 
   // Helper to safely resolve any angle key, slug, or title to a valid angleDataMap key
@@ -891,6 +1023,14 @@ export default function StudioVideoGenerator() {
         if (data.assets && Array.isArray(data.assets)) setDynamicAssets(data.assets);
       })
       .catch((err) => console.warn("Could not load dynamic creators in generator:", err));
+
+    fetch("/api/studio/timeline-assets")
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.musicTracks && Array.isArray(data.musicTracks)) setMusicLibrary(data.musicTracks);
+        if (data.ctaTemplates && Array.isArray(data.ctaTemplates)) setCtaTemplatesList(data.ctaTemplates);
+      })
+      .catch((err) => console.warn("Could not load dynamic timeline assets in generator:", err));
   }, []);
 
   const activeCreatorAsset = useMemo(() => {
@@ -942,6 +1082,9 @@ export default function StudioVideoGenerator() {
     brandOffer?: string;
     hookText?: string;
     scriptBody?: string;
+    video4k?: string;
+    videoClean?: string;
+    stems?: { voiceover?: string; music?: string };
   } | null>(null);
 
   const [currentTime, setCurrentTime] = useState<number>(0);
@@ -1246,17 +1389,23 @@ export default function StudioVideoGenerator() {
     // Set visual prompt from preset
     setVisualPrompt(preset.visualPrompt || "");
 
-    if (preset.id === "ai-recommendations") {
-      setUploadedMediaSrc(null);
-      setUploadedMediaName(null);
+    // Quality-First Architecture: Populate Real Product & B-Roll Assets from Preset
+    if (preset.productVideo) {
+      setUploadedMediaSrc(preset.productVideo);
+      setUploadedMediaName(`${preset.name} Commercial Master`);
+      setUploadedMediaType("video");
       setUploadedMediaBase64(null);
-      setUploadedMediaType(null);
+      setUploadedImages([]);
     } else {
       setUploadedImages([]);
       setUploadedMediaSrc(null);
       setUploadedMediaName(null);
       setUploadedMediaBase64(null);
       setUploadedMediaType(null);
+    }
+
+    if (preset.musicTrackId) {
+      setSelectedMusicTrackId(preset.musicTrackId);
     }
 
     setGeneratedResult(null);
@@ -1284,6 +1433,20 @@ export default function StudioVideoGenerator() {
         })
       );
     } catch { }
+  };
+
+  // Clear Preset / Custom Brand Handler (Allows typing custom brand or opting out of preset)
+  const handleClearPreset = () => {
+    setSelectedPresetId("");
+    setBrandName("");
+    setBrandOffer("");
+    setVisualPrompt("");
+    setUploadedImages([]);
+    setUploadedMediaSrc(null);
+    setUploadedMediaName(null);
+    setUploadedMediaType(null);
+    setUploadedMediaBase64(null);
+    setPresetDropdownOpen(false);
   };
 
   // Sync active video playback
@@ -1572,6 +1735,17 @@ export default function StudioVideoGenerator() {
           visualPrompt: visualPrompt.trim() ? visualPrompt.trim() : undefined,
           aiModel: videoModel === "grok" ? "grok-1.5" : videoModel === "seedance" ? "seedance-fast" : "kling-1080p",
           isBatch: asBatch,
+
+          // Quality-First Creative Studio Parameters (Sprint 2)
+          musicTrackId: selectedMusicTrackId,
+          captionStyle: selectedCaptionStyle,
+          ctaTemplate: selectedCtaTemplate,
+          aiGapFillMode: aiGapFillMode,
+          scene2AiGapFill: scene2AiGapFill,
+          scene3AiGapFill: scene3AiGapFill,
+          productVideoUrl: (BRAND_PRESETS.find((p) => p.id === selectedPresetId)?.productVideo || (uploadedMediaType === "video" ? uploadedMediaSrc : undefined)),
+          brollVideoUrl: BRAND_PRESETS.find((p) => p.id === selectedPresetId)?.brollVideo,
+          sceneOrder: sceneOrder,
         }),
       });
 
@@ -1645,6 +1819,9 @@ export default function StudioVideoGenerator() {
         brandOffer: data.brandOffer || brandOffer,
         hookText: data.hookText || selectedHook,
         scriptBody: data.scriptBody || scriptBody,
+        video4k: data.video4k || newVariants?.v4k,
+        videoClean: data.videoClean || newVariants?.vClean,
+        stems: data.stems,
       });
 
       setCurrentTime(0);
@@ -1666,11 +1843,19 @@ export default function StudioVideoGenerator() {
           creator: data.creator,
           clientMedia: data.clientMedia,
           createdAt: new Date().toISOString(),
+          video4k: data.video4k || newVariants?.v4k,
+          videoClean: data.videoClean || newVariants?.vClean,
+          stems: data.stems,
+          ctaTemplate: selectedCtaTemplate,
+          captionStyle: selectedCaptionStyle,
+          musicTrack: musicLibrary.find((m) => m.id === selectedMusicTrackId)?.title,
+          isRealFootageDominant: !aiGapFillMode,
           compliance: {
-            photorealisticAiDisclosure: softLabelDisclosure,
+            photorealisticAiDisclosure: aiGapFillMode,
             tiktokCompliant: true,
             metaCompliant: true,
             creatorConsentVerified: true,
+            creativeDirectorSignOff: false,
           },
         };
 
@@ -1790,17 +1975,26 @@ export default function StudioVideoGenerator() {
     }
   };
 
-  const seekToSegment = (targetSeconds: number) => {
+  const seekToSegment = (targetSeconds: number, sceneId?: number) => {
     setCurrentTime(targetSeconds);
-    if (audioRef.current) {
-      audioRef.current.currentTime = targetSeconds;
-      if (isPlaying) audioRef.current.play().catch(() => { });
+    if (sceneId !== undefined) {
+      setActiveScrubScene(sceneId);
+      setTimeout(() => setActiveScrubScene((prev) => (prev === sceneId ? null : prev)), 3500);
     }
-    if (videoRef.current) {
-      videoRef.current.currentTime = targetSeconds % (videoRef.current.duration || 5);
-    }
-    if (creatorVideoRef.current) {
-      creatorVideoRef.current.currentTime = targetSeconds % (creatorVideoRef.current.duration || 3.5);
+    if (generatedResult) {
+      setIsPlaying(true);
+      if (audioRef.current) {
+        audioRef.current.currentTime = targetSeconds;
+        audioRef.current.play().catch(() => { });
+      }
+      if (videoRef.current) {
+        videoRef.current.currentTime = targetSeconds % (videoRef.current.duration || 5);
+        videoRef.current.play().catch(() => { });
+      }
+      if (creatorVideoRef.current) {
+        creatorVideoRef.current.currentTime = targetSeconds % (creatorVideoRef.current.duration || 3.5);
+        creatorVideoRef.current.play().catch(() => { });
+      }
     }
   };
 
@@ -1863,6 +2057,19 @@ export default function StudioVideoGenerator() {
             <FolderOpen className="w-3.5 h-3.5 text-emerald-600" />
             <span>Vault</span>
           </Link>
+
+          <button
+            type="button"
+            onClick={() => {
+              setMasterAssetModalTab("music");
+              setShowMasterAssetsModal(true);
+            }}
+            className="hidden sm:inline-flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 rounded-xl text-xs font-bold text-zinc-700 hover:text-zinc-950 bg-zinc-100 hover:bg-zinc-200 border border-zinc-200 transition cursor-pointer shrink-0"
+            title="Manage Dynamic Music Tracks & CTA Templates"
+          >
+            <Sliders className="w-3.5 h-3.5 text-[#FF6700]" />
+            <span>Master Assets</span>
+          </button>
 
           <Link
             href="/studio/review"
@@ -1943,126 +2150,180 @@ export default function StudioVideoGenerator() {
             </div>
           )}
 
-          {/* STEP 1: BRAND & OFFER */}
-          <div className="bg-white border border-zinc-200 rounded-2xl p-4 shadow-sm space-y-3">
-            <div className="flex items-center justify-between">
-              <span className="text-xs font-black uppercase tracking-wider text-zinc-900 flex items-center gap-1.5">
-                <span className="w-5 h-5 rounded-full bg-[#7F48ED] text-white text-[11px] flex items-center justify-center font-bold">1</span>
-                Brand &amp; Offer
-              </span>
-            </div>
-
-            <div className="space-y-2.5">
-              {/* Quick Brand Preset Dropdown */}
-              <div className="relative" ref={presetDropdownRef}>
-                <div className="flex items-center justify-between mb-1">
-                  <label className="text-[10px] font-bold uppercase tracking-wider text-zinc-500 flex items-center gap-1">
-                    <Sparkles className="w-3 h-3 text-[#7F48ED]" />
-                    <span>Preset</span>
-                  </label>
-                  <span className="text-[9px] text-[#7F48ED] font-bold">1-Click Auto-Fill</span>
-                </div>
-                <button
-                  type="button"
-                  onClick={() => setPresetDropdownOpen(!presetDropdownOpen)}
-                  className="w-full text-left bg-purple-50/60 hover:bg-purple-100/70 border border-purple-200 hover:border-purple-300 rounded-xl px-3 py-2 text-xs text-zinc-900 flex items-center justify-between cursor-pointer focus:outline-none focus:border-[#7F48ED] font-semibold transition shadow-2xs"
-                >
-                  <div className="flex items-center gap-2 truncate min-w-0">
-                    <span className="w-2 h-2 rounded-full bg-[#7F48ED] shrink-0" />
-                    <span className="truncate font-bold text-zinc-900">
-                      {BRAND_PRESETS.find((p) => p.id === selectedPresetId)?.name || "Select Brand Preset"}
-                    </span>
-                    <span className="text-[10px] text-zinc-500 font-normal truncate hidden sm:inline">
-                      ({BRAND_PRESETS.find((p) => p.id === selectedPresetId)?.category})
-                    </span>
-                  </div>
-                  <ChevronDown className={`w-3.5 h-3.5 text-zinc-500 shrink-0 transition-transform ${presetDropdownOpen ? "rotate-180" : ""}`} />
-                </button>
-
-                {presetDropdownOpen && (
-                  <div
-                    onWheel={(e) => e.stopPropagation()}
-                    className="absolute top-full left-0 right-0 mt-1.5 bg-white border border-zinc-200 rounded-2xl p-1.5 shadow-2xl z-50 space-y-1 max-h-72 overflow-y-auto overscroll-contain [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-zinc-300"
-                    style={{ scrollbarWidth: "thin" }}
-                  >
-                    <div className="px-2.5 py-1 text-[10px] font-bold text-zinc-400 uppercase tracking-wider border-b border-zinc-100 mb-1 flex items-center justify-between">
-                      <span>Verified Brand Presets</span>
-                      <span className="text-[9px] text-[#7F48ED] font-bold">6 Ready</span>
-                    </div>
-                    {BRAND_PRESETS.map((preset) => {
-                      const isSelected = selectedPresetId === preset.id;
-                      return (
-                        <div
-                          key={preset.id}
-                          onClick={() => handleSelectPreset(preset)}
-                          className={`px-3 py-2 rounded-xl text-xs cursor-pointer transition flex items-start justify-between gap-2 ${isSelected
-                              ? "bg-[#7F48ED] text-white font-medium shadow-xs"
-                              : "text-zinc-700 hover:bg-zinc-100"
-                            }`}
-                        >
-                          <div className="min-w-0 flex-1">
-                            <div className="flex items-center gap-1.5">
-                              <span className={`font-bold ${isSelected ? "text-white" : "text-zinc-900"}`}>
-                                {preset.name}
-                              </span>
-                              <span className={`text-[9px] px-1.5 py-0.2 rounded font-bold uppercase ${isSelected ? "bg-white/20 text-white" : "bg-purple-100 text-[#7F48ED]"
-                                }`}>
-                                {preset.category}
-                              </span>
-                            </div>
-                            <div className={`text-[10px] truncate mt-0.5 ${isSelected ? "text-purple-100" : "text-zinc-500"}`}>
-                              Offer: {preset.brandOffer}
-                            </div>
-                          </div>
-                          {isSelected && <Check className="w-4 h-4 shrink-0 mt-0.5 text-white" />}
-                        </div>
-                      );
-                    })}
-                  </div>
+          {/* STEP 1: BRAND & OFFER (Collapsible Space-Saver) */}
+          <div className={`bg-white border border-zinc-200 rounded-2xl shadow-sm transition-all ${presetDropdownOpen ? "relative z-40" : "relative z-30"}`}>
+            <button
+              type="button"
+              onClick={() => setStep1Open(!step1Open)}
+              className={`w-full p-3.5 flex items-center justify-between hover:bg-zinc-50/70 transition cursor-pointer text-left ${step1Open ? "rounded-t-2xl" : "rounded-2xl"}`}
+            >
+              <div className="flex items-center gap-2 truncate min-w-0">
+                <span className="w-5 h-5 rounded-full bg-[#7F48ED] text-white text-[11px] flex items-center justify-center font-bold shrink-0">1</span>
+                <span className="text-xs font-black uppercase tracking-wider text-zinc-900">Brand &amp; Offer</span>
+                {!step1Open && (
+                  <span className="text-[11px] text-zinc-500 truncate ml-1 font-medium">
+                    · {brandName || "My Brand"} ({brandOffer || "Offer"})
+                  </span>
                 )}
               </div>
+              <ChevronDown className={`w-4 h-4 text-zinc-400 transition-transform shrink-0 ${step1Open ? "rotate-180" : ""}`} />
+            </button>
 
-              <div>
-                <label className="text-[11px] font-bold text-zinc-600 block mb-1">
-                  Brand Name
-                </label>
-                <input
-                  type="text"
-                  value={brandName}
-                  onChange={(e) => setBrandName(e.target.value)}
-                  placeholder="e.g. Chicago Dog 42"
-                  className="w-full bg-white border border-zinc-200 focus:border-[#7F48ED] focus:ring-2 focus:ring-[#7F48ED]/15 rounded-xl px-3 py-2 text-xs text-zinc-900 placeholder-zinc-400 focus:outline-none transition font-medium"
-                />
-              </div>
+            {step1Open && (
+              <div className="p-3.5 pt-0 space-y-2.5 border-t border-zinc-100/60">
+                {/* Quick Brand Preset Dropdown */}
+                <div className="relative pt-2" ref={presetDropdownRef}>
+                  <div className="flex items-center justify-between mb-1">
+                    <label className="text-[10px] font-bold uppercase tracking-wider text-zinc-500 flex items-center gap-1">
+                      <Sparkles className="w-3 h-3 text-[#7F48ED]" />
+                      <span>Preset</span>
+                    </label>
+                    <div className="flex items-center gap-2">
+                      {selectedPresetId ? (
+                        <button
+                          type="button"
+                          onClick={handleClearPreset}
+                          className="text-[9px] text-zinc-400 hover:text-red-500 font-bold cursor-pointer transition flex items-center gap-0.5"
+                          title="Clear preset and use custom brand"
+                        >
+                          <X className="w-2.5 h-2.5" />
+                          <span>Clear Preset</span>
+                        </button>
+                      ) : (
+                        <span className="text-[9px] text-[#7F48ED] font-bold">1-Click Auto-Fill</span>
+                      )}
+                    </div>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => setPresetDropdownOpen(!presetDropdownOpen)}
+                    className={`w-full text-left rounded-xl px-3 py-2 text-xs flex items-center justify-between cursor-pointer focus:outline-none font-semibold transition shadow-2xs border ${
+                      selectedPresetId
+                        ? "bg-purple-50/60 hover:bg-purple-100/70 border-purple-200 hover:border-purple-300 text-zinc-900"
+                        : "bg-zinc-50 hover:bg-zinc-100 border-zinc-200 text-zinc-700"
+                    }`}
+                  >
+                    <div className="flex items-center gap-2 truncate min-w-0">
+                      <span className={`w-2 h-2 rounded-full shrink-0 ${selectedPresetId ? "bg-[#7F48ED]" : "bg-zinc-400"}`} />
+                      <span className="truncate font-bold text-zinc-900">
+                        {BRAND_PRESETS.find((p) => p.id === selectedPresetId)?.name || "Custom Brand (No Preset)"}
+                      </span>
+                      {selectedPresetId && (
+                        <span className="text-[10px] text-zinc-500 font-normal truncate hidden sm:inline">
+                          ({BRAND_PRESETS.find((p) => p.id === selectedPresetId)?.category})
+                        </span>
+                      )}
+                    </div>
+                    <ChevronDown className={`w-3.5 h-3.5 text-zinc-500 shrink-0 transition-transform ${presetDropdownOpen ? "rotate-180" : ""}`} />
+                  </button>
 
-              <div>
-                <label className="text-[11px] font-bold text-zinc-600 block mb-1">
-                  Offer / Promo
-                </label>
-                <input
-                  type="text"
-                  value={brandOffer}
-                  onChange={(e) => setBrandOffer(e.target.value)}
-                  placeholder="e.g. 15% off first order"
-                  className="w-full bg-white border border-zinc-200 focus:border-[#7F48ED] focus:ring-2 focus:ring-[#7F48ED]/15 rounded-xl px-3 py-2 text-xs text-zinc-900 placeholder-zinc-400 focus:outline-none transition font-medium"
-                />
-              </div>
+                  {presetDropdownOpen && (
+                    <div
+                      onWheel={(e) => e.stopPropagation()}
+                      className="absolute top-full left-0 right-0 mt-1.5 bg-white border border-zinc-200 rounded-2xl p-1.5 shadow-2xl z-50 space-y-1 max-h-72 overflow-y-auto overscroll-contain [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-zinc-300"
+                      style={{ scrollbarWidth: "thin" }}
+                    >
+                      <div className="px-2.5 py-1 text-[10px] font-bold text-zinc-400 uppercase tracking-wider border-b border-zinc-100 mb-1 flex items-center justify-between">
+                        <span>Brand Presets</span>
+                        <span className="text-[9px] text-[#7F48ED] font-bold">6 Ready</span>
+                      </div>
 
+                      {/* Manual / No Preset Option */}
+                      <div
+                        onClick={handleClearPreset}
+                        className={`px-3 py-2 rounded-xl text-xs cursor-pointer transition flex items-start justify-between gap-2 border-b border-zinc-100 ${
+                          !selectedPresetId ? "bg-purple-50 text-[#7F48ED] font-bold" : "text-zinc-700 hover:bg-zinc-50"
+                        }`}
+                      >
+                        <div className="min-w-0 flex-1">
+                          <div className="flex items-center gap-1.5">
+                            <span className="font-bold text-zinc-900">Custom / No Preset</span>
+                            <span className="text-[9px] px-1.5 py-0.2 rounded font-bold uppercase bg-zinc-100 text-zinc-600">
+                              Manual
+                            </span>
+                          </div>
+                          <div className="text-[10px] text-zinc-500 truncate mt-0.5">
+                            Type your own custom brand name and offer
+                          </div>
+                        </div>
+                        {!selectedPresetId && <Check className="w-4 h-4 shrink-0 mt-0.5 text-[#7F48ED]" />}
+                      </div>
+                      {BRAND_PRESETS.map((preset) => {
+                        const isSelected = selectedPresetId === preset.id;
+                        return (
+                          <div
+                            key={preset.id}
+                            onClick={() => handleSelectPreset(preset)}
+                            className={`px-3 py-2 rounded-xl text-xs cursor-pointer transition flex items-start justify-between gap-2 ${isSelected
+                                ? "bg-[#7F48ED] text-white font-medium shadow-xs"
+                                : "text-zinc-700 hover:bg-zinc-100"
+                              }`}
+                          >
+                            <div className="min-w-0 flex-1">
+                              <div className="flex items-center gap-1.5">
+                                <span className={`font-bold ${isSelected ? "text-white" : "text-zinc-900"}`}>
+                                  {preset.name}
+                                </span>
+                                <span className={`text-[9px] px-1.5 py-0.2 rounded font-bold uppercase ${isSelected ? "bg-white/20 text-white" : "bg-purple-100 text-[#7F48ED]"
+                                  }`}>
+                                  {preset.category}
+                                </span>
+                              </div>
+                              <div className={`text-[10px] truncate mt-0.5 ${isSelected ? "text-purple-100" : "text-zinc-500"}`}>
+                                Offer: {preset.brandOffer}
+                              </div>
+                            </div>
+                            {isSelected && <Check className="w-4 h-4 shrink-0 mt-0.5 text-white" />}
+                          </div>
+                        );
+                      })}
+                    </div>
+                  )}
+                </div>
 
-              <div>
-                <input
-                  type="file"
-                  ref={fileInputRef}
-                  multiple
-                  accept="image/png,image/jpeg,image/webp,image/jpg,video/mp4,video/quicktime"
-                  className="hidden"
-                  onChange={(e) => {
-                    if (e.target.files && e.target.files.length > 0) {
-                      handleMediaFiles(e.target.files);
-                    }
-                    e.target.value = "";
-                  }}
-                />
+                {/* 2-Column Compact Grid for Brand Name & Offer */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                  <div>
+                    <label className="text-[10px] font-bold text-zinc-500 uppercase tracking-wider block mb-1">
+                      Brand Name
+                    </label>
+                    <input
+                      type="text"
+                      value={brandName}
+                      onChange={(e) => setBrandName(e.target.value)}
+                      placeholder="e.g. Chicago Dog 42"
+                      className="w-full bg-white border border-zinc-200 focus:border-[#7F48ED] focus:ring-2 focus:ring-[#7F48ED]/15 rounded-xl px-2.5 py-1.5 text-xs text-zinc-900 placeholder-zinc-400 focus:outline-none transition font-medium"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="text-[10px] font-bold text-zinc-500 uppercase tracking-wider block mb-1">
+                      Offer / Promo
+                    </label>
+                    <input
+                      type="text"
+                      value={brandOffer}
+                      onChange={(e) => setBrandOffer(e.target.value)}
+                      placeholder="e.g. 15% off first order"
+                      className="w-full bg-white border border-zinc-200 focus:border-[#7F48ED] focus:ring-2 focus:ring-[#7F48ED]/15 rounded-xl px-2.5 py-1.5 text-xs text-zinc-900 placeholder-zinc-400 focus:outline-none transition font-medium"
+                    />
+                  </div>
+                </div>
+
+                <div>
+                  <input
+                    type="file"
+                    ref={fileInputRef}
+                    multiple
+                    accept="image/png,image/jpeg,image/webp,image/jpg,video/mp4,video/quicktime"
+                    className="hidden"
+                    onChange={(e) => {
+                      if (e.target.files && e.target.files.length > 0) {
+                        handleMediaFiles(e.target.files);
+                      }
+                      e.target.value = "";
+                    }}
+                  />
 
                 {uploadedImages.length > 0 ? (
                   <div className="space-y-2 mt-1">
@@ -2170,7 +2431,7 @@ export default function StudioVideoGenerator() {
                   <button
                     type="button"
                     onClick={() => fileInputRef.current?.click()}
-                    className="w-full py-2.5 px-3 rounded-xl border border-dashed border-zinc-300 hover:border-[#7F48ED] bg-zinc-50 hover:bg-purple-50/20 text-zinc-600 hover:text-[#7F48ED] text-xs font-semibold flex items-center justify-center gap-2 transition cursor-pointer mt-1"
+                    className="w-full py-2 px-3 rounded-xl border border-dashed border-zinc-300 hover:border-[#7F48ED] bg-zinc-50 hover:bg-purple-50/20 text-zinc-600 hover:text-[#7F48ED] text-xs font-semibold flex items-center justify-center gap-2 transition cursor-pointer mt-1"
                   >
                     <Upload className="w-3.5 h-3.5 text-[#FF6700]" />
                     <span>Upload Photos (Up to 5) or Video</span>
@@ -2178,171 +2439,202 @@ export default function StudioVideoGenerator() {
                 )}
               </div>
             </div>
-          </div>
+          )}
+        </div>
 
-          {/* STEP 2: CREATIVE ANGLE & SCRIPT */}
-          <div className="bg-white border border-zinc-200 rounded-2xl p-4 shadow-sm space-y-3">
-            <div className="flex items-center justify-between">
-              <span className="text-xs font-black uppercase tracking-wider text-zinc-900 flex items-center gap-1.5">
-                <span className="w-5 h-5 rounded-full bg-[#7F48ED] text-white text-[11px] flex items-center justify-center font-bold">2</span>
-                Creative Angle &amp; Script
-              </span>
-              <button
-                type="button"
-                onClick={handleShuffleHook}
-                className="text-xs font-bold text-[#FF6700] hover:text-[#e55c00] flex items-center gap-1 cursor-pointer transition"
-                title="Shuffle Hook"
-              >
-                <Shuffle className="w-3 h-3" />
-                Shuffle Hook
-              </button>
-            </div>
-
-            {/* Scalable Creative Angle Dropdown Selector */}
-            <div className="space-y-1 relative" ref={angleDropdownRef}>
-              <div className="flex items-center justify-between">
-                <label className="text-[10px] font-bold text-zinc-500 uppercase tracking-wider block">
-                  Creative Marketing Angle
-                </label>
-                <span className="text-[10px] font-mono text-[#7F48ED] font-bold">
-                  {Object.keys(angleDataMap).length} Angles Available
-                </span>
-              </div>
-              <button
-                type="button"
-                onClick={() => {
-                  setAngleDropdownOpen(!angleDropdownOpen);
-                  setCreatorDropdownOpen(false);
-                  setModelDropdownOpen(false);
-                  setVoiceDropdownOpen(false);
-                }}
-                className="w-full text-left bg-zinc-50 border border-zinc-200 hover:border-[#7F48ED] rounded-xl px-3 py-2 text-xs text-zinc-900 flex items-center justify-between cursor-pointer focus:outline-none focus:border-[#7F48ED] font-semibold transition"
-              >
-                <div className="flex items-center gap-2 truncate">
-                  <span className="font-bold text-zinc-900">{currentAngleData?.title}</span>
-                  <span className="text-[10px] font-mono font-bold text-[#FF6700] bg-[#FF6700]/10 px-2 py-0.5 rounded border border-[#FF6700]/20">
-                    {currentAngleData?.badge}
+          {/* STEP 2: CREATIVE ANGLE & SCRIPT (Collapsible Space-Saver) */}
+          <div className={`bg-white border border-zinc-200 rounded-2xl shadow-sm transition-all ${angleDropdownOpen ? "relative z-40" : "relative z-20"}`}>
+            <button
+              type="button"
+              onClick={() => setStep2Open(!step2Open)}
+              className={`w-full p-3.5 flex items-center justify-between hover:bg-zinc-50/70 transition cursor-pointer text-left ${step2Open ? "rounded-t-2xl" : "rounded-2xl"}`}
+            >
+              <div className="flex items-center gap-2 truncate min-w-0">
+                <span className="w-5 h-5 rounded-full bg-[#7F48ED] text-white text-[11px] flex items-center justify-center font-bold shrink-0">2</span>
+                <span className="text-xs font-black uppercase tracking-wider text-zinc-900">Creative Angle &amp; Script</span>
+                {!step2Open && (
+                  <span className="text-[11px] text-zinc-500 truncate ml-1 font-medium">
+                    · {currentAngleData?.title} ({scriptBody.split(/\s+/).filter(Boolean).length}w)
                   </span>
-                </div>
-                <ChevronDown className={`w-3.5 h-3.5 text-zinc-500 shrink-0 transition-transform ${angleDropdownOpen ? "rotate-180" : ""}`} />
-              </button>
+                )}
+              </div>
+              <ChevronDown className={`w-4 h-4 text-zinc-400 transition-transform shrink-0 ${step2Open ? "rotate-180" : ""}`} />
+            </button>
 
-              {angleDropdownOpen && (
-                <div className="absolute top-full left-0 right-0 mt-1 bg-white border border-zinc-200 rounded-xl p-1 shadow-xl z-50 space-y-0.5 max-h-56 overflow-y-auto">
-                  {Object.entries(angleDataMap).map(([key, data]) => {
-                    const isSelected = selectedAngle === key || currentAngleData?.title === data.title;
-                    return (
-                      <div
-                        key={key}
-                        onClick={() => {
-                          setSelectedAngle(key);
-                          setAngleDropdownOpen(false);
-                        }}
-                        className={`px-3 py-2 rounded-lg text-xs cursor-pointer transition flex items-center justify-between ${isSelected
-                            ? "bg-[#7F48ED] text-white font-bold shadow-sm"
-                            : "text-zinc-700 hover:bg-[#FF6700]/10 hover:text-[#FF6700]"
-                          }`}
-                      >
-                        <div className="flex items-center gap-2 truncate min-w-0 pr-1">
-                          <span className="font-bold truncate">{data.title}</span>
-                          <span className={`text-[10px] font-mono px-1.5 py-0.5 rounded truncate ${isSelected ? "bg-white/20 text-white" : "bg-zinc-100 text-zinc-600"
-                            }`}>
-                            {data.badge}
-                          </span>
-                        </div>
-                        {isSelected && <Check className="w-3.5 h-3.5 shrink-0 ml-1.5" />}
+            {step2Open && (
+              <div className="p-3.5 pt-0 space-y-2.5 border-t border-zinc-100/60">
+                {/* Scalable Creative Angle Dropdown Selector */}
+                <div className="space-y-1 relative pt-2" ref={angleDropdownRef}>
+                  <div className="flex items-center justify-between">
+                    <label className="text-[10px] font-bold text-zinc-500 uppercase tracking-wider block">
+                      Creative Marketing Angle
+                    </label>
+                    <span className="text-[10px] font-mono text-[#7F48ED] font-bold">
+                      {Object.keys(angleDataMap).length} Angles Available
+                    </span>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setAngleDropdownOpen(!angleDropdownOpen);
+                      setCreatorDropdownOpen(false);
+                      setModelDropdownOpen(false);
+                      setVoiceDropdownOpen(false);
+                    }}
+                    className="w-full text-left bg-zinc-50 border border-zinc-200 hover:border-[#7F48ED] rounded-xl px-2.5 py-1.5 text-xs text-zinc-900 flex items-center justify-between cursor-pointer focus:outline-none focus:border-[#7F48ED] font-semibold transition"
+                  >
+                    <div className="flex items-center gap-2 truncate">
+                      <span className="font-bold text-zinc-900">{currentAngleData?.title}</span>
+                      <span className="text-[10px] font-mono font-bold text-[#FF6700] bg-[#FF6700]/10 px-2 py-0.5 rounded border border-[#FF6700]/20">
+                        {currentAngleData?.badge}
+                      </span>
+                    </div>
+                    <ChevronDown className={`w-3.5 h-3.5 text-zinc-500 shrink-0 transition-transform ${angleDropdownOpen ? "rotate-180" : ""}`} />
+                  </button>
+
+                  {angleDropdownOpen && (
+                    <div className="absolute top-full left-0 right-0 mt-1 bg-white border border-zinc-200 rounded-xl p-1 shadow-xl z-50 space-y-0.5 max-h-56 overflow-y-auto">
+                      {Object.entries(angleDataMap).map(([key, data]) => {
+                        const isSelected = selectedAngle === key || currentAngleData?.title === data.title;
+                        return (
+                          <div
+                            key={key}
+                            onClick={() => {
+                              setSelectedAngle(key);
+                              setAngleDropdownOpen(false);
+                            }}
+                            className={`px-3 py-2 rounded-lg text-xs cursor-pointer transition flex items-center justify-between ${isSelected
+                                ? "bg-[#7F48ED] text-white font-bold shadow-sm"
+                                : "text-zinc-700 hover:bg-[#FF6700]/10 hover:text-[#FF6700]"
+                              }`}
+                          >
+                            <div className="flex items-center gap-2 truncate min-w-0 pr-1">
+                              <span className="font-bold truncate">{data.title}</span>
+                              <span className={`text-[10px] font-mono px-1.5 py-0.5 rounded truncate ${isSelected ? "bg-white/20 text-white" : "bg-zinc-100 text-zinc-600"
+                                }`}>
+                                {data.badge}
+                              </span>
+                            </div>
+                            {isSelected && <Check className="w-3.5 h-3.5 shrink-0 ml-1.5" />}
+                          </div>
+                        );
+                      })}
+                    </div>
+                  )}
+                </div>
+
+                {/* Compact Opening Hook Field with Shuffle Button */}
+                <div className="space-y-1">
+                  <div className="flex items-center justify-between">
+                    <label className="text-[10px] font-bold text-[#7F48ED] uppercase tracking-wider block">
+                      Opening Hook (0–3s)
+                    </label>
+                    <button
+                      type="button"
+                      onClick={handleShuffleHook}
+                      className="text-[10px] font-bold text-[#FF6700] hover:text-[#e55c00] flex items-center gap-1 cursor-pointer transition"
+                      title="Shuffle Hook Variant"
+                    >
+                      <Shuffle className="w-2.5 h-2.5" />
+                      <span>Shuffle Hook</span>
+                    </button>
+                  </div>
+                  <div className="relative">
+                    <input
+                      type="text"
+                      value={selectedHook}
+                      onChange={(e) => setSelectedHook(e.target.value)}
+                      className="w-full bg-purple-50/40 border border-purple-200/80 focus:border-[#7F48ED] focus:ring-2 focus:ring-[#7F48ED]/15 rounded-xl px-3 py-2 text-xs font-bold text-zinc-900 placeholder-zinc-400 focus:outline-none transition italic"
+                      placeholder="Enter opening hook..."
+                    />
+                  </div>
+                </div>
+
+                {/* Voiceover Script: Clean compact 2 rows */}
+                <div className="space-y-1">
+                  <div className="flex items-center justify-between">
+                    <label className="text-[10px] font-bold text-zinc-500 uppercase tracking-wider block">
+                      Voiceover Script (~20s)
+                    </label>
+                    <span className="text-[10px] font-mono text-zinc-400">
+                      {scriptBody.split(/\s+/).filter(Boolean).length} words
+                    </span>
+                  </div>
+                  <textarea
+                    ref={textareaRef}
+                    value={scriptBody}
+                    onChange={(e) => setScriptBody(e.target.value)}
+                    onWheel={handleScriptWheel}
+                    rows={2}
+                    className="w-full bg-white border border-zinc-200 focus:border-[#7F48ED] focus:ring-2 focus:ring-[#7F48ED]/15 rounded-xl p-2.5 text-xs text-zinc-800 focus:outline-none resize-none leading-relaxed transition font-medium"
+                    placeholder="Enter 20s voiceover script..."
+                  />
+                </div>
+
+                {/* AI Visual Direction: Space-saver dropdown toggle (Closed by default to save 90px) */}
+                <div className="pt-1.5 border-t border-zinc-100">
+                  <button
+                    type="button"
+                    onClick={() => setShowVisualPrompt(!showVisualPrompt)}
+                    className="w-full py-1.5 px-2 bg-zinc-50 hover:bg-zinc-100 rounded-lg text-xs font-bold text-zinc-600 hover:text-[#7F48ED] flex items-center justify-between cursor-pointer transition"
+                  >
+                    <span className="flex items-center gap-1.5">
+                      <Sparkles className="w-3 h-3 text-[#FF6700]" />
+                      <span>AI Visual Direction (Optional)</span>
+                    </span>
+                    <span className="text-[10px] text-[#7F48ED] font-mono font-bold">
+                      {showVisualPrompt ? "Hide ▲" : "Expand ▼"}
+                    </span>
+                  </button>
+
+                  {showVisualPrompt && (
+                    <div className="mt-2 space-y-1.5 animate-in fade-in duration-150">
+                      <div className="flex justify-end">
+                        <button
+                          type="button"
+                          onClick={handleAutoGenerateVisualPrompt}
+                          className="text-[10px] text-[#7F48ED] hover:text-[#6a32d6] font-bold flex items-center gap-1 cursor-pointer transition bg-purple-50 hover:bg-purple-100 px-2 py-0.5 rounded-md"
+                          title="Generate visual prompt automatically from script"
+                        >
+                          <Sparkles className="w-2.5 h-2.5 text-[#7F48ED]" />
+                          <span>Auto-Generate Prompt</span>
+                        </button>
                       </div>
-                    );
-                  })}
+                      <textarea
+                        value={visualPrompt}
+                        onChange={(e) => setVisualPrompt(e.target.value)}
+                        rows={2}
+                        className="w-full bg-white border border-zinc-200 focus:border-[#7F48ED] focus:ring-2 focus:ring-[#7F48ED]/15 rounded-xl p-2 text-xs text-zinc-800 focus:outline-none resize-none leading-relaxed transition font-medium"
+                        placeholder="Describe what should happen in the video based on your script (e.g. Delicious hot dog macro slow-motion reveal with mustard, relish, and sizzling grill steam)..."
+                      />
+                    </div>
+                  )}
                 </div>
-              )}
-            </div>
-
-            {/* Hook Display & Edit Box */}
-            <div className="p-3 rounded-xl bg-purple-50/50 border border-purple-200/70 space-y-1.5">
-              <div className="flex items-center justify-between">
-                <span className="text-[11px] font-bold text-[#7F48ED] uppercase tracking-wider">
-                  Opening Hook (0–3s)
-                </span>
-                <button
-                  type="button"
-                  onClick={() => setIsEditingHook(!isEditingHook)}
-                  className="text-[11px] font-bold text-zinc-600 hover:text-[#7F48ED] flex items-center gap-1 cursor-pointer"
-                >
-                  <Edit3 className="w-3 h-3" />
-                  {isEditingHook ? "Save Hook" : "Edit Hook"}
-                </button>
               </div>
-
-              {isEditingHook ? (
-                <input
-                  type="text"
-                  value={selectedHook}
-                  onChange={(e) => setSelectedHook(e.target.value)}
-                  className="w-full bg-white border border-[#7F48ED] focus:ring-2 focus:ring-[#7F48ED]/20 rounded-lg p-2 text-xs text-zinc-900 focus:outline-none"
-                  placeholder="Type opening hook..."
-                />
-              ) : (
-                <p className="text-xs font-bold text-zinc-900 leading-snug italic">
-                  &ldquo;{selectedHook}&rdquo;
-                </p>
-              )}
-            </div>
-
-            {/* Voiceover Script Field with Auto-Size & Pass-Through Wheel */}
-            <div>
-              <div className="flex items-center justify-between mb-1">
-                <label className="text-[11px] font-bold text-zinc-600 block">
-                  Voiceover Script (~20s)
-                </label>
-                <span className="text-[10px] font-mono text-zinc-400">
-                  {scriptBody.split(/\s+/).filter(Boolean).length} words
-                </span>
-              </div>
-              <textarea
-                ref={textareaRef}
-                value={scriptBody}
-                onChange={(e) => setScriptBody(e.target.value)}
-                onWheel={handleScriptWheel}
-                rows={3}
-                className="w-full bg-white border border-zinc-200 focus:border-[#7F48ED] focus:ring-2 focus:ring-[#7F48ED]/15 rounded-xl p-3 text-xs text-zinc-800 focus:outline-none resize-none leading-relaxed transition font-medium overflow-hidden"
-                placeholder="Enter 20s voiceover script..."
-              />
-            </div>
-
-            {/* AI Video Visual Direction (Kling Prompt) Input */}
-            <div className="space-y-1.5 pt-2 border-t border-zinc-100">
-              <div className="flex items-center justify-between gap-2">
-                <label className="text-[10px] font-bold text-zinc-500 uppercase tracking-wider flex items-center gap-1.5 whitespace-nowrap shrink-0">
-                  <Sparkles className="w-3.5 h-3.5 text-[#FF6700]" />
-                  <span>Visual Direction</span>
-                </label>
-                <button
-                  type="button"
-                  onClick={handleAutoGenerateVisualPrompt}
-                  className="text-[10px] text-[#7F48ED] hover:text-[#6a32d6] font-bold flex items-center gap-1 cursor-pointer transition bg-purple-50 hover:bg-purple-100 px-2 py-0.5 rounded-md whitespace-nowrap shrink-0"
-                  title="Generate visual prompt automatically from script"
-                >
-                  <Sparkles className="w-3 h-3 text-[#7F48ED]" />
-                  <span>Auto-Generate</span>
-                </button>
-              </div>
-              <textarea
-                value={visualPrompt}
-                onChange={(e) => setVisualPrompt(e.target.value)}
-                rows={2}
-                className="w-full bg-white border border-zinc-200 focus:border-[#7F48ED] focus:ring-2 focus:ring-[#7F48ED]/15 rounded-xl p-2.5 text-xs text-zinc-800 focus:outline-none resize-none leading-relaxed transition font-medium"
-                placeholder="Describe what should happen in the video based on your script (e.g. Delicious hot dog macro slow-motion reveal with mustard, relish, and sizzling grill steam)..."
-              />
-            </div>
+            )}
           </div>
 
-          {/* STEP 3: CREATOR & VOICE */}
-          <div className="bg-white border border-zinc-200 rounded-2xl p-4 shadow-sm space-y-3">
-            <span className="text-xs font-black uppercase tracking-wider text-zinc-900 flex items-center gap-1.5">
-              <span className="w-5 h-5 rounded-full bg-[#7F48ED] text-white text-[11px] flex items-center justify-center font-bold">3</span>
-              Creator &amp; Voice
-            </span>
+          {/* STEP 3: CREATOR & VOICE (Collapsible Space-Saver) */}
+          <div className={`bg-white border border-zinc-200 rounded-2xl shadow-sm transition-all ${(creatorDropdownOpen || footageDropdownOpen || voiceDropdownOpen || modelDropdownOpen) ? "relative z-40" : "relative z-10"}`}>
+            <button
+              type="button"
+              onClick={() => setStep3Open(!step3Open)}
+              className={`w-full p-3.5 flex items-center justify-between hover:bg-zinc-50/70 transition cursor-pointer text-left ${step3Open ? "rounded-t-2xl" : "rounded-2xl"}`}
+            >
+              <div className="flex items-center gap-2 truncate min-w-0">
+                <span className="w-5 h-5 rounded-full bg-[#7F48ED] text-white text-[11px] flex items-center justify-center font-bold shrink-0">3</span>
+                <span className="text-xs font-black uppercase tracking-wider text-zinc-900">Creator &amp; Voice</span>
+                {!step3Open && (
+                  <span className="text-[11px] text-zinc-500 truncate ml-1 font-medium">
+                    · {activeCreator?.name} ({activeVoice?.name || "Voice"})
+                  </span>
+                )}
+              </div>
+              <ChevronDown className={`w-4 h-4 text-zinc-400 transition-transform shrink-0 ${step3Open ? "rotate-180" : ""}`} />
+            </button>
+
+            {step3Open && (
+              <div className="p-3.5 pt-0 space-y-2.5 border-t border-zinc-100/60">
 
             {/* Scalable Creator Dropdown Selector */}
             <div className="space-y-1 relative" ref={creatorDropdownRef}>
@@ -2584,18 +2876,35 @@ export default function StudioVideoGenerator() {
                     )}
                   </div>
 
-                  {/* Interactive Hook Trimmer Component (In/Out Selection from Raw 10–29s Take) */}
+                  {/* Interactive Hook Trimmer in Space-Saver Drawer (Closed by default to save 140px) */}
                   {activeCreatorAsset && activeCreatorAsset.type === "hook" && (
-                    <div className="pt-2 border-t border-zinc-100">
-                      <HookTrimmer
-                        clip={activeCreatorAsset}
-                        trimStart={trimStart}
-                        trimEnd={trimEnd}
-                        onTrimChange={(start, end) => {
-                          setTrimStart(start);
-                          setTrimEnd(end);
-                        }}
-                      />
+                    <div className="pt-1.5 border-t border-zinc-100">
+                      <button
+                        type="button"
+                        onClick={() => setShowTrimmer(!showTrimmer)}
+                        className="w-full py-1.5 px-2 bg-zinc-50 hover:bg-zinc-100 rounded-lg text-xs font-bold text-zinc-600 hover:text-[#7F48ED] flex items-center justify-between cursor-pointer transition"
+                      >
+                        <span className="flex items-center gap-1.5">
+                          <Scissors className="w-3 h-3 text-[#7F48ED]" />
+                          <span>Precision Hook Trimmer ({trimStart.toFixed(1)}s – {trimEnd.toFixed(1)}s)</span>
+                        </span>
+                        <span className="text-[10px] text-[#7F48ED] font-mono font-bold">
+                          {showTrimmer ? "Hide ▲" : "Adjust Trim ▼"}
+                        </span>
+                      </button>
+                      {showTrimmer && (
+                        <div className="mt-2 pt-1 animate-in fade-in duration-150">
+                          <HookTrimmer
+                            clip={activeCreatorAsset}
+                            trimStart={trimStart}
+                            trimEnd={trimEnd}
+                            onTrimChange={(start, end) => {
+                              setTrimStart(start);
+                              setTrimEnd(end);
+                            }}
+                          />
+                        </div>
+                      )}
                     </div>
                   )}
 
@@ -2898,10 +3207,399 @@ export default function StudioVideoGenerator() {
                 {softLabelDisclosure ? "ON" : "OFF (Default)"}
               </button>
             </div>
+              </div>
+            )}
           </div>
 
-          {/* GENERATION MODE SWITCHER & ACTION BUTTON */}
-          <div className="pt-1 space-y-2">
+          {/* STEP 4: REAL-FOOTAGE TIMELINE & TRACKS (22S MASTER) */}
+          <div className="bg-white border border-zinc-200 rounded-2xl shadow-sm transition-all relative z-5">
+            <button
+              type="button"
+              onClick={() => setStep4Open(!step4Open)}
+              className={`w-full p-3.5 flex items-center justify-between hover:bg-zinc-50/70 transition cursor-pointer text-left ${step4Open ? "rounded-t-2xl" : "rounded-2xl"}`}
+            >
+              <div className="flex items-center gap-2 truncate min-w-0">
+                <span className="w-5 h-5 rounded-full bg-[#7F48ED] text-white text-[11px] flex items-center justify-center font-bold shrink-0">4</span>
+                <span className="text-xs font-black uppercase tracking-wider text-zinc-900">Timeline &amp; Master Tracks</span>
+                {!step4Open && (
+                  <span className="text-[11px] text-zinc-500 truncate ml-1 font-medium">
+                    · 22s Master ({aiGapFillMode ? "AI Gap-Fill" : "100% Real Footage"})
+                  </span>
+                )}
+              </div>
+              <div className="flex items-center gap-2 shrink-0">
+                <span className="px-1.5 py-0.5 rounded-full bg-emerald-100 text-emerald-800 text-[8px] font-bold uppercase tracking-wider hidden sm:inline-flex items-center gap-0.5">
+                  <Check className="w-2.5 h-2.5" />
+                  <span>Real Lead</span>
+                </span>
+                <ChevronDown className={`w-4 h-4 text-zinc-400 transition-transform shrink-0 ${step4Open ? "rotate-180" : ""}`} />
+              </div>
+            </button>
+
+            {step4Open && (
+              <div className="p-3.5 pt-0 space-y-3 border-t border-zinc-100/60">
+                {/* AI Gap-Filler Mode Switch */}
+                <div className="pt-2 flex items-center justify-between gap-2 bg-zinc-50 p-2.5 rounded-xl border border-zinc-200/80">
+                  <div className="min-w-0">
+                    <div className="text-[11px] font-bold text-zinc-900 flex items-center gap-1.5">
+                      <Layers className="w-3.5 h-3.5 text-[#7F48ED]" />
+                      <span>Real-Footage-First Rule</span>
+                    </div>
+                    <div className="text-[10px] text-zinc-500 leading-tight">
+                      {aiGapFillMode ? "Missing scenes filled via AI diffusion" : "100% genuine creator & client product footage"}
+                    </div>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => setAiGapFillMode(!aiGapFillMode)}
+                    className={`px-2.5 py-1 rounded-lg text-[10px] font-mono transition font-bold cursor-pointer shrink-0 ${
+                      aiGapFillMode
+                        ? "bg-[#7F48ED] text-white shadow-xs"
+                        : "bg-emerald-600 text-white shadow-xs"
+                    }`}
+                    title="Toggle AI Gap-Fill mode"
+                  >
+                    {aiGapFillMode ? "AI Gap: ON" : "100% Real"}
+                  </button>
+                </div>
+
+                {/* Master Production Tracks: Music, Captions, CTA Template */}
+                <div className="space-y-2">
+                  {/* Licensed Music Track */}
+                  <div className="space-y-1">
+                    <div className="flex items-center justify-between text-[10px] font-bold uppercase tracking-wider text-zinc-500">
+                      <span className="flex items-center gap-1">
+                        <Volume2 className="w-3 h-3 text-[#7F48ED]" />
+                        <span>Music Library ({musicLibrary.length})</span>
+                      </span>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setMasterAssetModalTab("music");
+                          setShowMasterAssetsModal(true);
+                        }}
+                        className="text-[#7F48ED] hover:text-[#6b35d6] hover:underline font-bold cursor-pointer flex items-center gap-0.5"
+                      >
+                        <Plus className="w-2.5 h-2.5" />
+                        <span>Add Track</span>
+                      </button>
+                    </div>
+                    <div className="flex items-center gap-2 min-w-0 w-full">
+                      <select
+                        value={selectedMusicTrackId}
+                        onChange={(e) => {
+                          const newId = e.target.value;
+                          if (newId === "__add_new_track__") {
+                            setMasterAssetModalTab("music");
+                            setShowMasterAssetsModal(true);
+                          } else {
+                            setSelectedMusicTrackId(newId);
+                            if (musicPlayingId) {
+                              const newTrack = musicLibrary.find((t) => t.id === newId);
+                              if (newTrack) {
+                                togglePreviewMusic(newTrack);
+                              } else {
+                                if (musicAudioRef.current) musicAudioRef.current.pause();
+                                setMusicPlayingId(null);
+                              }
+                            }
+                          }
+                        }}
+                        className="flex-1 min-w-0 bg-zinc-50 border border-zinc-200 hover:border-[#7F48ED] rounded-xl px-3 py-2 text-xs text-zinc-900 font-semibold focus:outline-none transition cursor-pointer truncate"
+                      >
+                        {musicLibrary.map((track) => (
+                          <option key={track.id} value={track.id}>
+                            {track.isCustom ? "★ " : ""}{track.title} ({track.genre} · {track.bpm} BPM){track.isCustom ? " [Custom]" : ""}
+                          </option>
+                        ))}
+                        <option value="__add_new_track__" className="text-[#7F48ED] font-bold">
+                          + Upload Custom Track / MP3...
+                        </option>
+                      </select>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          const track = musicLibrary.find((t) => t.id === selectedMusicTrackId);
+                          if (track) togglePreviewMusic(track);
+                        }}
+                        className={`px-3 py-2 rounded-xl text-xs font-bold cursor-pointer transition shrink-0 flex items-center gap-1.5 shadow-2xs border ${
+                          musicPlayingId === selectedMusicTrackId
+                            ? "bg-orange-50 hover:bg-orange-100 text-[#FF6700] border-orange-300 ring-2 ring-orange-200/50"
+                            : "bg-purple-50 hover:bg-purple-100 text-[#7F48ED] border-purple-200 hover:border-purple-300"
+                        }`}
+                        title={musicPlayingId === selectedMusicTrackId ? "Click to Pause track" : "Click to Play track preview"}
+                      >
+                        {musicPlayingId === selectedMusicTrackId ? (
+                          <>
+                            <Pause className="w-3.5 h-3.5 fill-[#FF6700] text-[#FF6700]" />
+                            <span>Pause</span>
+                            <span className="w-1.5 h-1.5 rounded-full bg-[#FF6700] animate-ping" />
+                          </>
+                        ) : (
+                          <>
+                            <Play className="w-3.5 h-3.5 fill-[#7F48ED] text-[#7F48ED]" />
+                            <span>Play</span>
+                          </>
+                        )}
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* 2-Column Grid for Captions & CTA Template */}
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                    <div className="space-y-1">
+                      <label className="text-[10px] font-bold uppercase tracking-wider text-zinc-500 block">
+                        Caption Style
+                      </label>
+                      <select
+                        value={selectedCaptionStyle}
+                        onChange={(e) => setSelectedCaptionStyle(e.target.value)}
+                        className="w-full bg-zinc-50 border border-zinc-200 hover:border-[#7F48ED] rounded-xl px-2.5 py-1.5 text-xs text-zinc-900 font-semibold focus:outline-none transition cursor-pointer"
+                      >
+                        {captionStylesList.map((c) => (
+                          <option key={c.id} value={c.id}>
+                            {c.name} ({c.badge})
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+
+                    <div className="space-y-1">
+                      <div className="flex items-center justify-between">
+                        <label className="text-[10px] font-bold uppercase tracking-wider text-zinc-500 block">
+                          Motion CTA Template
+                        </label>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setMasterAssetModalTab("cta");
+                            setShowMasterAssetsModal(true);
+                          }}
+                          className="text-[9px] text-[#7F48ED] hover:text-[#6b35d6] hover:underline font-bold cursor-pointer"
+                        >
+                          + New CTA
+                        </button>
+                      </div>
+                      <select
+                        value={selectedCtaTemplate}
+                        onChange={(e) => {
+                          if (e.target.value === "__add_new_cta__") {
+                            setMasterAssetModalTab("cta");
+                            setShowMasterAssetsModal(true);
+                          } else {
+                            setSelectedCtaTemplate(e.target.value);
+                          }
+                        }}
+                        className="w-full bg-zinc-50 border border-zinc-200 hover:border-[#7F48ED] rounded-xl px-2.5 py-1.5 text-xs text-zinc-900 font-semibold focus:outline-none transition cursor-pointer"
+                      >
+                        {ctaTemplatesList.map((cta) => (
+                          <option key={cta.id} value={cta.id}>
+                            {cta.isCustom ? "★ " : ""}{cta.name} ({cta.badge}){cta.isCustom ? " [Custom]" : ""}
+                          </option>
+                        ))}
+                        <option value="__add_new_cta__" className="text-[#7F48ED] font-bold">
+                          + Design New CTA Template...
+                        </option>
+                      </select>
+                    </div>
+                  </div>
+                </div>
+
+                {/* 22s Segmented Production Timeline Bar */}
+                <div className="space-y-1.5 pt-1 border-t border-zinc-100">
+                  <div className="flex items-center justify-between text-[10px] font-bold text-zinc-500 uppercase tracking-wider">
+                    <span>Scene Timeline (22s)</span>
+                    <button
+                      type="button"
+                      onClick={() => setTimelineExpanded(!timelineExpanded)}
+                      className="text-[#7F48ED] hover:underline font-bold cursor-pointer"
+                    >
+                      {timelineExpanded ? "Collapse Cards ▲" : "Fine Scene Controls ▼"}
+                    </button>
+                  </div>
+
+                  <div className="grid grid-cols-4 gap-1 select-none font-mono text-[9px]">
+                    {sceneOrder.map((sceneId, visualIdx) => {
+                      const slotRanges = ["0–3.5s", "3.5–9.5s", "9.5–15.5s", "15.5–22s"];
+                      const slotStarts = [0, 3.5, 9.5, 15.5];
+                      const startSec = slotStarts[visualIdx];
+                      const durationStr = slotRanges[visualIdx];
+
+                      const isCurrentTimeInSlot =
+                        visualIdx === 0 ? currentTime < 3.5 :
+                        visualIdx === 1 ? (currentTime >= 3.5 && currentTime < 9.5) :
+                        visualIdx === 2 ? (currentTime >= 9.5 && currentTime < 15.5) :
+                        currentTime >= 15.5;
+
+                      const isSlotActive = (generatedResult && isCurrentTimeInSlot) || activeScrubScene === sceneId;
+
+                      let label = "Hook";
+                      if (sceneId === 2) label = scene2AiGapFill ? "AI Gap" : "Product";
+                      else if (sceneId === 3) label = scene3AiGapFill ? "AI Gap" : "B-Roll";
+                      else if (sceneId === 4) label = "CTA";
+
+                      return (
+                        <button
+                          key={`timeline-slot-${visualIdx}-${sceneId}`}
+                          type="button"
+                          onClick={() => seekToSegment(startSec, sceneId)}
+                          className={`py-1.5 px-1 rounded-lg border text-center transition cursor-pointer truncate ${
+                            isSlotActive
+                              ? "bg-[#7F48ED]/10 border-[#7F48ED] text-[#7F48ED] font-bold ring-1 ring-[#7F48ED]"
+                              : "bg-zinc-50 border-zinc-200 text-zinc-700 hover:bg-zinc-100"
+                          }`}
+                          title={`Slot ${visualIdx + 1} (${durationStr}): Scene ${sceneId} (${label}) - Click to preview`}
+                        >
+                          <span className="block font-bold">{durationStr}</span>
+                          <span className="text-[8px] text-zinc-500 truncate block">{label}</span>
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+
+                {/* Detailed 4 Scene Cards (Drag and Drop Reordering) */}
+                {timelineExpanded && (
+                  <div className="space-y-1.5 pt-1 border-t border-zinc-100 text-[10px] animate-in fade-in duration-150">
+                    <div className="flex items-center justify-between text-[9px] text-zinc-400 px-0.5 mb-1 font-sans">
+                      <span>Drag cards to reorder scene sequence</span>
+                      <span>22s Master</span>
+                    </div>
+
+                    {sceneOrder.map((sceneId, visualIdx) => {
+                      const slotRanges = ["0–3.5s", "3.5–9.5s", "9.5–15.5s", "15.5–22s"];
+                      const slotStarts = [0, 3.5, 9.5, 15.5];
+                      const startSec = slotStarts[visualIdx];
+                      const durationStr = slotRanges[visualIdx];
+                      const isSelected = activeScrubScene === sceneId;
+
+                      const isDragging = draggedSceneIdx === visualIdx;
+                      const isDragOver = dragOverSceneIdx === visualIdx;
+
+                      // Scene specific data
+                      let sceneName = "Scene 1: Hook";
+                      let badgeText = "Real Take";
+                      let badgeStyle = "bg-emerald-100 text-emerald-800";
+                      let subtitle = selectedHook || "Creator fronted hook take";
+                      let hasAiGapToggle = false;
+                      let isAiGap = false;
+
+                      if (sceneId === 1) {
+                        sceneName = "Scene 1: Hook";
+                        badgeText = "Real Take";
+                        badgeStyle = "bg-emerald-100 text-emerald-800";
+                        subtitle = selectedHook || "Creator fronted hook take";
+                      } else if (sceneId === 2) {
+                        sceneName = "Scene 2: Product";
+                        hasAiGapToggle = true;
+                        isAiGap = scene2AiGapFill;
+                        badgeText = scene2AiGapFill ? "AI Gap" : "Real Product";
+                        badgeStyle = scene2AiGapFill ? "bg-purple-100 text-[#7F48ED]" : "bg-blue-100 text-blue-800";
+                        subtitle = uploadedMediaName || `${brandName} Commercial Master`;
+                      } else if (sceneId === 3) {
+                        sceneName = "Scene 3: B-Roll";
+                        hasAiGapToggle = true;
+                        isAiGap = scene3AiGapFill;
+                        badgeText = scene3AiGapFill ? "AI Gap" : "Real B-Roll";
+                        badgeStyle = scene3AiGapFill ? "bg-purple-100 text-[#7F48ED]" : "bg-emerald-100 text-emerald-800";
+                        subtitle = "Dynamic lifestyle & feature action";
+                      } else if (sceneId === 4) {
+                        sceneName = "Scene 4: CTA";
+                        badgeText = "Branded CTA";
+                        badgeStyle = "bg-orange-100 text-[#FF6700]";
+                        subtitle = brandOffer || "Exclusive Offer End Card";
+                      }
+
+                      return (
+                        <div
+                          key={`scene-card-${sceneId}`}
+                          draggable
+                          onDragStart={(e) => handleDragStart(e, visualIdx)}
+                          onDragOver={(e) => handleDragOver(e, visualIdx)}
+                          onDrop={(e) => handleDrop(e, visualIdx)}
+                          onDragEnd={handleDragEnd}
+                          className={`p-2 rounded-xl border flex items-center justify-between gap-2 transition-all cursor-grab active:cursor-grabbing select-none ${
+                            isDragging
+                              ? "opacity-30 border-dashed border-[#7F48ED] bg-purple-50/30 scale-95"
+                              : isDragOver
+                              ? "border-[#7F48ED] ring-2 ring-[#7F48ED]/40 bg-purple-50/70 shadow-sm"
+                              : isSelected
+                              ? "bg-purple-50 border-purple-300 ring-2 ring-purple-200 shadow-2xs"
+                              : "bg-white border-zinc-200 hover:border-zinc-300 hover:shadow-2xs"
+                          }`}
+                        >
+                          {/* Left: Drag Handle + Slot Number + Badges & Title (Single-line, No text wrapping!) */}
+                          <div className="flex items-center gap-1.5 min-w-0 flex-1">
+                            <GripVertical className="w-3.5 h-3.5 text-zinc-400 hover:text-zinc-700 shrink-0 cursor-grab active:cursor-grabbing" />
+                            <span className="w-4 h-4 rounded-full bg-zinc-100 text-zinc-700 font-bold text-[9px] flex items-center justify-center shrink-0 border border-zinc-200">
+                              {visualIdx + 1}
+                            </span>
+                            <div className="min-w-0 flex-1">
+                              <div className="flex items-center gap-1.5 min-w-0">
+                                <span className={`text-[8px] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded whitespace-nowrap shrink-0 ${badgeStyle}`}>
+                                  {badgeText}
+                                </span>
+                                <span className="font-bold text-zinc-900 text-[11px] truncate">
+                                  {sceneName}
+                                </span>
+                                <span className="text-[9px] text-zinc-400 font-mono shrink-0 whitespace-nowrap">
+                                  ({durationStr})
+                                </span>
+                              </div>
+                              <div className="text-[9px] text-zinc-500 truncate font-sans">
+                                {subtitle}
+                              </div>
+                            </div>
+                          </div>
+
+                          {/* Right: Actions (No arrow buttons! Space saver) */}
+                          <div className="flex items-center gap-1.5 shrink-0 whitespace-nowrap">
+                            {hasAiGapToggle && (
+                              <button
+                                type="button"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  if (sceneId === 2) setScene2AiGapFill(!scene2AiGapFill);
+                                  if (sceneId === 3) setScene3AiGapFill(!scene3AiGapFill);
+                                }}
+                                className={`text-[9px] font-bold px-2 py-0.5 rounded border transition cursor-pointer shadow-2xs whitespace-nowrap ${
+                                  isAiGap
+                                    ? "bg-purple-100 text-[#7F48ED] border-purple-300 hover:bg-purple-200"
+                                    : "bg-zinc-50 text-zinc-600 border-zinc-200 hover:bg-zinc-100"
+                                }`}
+                                title="Toggle between real physical footage and AI gap generation"
+                              >
+                                {isAiGap ? "AI Gap" : "+ AI Gap"}
+                              </button>
+                            )}
+                            <button
+                              type="button"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                seekToSegment(startSec, sceneId);
+                              }}
+                              className={`text-[9px] font-bold px-2 py-0.5 rounded border transition cursor-pointer shadow-2xs flex items-center gap-1 whitespace-nowrap ${
+                                sceneId === 4
+                                  ? "bg-orange-50 text-[#FF6700] border-orange-200 hover:bg-orange-100"
+                                  : "bg-purple-50 text-[#7F48ED] border-purple-200 hover:bg-purple-100"
+                              }`}
+                              title="Audition or scrub video to this scene"
+                            >
+                              <Play className="w-2.5 h-2.5 fill-current" />
+                              <span>{generatedResult ? "Scrub" : "Preview"}</span>
+                            </button>
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
+
+          {/* GENERATION MODE SWITCHER & ACTION BUTTON (Sticky Bottom Dock) */}
+          <div className="sticky bottom-0 bg-white/95 backdrop-blur-md pt-2.5 pb-2 border-t border-zinc-200/90 -mx-4 -mb-4 px-4 sm:-mx-5 sm:px-5 z-20 shadow-[0_-8px_20px_rgba(0,0,0,0.04)] space-y-2">
             {/* Mode Switcher */}
             <div className="flex items-center gap-1 p-1 bg-zinc-100 rounded-xl border border-zinc-200/80">
               <button
@@ -3171,72 +3869,15 @@ export default function StudioVideoGenerator() {
             </div>
           )}
 
-          {/* 3-PART HYBRID PRODUCTION ANATOMY (Interactive Timeline) */}
-          <div className="w-full shrink-0 bg-white border border-zinc-200 rounded-2xl p-3 sm:p-3.5 flex flex-col gap-2 shadow-sm">
-            <div className="flex items-center justify-between text-xs">
-              <span className="font-extrabold uppercase tracking-wider text-zinc-900 flex items-center gap-1.5 text-[11px]">
-                <Layers className="w-3.5 h-3.5 text-[#7F48ED]" />
-                Hybrid Production Anatomy (22s Ad Master)
-              </span>
-              <div className="flex items-center gap-2">
-                {generatedResult && (
-                  <span className="text-[11px] font-mono font-bold text-[#FF6700]">
-                    {Math.floor(currentTime)}s / 22s
-                  </span>
-                )}
-                <span className="text-[10px] font-mono text-zinc-500 hidden sm:inline">
-                  Real Creator Hook + Client Media + AI Detail Scenes
-                </span>
-              </div>
+          {/* Live Progress Scrubber (Clean Strip when video is rendered) */}
+          {generatedResult && (
+            <div className="w-full h-1.5 bg-zinc-200 rounded-full overflow-hidden shrink-0">
+              <div
+                className="h-full bg-gradient-to-r from-[#7F48ED] via-[#FF6700] to-[#7F48ED] transition-all duration-100"
+                style={{ width: `${Math.min(100, (currentTime / 22.0) * 100)}%` }}
+              />
             </div>
-
-            {/* Segment Buttons with Active Time Glow */}
-            <div className="grid grid-cols-12 gap-1.5 h-8 rounded-lg font-mono text-[10px] font-bold select-none">
-              <button
-                type="button"
-                onClick={() => seekToSegment(0)}
-                className={`col-span-3 rounded-lg px-1 truncate flex items-center justify-center transition-all cursor-pointer ${generatedResult && currentTime < 3.5
-                    ? "bg-[#7F48ED] text-white shadow-md ring-2 ring-[#7F48ED]/40 font-black scale-[1.01]"
-                    : "bg-purple-50 hover:bg-purple-100 border border-purple-200 text-[#7F48ED]"
-                  }`}
-                title="0–3.5s: Real Creator Fronted Hook"
-              >
-                0-3s Creator Hook
-              </button>
-              <button
-                type="button"
-                onClick={() => seekToSegment(3.5)}
-                className={`col-span-5 rounded-lg px-1 truncate flex items-center justify-center transition-all cursor-pointer ${generatedResult && currentTime >= 3.5 && currentTime < 15.0
-                    ? "bg-[#FF6700] text-white shadow-md ring-2 ring-[#FF6700]/40 font-black scale-[1.01]"
-                    : "bg-orange-50 hover:bg-orange-100 border border-orange-200 text-[#FF6700]"
-                  }`}
-                title={`3.5–15s Product: ${uploadedMediaName || brandName}`}
-              >
-                {uploadedMediaName || (Boolean(generatedResult?.clientMedia?.url || uploadedMediaSrc) ? "3-15s Product: Client Asset" : "3-15s AI Commercial Motion")}
-              </button>
-              <button
-                type="button"
-                onClick={() => seekToSegment(15.0)}
-                className={`col-span-4 rounded-lg px-1 truncate flex items-center justify-center transition-all cursor-pointer ${generatedResult && currentTime >= 15.0
-                    ? "bg-[#7F48ED] text-white shadow-md ring-2 ring-[#7F48ED]/40 font-black scale-[1.01]"
-                    : "bg-purple-50 hover:bg-purple-100 border border-purple-200 text-purple-700"
-                  }`}
-                title="15–22s: AI Scenes & Motion CTA"
-              >
-                15-22s AI Scenes &amp; CTA
-              </button>
-            </div>
-
-            {/* Live Progress Scrubber */}
-            {generatedResult && (
-              <div className="w-full h-1 bg-zinc-100 rounded-full overflow-hidden">
-                <div
-                  className="h-full bg-gradient-to-r from-[#7F48ED] via-[#FF6700] to-[#7F48ED] transition-all duration-100"
-                  style={{ width: `${Math.min(100, (currentTime / 22.0) * 100)}%` }}
-                />
-              </div>
-            )}
-          </div>
+          )}
 
           {/* CENTERED VIDEO DISPLAY STAGE */}
           <div className="w-full shrink-0 flex items-center justify-center py-2 relative">
@@ -3462,15 +4103,27 @@ export default function StudioVideoGenerator() {
                       )}
                     </button>
 
-                    {/* Unobtrusive Audio Mute Toggle */}
-                    <button
-                      type="button"
-                      onClick={toggleMute}
-                      className="absolute bottom-2.5 right-2.5 p-2 rounded-full bg-black/70 hover:bg-black text-white transition z-20 cursor-pointer shadow-lg"
-                      title={isMuted ? "Unmute Voiceover" : "Mute"}
-                    >
-                      {isMuted ? <VolumeX className="w-3.5 h-3.5 text-red-400" /> : <Volume2 className="w-3.5 h-3.5 text-emerald-400" />}
-                    </button>
+                    {/* Unobtrusive Audio Mute Toggle + Tap for Sound Pill */}
+                    <div className="absolute bottom-2.5 right-2.5 flex items-center gap-1.5 z-20">
+                      {isMuted && (
+                        <button
+                          type="button"
+                          onClick={toggleMute}
+                          className="bg-black/85 backdrop-blur-md border border-white/20 text-white text-[10px] font-bold px-2.5 py-1 rounded-full flex items-center gap-1 shadow-xl hover:bg-black transition cursor-pointer animate-pulse"
+                        >
+                          <VolumeX className="w-3 h-3 text-red-400" />
+                          <span>Tap for Sound</span>
+                        </button>
+                      )}
+                      <button
+                        type="button"
+                        onClick={toggleMute}
+                        className="p-2 rounded-full bg-black/70 hover:bg-black text-white transition cursor-pointer shadow-lg border border-white/10"
+                        title={isMuted ? "Unmute Voiceover & Music" : "Mute"}
+                      >
+                        {isMuted ? <VolumeX className="w-3.5 h-3.5 text-red-400" /> : <Volume2 className="w-3.5 h-3.5 text-emerald-400" />}
+                      </button>
+                    </div>
                   </div>
                 ) : (uploadedImages.length > 0 || (uploadedMediaType === "image" && uploadedMediaSrc)) ? (
                   activeCreator?.hasVideoTakes && activeCreatorAsset?.src ? (
@@ -3636,7 +4289,7 @@ export default function StudioVideoGenerator() {
 
                       return (
                         <div className="absolute inset-0 z-20 pointer-events-none flex flex-col justify-between p-5 select-none">
-                          {/* Top Header: Clean, subtle creator badge during hook only (0-3.5s) */}
+                          {/* Top Header: Clean, subtle creator badge during hook only (0-3.5s) AND targeted AI disclosure */}
                           <div className="flex items-center justify-between">
                             {currentTime < 3.5 ? (
                               <div className="flex items-center gap-2 bg-black/60 backdrop-blur-md px-3 py-1.5 rounded-full border border-white/20 text-white w-fit shadow-xl animate-in fade-in duration-200">
@@ -3648,24 +4301,100 @@ export default function StudioVideoGenerator() {
                             ) : (
                               <div />
                             )}
+
+                            {/* Targeted AI Disclosure: strictly visible ONLY on scenes marked as AI gap-fill */}
+                            {(() => {
+                              const isAiGapSegment =
+                                (currentTime >= 3.5 && currentTime < 9.5 && scene2AiGapFill) ||
+                                (currentTime >= 9.5 && currentTime < 15.5 && scene3AiGapFill);
+                              if (!isAiGapSegment) return null;
+                              return (
+                                <div className="flex items-center gap-1.5 bg-black/70 backdrop-blur-md px-2.5 py-1 rounded-full border border-purple-400/40 text-purple-200 text-[10px] font-bold shadow-lg animate-in fade-in duration-150">
+                                  <span className="w-1.5 h-1.5 rounded-full bg-purple-400 animate-pulse" />
+                                  <span>AI Visual Demonstration</span>
+                                </div>
+                              );
+                            })()}
                           </div>
 
-                          {/* Center High-Impact CTA End Card (only during final 16.5s – 22.0s) */}
-                          {currentTime >= 16.5 && (
-                            <div className="text-center bg-black/85 backdrop-blur-md rounded-2xl border border-white/20 p-6 mx-auto max-w-sm shadow-2xl animate-in zoom-in-95 duration-200 pointer-events-auto">
-                              <span className="bg-[#FF6700] text-white text-[10px] font-black uppercase tracking-wider px-3 py-1 rounded-full mb-2 inline-block shadow">
-                                Limited Time Offer
-                              </span>
-                              <h3 className="text-xl font-black text-white mb-1 drop-shadow-md">
-                                {generatedResult.brandName || brandName}
-                              </h3>
-                              <div className="text-sm font-bold text-yellow-300 mb-4 drop-shadow">
-                                {generatedResult.brandOffer || brandOffer}
-                              </div>
-                              <div className="px-5 py-2.5 rounded-xl text-xs font-black text-white bg-gradient-to-r from-[#FF6700] to-[#7F48ED] shadow-xl flex items-center justify-center gap-1.5 ring-2 ring-white/20 cursor-pointer">
-                                <span>Claim Offer Now</span>
-                                <ChevronRight className="w-4 h-4" />
-                              </div>
+                          {/* Center High-Impact Branded CTA (only during final 15.5s – 22.0s) */}
+                          {currentTime >= 15.5 && (
+                            <div className="animate-in zoom-in-95 duration-200 pointer-events-auto mx-auto max-w-sm w-full">
+                              {selectedCtaTemplate === "social-proof" ? (
+                                <div className="bg-black/85 backdrop-blur-md rounded-2xl border border-amber-400/30 p-5 text-center shadow-2xl">
+                                  <div className="inline-flex items-center gap-1 bg-amber-400/20 text-amber-300 border border-amber-400/30 text-[10px] font-extrabold uppercase px-3 py-1 rounded-full mb-2">
+                                    <span>⭐⭐⭐⭐⭐</span>
+                                    <span>4.9 / 5 Rating (1,400+ Verified)</span>
+                                  </div>
+                                  <h3 className="text-xl font-black text-white mb-1 drop-shadow-md">
+                                    {generatedResult.brandName || brandName}
+                                  </h3>
+                                  <p className="text-xs text-zinc-300 mb-3">
+                                    {generatedResult.brandOffer || brandOffer}
+                                  </p>
+                                  <div className="px-5 py-2.5 rounded-xl text-xs font-black text-white bg-gradient-to-r from-[#FF6700] to-[#7F48ED] shadow-xl flex items-center justify-center gap-1.5 ring-2 ring-white/20 cursor-pointer">
+                                    <span>Shop Top Rated</span>
+                                    <ChevronRight className="w-4 h-4" />
+                                  </div>
+                                </div>
+                              ) : selectedCtaTemplate === "native-tag" ? (
+                                <div className="bg-white/95 backdrop-blur-md rounded-2xl p-4 text-zinc-900 shadow-2xl border border-zinc-200">
+                                  <div className="flex items-center justify-between gap-3 mb-2.5">
+                                    <div className="flex items-center gap-2">
+                                      <div className="w-8 h-8 rounded-lg bg-[#FF6700]/10 text-[#FF6700] flex items-center justify-center font-black text-sm">
+                                        🛍️
+                                      </div>
+                                      <div>
+                                        <div className="text-[10px] font-bold uppercase tracking-wider text-zinc-500">Official Store</div>
+                                        <div className="text-xs font-black text-zinc-900 truncate max-w-[160px]">{generatedResult.brandName || brandName}</div>
+                                      </div>
+                                    </div>
+                                    <span className="text-[10px] font-extrabold bg-emerald-100 text-emerald-800 px-2 py-0.5 rounded-md">
+                                      Verified
+                                    </span>
+                                  </div>
+                                  <div className="text-xs font-bold text-zinc-700 mb-3 truncate">
+                                    {generatedResult.brandOffer || brandOffer}
+                                  </div>
+                                  <div className="w-full py-2.5 rounded-xl text-xs font-black text-white bg-black hover:bg-zinc-800 shadow-lg flex items-center justify-center gap-1.5 cursor-pointer">
+                                    <span>View Product In Store</span>
+                                    <ChevronRight className="w-3.5 h-3.5" />
+                                  </div>
+                                </div>
+                              ) : selectedCtaTemplate === "luxury-card" ? (
+                                <div className="bg-black/90 backdrop-blur-md rounded-2xl border border-purple-500/40 p-6 text-center shadow-2xl ring-1 ring-purple-500/20">
+                                  <span className="text-[9px] uppercase tracking-[0.25em] text-[#7F48ED] font-black block mb-1">
+                                    Signature Collection
+                                  </span>
+                                  <h3 className="text-2xl font-black text-white tracking-tight mb-1">
+                                    {generatedResult.brandName || brandName}
+                                  </h3>
+                                  <p className="text-xs text-zinc-300 font-light mb-4">
+                                    {generatedResult.brandOffer || brandOffer}
+                                  </p>
+                                  <div className="px-6 py-2.5 rounded-full text-xs font-black text-white bg-gradient-to-r from-[#7F48ED] to-[#FF6700] shadow-xl flex items-center justify-center gap-1.5 ring-1 ring-white/30 cursor-pointer">
+                                    <span>Reserve Now</span>
+                                    <ChevronRight className="w-3.5 h-3.5" />
+                                  </div>
+                                </div>
+                              ) : (
+                                /* promo-stamp (default) */
+                                <div className="text-center bg-black/85 backdrop-blur-md rounded-2xl border border-white/20 p-6 shadow-2xl">
+                                  <span className="bg-[#FF6700] text-white text-[10px] font-black uppercase tracking-wider px-3 py-1 rounded-full mb-2 inline-block shadow">
+                                    Limited Time Offer
+                                  </span>
+                                  <h3 className="text-xl font-black text-white mb-1 drop-shadow-md">
+                                    {generatedResult.brandName || brandName}
+                                  </h3>
+                                  <div className="text-sm font-bold text-yellow-300 mb-4 drop-shadow">
+                                    {generatedResult.brandOffer || brandOffer}
+                                  </div>
+                                  <div className="px-5 py-2.5 rounded-xl text-xs font-black text-white bg-gradient-to-r from-[#FF6700] to-[#7F48ED] shadow-xl flex items-center justify-center gap-1.5 ring-2 ring-white/20 cursor-pointer">
+                                    <span>Claim Offer Now</span>
+                                    <ChevronRight className="w-4 h-4" />
+                                  </div>
+                                </div>
+                              )}
                             </div>
                           )}
 
@@ -3829,13 +4558,27 @@ export default function StudioVideoGenerator() {
                     </div>
                     <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/10 text-[10px] font-bold text-zinc-300 uppercase tracking-wider mb-2">
                       <span className="w-1.5 h-1.5 rounded-full bg-[#FF6700] animate-pulse" />
-                      <span>Stage Ready · Live Engine</span>
+                      <span>{activeScrubScene ? `Auditioning Scene ${activeScrubScene}` : "Stage Ready · Live Engine"}</span>
                     </div>
                     <h3 className="text-sm font-bold text-white mb-1">
-                      {brandName} Commercial
+                      {activeScrubScene ? (
+                        activeScrubScene === 1 ? "Scene 1: Creator Hook (0–3.5s)" :
+                        activeScrubScene === 2 ? "Scene 2: Product Demo (3.5–9.5s)" :
+                        activeScrubScene === 3 ? "Scene 3: B-Roll Action (9.5–15.5s)" :
+                        "Scene 4: Branded CTA (15.5–22s)"
+                      ) : (
+                        `${brandName} Commercial`
+                      )}
                     </h3>
                     <p className="text-[11px] text-zinc-400 max-w-[220px] leading-relaxed mb-4">
-                      Click &ldquo;Generate AI Video Ad&rdquo; on the left to synthesize the real AI scene and ElevenLabs audio.
+                      {activeScrubScene ? (
+                        activeScrubScene === 1 ? (selectedHook || "High-CTR fronted creator hook take") :
+                        activeScrubScene === 2 ? `${brandName} product demonstration cut` :
+                        activeScrubScene === 3 ? "Dynamic lifestyle and feature showcase cut" :
+                        (brandOffer || "High CTR closing branded offer end card")
+                      ) : (
+                        "Click \u201cGenerate AI Video Ad\u201d on the left to synthesize the real AI scene and ElevenLabs audio."
+                      )}
                     </p>
                     <div className="bg-white/5 border border-white/10 rounded-xl p-2.5 w-full max-w-[240px] text-left text-[10px] space-y-1 font-mono text-zinc-300">
                       <div className="flex justify-between">
@@ -3863,16 +4606,41 @@ export default function StudioVideoGenerator() {
               Active Brand: <span className="font-extrabold text-zinc-900">{brandName}</span> · Offer: <span className="text-[#FF6700] font-bold">{brandOffer}</span>
             </div>
 
-            <div className="flex items-center gap-2 w-full sm:w-auto">
+            <div className="flex items-center gap-2 w-full sm:w-auto flex-wrap">
               {activeVideoSrc ? (
-                <a
-                  href={activeVideoSrc}
-                  download={generatedResult ? `relaunch-${generatedResult.jobId}-${aspectRatio}.mp4` : `${(brandName || "brand").toLowerCase().replace(/\s+/g, "-")}-${aspectRatio}.mp4`}
-                  className="flex-1 sm:flex-initial px-4 py-2 rounded-xl text-xs font-bold text-zinc-700 bg-zinc-100 hover:bg-zinc-200 border border-zinc-200 transition flex items-center justify-center gap-1.5 cursor-pointer"
-                >
-                  <Download className="w-3.5 h-3.5" />
-                  Download MP4
-                </a>
+                <>
+                  <a
+                    href={activeVideoSrc}
+                    download={generatedResult ? `relaunch-${generatedResult.jobId}-${aspectRatio}.mp4` : `${(brandName || "brand").toLowerCase().replace(/\s+/g, "-")}-${aspectRatio}.mp4`}
+                    className="flex-1 sm:flex-initial px-3.5 py-2 rounded-xl text-xs font-bold text-zinc-700 bg-zinc-100 hover:bg-zinc-200 border border-zinc-200 transition flex items-center justify-center gap-1.5 cursor-pointer"
+                  >
+                    <Download className="w-3.5 h-3.5" />
+                    <span>Download MP4</span>
+                  </a>
+
+                  {generatedResult?.video4k && (
+                    <a
+                      href={generatedResult.video4k}
+                      download={`relaunch-${generatedResult.jobId}-4k-master.mp4`}
+                      className="flex-1 sm:flex-initial px-3.5 py-2 rounded-xl text-xs font-extrabold text-purple-700 bg-purple-50 hover:bg-purple-100 border border-purple-200 transition flex items-center justify-center gap-1.5 cursor-pointer"
+                      title="Download 4K Ultra-HD Master (2160x3840) for Premiere / DaVinci finish"
+                    >
+                      <Zap className="w-3.5 h-3.5 text-[#7F48ED]" />
+                      <span>4K Pro Master</span>
+                    </a>
+                  )}
+
+                  {generatedResult?.stems?.voiceover && (
+                    <a
+                      href={generatedResult.stems.voiceover}
+                      download={`relaunch-${generatedResult.jobId}-stem-vo.wav`}
+                      className="flex-1 sm:flex-initial px-3 py-2 rounded-xl text-xs font-bold text-zinc-600 bg-zinc-50 hover:bg-zinc-100 border border-zinc-200 transition flex items-center justify-center gap-1.5 cursor-pointer"
+                      title="Download clean lossless voiceover audio stem"
+                    >
+                      <span>Audio Stems</span>
+                    </a>
+                  )}
+                </>
               ) : null}
 
               <Link
@@ -3880,7 +4648,7 @@ export default function StudioVideoGenerator() {
                 className="flex-1 sm:flex-initial px-5 py-2 rounded-xl text-xs font-extrabold text-white bg-[#FF6700] hover:bg-[#e55c00] transition flex items-center justify-center gap-1.5 shadow-md shadow-[#FF6700]/20 cursor-pointer"
               >
                 <Eye className="w-3.5 h-3.5" />
-                <span>{generatedResult ? "Review Generated Ad" : "Open in QA Review Room"}</span>
+                <span>{generatedResult ? "Review & Sign Off" : "Open in QA Review Room"}</span>
                 <ChevronRight className="w-3.5 h-3.5" />
               </Link>
             </div>
@@ -4003,6 +4771,22 @@ export default function StudioVideoGenerator() {
           )}
         </div>
       </main>
+      {/* Dynamic Master Assets Manager Modal (Licensed Music & Branded CTAs) */}
+      <MasterAssetsModal
+        isOpen={showMasterAssetsModal}
+        initialTab={masterAssetModalTab}
+        onClose={() => setShowMasterAssetsModal(false)}
+        musicTracks={musicLibrary}
+        ctaTemplates={ctaTemplatesList}
+        onTrackCreated={(newTrack) => {
+          setMusicLibrary((prev) => [newTrack, ...prev]);
+          setSelectedMusicTrackId(newTrack.id);
+        }}
+        onCtaCreated={(newCta) => {
+          setCtaTemplatesList((prev) => [newCta, ...prev]);
+          setSelectedCtaTemplate(newCta.id);
+        }}
+      />
     </div>
   );
 }

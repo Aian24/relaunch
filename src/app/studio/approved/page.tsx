@@ -34,6 +34,7 @@ import {
   Minimize2,
   RefreshCw,
   Users,
+  Zap,
 } from "lucide-react";
 
 interface ApprovedVariant {
@@ -57,11 +58,16 @@ interface ApprovedVariant {
   verifiedBy?: string;
   verifiedAt?: string;
   auditId?: string;
+  v4k?: string;
+  vClean?: string;
+  stems?: { voiceover?: string; music?: string };
+  variants?: { v9x16: string; v1x1: string; v4x5: string; v4k?: string; vClean?: string };
   complianceChecks?: {
     creatorVerification: boolean;
     scriptClaims: boolean;
     clientFootagePresent: boolean;
     disclosureState: boolean;
+    creativeDirectorSignOff?: boolean;
   };
   voiceoverUrl?: string;
   wordTimestamps?: Array<{ word: string; start: number; end: number }>;
@@ -643,8 +649,8 @@ export default function ApprovedDeliverablesVaultPage() {
                     <div className="flex items-center gap-1.5 text-zinc-600 font-mono text-[10px]">
                       <Calendar className="w-3 h-3 text-zinc-400" />
                       <span>{item.verifiedAt ? new Date(item.verifiedAt).toLocaleDateString() : "Verified"}</span>
-                      <span className="text-emerald-700 font-bold bg-emerald-100 px-1.5 py-0.2 rounded font-sans">
-                        4/4 Checks Pass
+                      <span className="text-purple-700 font-bold bg-purple-100 px-1.5 py-0.2 rounded font-sans">
+                        5/5 CD Approved
                       </span>
                     </div>
                   </div>
@@ -653,7 +659,7 @@ export default function ApprovedDeliverablesVaultPage() {
                   <div className="p-3.5 sm:p-4 space-y-2.5">
                     <div className="text-[10px] font-bold uppercase tracking-wider text-zinc-500 flex items-center justify-between">
                       <span>Deliverable Downloads</span>
-                      <span className="text-[#7F48ED] font-mono text-[10px]">1080p MP4 Ready</span>
+                      <span className="text-[#7F48ED] font-mono text-[10px]">1080p &amp; 4K Pro Master</span>
                     </div>
 
                     {/* Download buttons row */}
@@ -687,6 +693,32 @@ export default function ApprovedDeliverablesVaultPage() {
                         <Download className="w-3.5 h-3.5 text-[#7F48ED] shrink-0" />
                         <span className="truncate">4:5<span className="hidden md:inline"> Meta</span></span>
                       </a>
+                    </div>
+
+                    {/* 4K Pro Master & Audio Stems Quick Strip */}
+                    <div className="flex items-center gap-1.5 pt-1 flex-wrap">
+                      {(item.v4k || item.variants?.v4k) && (
+                        <a
+                          href={item.v4k || item.variants?.v4k}
+                          download={`${item.clientName.toLowerCase().replace(/\s+/g, "-")}-${item.id}-4k-master.mp4`}
+                          className="flex-1 min-w-[120px] flex items-center justify-center gap-1 py-1.5 px-2 rounded-lg bg-purple-50 hover:bg-purple-100 border border-purple-200 text-purple-900 text-[11px] font-extrabold transition cursor-pointer"
+                          title="Download 4K Ultra-HD Master (2160x3840, CRF 16) for Premiere / DaVinci finishing"
+                        >
+                          <Zap className="w-3 h-3 text-[#7F48ED] shrink-0" />
+                          <span>4K Pro Master</span>
+                        </a>
+                      )}
+
+                      {item.stems?.voiceover && (
+                        <a
+                          href={item.stems.voiceover}
+                          download={`${item.clientName.toLowerCase().replace(/\s+/g, "-")}-${item.id}-stem-vo.wav`}
+                          className="flex-1 min-w-[100px] flex items-center justify-center gap-1 py-1.5 px-2 rounded-lg bg-zinc-50 hover:bg-zinc-100 border border-zinc-200 text-zinc-700 text-[11px] font-semibold transition cursor-pointer"
+                          title="Download clean lossless voiceover audio stem"
+                        >
+                          <span>Audio Stems</span>
+                        </a>
+                      )}
                     </div>
 
                     {/* 1-Click Complete Campaign Kit (.ZIP) */}
