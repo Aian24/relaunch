@@ -104,6 +104,12 @@ export async function POST(request: Request) {
     const creatorAssetId = String(body.creatorAssetId || "").trim();
     const trimStart = typeof body.trimStart === "number" ? body.trimStart : 0;
     const trimEnd = typeof body.trimEnd === "number" ? body.trimEnd : 3.5;
+    const scene2TrimStart = typeof body.scene2TrimStart === "number" ? Math.max(0, body.scene2TrimStart) : 0;
+    const scene2TrimEnd = typeof body.scene2TrimEnd === "number" ? Math.max(scene2TrimStart + 1.0, body.scene2TrimEnd) : scene2TrimStart + 5.0;
+    const scene3TrimStart = typeof body.scene3TrimStart === "number" ? Math.max(0, body.scene3TrimStart) : 0;
+    const scene3TrimEnd = typeof body.scene3TrimEnd === "number" ? Math.max(scene3TrimStart + 1.0, body.scene3TrimEnd) : scene3TrimStart + 5.0;
+    const ctaBrandColor = typeof body.ctaBrandColor === "string" && body.ctaBrandColor.startsWith("#") ? body.ctaBrandColor : "#FF6700";
+    const ctaDiscountTag = typeof body.ctaDiscountTag === "string" ? body.ctaDiscountTag.trim() : "";
 
     // Quality-First Creative Studio Parameters (Sprint 2)
     const musicTrackId = String(body.musicTrackId || "trendy-upbeat-ugc").trim();
@@ -1166,18 +1172,19 @@ export async function POST(request: Request) {
           }
           createdSegFiles.push(seg1Path);
 
-          // 2. Scene 2 (Product Demo / 3.5s – 8.5s = 5.0s): Real Product Video Take or AI Hero Clip
+          // 2. Scene 2 (Product Demo): Real Product Video Take or AI Hero Clip with Frame-Accurate Trim
           const scene2Source = (!scene2AiGapFill && realProductVideoDisk && fs.existsSync(realProductVideoDisk))
             ? realProductVideoDisk
             : ((aiVideoClips[0] && fs.existsSync(aiVideoClips[0])) ? aiVideoClips[0] : (fs.existsSync(aiVideoFile) ? aiVideoFile : creatorHookFilePath));
 
+          const scene2Duration = Math.max(1.0, Math.min(6.0, scene2TrimEnd - scene2TrimStart));
           execSync(
-            `"${ffmpegBinary}" -y -ss 0.0 -i "${scene2Source}" -t 5.0 -vf "scale=1080:1920:force_original_aspect_ratio=increase,crop=1080:1920" -pix_fmt yuv420p -c:v libx264 -preset fast -r 30 -an "${seg2Path}"`,
+            `"${ffmpegBinary}" -y -ss ${scene2TrimStart.toFixed(1)} -i "${scene2Source}" -t ${scene2Duration.toFixed(1)} -vf "scale=1080:1920:force_original_aspect_ratio=increase,crop=1080:1920" -pix_fmt yuv420p -c:v libx264 -preset fast -r 30 -an "${seg2Path}"`,
             { stdio: "pipe" }
           );
           createdSegFiles.push(seg2Path);
 
-          // 3. Scene 3 (B-Roll / Lifestyle Action / 8.5s – 13.5s = 5.0s): Real B-Roll Take or AI Clip 2
+          // 3. Scene 3 (B-Roll / Lifestyle Action): Real B-Roll Take or AI Clip 2 with Frame-Accurate Trim
           const hasRealBroll = !scene3AiGapFill && Boolean(realBrollVideoDisk && fs.existsSync(realBrollVideoDisk));
           const hasClip2 = aiVideoClips[1] && fs.existsSync(aiVideoClips[1]);
           const scene3Source = hasRealBroll
@@ -1188,8 +1195,9 @@ export async function POST(request: Request) {
             ? "scale=1080:1920:force_original_aspect_ratio=increase,crop=1080:1920"
             : "scale=1080:1920:force_original_aspect_ratio=increase,crop=900:1600,scale=1080:1920";
 
+          const scene3Duration = Math.max(1.0, Math.min(6.0, scene3TrimEnd - scene3TrimStart));
           execSync(
-            `"${ffmpegBinary}" -y -ss 0.0 -i "${scene3Source}" -t 5.0 -vf "${scene3Vf}" -pix_fmt yuv420p -c:v libx264 -preset fast -r 30 -an "${seg3Path}"`,
+            `"${ffmpegBinary}" -y -ss ${scene3TrimStart.toFixed(1)} -i "${scene3Source}" -t ${scene3Duration.toFixed(1)} -vf "${scene3Vf}" -pix_fmt yuv420p -c:v libx264 -preset fast -r 30 -an "${seg3Path}"`,
             { stdio: "pipe" }
           );
           createdSegFiles.push(seg3Path);

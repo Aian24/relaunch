@@ -40,18 +40,24 @@ import {
   Users,
   Scissors,
   GripVertical,
+  Film,
+  FolderDown,
 } from "lucide-react";
 import { CREATOR_ROSTER, CreatorProfile } from "@/data/creatorRoster";
 import { CREATOR_ASSETS, CreatorClipAsset, getCreatorClips, getCreatorClipById } from "@/data/creatorAssets";
 import HookTrimmer from "@/components/studio/HookTrimmer";
+import ClipTrimmer from "@/components/studio/ClipTrimmer";
 import MasterAssetsModal from "@/components/studio/MasterAssetsModal";
 import {
   LICENSED_MUSIC_LIBRARY,
   BRANDED_CTA_TEMPLATES,
   CAPTION_STYLES,
+  BRAND_COLOR_PRESETS,
+  TRUST_BADGE_PRESETS,
   MusicTrack,
   CtaTemplate,
   CaptionStyle,
+  TrustBadgeOption,
 } from "@/data/timelineAssets";
 
 interface AngleContent {
@@ -839,6 +845,14 @@ export default function StudioVideoGenerator() {
   const [sceneOrder, setSceneOrder] = useState<number[]>([1, 2, 3, 4]); // 1: Hook, 2: Product Demo, 3: B-Roll, 4: Motion CTA
   const [scene2AiGapFill, setScene2AiGapFill] = useState<boolean>(false);
   const [scene3AiGapFill, setScene3AiGapFill] = useState<boolean>(false);
+  const [scene2TrimStart, setScene2TrimStart] = useState<number>(0.0);
+  const [scene2TrimEnd, setScene2TrimEnd] = useState<number>(6.0);
+  const [scene3TrimStart, setScene3TrimStart] = useState<number>(0.0);
+  const [scene3TrimEnd, setScene3TrimEnd] = useState<number>(6.0);
+  const [activeEditingScene, setActiveEditingScene] = useState<number | null>(null);
+  const [ctaBrandColor, setCtaBrandColor] = useState<string>("#FF6700");
+  const [ctaDiscountTag, setCtaDiscountTag] = useState<string>("EXCLUSIVE OFFER");
+  const [selectedTrustBadgeId, setSelectedTrustBadgeId] = useState<string>("rating-star");
   const [musicPlayingId, setMusicPlayingId] = useState<string | null>(null);
   const musicAudioRef = useRef<HTMLAudioElement | null>(null);
 
@@ -1740,9 +1754,16 @@ export default function StudioVideoGenerator() {
           musicTrackId: selectedMusicTrackId,
           captionStyle: selectedCaptionStyle,
           ctaTemplate: selectedCtaTemplate,
+          ctaBrandColor: ctaBrandColor,
+          ctaDiscountTag: ctaDiscountTag,
+          trustBadgeId: selectedTrustBadgeId,
           aiGapFillMode: aiGapFillMode,
           scene2AiGapFill: scene2AiGapFill,
           scene3AiGapFill: scene3AiGapFill,
+          scene2TrimStart: scene2TrimStart,
+          scene2TrimEnd: scene2TrimEnd,
+          scene3TrimStart: scene3TrimStart,
+          scene3TrimEnd: scene3TrimEnd,
           productVideoUrl: (BRAND_PRESETS.find((p) => p.id === selectedPresetId)?.productVideo || (uploadedMediaType === "video" ? uploadedMediaSrc : undefined)),
           brollVideoUrl: BRAND_PRESETS.find((p) => p.id === selectedPresetId)?.brollVideo,
           sceneOrder: sceneOrder,
@@ -2047,6 +2068,15 @@ export default function StudioVideoGenerator() {
           >
             <Users className="w-3.5 h-3.5 text-[#7F48ED]" />
             <span>Creators</span>
+          </Link>
+
+          <Link
+            href="/studio/assets"
+            className="hidden sm:inline-flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 rounded-xl text-xs font-bold text-zinc-700 hover:text-zinc-950 bg-zinc-100 hover:bg-zinc-200 border border-zinc-200 transition cursor-pointer shrink-0"
+            title="Open Client Product Media Library & Brand Footage Intake"
+          >
+            <Video className="w-3.5 h-3.5 text-[#FF6700]" />
+            <span>Brand Footage</span>
           </Link>
 
           <Link
@@ -3403,6 +3433,82 @@ export default function StudioVideoGenerator() {
                       </select>
                     </div>
                   </div>
+
+                  {/* Interactive CTA Motion & Trust Badge Customizer */}
+                  <div className="bg-zinc-50/80 border border-zinc-200/80 rounded-xl p-2.5 space-y-2 text-xs">
+                    <div className="flex items-center justify-between">
+                      <span className="text-[10px] font-bold uppercase tracking-wider text-zinc-600 flex items-center gap-1">
+                        <Sliders className="w-3 h-3 text-[#FF6700]" />
+                        <span>CTA Style & Trust Badges</span>
+                      </span>
+                      <span className="text-[9px] font-mono font-bold text-zinc-400">Scene 4 Customizer</span>
+                    </div>
+
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                      {/* Brand Accent Color */}
+                      <div className="space-y-1">
+                        <label className="text-[9px] font-bold uppercase tracking-wider text-zinc-500 block">
+                          Accent Color
+                        </label>
+                        <div className="flex items-center gap-1.5 flex-wrap">
+                          {BRAND_COLOR_PRESETS.map((color) => (
+                            <button
+                              key={color.hex}
+                              type="button"
+                              onClick={() => setCtaBrandColor(color.hex)}
+                              className={`w-5 h-5 rounded-full transition transform cursor-pointer border ${
+                                ctaBrandColor === color.hex
+                                  ? "scale-110 ring-2 ring-offset-1 ring-zinc-700 border-white shadow-xs"
+                                  : "border-zinc-300 hover:scale-105 opacity-80 hover:opacity-100"
+                              }`}
+                              style={{ backgroundColor: color.hex }}
+                              title={`${color.name} (${color.hex})`}
+                            />
+                          ))}
+                          <input
+                            type="color"
+                            value={ctaBrandColor}
+                            onChange={(e) => setCtaBrandColor(e.target.value)}
+                            className="w-5 h-5 rounded cursor-pointer border border-zinc-200 p-0 bg-transparent"
+                            title="Custom HEX color"
+                          />
+                        </div>
+                      </div>
+
+                      {/* Offer / Discount Tag */}
+                      <div className="space-y-1">
+                        <label className="text-[9px] font-bold uppercase tracking-wider text-zinc-500 block">
+                          Discount / Offer Pill
+                        </label>
+                        <input
+                          type="text"
+                          value={ctaDiscountTag}
+                          onChange={(e) => setCtaDiscountTag(e.target.value)}
+                          placeholder="e.g. SAVE 20% · FREE AUDIT"
+                          className="w-full bg-white border border-zinc-200 focus:border-[#FF6700] rounded-lg px-2 py-1 text-[11px] font-bold text-zinc-900 focus:outline-none"
+                        />
+                      </div>
+                    </div>
+
+                    {/* Conversion Trust Badge */}
+                    <div className="space-y-1 pt-0.5">
+                      <label className="text-[9px] font-bold uppercase tracking-wider text-zinc-500 block">
+                        Conversion Trust Badge
+                      </label>
+                      <select
+                        value={selectedTrustBadgeId}
+                        onChange={(e) => setSelectedTrustBadgeId(e.target.value)}
+                        className="w-full bg-white border border-zinc-200 focus:border-[#7F48ED] rounded-lg px-2 py-1 text-[11px] font-semibold text-zinc-800 focus:outline-none cursor-pointer"
+                      >
+                        <option value="">No Trust Badge</option>
+                        {TRUST_BADGE_PRESETS.map((badge) => (
+                          <option key={badge.id} value={badge.id}>
+                            {badge.label}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+                  </div>
                 </div>
 
                 {/* 22s Segmented Production Timeline Bar */}
@@ -3511,84 +3617,167 @@ export default function StudioVideoGenerator() {
                       }
 
                       return (
-                        <div
-                          key={`scene-card-${sceneId}`}
-                          draggable
-                          onDragStart={(e) => handleDragStart(e, visualIdx)}
-                          onDragOver={(e) => handleDragOver(e, visualIdx)}
-                          onDrop={(e) => handleDrop(e, visualIdx)}
-                          onDragEnd={handleDragEnd}
-                          className={`p-2 rounded-xl border flex items-center justify-between gap-2 transition-all cursor-grab active:cursor-grabbing select-none ${
-                            isDragging
-                              ? "opacity-30 border-dashed border-[#7F48ED] bg-purple-50/30 scale-95"
-                              : isDragOver
-                              ? "border-[#7F48ED] ring-2 ring-[#7F48ED]/40 bg-purple-50/70 shadow-sm"
-                              : isSelected
-                              ? "bg-purple-50 border-purple-300 ring-2 ring-purple-200 shadow-2xs"
-                              : "bg-white border-zinc-200 hover:border-zinc-300 hover:shadow-2xs"
-                          }`}
-                        >
-                          {/* Left: Drag Handle + Slot Number + Badges & Title (Single-line, No text wrapping!) */}
-                          <div className="flex items-center gap-1.5 min-w-0 flex-1">
-                            <GripVertical className="w-3.5 h-3.5 text-zinc-400 hover:text-zinc-700 shrink-0 cursor-grab active:cursor-grabbing" />
-                            <span className="w-4 h-4 rounded-full bg-zinc-100 text-zinc-700 font-bold text-[9px] flex items-center justify-center shrink-0 border border-zinc-200">
-                              {visualIdx + 1}
-                            </span>
-                            <div className="min-w-0 flex-1">
-                              <div className="flex items-center gap-1.5 min-w-0">
-                                <span className={`text-[8px] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded whitespace-nowrap shrink-0 ${badgeStyle}`}>
-                                  {badgeText}
-                                </span>
-                                <span className="font-bold text-zinc-900 text-[11px] truncate">
-                                  {sceneName}
-                                </span>
-                                <span className="text-[9px] text-zinc-400 font-mono shrink-0 whitespace-nowrap">
-                                  ({durationStr})
-                                </span>
-                              </div>
-                              <div className="text-[9px] text-zinc-500 truncate font-sans">
-                                {subtitle}
+                        <div key={`scene-wrapper-${sceneId}`} className="space-y-1.5">
+                          <div
+                            key={`scene-card-${sceneId}`}
+                            draggable
+                            onDragStart={(e) => handleDragStart(e, visualIdx)}
+                            onDragOver={(e) => handleDragOver(e, visualIdx)}
+                            onDrop={(e) => handleDrop(e, visualIdx)}
+                            onDragEnd={handleDragEnd}
+                            className={`p-2 rounded-xl border flex items-center justify-between gap-2 transition-all cursor-grab active:cursor-grabbing select-none ${
+                              isDragging
+                                ? "opacity-30 border-dashed border-[#7F48ED] bg-purple-50/30 scale-95"
+                                : isDragOver
+                                ? "border-[#7F48ED] ring-2 ring-[#7F48ED]/40 bg-purple-50/70 shadow-sm"
+                                : isSelected
+                                ? "bg-purple-50 border-purple-300 ring-2 ring-purple-200 shadow-2xs"
+                                : "bg-white border-zinc-200 hover:border-zinc-300 hover:shadow-2xs"
+                            }`}
+                          >
+                            {/* Left: Drag Handle + Slot Number + Badges & Title (Single-line, No text wrapping!) */}
+                            <div className="flex items-center gap-1.5 min-w-0 flex-1">
+                              <GripVertical className="w-3.5 h-3.5 text-zinc-400 hover:text-zinc-700 shrink-0 cursor-grab active:cursor-grabbing" />
+                              <span className="w-4 h-4 rounded-full bg-zinc-100 text-zinc-700 font-bold text-[9px] flex items-center justify-center shrink-0 border border-zinc-200">
+                                {visualIdx + 1}
+                              </span>
+                              <div className="min-w-0 flex-1">
+                                <div className="flex items-center gap-1.5 min-w-0">
+                                  <span className={`text-[8px] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded whitespace-nowrap shrink-0 ${badgeStyle}`}>
+                                    {badgeText}
+                                  </span>
+                                  <span className="font-bold text-zinc-900 text-[11px] truncate">
+                                    {sceneName}
+                                  </span>
+                                  <span className="text-[9px] text-zinc-400 font-mono shrink-0 whitespace-nowrap">
+                                    ({durationStr})
+                                  </span>
+                                </div>
+                                <div className="text-[9px] text-zinc-500 truncate font-sans">
+                                  {subtitle}
+                                </div>
                               </div>
                             </div>
-                          </div>
 
-                          {/* Right: Actions (No arrow buttons! Space saver) */}
-                          <div className="flex items-center gap-1.5 shrink-0 whitespace-nowrap">
-                            {hasAiGapToggle && (
+                            {/* Right: Actions */}
+                            <div className="flex items-center gap-1.5 shrink-0 whitespace-nowrap">
+                              {sceneId !== 4 && (
+                                <button
+                                  type="button"
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    setActiveEditingScene(activeEditingScene === sceneId ? null : sceneId);
+                                  }}
+                                  className={`text-[9px] font-bold px-2 py-0.5 rounded border transition cursor-pointer shadow-2xs flex items-center gap-1 whitespace-nowrap ${
+                                    activeEditingScene === sceneId
+                                      ? "bg-purple-600 text-white border-purple-600 shadow-xs"
+                                      : "bg-zinc-50 text-zinc-700 border-zinc-200 hover:bg-zinc-100"
+                                  }`}
+                                  title={`Adjust frame-accurate in/out trim for Scene ${sceneId}`}
+                                >
+                                  <Scissors className="w-2.5 h-2.5" />
+                                  <span>{activeEditingScene === sceneId ? "Close" : "Trim"}</span>
+                                </button>
+                              )}
+
+                              {hasAiGapToggle && (
+                                <button
+                                  type="button"
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    if (sceneId === 2) setScene2AiGapFill(!scene2AiGapFill);
+                                    if (sceneId === 3) setScene3AiGapFill(!scene3AiGapFill);
+                                  }}
+                                  className={`text-[9px] font-bold px-2 py-0.5 rounded border transition cursor-pointer shadow-2xs whitespace-nowrap ${
+                                    isAiGap
+                                      ? "bg-purple-100 text-[#7F48ED] border-purple-300 hover:bg-purple-200"
+                                      : "bg-zinc-50 text-zinc-600 border-zinc-200 hover:bg-zinc-100"
+                                  }`}
+                                  title="Toggle between real physical footage and AI gap generation"
+                                >
+                                  {isAiGap ? "AI Gap" : "+ AI Gap"}
+                                </button>
+                              )}
                               <button
                                 type="button"
                                 onClick={(e) => {
                                   e.stopPropagation();
-                                  if (sceneId === 2) setScene2AiGapFill(!scene2AiGapFill);
-                                  if (sceneId === 3) setScene3AiGapFill(!scene3AiGapFill);
+                                  seekToSegment(startSec, sceneId);
                                 }}
-                                className={`text-[9px] font-bold px-2 py-0.5 rounded border transition cursor-pointer shadow-2xs whitespace-nowrap ${
-                                  isAiGap
-                                    ? "bg-purple-100 text-[#7F48ED] border-purple-300 hover:bg-purple-200"
-                                    : "bg-zinc-50 text-zinc-600 border-zinc-200 hover:bg-zinc-100"
+                                className={`text-[9px] font-bold px-2 py-0.5 rounded border transition cursor-pointer shadow-2xs flex items-center gap-1 whitespace-nowrap ${
+                                  sceneId === 4
+                                    ? "bg-orange-50 text-[#FF6700] border-orange-200 hover:bg-orange-100"
+                                    : "bg-purple-50 text-[#7F48ED] border-purple-200 hover:bg-purple-100"
                                 }`}
-                                title="Toggle between real physical footage and AI gap generation"
+                                title="Audition or scrub video to this scene"
                               >
-                                {isAiGap ? "AI Gap" : "+ AI Gap"}
+                                <Play className="w-2.5 h-2.5 fill-current" />
+                                <span>{generatedResult ? "Scrub" : "Preview"}</span>
                               </button>
-                            )}
-                            <button
-                              type="button"
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                seekToSegment(startSec, sceneId);
-                              }}
-                              className={`text-[9px] font-bold px-2 py-0.5 rounded border transition cursor-pointer shadow-2xs flex items-center gap-1 whitespace-nowrap ${
-                                sceneId === 4
-                                  ? "bg-orange-50 text-[#FF6700] border-orange-200 hover:bg-orange-100"
-                                  : "bg-purple-50 text-[#7F48ED] border-purple-200 hover:bg-purple-100"
-                              }`}
-                              title="Audition or scrub video to this scene"
-                            >
-                              <Play className="w-2.5 h-2.5 fill-current" />
-                              <span>{generatedResult ? "Scrub" : "Preview"}</span>
-                            </button>
+                            </div>
                           </div>
+
+                          {/* Inline Frame-Accurate Clip Trimmer Drawer */}
+                          {activeEditingScene === sceneId && (
+                            <div className="animate-in fade-in slide-in-from-top-1 duration-150 pl-1.5 border-l-2 border-[#7F48ED]">
+                              {sceneId === 1 && (
+                                <ClipTrimmer
+                                  title="Scene 1: UGC Opening Hook"
+                                  badgeLabel="Hook Take"
+                                  videoUrl={activeCreatorAsset?.src || "/videos/sample-hook.mp4"}
+                                  trimStart={trimStart}
+                                  trimEnd={trimEnd}
+                                  minDuration={1.0}
+                                  maxDuration={5.5}
+                                  recommendedTrim={activeCreatorAsset?.recommendedTrim}
+                                  spokenText={activeCreatorAsset?.spokenText}
+                                  accentColor="#10B981"
+                                  noteText="Creator authentic opening take. ElevenLabs voiceover begins smoothly at out-point."
+                                  onTrimChange={(start, end) => {
+                                    setTrimStart(start);
+                                    setTrimEnd(end);
+                                  }}
+                                  onClose={() => setActiveEditingScene(null)}
+                                />
+                              )}
+                              {sceneId === 2 && (
+                                <ClipTrimmer
+                                  title="Scene 2: Product Feature Demonstration"
+                                  badgeLabel="Feature Cut"
+                                  videoUrl={uploadedMediaType === "video" && uploadedMediaSrc ? uploadedMediaSrc : (BRAND_PRESETS.find((p) => p.id === selectedPresetId)?.productVideo || BRAND_PRESETS.find((p) => p.id === selectedPresetId)?.brollVideo || "/videos/outdoor/trailline-mountain-ridge.mp4")}
+                                  trimStart={scene2TrimStart}
+                                  trimEnd={scene2TrimEnd}
+                                  minDuration={1.0}
+                                  maxDuration={6.5}
+                                  accentColor="#2563EB"
+                                  noteText="Precise in/out bounds for product demonstration clip."
+                                  onTrimChange={(start, end) => {
+                                    setScene2TrimStart(start);
+                                    setScene2TrimEnd(end);
+                                  }}
+                                  onClose={() => setActiveEditingScene(null)}
+                                />
+                              )}
+                              {sceneId === 3 && (
+                                <ClipTrimmer
+                                  title="Scene 3: Dynamic B-Roll Action"
+                                  badgeLabel="B-Roll Cut"
+                                  videoUrl={BRAND_PRESETS.find((p) => p.id === selectedPresetId)?.brollVideo || "/videos/chicago-dog-social-1.mp4"}
+                                  trimStart={scene3TrimStart}
+                                  trimEnd={scene3TrimEnd}
+                                  minDuration={1.0}
+                                  maxDuration={6.5}
+                                  accentColor="#7F48ED"
+                                  noteText="Frame-accurate lifestyle and motion b-roll selection."
+                                  onTrimChange={(start, end) => {
+                                    setScene3TrimStart(start);
+                                    setScene3TrimEnd(end);
+                                  }}
+                                  onClose={() => setActiveEditingScene(null)}
+                                />
+                              )}
+                            </div>
+                          )}
                         </div>
                       );
                     })}
@@ -4380,16 +4569,29 @@ export default function StudioVideoGenerator() {
                               ) : (
                                 /* promo-stamp (default) */
                                 <div className="text-center bg-black/85 backdrop-blur-md rounded-2xl border border-white/20 p-6 shadow-2xl">
-                                  <span className="bg-[#FF6700] text-white text-[10px] font-black uppercase tracking-wider px-3 py-1 rounded-full mb-2 inline-block shadow">
-                                    Limited Time Offer
-                                  </span>
+                                  {selectedTrustBadgeId && (
+                                    <div className="inline-flex items-center gap-1 bg-amber-400/20 text-amber-300 border border-amber-400/30 text-[9px] font-extrabold uppercase px-2.5 py-0.5 rounded-full mb-2">
+                                      <span>{TRUST_BADGE_PRESETS.find((b) => b.id === selectedTrustBadgeId)?.label || "⭐ 4.9/5 Rating"}</span>
+                                    </div>
+                                  )}
+                                  <div>
+                                    <span
+                                      className="text-white text-[10px] font-black uppercase tracking-wider px-3 py-1 rounded-full mb-2 inline-block shadow"
+                                      style={{ backgroundColor: ctaBrandColor }}
+                                    >
+                                      {ctaDiscountTag || "Limited Time Offer"}
+                                    </span>
+                                  </div>
                                   <h3 className="text-xl font-black text-white mb-1 drop-shadow-md">
                                     {generatedResult.brandName || brandName}
                                   </h3>
                                   <div className="text-sm font-bold text-yellow-300 mb-4 drop-shadow">
                                     {generatedResult.brandOffer || brandOffer}
                                   </div>
-                                  <div className="px-5 py-2.5 rounded-xl text-xs font-black text-white bg-gradient-to-r from-[#FF6700] to-[#7F48ED] shadow-xl flex items-center justify-center gap-1.5 ring-2 ring-white/20 cursor-pointer">
+                                  <div
+                                    className="px-5 py-2.5 rounded-xl text-xs font-black text-white shadow-xl flex items-center justify-center gap-1.5 ring-2 ring-white/20 cursor-pointer"
+                                    style={{ backgroundColor: ctaBrandColor }}
+                                  >
                                     <span>Claim Offer Now</span>
                                     <ChevronRight className="w-4 h-4" />
                                   </div>
@@ -4639,6 +4841,30 @@ export default function StudioVideoGenerator() {
                     >
                       <span>Audio Stems</span>
                     </a>
+                  )}
+
+                  {generatedResult && (
+                    <>
+                      <a
+                        href={`/api/studio/export/xml?jobId=${generatedResult.jobId}&brand=${encodeURIComponent(brandName)}`}
+                        download={`relaunch-${generatedResult.jobId}-timeline-premiere-davinci.xml`}
+                        className="flex-1 sm:flex-initial px-3.5 py-2 rounded-xl text-xs font-extrabold text-blue-700 bg-blue-50 hover:bg-blue-100 border border-blue-200 transition flex items-center justify-center gap-1.5 cursor-pointer"
+                        title="Export Premiere Pro / DaVinci Resolve XML Timeline Project"
+                      >
+                        <Film className="w-3.5 h-3.5 text-blue-600" />
+                        <span>Timeline XML</span>
+                      </a>
+
+                      <a
+                        href={`/api/studio/export/kit?jobId=${generatedResult.jobId}`}
+                        download={`relaunch-${generatedResult.jobId}-editor-kit.zip`}
+                        className="flex-1 sm:flex-initial px-3.5 py-2 rounded-xl text-xs font-extrabold text-emerald-800 bg-emerald-50 hover:bg-emerald-100 border border-emerald-200 transition flex items-center justify-center gap-1.5 cursor-pointer"
+                        title="Download Complete 80/20 Editor Finishing Kit (.ZIP) with 4K master, stems, and timeline"
+                      >
+                        <FolderDown className="w-3.5 h-3.5 text-emerald-600" />
+                        <span>Editor Kit (.ZIP)</span>
+                      </a>
+                    </>
                   )}
                 </>
               ) : null}

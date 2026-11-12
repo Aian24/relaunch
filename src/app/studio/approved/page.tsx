@@ -35,6 +35,8 @@ import {
   RefreshCw,
   Users,
   Zap,
+  Film,
+  FolderDown,
 } from "lucide-react";
 
 interface ApprovedVariant {
@@ -721,17 +723,39 @@ export default function ApprovedDeliverablesVaultPage() {
                       )}
                     </div>
 
-                    {/* 1-Click Complete Campaign Kit (.ZIP) */}
-                    <div className="pt-2 space-y-1.5">
-                      <a
-                        href={`/api/studio/deliveries/${item.id}/zip`}
-                        download={`${item.clientName.toLowerCase().replace(/\s+/g, "-")}-${item.id}-campaign-kit.zip`}
-                        className="w-full flex items-center justify-center gap-2 py-2.5 px-3 rounded-xl bg-gradient-to-r from-[#7F48ED] to-indigo-600 hover:from-[#713be2] hover:to-indigo-700 active:from-[#6532d0] active:to-indigo-800 text-white text-xs font-bold transition shadow-xs cursor-pointer min-h-[40px]"
-                        title="Download complete campaign package: 9:16, 1:1, 4:5 MP4s, cover thumbnail, Meta Ads CSV, and TikTok Launch Kit"
-                      >
-                        <Download className="w-4 h-4 text-white shrink-0" />
-                        <span>Download Full Campaign Kit (ZIP + Meta CSV)</span>
-                      </a>
+                      {/* 1-Click Complete Campaign Kit (.ZIP) */}
+                      <div className="pt-2 space-y-1.5">
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-1.5">
+                          <a
+                            href={`/api/studio/export/kit?jobId=${item.id}`}
+                            download={`${item.clientName.toLowerCase().replace(/\s+/g, "-")}-${item.id}-editor-kit.zip`}
+                            className="flex items-center justify-center gap-1.5 py-2 px-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold transition shadow-xs cursor-pointer"
+                            title="Complete 80/20 Editor Finishing Package with 4K video, audio stems, and XML"
+                          >
+                            <FolderDown className="w-3.5 h-3.5 text-white shrink-0" />
+                            <span>Editor Kit (.ZIP)</span>
+                          </a>
+
+                          <a
+                            href={`/api/studio/export/xml?jobId=${item.id}&brand=${encodeURIComponent(item.clientName || "Brand")}`}
+                            download={`${item.clientName.toLowerCase().replace(/\s+/g, "-")}-${item.id}-timeline.xml`}
+                            className="flex items-center justify-center gap-1.5 py-2 px-2.5 rounded-xl bg-blue-50 hover:bg-blue-100 border border-blue-200 text-blue-900 text-xs font-bold transition cursor-pointer"
+                            title="Export Final Cut Pro / Premiere / DaVinci XML Timeline Project"
+                          >
+                            <Film className="w-3.5 h-3.5 text-blue-600 shrink-0" />
+                            <span>Timeline XML</span>
+                          </a>
+                        </div>
+
+                        <a
+                          href={`/api/studio/deliveries/${item.id}/zip`}
+                          download={`${item.clientName.toLowerCase().replace(/\s+/g, "-")}-${item.id}-campaign-kit.zip`}
+                          className="w-full flex items-center justify-center gap-2 py-2 px-3 rounded-xl bg-gradient-to-r from-[#7F48ED] to-indigo-600 hover:from-[#713be2] hover:to-indigo-700 active:from-[#6532d0] active:to-indigo-800 text-white text-xs font-bold transition shadow-xs cursor-pointer"
+                          title="Download complete campaign package: 9:16, 1:1, 4:5 MP4s, cover thumbnail, Meta Ads CSV, and TikTok Launch Kit"
+                        >
+                          <Download className="w-3.5 h-3.5 text-white shrink-0" />
+                          <span>Full Campaign Kit (ZIP + Meta CSV)</span>
+                        </a>
 
                       {/* Ready-to-Launch Meta & TikTok Quick Downloads */}
                       <div className="grid grid-cols-2 gap-1.5 text-[11px] font-bold">

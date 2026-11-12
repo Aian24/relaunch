@@ -238,6 +238,15 @@ export default function CreatorIntakeAndTrimmerPage() {
           </Link>
 
           <Link
+            href="/studio/assets"
+            className="flex items-center gap-1 sm:gap-1.5 px-2.5 sm:px-3 py-1.5 bg-zinc-100 hover:bg-zinc-200 text-zinc-700 hover:text-zinc-950 rounded-xl text-xs font-bold transition border border-zinc-200 cursor-pointer shrink-0"
+            title="Open Brand Media & Product Footage Intake"
+          >
+            <Video className="w-3.5 h-3.5 text-[#FF6700]" />
+            <span className="hidden sm:inline">Brand Media</span>
+          </Link>
+
+          <Link
             href="/studio/approved"
             className="flex items-center gap-1 sm:gap-1.5 px-2.5 sm:px-3 py-1.5 bg-zinc-100 hover:bg-zinc-200 text-zinc-700 hover:text-zinc-950 rounded-xl text-xs font-bold transition border border-zinc-200 cursor-pointer shrink-0"
             title="Open Approved Vault"

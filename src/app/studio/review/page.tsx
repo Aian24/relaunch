@@ -37,6 +37,9 @@ import {
   Eye,
   Users,
   Zap,
+  Film,
+  FolderDown,
+  Video,
 } from "lucide-react";
 
 interface VariantItem {
@@ -894,6 +897,26 @@ export default function StudioReviewPortal() {
                       <span>VO Stem</span>
                     </a>
                   )}
+
+                  <a
+                    href={`/api/studio/export/xml?jobId=${selectedVariant.id}&brand=${encodeURIComponent(selectedVariant.clientName || "Brand")}`}
+                    download={`${selectedVariant.id}-timeline-premiere-davinci.xml`}
+                    className="px-2.5 py-1 rounded-md bg-blue-100 hover:bg-blue-200 border border-blue-300 text-blue-900 text-[10px] font-extrabold transition inline-flex items-center gap-1"
+                    title="Final Cut Pro / Premiere / DaVinci XML Timeline Project with cuts and stems"
+                  >
+                    <Film className="w-3 h-3 text-blue-600" />
+                    <span>Timeline XML</span>
+                  </a>
+
+                  <a
+                    href={`/api/studio/export/kit?jobId=${selectedVariant.id}`}
+                    download={`${selectedVariant.id}-editor-kit.zip`}
+                    className="px-2.5 py-1 rounded-md bg-emerald-100 hover:bg-emerald-200 border border-emerald-300 text-emerald-900 text-[10px] font-extrabold transition inline-flex items-center gap-1"
+                    title="Complete 80/20 Editor Finishing Package with 4K video, audio stems, and XML"
+                  >
+                    <FolderDown className="w-3 h-3 text-emerald-700" />
+                    <span>Editor Kit (.ZIP)</span>
+                  </a>
                 </div>
               </div>
             ) : (
@@ -1477,6 +1500,16 @@ export default function StudioReviewPortal() {
           >
             <Users className="w-3.5 h-3.5 text-[#7F48ED]" />
             <span>Creators</span>
+          </Link>
+
+          {/* Brand Media Tab */}
+          <Link
+            href="/studio/assets"
+            className="hidden sm:inline-flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 bg-zinc-100 hover:bg-zinc-200 text-zinc-700 hover:text-zinc-950 rounded-xl text-xs font-bold transition-all border border-zinc-200 cursor-pointer shrink-0"
+            title="Open Brand Media & Product Footage Intake"
+          >
+            <Video className="w-3.5 h-3.5 text-[#FF6700]" />
+            <span>Brand Footage</span>
           </Link>
 
           {/* Deleted Trash Queue Tab */}

@@ -1,5 +1,5 @@
 // ReLaunch Studio: Dynamic Timeline & Master Production Assets
-// Centralized data repository for Licensed Music Tracks, Branded CTA Templates, and Caption Styles
+// Centralized data repository for Licensed Music Tracks, Branded CTA Templates, Caption Styles, and Trust Badges
 
 export interface MusicTrack {
   id: string;
@@ -20,7 +20,8 @@ export interface CtaTemplate {
   description: string;
   headline?: string;
   buttonText?: string;
-  styleVariant?: "promo-stamp" | "social-proof" | "native-tag" | "luxury-card";
+  styleVariant?: "promo-stamp" | "social-proof" | "native-tag" | "luxury-card" | "urgency-banner";
+  accentColor?: string;
   isCustom?: boolean;
 }
 
@@ -30,6 +31,29 @@ export interface CaptionStyle {
   badge: string;
   desc: string;
 }
+
+export interface TrustBadgeOption {
+  id: string;
+  label: string;
+  subtext?: string;
+}
+
+export const BRAND_COLOR_PRESETS = [
+  { name: "ReLaunch Orange", hex: "#FF6700" },
+  { name: "Electric Purple", hex: "#7F48ED" },
+  { name: "Emerald Growth", hex: "#10B981" },
+  { name: "Cyber Blue", hex: "#0EA5E9" },
+  { name: "Rose Gold", hex: "#E11D48" },
+  { name: "Obsidian", hex: "#09090B" },
+];
+
+export const TRUST_BADGE_PRESETS: TrustBadgeOption[] = [
+  { id: "rating-star", label: "⭐ 4.9/5 Rating (1,200+ Reviews)", subtext: "Verified High Rating" },
+  { id: "verified-client", label: "✓ Verified Results Guaranteed", subtext: "Proven Performance" },
+  { id: "limited-offer", label: "⚡ Limited Spots Remaining", subtext: "Urgent Call to Action" },
+  { id: "free-audit", label: "🛡️ 100% Free Audit · No Card Needed", subtext: "Zero Friction" },
+  { id: "free-shipping", label: "📦 Free Express Delivery", subtext: "Fast Fulfillment" },
+];
 
 export const LICENSED_MUSIC_LIBRARY: MusicTrack[] = [
   {
@@ -113,6 +137,13 @@ export const BRANDED_CTA_TEMPLATES: CtaTemplate[] = [
     description: "Subtle neon border, clean typography, premium finish",
     styleVariant: "luxury-card",
   },
+  {
+    id: "urgency-banner",
+    name: "Urgency Drop Banner",
+    badge: "High Conversion",
+    description: "Bold attention-grabbing urgency bar with countdown frame",
+    styleVariant: "urgency-banner",
+  },
 ];
 
 export const CAPTION_STYLES: CaptionStyle[] = [
@@ -128,4 +159,3 @@ export function getMusicTrackById(id: string, customTracks: MusicTrack[] = []): 
 export function getCtaTemplateById(id: string, customCtas: CtaTemplate[] = []): CtaTemplate | undefined {
   return [...customCtas, ...BRANDED_CTA_TEMPLATES].find((c) => c.id === id);
 }
-
