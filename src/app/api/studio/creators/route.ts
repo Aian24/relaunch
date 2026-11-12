@@ -108,12 +108,17 @@ export async function GET() {
 
   const allRoster = Array.from(creatorMap.values());
   const allAssets = Array.from(assetMap.values());
+  const activeAssets = allAssets.filter((a) => a.status !== "deleted");
+  const trashedAssets = allAssets.filter((a) => a.status === "deleted");
 
   return NextResponse.json({
     roster: allRoster,
-    assets: allAssets,
+    assets: activeAssets,
+    trashedAssets,
+    allAssets,
     totalCreators: allRoster.length,
-    totalAssets: allAssets.length,
+    totalAssets: activeAssets.length,
+    trashedCount: trashedAssets.length,
   });
 }
 
@@ -316,14 +321,22 @@ export async function POST(request: Request) {
       return NextResponse.json({ ok: true, message: "Take removed" });
     }
 
-    if (body.action === "restore_clip") {
+    if (body.action === "restore_clip" || body.action === "restore") {
       const { id } = body;
       const currentCustom = getCustomAssets();
-      const target = currentCustom.find((a) => a.id === id);
-      if (target) {
+      let target = currentCustom.find((a) => a.id === id);
+      if (!target) {
+        const base = CREATOR_ASSETS.find((a) => a.id === id);
+        if (base) {
+          target = { ...base, status: "active" };
+          currentCustom.unshift(target);
+        }
+      } else {
         target.status = "active";
+      }
+      if (target) {
         saveCustomAssets(currentCustom);
-        return NextResponse.json({ ok: true, message: "Creator take restored" });
+        return NextResponse.json({ ok: true, asset: target, message: "Creator take restored" });
       }
       return NextResponse.json({ error: "Clip not found" }, { status: 404 });
     }
@@ -396,34 +409,60 @@ export async function DELETE(request: Request) {
     const { searchParams } = new URL(request.url);
     const id = searchParams.get("id");
     const permanent = searchParams.get("permanent") === "true";
+    const emptyTrash = searchParams.get("emptyTrash") === "true";
+
+    const currentCustom = getCustomAssets();
+
+    // 1. Bulk Empty Trash
+    if (emptyTrash) {
+      for (const a of currentCustom) {
+        if (a.status === "deleted" && (a.src.startsWith("/creators/") || a.src.startsWith("/storage/"))) {
+          const diskPath = path.join(process.cwd(), "public", a.src.replace(/^\//, ""));
+          try {
+            if (fs.existsSync(diskPath)) fs.unlinkSync(diskPath);
+          } catch (e) {
+            console.warn("Could not remove creator video:", diskPath, e);
+          }
+        }
+      }
+      const remaining = currentCustom.filter((a) => a.status !== "deleted");
+      saveCustomAssets(remaining);
+      return NextResponse.json({ ok: true, message: "Trash emptied successfully" });
+    }
 
     if (!id) {
       return NextResponse.json({ error: "Asset ID required" }, { status: 400 });
     }
 
-    const currentCustom = getCustomAssets();
-    const assetIdx = currentCustom.findIndex((a) => a.id === id);
+    let assetIdx = currentCustom.findIndex((a) => a.id === id);
 
-    if (assetIdx >= 0) {
-      const target = currentCustom[assetIdx];
-      if (permanent) {
-        if (target.src.startsWith("/creators/") || target.src.startsWith("/storage/")) {
-          const diskPath = path.join(process.cwd(), "public", target.src.replace(/^\//, ""));
-          try {
-            if (fs.existsSync(diskPath)) fs.unlinkSync(diskPath);
-          } catch (e) {
-            console.warn("Could not remove creator video from disk:", diskPath, e);
-          }
-        }
-        currentCustom.splice(assetIdx, 1);
-      } else {
-        target.status = "deleted";
+    if (assetIdx === -1) {
+      const base = CREATOR_ASSETS.find((a) => a.id === id);
+      if (base) {
+        const softDeleted: CreatorClipAsset = { ...base, status: "deleted" };
+        currentCustom.unshift(softDeleted);
+        saveCustomAssets(currentCustom);
+        return NextResponse.json({ ok: true, message: "Creator take moved to trash" });
       }
-      saveCustomAssets(currentCustom);
-      return NextResponse.json({ ok: true, message: `Creator take ${permanent ? "permanently deleted" : "moved to trash"}` });
+      return NextResponse.json({ ok: true, message: "Take removed" });
     }
 
-    return NextResponse.json({ ok: true, message: "Take removed" });
+    const target = currentCustom[assetIdx];
+    if (permanent) {
+      if (target.src.startsWith("/creators/") || target.src.startsWith("/storage/")) {
+        const diskPath = path.join(process.cwd(), "public", target.src.replace(/^\//, ""));
+        try {
+          if (fs.existsSync(diskPath)) fs.unlinkSync(diskPath);
+        } catch (e) {
+          console.warn("Could not remove creator video from disk:", diskPath, e);
+        }
+      }
+      currentCustom.splice(assetIdx, 1);
+    } else {
+      target.status = "deleted";
+    }
+    saveCustomAssets(currentCustom);
+    return NextResponse.json({ ok: true, message: `Creator take ${permanent ? "permanently deleted" : "moved to trash"}` });
   } catch (err: any) {
     return NextResponse.json({ error: err.message || "Failed to delete creator take" }, { status: 500 });
   }

@@ -858,16 +858,14 @@ export default function MasterTracksPage() {
                             </a>
                           )}
 
-                          {track.isCustom && (
-                            <button
-                              type="button"
-                              onClick={() => handleMoveToTrash(track, "music")}
-                              className="p-1.5 bg-red-950/60 hover:bg-red-900 text-red-300 hover:text-white rounded-lg border border-red-800/40 transition cursor-pointer"
-                              title="Move to Trash"
-                            >
-                              <Trash2 className="w-3.5 h-3.5" />
-                            </button>
-                          )}
+                          <button
+                            type="button"
+                            onClick={() => handleMoveToTrash(track, "music")}
+                            className="p-1.5 bg-red-950/60 hover:bg-red-900 text-red-300 hover:text-white rounded-lg border border-red-800/40 transition cursor-pointer"
+                            title="Move to Trash"
+                          >
+                            <Trash2 className="w-3.5 h-3.5" />
+                          </button>
                         </div>
                       </div>
                     </div>
@@ -985,16 +983,14 @@ export default function MasterTracksPage() {
                           <span>Use in Generator</span>
                         </Link>
 
-                        {cta.isCustom && (
-                          <button
-                            type="button"
-                            onClick={() => handleMoveToTrash(cta, "cta")}
-                            className="p-1.5 bg-red-950/60 hover:bg-red-900 text-red-300 hover:text-white rounded-lg border border-red-800/40 transition cursor-pointer"
-                            title="Move to Trash"
-                          >
-                            <Trash2 className="w-3.5 h-3.5" />
-                          </button>
-                        )}
+                        <button
+                          type="button"
+                          onClick={() => handleMoveToTrash(cta, "cta")}
+                          className="p-1.5 bg-red-950/60 hover:bg-red-900 text-red-300 hover:text-white rounded-lg border border-red-800/40 transition cursor-pointer"
+                          title="Move to Trash"
+                        >
+                          <Trash2 className="w-3.5 h-3.5" />
+                        </button>
                       </div>
                     </div>
                   );

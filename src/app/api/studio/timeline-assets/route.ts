@@ -46,8 +46,13 @@ export async function GET(req: NextRequest) {
   const view = searchParams.get("view"); // "all" | "active" | "trash"
   const custom = getStoredCustomAssets();
 
-  const combinedMusic = [...custom.musicTracks, ...LICENSED_MUSIC_LIBRARY];
-  const combinedCtas = [...custom.ctaTemplates, ...BRANDED_CTA_TEMPLATES];
+  const customTrackIds = new Set(custom.musicTracks.map((t) => t.id));
+  const remainingStockMusic = LICENSED_MUSIC_LIBRARY.filter((t) => !customTrackIds.has(t.id));
+  const combinedMusic = [...custom.musicTracks, ...remainingStockMusic];
+
+  const customCtaIds = new Set(custom.ctaTemplates.map((c) => c.id));
+  const remainingStockCtas = BRANDED_CTA_TEMPLATES.filter((c) => !customCtaIds.has(c.id));
+  const combinedCtas = [...custom.ctaTemplates, ...remainingStockCtas];
 
   const activeMusic = combinedMusic.filter((t) => t.status !== "deleted");
   const trashedMusic = combinedMusic.filter((t) => t.status === "deleted");
@@ -187,7 +192,14 @@ export async function POST(req: NextRequest) {
       const custom = getStoredCustomAssets();
 
       if (type === "music") {
-        const track = custom.musicTracks.find((t) => t.id === id);
+        let track = custom.musicTracks.find((t) => t.id === id);
+        if (!track) {
+          const stock = LICENSED_MUSIC_LIBRARY.find((t) => t.id === id);
+          if (stock) {
+            track = { ...stock, isCustom: false };
+            custom.musicTracks.unshift(track);
+          }
+        }
         if (track) {
           track.status = action === "trash" ? "deleted" : "active";
           if (action === "trash") track.deletedAt = new Date().toISOString();
@@ -198,7 +210,14 @@ export async function POST(req: NextRequest) {
       }
 
       if (type === "cta") {
-        const cta = custom.ctaTemplates.find((c) => c.id === id);
+        let cta = custom.ctaTemplates.find((c) => c.id === id);
+        if (!cta) {
+          const stock = BRANDED_CTA_TEMPLATES.find((c) => c.id === id);
+          if (stock) {
+            cta = { ...stock, isCustom: false };
+            custom.ctaTemplates.unshift(cta);
+          }
+        }
         if (cta) {
           cta.status = action === "trash" ? "deleted" : "active";
           if (action === "trash") cta.deletedAt = new Date().toISOString();
@@ -278,9 +297,16 @@ export async function DELETE(req: NextRequest) {
 
     // 2. Music Track Deletion
     if (type === "music") {
-      const trackIdx = custom.musicTracks.findIndex((t) => t.id === id);
+      let trackIdx = custom.musicTracks.findIndex((t) => t.id === id);
       if (trackIdx === -1) {
-        return NextResponse.json({ error: "Custom track not found" }, { status: 404 });
+        const stock = LICENSED_MUSIC_LIBRARY.find((t) => t.id === id);
+        if (stock) {
+          const newT = { ...stock, isCustom: false, status: "deleted" as const, deletedAt: new Date().toISOString() };
+          custom.musicTracks.unshift(newT);
+          saveCustomAssets(custom);
+          return NextResponse.json({ ok: true, message: `Moved track "${stock.title}" to Trash` });
+        }
+        return NextResponse.json({ error: "Track not found" }, { status: 404 });
       }
 
       const track = custom.musicTracks[trackIdx];
@@ -307,9 +333,16 @@ export async function DELETE(req: NextRequest) {
 
     // 3. CTA Template Deletion
     if (type === "cta") {
-      const ctaIdx = custom.ctaTemplates.findIndex((c) => c.id === id);
+      let ctaIdx = custom.ctaTemplates.findIndex((c) => c.id === id);
       if (ctaIdx === -1) {
-        return NextResponse.json({ error: "Custom CTA template not found" }, { status: 404 });
+        const stock = BRANDED_CTA_TEMPLATES.find((c) => c.id === id);
+        if (stock) {
+          const newC = { ...stock, isCustom: false, status: "deleted" as const, deletedAt: new Date().toISOString() };
+          custom.ctaTemplates.unshift(newC);
+          saveCustomAssets(custom);
+          return NextResponse.json({ ok: true, message: `Moved CTA "${stock.name}" to Trash` });
+        }
+        return NextResponse.json({ error: "CTA template not found" }, { status: 404 });
       }
 
       const cta = custom.ctaTemplates[ctaIdx];

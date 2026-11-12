@@ -33,6 +33,8 @@ import { CREATOR_ASSETS, CreatorClipAsset } from "@/data/creatorAssets";
 export default function CreatorIntakeAndTrimmerPage() {
   const [roster, setRoster] = useState<CreatorProfile[]>(CREATOR_ROSTER);
   const [assets, setAssets] = useState<CreatorClipAsset[]>(CREATOR_ASSETS);
+  const [trashedAssets, setTrashedAssets] = useState<CreatorClipAsset[]>([]);
+  const [currentTab, setCurrentTab] = useState<"active" | "trash">("active");
   const [selectedCreatorId, setSelectedCreatorId] = useState<string>("tyler");
   const [selectedAssetId, setSelectedAssetId] = useState<string>("tyler-hook-01");
   const [customVideoUrl, setCustomVideoUrl] = useState<string>("");
@@ -56,14 +58,20 @@ export default function CreatorIntakeAndTrimmerPage() {
   const [isSaving, setIsSaving] = useState(false);
 
   // Fetch initial combined assets from API
+  const loadCreatorData = async () => {
+    try {
+      const res = await fetch("/api/studio/creators");
+      const data = await res.json();
+      if (data.roster) setRoster(data.roster);
+      if (data.assets) setAssets(data.assets);
+      if (data.trashedAssets) setTrashedAssets(data.trashedAssets);
+    } catch (err) {
+      console.warn("Failed to fetch creator assets", err);
+    }
+  };
+
   useEffect(() => {
-    fetch("/api/studio/creators")
-      .then((res) => res.json())
-      .then((data) => {
-        if (data.roster) setRoster(data.roster);
-        if (data.assets) setAssets(data.assets);
-      })
-      .catch((err) => console.warn("Failed to fetch creator assets", err));
+    loadCreatorData();
   }, []);
 
   const activeCreator = roster.find((c) => c.actorPresetId === selectedCreatorId) || roster[0];
@@ -193,19 +201,70 @@ export default function CreatorIntakeAndTrimmerPage() {
   };
 
   const handleDeleteClip = async (clipId: string) => {
-    if (!confirm("Are you sure you want to remove this creator take?")) return;
+    if (!confirm("Are you sure you want to move this creator take to Trash?")) return;
     try {
       const res = await fetch(`/api/studio/creators?id=${encodeURIComponent(clipId)}`, {
         method: "DELETE",
       });
       if (res.ok) {
-        showToast("✓ Creator take removed.");
-        setAssets((prev) => prev.filter((a) => a.id !== clipId));
+        showToast("✓ Creator take moved to Trash.");
+        await loadCreatorData();
       } else {
         showToast("Could not remove take.");
       }
     } catch {
       showToast("Error deleting take.");
+    }
+  };
+
+  const handleRestoreClip = async (clip: CreatorClipAsset) => {
+    try {
+      const res = await fetch("/api/studio/creators", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ action: "restore", id: clip.id }),
+      });
+      if (res.ok) {
+        showToast(`✓ Restored "${clip.label}" to active roster`);
+        await loadCreatorData();
+      } else {
+        showToast("Failed to restore creator take");
+      }
+    } catch {
+      showToast("Error restoring take");
+    }
+  };
+
+  const handlePermanentDeleteClip = async (clip: CreatorClipAsset) => {
+    if (!confirm(`Permanently delete "${clip.label}"? This cannot be undone.`)) return;
+    try {
+      const res = await fetch(`/api/studio/creators?id=${encodeURIComponent(clip.id)}&permanent=true`, {
+        method: "DELETE",
+      });
+      if (res.ok) {
+        showToast(`✓ Permanently deleted "${clip.label}"`);
+        await loadCreatorData();
+      } else {
+        showToast("Failed to permanently delete take");
+      }
+    } catch {
+      showToast("Error deleting take");
+    }
+  };
+
+  const handleEmptyTrash = async () => {
+    if (trashedAssets.length === 0) return;
+    if (!confirm(`Permanently erase all ${trashedAssets.length} takes in Trash?`)) return;
+    try {
+      const res = await fetch("/api/studio/creators?emptyTrash=true", {
+        method: "DELETE",
+      });
+      if (res.ok) {
+        showToast("Trash emptied completely");
+        await loadCreatorData();
+      }
+    } catch {
+      showToast("Error emptying trash");
     }
   };
 
@@ -282,6 +341,21 @@ export default function CreatorIntakeAndTrimmerPage() {
             <FolderOpen className="w-3.5 h-3.5 text-emerald-600" />
             <span className="hidden sm:inline">Vault</span>
           </Link>
+
+          <button
+            type="button"
+            onClick={() => setCurrentTab(currentTab === "trash" ? "active" : "trash")}
+            className={`flex items-center gap-1 sm:gap-1.5 px-2.5 sm:px-3 py-1.5 rounded-xl text-xs font-bold transition border cursor-pointer shrink-0 ${
+              currentTab === "trash"
+                ? "bg-red-50 text-red-700 border-red-200 shadow-xs"
+                : "bg-zinc-100 hover:bg-zinc-200 text-zinc-700 hover:text-zinc-950 border-zinc-200"
+            }`}
+            title="Open Creator Takes Trash Queue"
+          >
+            <Trash2 className="w-3.5 h-3.5 text-red-500" />
+            <span className="hidden sm:inline">Trash</span>
+            <span>({trashedAssets.length})</span>
+          </button>
         </div>
       </header>
 
@@ -328,6 +402,141 @@ export default function CreatorIntakeAndTrimmerPage() {
           </div>
         </div>
 
+        {/* View Switcher: Active Roster & Takes vs Trash Queue */}
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 bg-white p-3.5 rounded-2xl border border-zinc-200 shadow-sm">
+          <div className="flex items-center gap-1 p-1 bg-zinc-100 rounded-xl border border-zinc-200">
+            <button
+              type="button"
+              onClick={() => setCurrentTab("active")}
+              className={`px-3 py-1.5 rounded-lg text-xs font-bold transition flex items-center gap-1.5 cursor-pointer ${
+                currentTab === "active"
+                  ? "bg-white text-zinc-900 shadow-xs"
+                  : "text-zinc-500 hover:text-zinc-900"
+              }`}
+            >
+              <Users className="w-3.5 h-3.5 text-[#7F48ED]" />
+              <span>Active Creator Takes ({assets.length})</span>
+            </button>
+            <button
+              type="button"
+              onClick={() => setCurrentTab("trash")}
+              className={`px-3 py-1.5 rounded-lg text-xs font-bold transition flex items-center gap-1.5 cursor-pointer ${
+                currentTab === "trash"
+                  ? "bg-red-600 text-white shadow-xs"
+                  : "text-zinc-500 hover:text-red-700"
+              }`}
+            >
+              <Trash2 className="w-3.5 h-3.5" />
+              <span>Trash Queue ({trashedAssets.length})</span>
+            </button>
+          </div>
+
+          <div className="text-xs text-zinc-500 hidden sm:block">
+            {currentTab === "active"
+              ? "Trimming & cataloging verified UGC takes"
+              : "Review, restore, or permanently erase deleted creator takes"}
+          </div>
+        </div>
+
+        {currentTab === "trash" ? (
+          <div className="space-y-4">
+            <div className="bg-white rounded-2xl border border-zinc-200 p-4 sm:p-5 shadow-sm flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+              <div className="space-y-1">
+                <div className="flex items-center gap-2">
+                  <Trash2 className="w-4 h-4 text-red-500" />
+                  <h2 className="text-sm font-bold text-zinc-900 uppercase tracking-wider">
+                    Creator Takes Trash Queue ({trashedAssets.length} takes)
+                  </h2>
+                </div>
+                <p className="text-xs text-zinc-500">
+                  Takes in trash are excluded from the Studio Generator. You can restore them anytime or permanently erase them.
+                </p>
+              </div>
+
+              {trashedAssets.length > 0 && (
+                <button
+                  type="button"
+                  onClick={handleEmptyTrash}
+                  className="px-3.5 py-1.5 bg-red-50 hover:bg-red-100 text-red-700 border border-red-200 rounded-xl text-xs font-bold transition cursor-pointer flex items-center gap-1.5 shrink-0"
+                >
+                  <Trash2 className="w-3.5 h-3.5" />
+                  <span>Empty Trash</span>
+                </button>
+              )}
+            </div>
+
+            {trashedAssets.length === 0 ? (
+              <div className="bg-white rounded-2xl border border-zinc-200 p-12 text-center space-y-2 shadow-sm">
+                <CheckCircle2 className="w-8 h-8 text-emerald-500 mx-auto" />
+                <h3 className="text-sm font-bold text-zinc-800">No deleted creator takes</h3>
+                <p className="text-xs text-zinc-500">
+                  When you delete takes from the roster or trimmer, they will appear here for recovery.
+                </p>
+                <button
+                  type="button"
+                  onClick={() => setCurrentTab("active")}
+                  className="mt-2 px-3.5 py-1.5 bg-zinc-100 hover:bg-zinc-200 text-zinc-700 text-xs font-bold rounded-xl transition cursor-pointer inline-flex items-center gap-1"
+                >
+                  <ArrowLeft className="w-3.5 h-3.5" />
+                  <span>Back to Active Takes</span>
+                </button>
+              </div>
+            ) : (
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3.5">
+                {trashedAssets.map((clip) => (
+                  <div
+                    key={clip.id}
+                    className="bg-white rounded-2xl border border-red-200/80 p-4 shadow-sm flex flex-col justify-between gap-3 hover:border-red-300 transition"
+                  >
+                    <div className="space-y-2">
+                      <div className="flex items-center justify-between">
+                        <span className="px-2 py-0.5 rounded-full bg-red-50 text-red-700 text-[10px] font-bold uppercase tracking-wider border border-red-200">
+                          {clip.creatorName || clip.creatorId} · {clip.type.toUpperCase()}
+                        </span>
+                        <span className="text-[10px] font-mono text-zinc-400">
+                          {clip.durationSeconds}s
+                        </span>
+                      </div>
+
+                      <div>
+                        <h4 className="font-bold text-xs text-zinc-900 truncate">{clip.label}</h4>
+                        <p className="text-[11px] text-zinc-500 line-clamp-2 mt-0.5">
+                          &ldquo;{clip.spokenText}&rdquo;
+                        </p>
+                      </div>
+
+                      <div className="text-[10px] font-mono text-zinc-400 bg-zinc-50 p-2 rounded-lg border border-zinc-100">
+                        In: {clip.recommendedTrim?.start ?? 0}s · Out: {clip.recommendedTrim?.end ?? 3.8}s · {clip.resolution || "1080x1920"}
+                      </div>
+                    </div>
+
+                    <div className="pt-2 border-t border-zinc-100 flex items-center justify-between gap-2">
+                      <button
+                        type="button"
+                        onClick={() => handleRestoreClip(clip)}
+                        className="flex-1 py-1.5 px-3 bg-emerald-50 hover:bg-emerald-100 text-emerald-700 border border-emerald-200 rounded-xl text-xs font-bold transition flex items-center justify-center gap-1 cursor-pointer"
+                        title="Restore to active library"
+                      >
+                        <RotateCcw className="w-3.5 h-3.5" />
+                        <span>Restore Take</span>
+                      </button>
+
+                      <button
+                        type="button"
+                        onClick={() => handlePermanentDeleteClip(clip)}
+                        className="p-1.5 bg-red-50 hover:bg-red-100 text-red-700 border border-red-200 rounded-xl transition cursor-pointer"
+                        title="Delete permanently from disk"
+                      >
+                        <Trash2 className="w-3.5 h-3.5" />
+                      </button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        ) : (
+          <div className="space-y-4 sm:space-y-5">
         {/* Creator Roster Carousel / Full Width 8-Column Card Grid */}
         <div>
           <div className="flex items-center justify-between mb-2.5">
@@ -574,10 +783,22 @@ export default function CreatorIntakeAndTrimmerPage() {
           <div className="xl:col-span-5 2xl:col-span-4 space-y-4">
             {/* Take Library Selector */}
             <div className="bg-white rounded-2xl border border-zinc-200 p-4 sm:p-5 shadow-sm space-y-3">
-              <h3 className="text-xs font-bold uppercase tracking-wider text-zinc-900 flex items-center gap-1.5">
-                <Video className="w-3.5 h-3.5 text-[#7F48ED]" />
-                <span>Select Creator Take to Trim</span>
-              </h3>
+              <div className="flex items-center justify-between">
+                <h3 className="text-xs font-bold uppercase tracking-wider text-zinc-900 flex items-center gap-1.5">
+                  <Video className="w-3.5 h-3.5 text-[#7F48ED]" />
+                  <span>Select Creator Take ({creatorClips.length})</span>
+                </h3>
+                {trashedAssets.length > 0 && (
+                  <button
+                    type="button"
+                    onClick={() => setCurrentTab("trash")}
+                    className="text-[10px] text-red-600 hover:text-red-700 font-bold flex items-center gap-1 transition cursor-pointer"
+                  >
+                    <Trash2 className="w-3 h-3 text-red-500" />
+                    <span>Trash ({trashedAssets.length})</span>
+                  </button>
+                )}
+              </div>
 
               <div className="space-y-1.5 max-h-56 overflow-y-auto pr-1">
                 {creatorClips.map((clip) => {
@@ -718,6 +939,8 @@ export default function CreatorIntakeAndTrimmerPage() {
             </div>
           </div>
         </div>
+      </div>
+      )}
       </main>
 
       {/* Toast Notification */}
