@@ -114,8 +114,8 @@ export default function BrandAssetsPage() {
   return (
     <div className="min-h-screen bg-[#0E121B] text-white">
       {/* Top Banner Navigation */}
-      <header className="border-b border-zinc-800 bg-[#121824]/90 backdrop-blur-md sticky top-0 z-30 px-4 sm:px-8 py-3.5">
-        <div className="max-w-7xl mx-auto flex items-center justify-between gap-4">
+      <header className="border-b border-zinc-800 bg-[#121824]/90 backdrop-blur-md sticky top-0 z-30 px-3 sm:px-6 py-3 shrink-0">
+        <div className="w-full flex items-center justify-between gap-4">
           <div className="flex items-center gap-3">
             <Link
               href="/studio/generate"
@@ -144,7 +144,7 @@ export default function BrandAssetsPage() {
               className="px-3.5 py-1.5 rounded-xl bg-[#FF6700] hover:bg-[#e55c00] text-white text-xs font-bold transition flex items-center gap-1.5 shadow-md shadow-[#FF6700]/20 cursor-pointer"
             >
               <Upload className="w-3.5 h-3.5" />
-              <span>+ Upload Product Footage</span>
+              <span>Upload Product Footage</span>
             </button>
             <Link
               href="/studio/generate"
@@ -157,8 +157,8 @@ export default function BrandAssetsPage() {
         </div>
       </header>
 
-      {/* Main Content Stage */}
-      <main className="max-w-7xl mx-auto px-4 sm:px-8 py-6 space-y-6">
+      {/* Main Content Stage — Full Width Workstation */}
+      <main className="w-full p-3 sm:p-4 lg:p-6 space-y-4 sm:space-y-5 flex-1">
         {/* Info & Category Filter Bar */}
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 bg-[#141B2B] p-4 rounded-2xl border border-zinc-800 shadow-sm">
           <div>
@@ -216,13 +216,14 @@ export default function BrandAssetsPage() {
             <button
               type="button"
               onClick={() => setShowUploadModal(true)}
-              className="mt-2 px-4 py-2 rounded-xl bg-[#FF6700] hover:bg-[#e55c00] text-white text-xs font-bold transition cursor-pointer"
+              className="mt-2 px-4 py-2 rounded-xl bg-[#FF6700] hover:bg-[#e55c00] text-white text-xs font-bold transition flex items-center gap-1.5 cursor-pointer mx-auto shadow-md shadow-[#FF6700]/20"
             >
-              + Upload First Product Clip
+              <Upload className="w-3.5 h-3.5" />
+              <span>Upload First Product Clip</span>
             </button>
           </div>
         ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6 gap-4 sm:gap-5">
             {filteredAssets.map((asset) => {
               const isPlaying = playingVideoId === asset.id;
               return (
