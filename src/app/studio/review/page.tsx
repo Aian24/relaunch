@@ -40,6 +40,7 @@ import {
   Film,
   FolderDown,
   Video,
+  Music,
 } from "lucide-react";
 
 interface VariantItem {
@@ -1510,6 +1511,16 @@ export default function StudioReviewPortal() {
           >
             <Video className="w-3.5 h-3.5 text-[#FF6700]" />
             <span>Brand Footage</span>
+          </Link>
+
+          {/* Master Tracks Tab */}
+          <Link
+            href="/studio/tracks"
+            className="hidden md:inline-flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 bg-zinc-100 hover:bg-zinc-200 text-zinc-700 hover:text-zinc-950 rounded-xl text-xs font-bold transition-all border border-zinc-200 cursor-pointer shrink-0"
+            title="Open Timeline & Master Tracks Workstation"
+          >
+            <Music className="w-3.5 h-3.5 text-[#7F48ED]" />
+            <span>Master Tracks</span>
           </Link>
 
           {/* Deleted Trash Queue Tab */}

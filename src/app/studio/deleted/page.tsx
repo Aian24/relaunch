@@ -321,7 +321,7 @@ export default function DeletedAdsRecoveryPage() {
           >
             <Sparkles className="w-3.5 h-3.5" />
             <span className="hidden sm:inline">Create Ad</span>
-            <span className="sm:hidden">+ Ad</span>
+            <span className="sm:hidden">Ad</span>
           </Link>
         </div>
       </header>

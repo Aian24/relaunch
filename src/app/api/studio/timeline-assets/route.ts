@@ -41,16 +41,49 @@ function saveCustomAssets(data: CustomAssetsStorage): void {
   }
 }
 
-export async function GET() {
+export async function GET(req: NextRequest) {
+  const { searchParams } = new URL(req.url);
+  const view = searchParams.get("view"); // "all" | "active" | "trash"
   const custom = getStoredCustomAssets();
 
   const combinedMusic = [...custom.musicTracks, ...LICENSED_MUSIC_LIBRARY];
   const combinedCtas = [...custom.ctaTemplates, ...BRANDED_CTA_TEMPLATES];
 
+  const activeMusic = combinedMusic.filter((t) => t.status !== "deleted");
+  const trashedMusic = combinedMusic.filter((t) => t.status === "deleted");
+
+  const activeCtas = combinedCtas.filter((c) => c.status !== "deleted");
+  const trashedCtas = combinedCtas.filter((c) => c.status === "deleted");
+
+  if (view === "all") {
+    return NextResponse.json({
+      success: true,
+      musicTracks: activeMusic,
+      trashedMusic,
+      allMusic: combinedMusic,
+      ctaTemplates: activeCtas,
+      trashedCtas,
+      allCtas: combinedCtas,
+      captionStyles: CAPTION_STYLES,
+      stats: {
+        totalMusic: combinedMusic.length,
+        activeMusic: activeMusic.length,
+        trashedMusic: trashedMusic.length,
+        customMusic: custom.musicTracks.length,
+        totalCtas: combinedCtas.length,
+        activeCtas: activeCtas.length,
+        trashedCtas: trashedCtas.length,
+        customCtas: custom.ctaTemplates.length,
+      },
+    });
+  }
+
   return NextResponse.json({
     success: true,
-    musicTracks: combinedMusic,
-    ctaTemplates: combinedCtas,
+    musicTracks: activeMusic,
+    trashedMusic,
+    ctaTemplates: activeCtas,
+    trashedCtas,
     captionStyles: CAPTION_STYLES,
     customCount: {
       musicTracks: custom.musicTracks.length,
@@ -163,7 +196,19 @@ export async function POST(req: NextRequest) {
           return NextResponse.json({ ok: true, track, message: `Track ${action === "trash" ? "moved to Trash" : "restored"}` });
         }
       }
-      return NextResponse.json({ error: "Track not found" }, { status: 404 });
+
+      if (type === "cta") {
+        const cta = custom.ctaTemplates.find((c) => c.id === id);
+        if (cta) {
+          cta.status = action === "trash" ? "deleted" : "active";
+          if (action === "trash") cta.deletedAt = new Date().toISOString();
+          else delete cta.deletedAt;
+          saveCustomAssets(custom);
+          return NextResponse.json({ ok: true, cta, message: `CTA template ${action === "trash" ? "moved to Trash" : "restored"}` });
+        }
+      }
+
+      return NextResponse.json({ error: "Asset not found" }, { status: 404 });
     }
 
     if (body.type === "cta") {
@@ -201,41 +246,89 @@ export async function DELETE(req: NextRequest) {
   try {
     const { searchParams } = new URL(req.url);
     const id = searchParams.get("id");
+    const type = searchParams.get("type") || "music"; // "music" | "cta"
     const permanent = searchParams.get("permanent") === "true";
-
-    if (!id) {
-      return NextResponse.json({ error: "Track ID required" }, { status: 400 });
-    }
+    const emptyTrash = searchParams.get("emptyTrash") === "true";
 
     const custom = getStoredCustomAssets();
-    const trackIdx = custom.musicTracks.findIndex((t) => t.id === id);
 
-    if (trackIdx === -1) {
-      return NextResponse.json({ error: "Custom track not found" }, { status: 404 });
-    }
-
-    const track = custom.musicTracks[trackIdx];
-
-    if (permanent) {
-      if (track.src && track.src.startsWith("/audio/music/custom-")) {
-        const diskPath = path.join(process.cwd(), "public", track.src.replace(/^\//, ""));
-        try {
-          if (fs.existsSync(diskPath)) fs.unlinkSync(diskPath);
-        } catch (e) {
-          console.warn("Could not remove audio file:", diskPath, e);
+    // 1. Bulk Empty Trash
+    if (emptyTrash) {
+      const trashedTracks = custom.musicTracks.filter((t) => t.status === "deleted");
+      for (const t of trashedTracks) {
+        if (t.src && t.src.startsWith("/audio/music/custom-")) {
+          const diskPath = path.join(process.cwd(), "public", t.src.replace(/^\//, ""));
+          try {
+            if (fs.existsSync(diskPath)) fs.unlinkSync(diskPath);
+          } catch (e) {
+            console.warn("Could not remove audio file:", diskPath, e);
+          }
         }
       }
-      custom.musicTracks.splice(trackIdx, 1);
+
+      custom.musicTracks = custom.musicTracks.filter((t) => t.status !== "deleted");
+      custom.ctaTemplates = custom.ctaTemplates.filter((c) => c.status !== "deleted");
       saveCustomAssets(custom);
-      return NextResponse.json({ ok: true, message: `Permanently deleted track "${track.title}"` });
-    } else {
-      track.status = "deleted";
-      track.deletedAt = new Date().toISOString();
-      saveCustomAssets(custom);
-      return NextResponse.json({ ok: true, message: `Moved track "${track.title}" to Trash` });
+      return NextResponse.json({ ok: true, message: "Trash emptied successfully" });
     }
+
+    if (!id) {
+      return NextResponse.json({ error: "Asset ID required" }, { status: 400 });
+    }
+
+    // 2. Music Track Deletion
+    if (type === "music") {
+      const trackIdx = custom.musicTracks.findIndex((t) => t.id === id);
+      if (trackIdx === -1) {
+        return NextResponse.json({ error: "Custom track not found" }, { status: 404 });
+      }
+
+      const track = custom.musicTracks[trackIdx];
+
+      if (permanent) {
+        if (track.src && track.src.startsWith("/audio/music/custom-")) {
+          const diskPath = path.join(process.cwd(), "public", track.src.replace(/^\//, ""));
+          try {
+            if (fs.existsSync(diskPath)) fs.unlinkSync(diskPath);
+          } catch (e) {
+            console.warn("Could not remove audio file:", diskPath, e);
+          }
+        }
+        custom.musicTracks.splice(trackIdx, 1);
+        saveCustomAssets(custom);
+        return NextResponse.json({ ok: true, message: `Permanently deleted track "${track.title}"` });
+      } else {
+        track.status = "deleted";
+        track.deletedAt = new Date().toISOString();
+        saveCustomAssets(custom);
+        return NextResponse.json({ ok: true, message: `Moved track "${track.title}" to Trash` });
+      }
+    }
+
+    // 3. CTA Template Deletion
+    if (type === "cta") {
+      const ctaIdx = custom.ctaTemplates.findIndex((c) => c.id === id);
+      if (ctaIdx === -1) {
+        return NextResponse.json({ error: "Custom CTA template not found" }, { status: 404 });
+      }
+
+      const cta = custom.ctaTemplates[ctaIdx];
+
+      if (permanent) {
+        custom.ctaTemplates.splice(ctaIdx, 1);
+        saveCustomAssets(custom);
+        return NextResponse.json({ ok: true, message: `Permanently deleted CTA "${cta.name}"` });
+      } else {
+        cta.status = "deleted";
+        cta.deletedAt = new Date().toISOString();
+        saveCustomAssets(custom);
+        return NextResponse.json({ ok: true, message: `Moved CTA "${cta.name}" to Trash` });
+      }
+    }
+
+    return NextResponse.json({ error: "Invalid asset type" }, { status: 400 });
   } catch (err: any) {
-    return NextResponse.json({ error: err.message || "Failed to delete track" }, { status: 500 });
+    return NextResponse.json({ error: err.message || "Failed to delete asset" }, { status: 500 });
   }
 }
 

@@ -42,6 +42,7 @@ import {
   GripVertical,
   Film,
   FolderDown,
+  Music,
 } from "lucide-react";
 import { CREATOR_ROSTER, CreatorProfile } from "@/data/creatorRoster";
 import { CREATOR_ASSETS, CreatorClipAsset, getCreatorClips, getCreatorClipById } from "@/data/creatorAssets";
@@ -1187,6 +1188,11 @@ export default function StudioVideoGenerator() {
         const qOffer = params.get("offer");
         const qAngle = params.get("angle");
         const qActor = params.get("actor");
+        const qMusicTrack = params.get("musicTrack");
+        const qCtaId = params.get("ctaId");
+
+        if (qMusicTrack) setSelectedMusicTrackId(qMusicTrack);
+        if (qCtaId) setSelectedCtaTemplate(qCtaId);
 
         if (qRevId || qNotes) {
           if (qBrand) {
@@ -2088,18 +2094,14 @@ export default function StudioVideoGenerator() {
             <span>Vault</span>
           </Link>
 
-          <button
-            type="button"
-            onClick={() => {
-              setMasterAssetModalTab("music");
-              setShowMasterAssetsModal(true);
-            }}
+          <Link
+            href="/studio/tracks"
             className="hidden sm:inline-flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 rounded-xl text-xs font-bold text-zinc-700 hover:text-zinc-950 bg-zinc-100 hover:bg-zinc-200 border border-zinc-200 transition cursor-pointer shrink-0"
-            title="Manage Dynamic Music Tracks & CTA Templates"
+            title="Open Timeline & Master Tracks Workstation"
           >
-            <Sliders className="w-3.5 h-3.5 text-[#FF6700]" />
-            <span>Master Assets</span>
-          </button>
+            <Music className="w-3.5 h-3.5 text-[#7F48ED]" />
+            <span>Master Tracks</span>
+          </Link>
 
           <Link
             href="/studio/review"
@@ -2779,7 +2781,7 @@ export default function StudioVideoGenerator() {
                       className="w-full flex items-center justify-center gap-1.5 py-2 px-3 rounded-lg bg-zinc-50 hover:bg-[#7F48ED]/10 text-[#7F48ED] font-bold text-xs transition border border-dashed border-zinc-300 hover:border-[#7F48ED]"
                     >
                       <Plus className="w-3.5 h-3.5 text-[#7F48ED]" />
-                      <span>+ Onboard New UGC Creator</span>
+                      <span>Onboard New UGC Creator</span>
                     </Link>
                   </div>
                 </div>

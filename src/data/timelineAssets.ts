@@ -25,6 +25,8 @@ export interface CtaTemplate {
   styleVariant?: "promo-stamp" | "social-proof" | "native-tag" | "luxury-card" | "urgency-banner";
   accentColor?: string;
   isCustom?: boolean;
+  status?: "active" | "deleted";
+  deletedAt?: string;
 }
 
 export interface CaptionStyle {

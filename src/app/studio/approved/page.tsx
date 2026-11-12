@@ -37,6 +37,8 @@ import {
   Zap,
   Film,
   FolderDown,
+  Video,
+  Music,
 } from "lucide-react";
 
 interface ApprovedVariant {
@@ -318,6 +320,26 @@ export default function ApprovedDeliverablesVaultPage() {
             <span>Creators</span>
           </Link>
 
+          {/* Brand Media Link */}
+          <Link
+            href="/studio/assets"
+            className="hidden md:inline-flex items-center gap-1 sm:gap-1.5 px-2 sm:px-3 py-1.5 bg-zinc-100 hover:bg-zinc-200 text-zinc-700 hover:text-zinc-950 rounded-xl text-xs font-bold transition-all border border-zinc-200 cursor-pointer shrink-0"
+            title="Open Brand Media & Product Footage Intake"
+          >
+            <Video className="w-3.5 h-3.5 text-[#FF6700]" />
+            <span>Brand Footage</span>
+          </Link>
+
+          {/* Master Tracks Link */}
+          <Link
+            href="/studio/tracks"
+            className="hidden md:inline-flex items-center gap-1 sm:gap-1.5 px-2 sm:px-3 py-1.5 bg-zinc-100 hover:bg-zinc-200 text-zinc-700 hover:text-zinc-950 rounded-xl text-xs font-bold transition-all border border-zinc-200 cursor-pointer shrink-0"
+            title="Open Timeline & Master Tracks Workstation"
+          >
+            <Music className="w-3.5 h-3.5 text-[#7F48ED]" />
+            <span>Master Tracks</span>
+          </Link>
+
           <Link
             href="/studio/deleted"
             className="flex items-center gap-1 sm:gap-1.5 px-2 sm:px-3 py-1.5 bg-zinc-100 hover:bg-red-50 text-zinc-700 hover:text-red-700 rounded-xl text-xs font-bold transition-all border border-zinc-200 hover:border-red-200 cursor-pointer shrink-0"
@@ -334,7 +356,7 @@ export default function ApprovedDeliverablesVaultPage() {
           >
             <Sparkles className="w-3.5 h-3.5" />
             <span className="hidden sm:inline">Create Ad</span>
-            <span className="sm:hidden">+ Ad</span>
+            <span className="sm:hidden">Ad</span>
           </Link>
         </div>
       </header>

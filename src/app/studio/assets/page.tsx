@@ -22,6 +22,8 @@ import {
   VolumeX,
   AlertTriangle,
   X,
+  Music,
+  Users,
 } from "lucide-react";
 import type { BrandMediaAsset } from "@/app/api/studio/assets/route";
 
@@ -399,21 +401,43 @@ export default function BrandAssetsPage() {
             </div>
           </div>
 
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-1.5 sm:gap-2">
             <button
               type="button"
               onClick={() => setShowUploadModal(true)}
-              className="px-3.5 py-1.5 rounded-xl bg-[#FF6700] hover:bg-[#e55c00] text-white text-xs font-bold transition flex items-center gap-1.5 shadow-md shadow-[#FF6700]/20 cursor-pointer"
+              className="px-3 sm:px-3.5 py-1.5 rounded-xl bg-[#FF6700] hover:bg-[#e55c00] text-white text-xs font-bold transition flex items-center gap-1.5 shadow-md shadow-[#FF6700]/20 cursor-pointer"
             >
               <Upload className="w-3.5 h-3.5" />
               <span>Upload Product Footage</span>
             </button>
+
+            <div className="h-4 w-px bg-zinc-800 hidden md:block mx-0.5" />
+
+            <Link
+              href="/studio/tracks"
+              className="hidden lg:inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl bg-zinc-800 hover:bg-zinc-700 text-zinc-200 text-xs font-bold transition cursor-pointer"
+              title="Open Master Tracks"
+            >
+              <Music className="w-3.5 h-3.5 text-[#7F48ED]" />
+              <span>Master Tracks</span>
+            </Link>
+
+            <Link
+              href="/studio/creators"
+              className="hidden lg:inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl bg-zinc-800 hover:bg-zinc-700 text-zinc-200 text-xs font-bold transition cursor-pointer"
+              title="Open Creators"
+            >
+              <Users className="w-3.5 h-3.5 text-[#7F48ED]" />
+              <span>Creators</span>
+            </Link>
+
             <Link
               href="/studio/generate"
-              className="px-3.5 py-1.5 rounded-xl bg-zinc-800 hover:bg-zinc-700 text-zinc-200 text-xs font-bold transition flex items-center gap-1.5 cursor-pointer"
+              className="px-3 sm:px-3.5 py-1.5 rounded-xl bg-zinc-800 hover:bg-zinc-700 text-zinc-200 text-xs font-bold transition flex items-center gap-1.5 cursor-pointer"
             >
               <Sparkles className="w-3.5 h-3.5 text-[#7F48ED]" />
               <span className="hidden sm:inline">Use in Generator</span>
+              <span className="sm:hidden">Generator</span>
             </Link>
           </div>
         </div>
