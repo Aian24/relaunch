@@ -149,6 +149,23 @@ export async function POST(req: NextRequest) {
       });
     }
 
+    if (body.action === "trash" || body.action === "restore") {
+      const { id, type = "music", action } = body;
+      const custom = getStoredCustomAssets();
+
+      if (type === "music") {
+        const track = custom.musicTracks.find((t) => t.id === id);
+        if (track) {
+          track.status = action === "trash" ? "deleted" : "active";
+          if (action === "trash") track.deletedAt = new Date().toISOString();
+          else delete track.deletedAt;
+          saveCustomAssets(custom);
+          return NextResponse.json({ ok: true, track, message: `Track ${action === "trash" ? "moved to Trash" : "restored"}` });
+        }
+      }
+      return NextResponse.json({ error: "Track not found" }, { status: 404 });
+    }
+
     if (body.type === "cta") {
       const id = body.id || `custom-cta-${Date.now()}`;
       const newCta: CtaTemplate = {
@@ -177,6 +194,48 @@ export async function POST(req: NextRequest) {
   } catch (err: any) {
     console.error("Failed to process timeline asset:", err);
     return NextResponse.json({ error: err.message || "Internal server error" }, { status: 500 });
+  }
+}
+
+export async function DELETE(req: NextRequest) {
+  try {
+    const { searchParams } = new URL(req.url);
+    const id = searchParams.get("id");
+    const permanent = searchParams.get("permanent") === "true";
+
+    if (!id) {
+      return NextResponse.json({ error: "Track ID required" }, { status: 400 });
+    }
+
+    const custom = getStoredCustomAssets();
+    const trackIdx = custom.musicTracks.findIndex((t) => t.id === id);
+
+    if (trackIdx === -1) {
+      return NextResponse.json({ error: "Custom track not found" }, { status: 404 });
+    }
+
+    const track = custom.musicTracks[trackIdx];
+
+    if (permanent) {
+      if (track.src && track.src.startsWith("/audio/music/custom-")) {
+        const diskPath = path.join(process.cwd(), "public", track.src.replace(/^\//, ""));
+        try {
+          if (fs.existsSync(diskPath)) fs.unlinkSync(diskPath);
+        } catch (e) {
+          console.warn("Could not remove audio file:", diskPath, e);
+        }
+      }
+      custom.musicTracks.splice(trackIdx, 1);
+      saveCustomAssets(custom);
+      return NextResponse.json({ ok: true, message: `Permanently deleted track "${track.title}"` });
+    } else {
+      track.status = "deleted";
+      track.deletedAt = new Date().toISOString();
+      saveCustomAssets(custom);
+      return NextResponse.json({ ok: true, message: `Moved track "${track.title}" to Trash` });
+    }
+  } catch (err: any) {
+    return NextResponse.json({ error: err.message || "Failed to delete track" }, { status: 500 });
   }
 }
 

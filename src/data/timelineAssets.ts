@@ -11,6 +11,8 @@ export interface MusicTrack {
   provider?: "Epidemic Sound" | "Artlist" | "Custom Upload" | "Studio Master";
   licenseNote?: string;
   isCustom?: boolean;
+  status?: "active" | "deleted";
+  deletedAt?: string;
 }
 
 export interface CtaTemplate {

@@ -5008,6 +5008,12 @@ export default function StudioVideoGenerator() {
           setMusicLibrary((prev) => [newTrack, ...prev]);
           setSelectedMusicTrackId(newTrack.id);
         }}
+        onTrackDeleted={(deletedId) => {
+          setMusicLibrary((prev) => prev.filter((t) => t.id !== deletedId));
+          if (selectedMusicTrackId === deletedId) {
+            setSelectedMusicTrackId("energy-direct-response");
+          }
+        }}
         onCtaCreated={(newCta) => {
           setCtaTemplatesList((prev) => [newCta, ...prev]);
           setSelectedCtaTemplate(newCta.id);

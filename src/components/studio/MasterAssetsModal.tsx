@@ -13,6 +13,8 @@ import {
   Plus,
   Layers,
   Check,
+  Trash2,
+  RotateCcw,
 } from "lucide-react";
 import { MusicTrack, CtaTemplate } from "@/data/timelineAssets";
 
@@ -23,6 +25,7 @@ interface MasterAssetsModalProps {
   musicTracks: MusicTrack[];
   ctaTemplates: CtaTemplate[];
   onTrackCreated: (track: MusicTrack) => void;
+  onTrackDeleted?: (trackId: string) => void;
   onCtaCreated: (cta: CtaTemplate) => void;
 }
 
@@ -33,9 +36,42 @@ export default function MasterAssetsModal({
   musicTracks,
   ctaTemplates,
   onTrackCreated,
+  onTrackDeleted,
   onCtaCreated,
 }: MasterAssetsModalProps) {
   const [activeTab, setActiveTab] = useState<"music" | "cta">(initialTab);
+  const [playingTrackId, setPlayingTrackId] = useState<string | null>(null);
+  const trackAudioRef = useRef<HTMLAudioElement | null>(null);
+
+  const toggleTrackAudio = (track: MusicTrack) => {
+    if (playingTrackId === track.id) {
+      if (trackAudioRef.current) trackAudioRef.current.pause();
+      setPlayingTrackId(null);
+    } else {
+      if (trackAudioRef.current) trackAudioRef.current.pause();
+      trackAudioRef.current = new Audio(track.src);
+      trackAudioRef.current.onended = () => setPlayingTrackId(null);
+      trackAudioRef.current
+        .play()
+        .then(() => setPlayingTrackId(track.id))
+        .catch(() => setPlayingTrackId(null));
+    }
+  };
+
+  const handleDeleteTrack = async (track: MusicTrack) => {
+    if (!confirm(`Are you sure you want to remove "${track.title}" from the music library?`)) return;
+    try {
+      const res = await fetch(`/api/studio/timeline-assets?id=${encodeURIComponent(track.id)}&type=music`, {
+        method: "DELETE",
+      });
+      if (res.ok) {
+        setSuccessToast(`Track "${track.title}" removed.`);
+        if (onTrackDeleted) onTrackDeleted(track.id);
+      }
+    } catch {
+      alert("Error removing track");
+    }
+  };
 
   React.useEffect(() => {
     if (initialTab) setActiveTab(initialTab);
@@ -351,6 +387,64 @@ export default function MasterAssetsModal({
                 <Plus className="w-4 h-4" />
                 <span>{isSubmitting ? "Uploading & Registering..." : "Add to Studio Music Library"}</span>
               </button>
+
+              {/* Existing Music Tracks & Trash Management */}
+              <div className="pt-3 border-t border-zinc-200 space-y-2">
+                <div className="flex items-center justify-between">
+                  <span className="text-[10px] font-bold uppercase tracking-wider text-zinc-500">
+                    Existing Music Tracks ({musicTracks.length})
+                  </span>
+                  <span className="text-[10px] text-zinc-400 font-mono">
+                    {musicTracks.filter((t) => t.isCustom).length} Custom Uploads
+                  </span>
+                </div>
+
+                <div className="space-y-1.5 max-h-48 overflow-y-auto pr-1">
+                  {musicTracks.map((track) => {
+                    const isPlaying = playingTrackId === track.id;
+                    return (
+                      <div
+                        key={track.id}
+                        className="p-2 rounded-xl border border-zinc-200 bg-zinc-50 hover:bg-zinc-100 flex items-center justify-between gap-2 text-xs transition"
+                      >
+                        <div className="flex items-center gap-2 min-w-0">
+                          <button
+                            type="button"
+                            onClick={() => toggleTrackAudio(track)}
+                            className="w-7 h-7 rounded-lg bg-[#7F48ED] text-white flex items-center justify-center shrink-0 cursor-pointer shadow-xs"
+                          >
+                            {isPlaying ? <Pause className="w-3.5 h-3.5" /> : <Play className="w-3.5 h-3.5 fill-current ml-0.5" />}
+                          </button>
+                          <div className="min-w-0">
+                            <div className="font-bold text-zinc-900 truncate flex items-center gap-1.5">
+                              <span>{track.title}</span>
+                              {track.isCustom && (
+                                <span className="text-[9px] font-mono font-bold text-purple-700 bg-purple-100 px-1.5 py-0.2 rounded">
+                                  Custom
+                                </span>
+                              )}
+                            </div>
+                            <div className="text-[10px] text-zinc-500 truncate">
+                              {track.genre} · {track.bpm} BPM · {track.provider || "Library"}
+                            </div>
+                          </div>
+                        </div>
+
+                        {track.isCustom && (
+                          <button
+                            type="button"
+                            onClick={() => handleDeleteTrack(track)}
+                            className="p-1.5 text-zinc-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition cursor-pointer shrink-0"
+                            title="Remove custom track"
+                          >
+                            <Trash2 className="w-3.5 h-3.5" />
+                          </button>
+                        )}
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
             </form>
           ) : (
             <form onSubmit={handleCreateCta} className="space-y-3.5">

@@ -24,6 +24,7 @@ import {
   ExternalLink,
   Plus,
   RefreshCw,
+  Trash2,
 } from "lucide-react";
 import { CREATOR_ROSTER, CreatorProfile } from "@/data/creatorRoster";
 import { CREATOR_ASSETS, CreatorClipAsset } from "@/data/creatorAssets";
@@ -187,6 +188,23 @@ export default function CreatorIntakeAndTrimmerPage() {
       showToast("Failed to save asset. Please try again.");
     } finally {
       setIsSaving(false);
+    }
+  };
+
+  const handleDeleteClip = async (clipId: string) => {
+    if (!confirm("Are you sure you want to remove this creator take?")) return;
+    try {
+      const res = await fetch(`/api/studio/creators?id=${encodeURIComponent(clipId)}`, {
+        method: "DELETE",
+      });
+      if (res.ok) {
+        showToast("✓ Creator take removed.");
+        setAssets((prev) => prev.filter((a) => a.id !== clipId));
+      } else {
+        showToast("Could not remove take.");
+      }
+    } catch {
+      showToast("Error deleting take.");
     }
   };
 
@@ -573,9 +591,22 @@ export default function CreatorIntakeAndTrimmerPage() {
                           &ldquo;{clip.spokenText}&rdquo;
                         </span>
                       </div>
-                      <span className="text-[10px] font-mono shrink-0 ml-2">
-                        {clip.durationSeconds}s
-                      </span>
+                      <div className="flex items-center gap-2 shrink-0 ml-2">
+                        <span className="text-[10px] font-mono text-zinc-500">
+                          {clip.durationSeconds}s
+                        </span>
+                        <button
+                          type="button"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleDeleteClip(clip.id);
+                          }}
+                          className="p-1 hover:bg-red-50 text-zinc-400 hover:text-red-600 rounded transition cursor-pointer"
+                          title="Remove this take"
+                        >
+                          <Trash2 className="w-3.5 h-3.5" />
+                        </button>
+                      </div>
                     </div>
                   );
                 })}

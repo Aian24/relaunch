@@ -289,6 +289,45 @@ export async function POST(request: Request) {
       });
     }
 
+    // 3. Delete or Restore Clip Action
+    if (body.action === "delete_clip") {
+      const { id, permanent = false } = body;
+      const currentCustom = getCustomAssets();
+      const assetIdx = currentCustom.findIndex((a) => a.id === id);
+
+      if (assetIdx >= 0) {
+        const target = currentCustom[assetIdx];
+        if (permanent) {
+          if (target.src.startsWith("/creators/") || target.src.startsWith("/storage/")) {
+            const diskPath = path.join(process.cwd(), "public", target.src.replace(/^\//, ""));
+            try {
+              if (fs.existsSync(diskPath)) fs.unlinkSync(diskPath);
+            } catch (e) {
+              console.warn("Could not remove creator video from disk:", diskPath, e);
+            }
+          }
+          currentCustom.splice(assetIdx, 1);
+        } else {
+          target.status = "deleted";
+        }
+        saveCustomAssets(currentCustom);
+        return NextResponse.json({ ok: true, message: `Creator take ${permanent ? "permanently deleted" : "moved to trash"}` });
+      }
+      return NextResponse.json({ ok: true, message: "Take removed" });
+    }
+
+    if (body.action === "restore_clip") {
+      const { id } = body;
+      const currentCustom = getCustomAssets();
+      const target = currentCustom.find((a) => a.id === id);
+      if (target) {
+        target.status = "active";
+        saveCustomAssets(currentCustom);
+        return NextResponse.json({ ok: true, message: "Creator take restored" });
+      }
+      return NextResponse.json({ error: "Clip not found" }, { status: 404 });
+    }
+
     // 2. Register Clip Asset Action
     const {
       creatorId,
@@ -349,5 +388,43 @@ export async function POST(request: Request) {
   } catch (err: any) {
     console.error("Failed to process creator request", err);
     return NextResponse.json({ error: "Failed to process creator request", details: err.message }, { status: 500 });
+  }
+}
+
+export async function DELETE(request: Request) {
+  try {
+    const { searchParams } = new URL(request.url);
+    const id = searchParams.get("id");
+    const permanent = searchParams.get("permanent") === "true";
+
+    if (!id) {
+      return NextResponse.json({ error: "Asset ID required" }, { status: 400 });
+    }
+
+    const currentCustom = getCustomAssets();
+    const assetIdx = currentCustom.findIndex((a) => a.id === id);
+
+    if (assetIdx >= 0) {
+      const target = currentCustom[assetIdx];
+      if (permanent) {
+        if (target.src.startsWith("/creators/") || target.src.startsWith("/storage/")) {
+          const diskPath = path.join(process.cwd(), "public", target.src.replace(/^\//, ""));
+          try {
+            if (fs.existsSync(diskPath)) fs.unlinkSync(diskPath);
+          } catch (e) {
+            console.warn("Could not remove creator video from disk:", diskPath, e);
+          }
+        }
+        currentCustom.splice(assetIdx, 1);
+      } else {
+        target.status = "deleted";
+      }
+      saveCustomAssets(currentCustom);
+      return NextResponse.json({ ok: true, message: `Creator take ${permanent ? "permanently deleted" : "moved to trash"}` });
+    }
+
+    return NextResponse.json({ ok: true, message: "Take removed" });
+  } catch (err: any) {
+    return NextResponse.json({ error: err.message || "Failed to delete creator take" }, { status: 500 });
   }
 }

@@ -17,7 +17,7 @@ export interface CreatorClipAsset {
   resolution: string;
   fps: number;
   version: number;
-  status: "active" | "archived" | "re-shoot-requested";
+  status: "active" | "archived" | "re-shoot-requested" | "deleted";
 }
 
 export const CREATOR_ASSETS: CreatorClipAsset[] = [
