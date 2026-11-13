@@ -47,7 +47,7 @@ const GENRES = [
 const CTA_STYLES = [
   { id: "all", label: "All Styles" },
   { id: "promo-stamp", label: "Promo Stamp" },
-  { id: "social-proof", label: "⭐⭐⭐⭐⭐ Social Proof" },
+  { id: "social-proof", label: "Substantiated Policy Guarantee" },
   { id: "native-tag", label: "TikTok Native Tag" },
   { id: "luxury-card", label: "Luxury Minimalist" },
 ];
@@ -1440,7 +1440,7 @@ export default function MasterTracksPage() {
                     className="w-full bg-zinc-900 border border-zinc-800 focus:border-[#FF6700] rounded-xl px-3 py-2 text-xs font-semibold text-white focus:outline-none transition cursor-pointer"
                   >
                     <option value="promo-stamp">High-Contrast Promo Stamp</option>
-                    <option value="social-proof">⭐⭐⭐⭐⭐ Social Proof Rating</option>
+                    <option value="social-proof">Substantiated Policy Guarantee</option>
                     <option value="native-tag">TikTok/IG Native Store Tag</option>
                     <option value="luxury-card">Minimalist Luxury Card</option>
                   </select>

@@ -43,6 +43,7 @@ import {
   Film,
   FolderDown,
   Music,
+  ShoppingBag,
 } from "lucide-react";
 import { CREATOR_ROSTER, CreatorProfile } from "@/data/creatorRoster";
 import { CREATOR_ASSETS, CreatorClipAsset, getCreatorClips, getCreatorClipById } from "@/data/creatorAssets";
@@ -3343,7 +3344,7 @@ export default function StudioVideoGenerator() {
                       >
                         {musicLibrary.map((track) => (
                           <option key={track.id} value={track.id}>
-                            {track.isCustom ? "★ " : ""}{track.title} ({track.genre} · {track.bpm} BPM){track.isCustom ? " [Custom]" : ""}
+                            {track.isCustom ? "[Custom] " : ""}{track.title} ({track.genre} · {track.bpm} BPM)
                           </option>
                         ))}
                         <option value="__add_new_track__" className="text-[#7F48ED] font-bold">
@@ -3428,7 +3429,7 @@ export default function StudioVideoGenerator() {
                       >
                         {ctaTemplatesList.map((cta) => (
                           <option key={cta.id} value={cta.id}>
-                            {cta.isCustom ? "★ " : ""}{cta.name} ({cta.badge}){cta.isCustom ? " [Custom]" : ""}
+                            {cta.isCustom ? "[Custom] " : ""}{cta.name} ({cta.badge})
                           </option>
                         ))}
                         <option value="__add_new_cta__" className="text-[#7F48ED] font-bold">
@@ -3495,12 +3496,12 @@ export default function StudioVideoGenerator() {
                     </div>
 
                     {/* Conversion Trust Badge — Real Claims Only */}
-                    <div className="space-y-1 pt-0.5">
+                    <div className="space-y-1">
                       <div className="flex items-center justify-between">
-                        <label className="text-[9px] font-bold uppercase tracking-wider text-zinc-500 block">
+                        <label className="text-[10px] font-bold uppercase tracking-wider text-zinc-500 block">
                           Trust Badge (Real Claims Only)
                         </label>
-                        <span className="text-[8px] font-mono text-emerald-600 font-bold">Substantiated</span>
+                        <span className="text-[9px] font-mono text-emerald-600 font-bold">Substantiated</span>
                       </div>
                       <select
                         value={selectedTrustBadgeId}
@@ -3510,7 +3511,7 @@ export default function StudioVideoGenerator() {
                           const b = TRUST_BADGE_PRESETS.find((p) => p.id === id);
                           if (b) setClaimSubstantiation(b.subtext || "Verified Client Policy");
                         }}
-                        className="w-full bg-white border border-zinc-200 focus:border-[#7F48ED] rounded-lg px-2 py-1 text-[11px] font-semibold text-zinc-800 focus:outline-none cursor-pointer"
+                        className="w-full bg-zinc-50 border border-zinc-200 hover:border-[#7F48ED] rounded-xl px-2.5 py-1.5 text-xs text-zinc-900 font-semibold focus:outline-none transition cursor-pointer"
                       >
                         <option value="">No Badge (Clean Direct CTA)</option>
                         {TRUST_BADGE_PRESETS.map((badge) => (
@@ -3521,8 +3522,8 @@ export default function StudioVideoGenerator() {
                       </select>
 
                       {selectedTrustBadgeId && (
-                        <div className="pt-1 space-y-0.5">
-                          <label className="text-[8px] font-mono text-zinc-400 block uppercase">
+                        <div className="pt-1.5 space-y-1">
+                          <label className="text-[9px] font-mono text-zinc-400 block uppercase">
                             Claim Substantiation / Client Proof Reference:
                           </label>
                           <input
@@ -3530,7 +3531,7 @@ export default function StudioVideoGenerator() {
                             value={claimSubstantiation}
                             onChange={(e) => setClaimSubstantiation(e.target.value)}
                             placeholder="e.g. Terms on client site / 30-day return policy / verified order link"
-                            className="w-full bg-zinc-50 border border-zinc-200 focus:border-[#7F48ED] rounded px-2 py-1 text-[10px] text-zinc-700 font-mono focus:outline-none"
+                            className="w-full bg-zinc-50 border border-zinc-200 focus:border-[#7F48ED] rounded-xl px-2.5 py-1.5 text-xs text-zinc-900 font-mono focus:outline-none"
                           />
                         </div>
                       )}
@@ -4558,7 +4559,7 @@ export default function StudioVideoGenerator() {
                                   <div className="flex items-center justify-between gap-3 mb-2.5">
                                     <div className="flex items-center gap-2">
                                       <div className="w-8 h-8 rounded-lg bg-[#FF6700]/10 text-[#FF6700] flex items-center justify-center font-black text-sm">
-                                        🛍️
+                                        <ShoppingBag className="w-4 h-4 text-[#FF6700]" />
                                       </div>
                                       <div>
                                         <div className="text-[10px] font-bold uppercase tracking-wider text-zinc-500">Official Store</div>
@@ -4597,8 +4598,9 @@ export default function StudioVideoGenerator() {
                                 /* promo-stamp (default) */
                                 <div className="text-center bg-black/85 backdrop-blur-md rounded-2xl border border-white/20 p-6 shadow-2xl">
                                   {selectedTrustBadgeId && (
-                                    <div className="inline-flex items-center gap-1 bg-amber-400/20 text-amber-300 border border-amber-400/30 text-[9px] font-extrabold uppercase px-2.5 py-0.5 rounded-full mb-2">
-                                      <span>{TRUST_BADGE_PRESETS.find((b) => b.id === selectedTrustBadgeId)?.label || "🛡️ 30-Day Money-Back Guarantee"}</span>
+                                    <div className="inline-flex items-center gap-1.5 bg-amber-400/20 text-amber-300 border border-amber-400/30 text-[9px] font-extrabold uppercase px-2.5 py-0.5 rounded-full mb-2">
+                                      <ShieldCheck className="w-3 h-3 text-amber-300" />
+                                      <span>{TRUST_BADGE_PRESETS.find((b) => b.id === selectedTrustBadgeId)?.label || "30-Day Money-Back Guarantee"}</span>
                                     </div>
                                   )}
                                   <div>

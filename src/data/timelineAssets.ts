@@ -53,12 +53,12 @@ export const BRAND_COLOR_PRESETS = [
 ];
 
 export const TRUST_BADGE_PRESETS: TrustBadgeOption[] = [
-  { id: "30-day-guarantee", label: "🛡️ 30-Day Money-Back Guarantee", subtext: "Verified Client Policy", substantiationRequired: false },
-  { id: "free-shipping", label: "📦 Free Express Delivery on All Orders", subtext: "Fulfillment Policy", substantiationRequired: false },
-  { id: "licensed-partner", label: "✓ Official Licensed Brand Partner", subtext: "Substantiated Partnership", substantiationRequired: false },
-  { id: "dermatologist-tested", label: "🌿 Cruelty-Free & Lab Tested", subtext: "Certified Product Quality", substantiationRequired: false },
-  { id: "free-consultation", label: "⚡ 100% Free Consultation · No Card", subtext: "Zero Friction Offer", substantiationRequired: false },
-  { id: "client-substantiated", label: "⭐ Custom Substantiated Review / Claim", subtext: "Requires Verified Client Proof", substantiationRequired: true },
+  { id: "30-day-guarantee", label: "30-Day Money-Back Guarantee", subtext: "Verified Client Policy", substantiationRequired: false },
+  { id: "free-shipping", label: "Free Express Delivery on All Orders", subtext: "Fulfillment Policy", substantiationRequired: false },
+  { id: "licensed-partner", label: "Official Licensed Brand Partner", subtext: "Substantiated Partnership", substantiationRequired: false },
+  { id: "dermatologist-tested", label: "Cruelty-Free & Lab Tested", subtext: "Certified Product Quality", substantiationRequired: false },
+  { id: "free-consultation", label: "100% Free Consultation (No Card Required)", subtext: "Zero Friction Offer", substantiationRequired: false },
+  { id: "client-substantiated", label: "Custom Substantiated Policy Claim", subtext: "Requires Verified Client Proof", substantiationRequired: true },
 ];
 
 export const LICENSED_MUSIC_LIBRARY: MusicTrack[] = [
