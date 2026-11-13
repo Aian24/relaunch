@@ -40,7 +40,7 @@ export const CREATOR_ASSETS: CreatorClipAsset[] = [
     resolution: "1080x1920",
     fps: 30,
     version: 1,
-    status: "active",
+    status: "re-shoot-requested",
   },
   {
     id: "haley-hook-02",
@@ -58,7 +58,7 @@ export const CREATOR_ASSETS: CreatorClipAsset[] = [
     resolution: "1080x1920",
     fps: 30,
     version: 1,
-    status: "active",
+    status: "re-shoot-requested",
   },
   {
     id: "haley-hook-03",
@@ -76,7 +76,7 @@ export const CREATOR_ASSETS: CreatorClipAsset[] = [
     resolution: "1080x1920",
     fps: 30,
     version: 1,
-    status: "active",
+    status: "re-shoot-requested",
   },
   {
     id: "haley-hook-04",
@@ -94,7 +94,7 @@ export const CREATOR_ASSETS: CreatorClipAsset[] = [
     resolution: "1080x1920",
     fps: 30,
     version: 1,
-    status: "active",
+    status: "re-shoot-requested",
   },
   {
     id: "haley-hook-05",
@@ -112,7 +112,7 @@ export const CREATOR_ASSETS: CreatorClipAsset[] = [
     resolution: "1080x1920",
     fps: 30,
     version: 1,
-    status: "active",
+    status: "re-shoot-requested",
   },
   {
     id: "haley-hook-06",
@@ -130,7 +130,7 @@ export const CREATOR_ASSETS: CreatorClipAsset[] = [
     resolution: "1080x1920",
     fps: 30,
     version: 1,
-    status: "active",
+    status: "re-shoot-requested",
   },
   {
     id: "haley-hook-07",
@@ -148,7 +148,7 @@ export const CREATOR_ASSETS: CreatorClipAsset[] = [
     resolution: "1080x1920",
     fps: 30,
     version: 1,
-    status: "active",
+    status: "re-shoot-requested",
   },
   {
     id: "haley-hook-08",
@@ -166,7 +166,7 @@ export const CREATOR_ASSETS: CreatorClipAsset[] = [
     resolution: "1080x1920",
     fps: 30,
     version: 1,
-    status: "active",
+    status: "re-shoot-requested",
   },
   {
     id: "haley-hook-09",
@@ -184,7 +184,7 @@ export const CREATOR_ASSETS: CreatorClipAsset[] = [
     resolution: "1080x1920",
     fps: 30,
     version: 1,
-    status: "active",
+    status: "re-shoot-requested",
   },
   {
     id: "haley-hook-10",
@@ -202,7 +202,7 @@ export const CREATOR_ASSETS: CreatorClipAsset[] = [
     resolution: "1080x1920",
     fps: 30,
     version: 1,
-    status: "active",
+    status: "re-shoot-requested",
   },
   {
     id: "haley-hook-11",
@@ -220,7 +220,7 @@ export const CREATOR_ASSETS: CreatorClipAsset[] = [
     resolution: "1080x1920",
     fps: 30,
     version: 1,
-    status: "active",
+    status: "re-shoot-requested",
   },
   {
     id: "haley-hook-12",
@@ -238,7 +238,7 @@ export const CREATOR_ASSETS: CreatorClipAsset[] = [
     resolution: "1080x1920",
     fps: 30,
     version: 1,
-    status: "active",
+    status: "re-shoot-requested",
   },
   {
     id: "haley-hook-13",
@@ -256,7 +256,7 @@ export const CREATOR_ASSETS: CreatorClipAsset[] = [
     resolution: "1080x1920",
     fps: 30,
     version: 1,
-    status: "active",
+    status: "re-shoot-requested",
   },
   {
     id: "haley-hook-14",
@@ -274,7 +274,7 @@ export const CREATOR_ASSETS: CreatorClipAsset[] = [
     resolution: "1080x1920",
     fps: 30,
     version: 1,
-    status: "active",
+    status: "re-shoot-requested",
   },
 
   // =========================================================================
@@ -295,7 +295,7 @@ export const CREATOR_ASSETS: CreatorClipAsset[] = [
     resolution: "1080x1920",
     fps: 30,
     version: 1,
-    status: "active",
+    status: "re-shoot-requested",
   },
   {
     id: "haley-broll-02",
@@ -312,7 +312,7 @@ export const CREATOR_ASSETS: CreatorClipAsset[] = [
     resolution: "1080x1920",
     fps: 30,
     version: 1,
-    status: "active",
+    status: "re-shoot-requested",
   },
   {
     id: "haley-broll-03",
@@ -329,7 +329,7 @@ export const CREATOR_ASSETS: CreatorClipAsset[] = [
     resolution: "1080x1920",
     fps: 30,
     version: 1,
-    status: "active",
+    status: "re-shoot-requested",
   },
   {
     id: "haley-broll-04",
@@ -346,7 +346,7 @@ export const CREATOR_ASSETS: CreatorClipAsset[] = [
     resolution: "1080x1920",
     fps: 30,
     version: 1,
-    status: "active",
+    status: "re-shoot-requested",
   },
   {
     id: "haley-broll-05",
@@ -363,7 +363,7 @@ export const CREATOR_ASSETS: CreatorClipAsset[] = [
     resolution: "1080x1920",
     fps: 30,
     version: 1,
-    status: "active",
+    status: "re-shoot-requested",
   },
   {
     id: "haley-broll-06",
@@ -380,7 +380,7 @@ export const CREATOR_ASSETS: CreatorClipAsset[] = [
     resolution: "1080x1920",
     fps: 30,
     version: 1,
-    status: "active",
+    status: "re-shoot-requested",
   },
 
   // =========================================================================

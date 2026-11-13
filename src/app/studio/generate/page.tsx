@@ -820,10 +820,10 @@ export default function StudioVideoGenerator() {
   // Creative Angle & Copy
   const [selectedAngle, setSelectedAngle] = useState<string>("problem");
   const [angleDropdownOpen, setAngleDropdownOpen] = useState(false);
-  const [selectedActor, setSelectedActor] = useState<string>("haley");
-  const [selectedCreatorAssetId, setSelectedCreatorAssetId] = useState<string>("haley-hook-01");
-  const [trimStart, setTrimStart] = useState<number>(3.8);
-  const [trimEnd, setTrimEnd] = useState<number>(7.1);
+  const [selectedActor, setSelectedActor] = useState<string>("tyler");
+  const [selectedCreatorAssetId, setSelectedCreatorAssetId] = useState<string>("tyler-hook-01");
+  const [trimStart, setTrimStart] = useState<number>(0.2);
+  const [trimEnd, setTrimEnd] = useState<number>(3.8);
   const [assetTab, setAssetTab] = useState<"hooks" | "broll">("hooks");
   const [creatorDropdownOpen, setCreatorDropdownOpen] = useState(false);
   const [videoModel, setVideoModel] = useState<"kling" | "grok" | "seedance">("kling");
@@ -853,7 +853,8 @@ export default function StudioVideoGenerator() {
   const [activeEditingScene, setActiveEditingScene] = useState<number | null>(null);
   const [ctaBrandColor, setCtaBrandColor] = useState<string>("#FF6700");
   const [ctaDiscountTag, setCtaDiscountTag] = useState<string>("EXCLUSIVE OFFER");
-  const [selectedTrustBadgeId, setSelectedTrustBadgeId] = useState<string>("rating-star");
+  const [selectedTrustBadgeId, setSelectedTrustBadgeId] = useState<string>("30-day-guarantee");
+  const [claimSubstantiation, setClaimSubstantiation] = useState<string>("Verified Client Policy");
   const [musicPlayingId, setMusicPlayingId] = useState<string | null>(null);
   const musicAudioRef = useRef<HTMLAudioElement | null>(null);
 
@@ -1276,10 +1277,10 @@ export default function StudioVideoGenerator() {
     setBrandName("Chicago Dog 42");
     setBrandOffer("15% off first pickup order");
     setSelectedAngle("problem");
-    setSelectedActor("haley");
-    setSelectedCreatorAssetId("haley-hook-01");
-    setTrimStart(3.8);
-    setTrimEnd(7.1);
+    setSelectedActor("tyler");
+    setSelectedCreatorAssetId("tyler-hook-01");
+    setTrimStart(0.2);
+    setTrimEnd(3.8);
     setVideoModel("kling");
     setDraftRestored(false);
   };
@@ -1763,6 +1764,7 @@ export default function StudioVideoGenerator() {
           ctaBrandColor: ctaBrandColor,
           ctaDiscountTag: ctaDiscountTag,
           trustBadgeId: selectedTrustBadgeId,
+          claimSubstantiation: claimSubstantiation,
           aiGapFillMode: aiGapFillMode,
           scene2AiGapFill: scene2AiGapFill,
           scene3AiGapFill: scene3AiGapFill,
@@ -3492,23 +3494,46 @@ export default function StudioVideoGenerator() {
                       </div>
                     </div>
 
-                    {/* Conversion Trust Badge */}
+                    {/* Conversion Trust Badge — Real Claims Only */}
                     <div className="space-y-1 pt-0.5">
-                      <label className="text-[9px] font-bold uppercase tracking-wider text-zinc-500 block">
-                        Conversion Trust Badge
-                      </label>
+                      <div className="flex items-center justify-between">
+                        <label className="text-[9px] font-bold uppercase tracking-wider text-zinc-500 block">
+                          Trust Badge (Real Claims Only)
+                        </label>
+                        <span className="text-[8px] font-mono text-emerald-600 font-bold">Substantiated</span>
+                      </div>
                       <select
                         value={selectedTrustBadgeId}
-                        onChange={(e) => setSelectedTrustBadgeId(e.target.value)}
+                        onChange={(e) => {
+                          const id = e.target.value;
+                          setSelectedTrustBadgeId(id);
+                          const b = TRUST_BADGE_PRESETS.find((p) => p.id === id);
+                          if (b) setClaimSubstantiation(b.subtext || "Verified Client Policy");
+                        }}
                         className="w-full bg-white border border-zinc-200 focus:border-[#7F48ED] rounded-lg px-2 py-1 text-[11px] font-semibold text-zinc-800 focus:outline-none cursor-pointer"
                       >
-                        <option value="">No Trust Badge</option>
+                        <option value="">No Badge (Clean Direct CTA)</option>
                         {TRUST_BADGE_PRESETS.map((badge) => (
                           <option key={badge.id} value={badge.id}>
                             {badge.label}
                           </option>
                         ))}
                       </select>
+
+                      {selectedTrustBadgeId && (
+                        <div className="pt-1 space-y-0.5">
+                          <label className="text-[8px] font-mono text-zinc-400 block uppercase">
+                            Claim Substantiation / Client Proof Reference:
+                          </label>
+                          <input
+                            type="text"
+                            value={claimSubstantiation}
+                            onChange={(e) => setClaimSubstantiation(e.target.value)}
+                            placeholder="e.g. Terms on client site / 30-day return policy / verified order link"
+                            className="w-full bg-zinc-50 border border-zinc-200 focus:border-[#7F48ED] rounded px-2 py-1 text-[10px] text-zinc-700 font-mono focus:outline-none"
+                          />
+                        </div>
+                      )}
                     </div>
                   </div>
                 </div>
@@ -4512,10 +4537,10 @@ export default function StudioVideoGenerator() {
                           {currentTime >= 15.5 && (
                             <div className="animate-in zoom-in-95 duration-200 pointer-events-auto mx-auto max-w-sm w-full">
                               {selectedCtaTemplate === "social-proof" ? (
-                                <div className="bg-black/85 backdrop-blur-md rounded-2xl border border-amber-400/30 p-5 text-center shadow-2xl">
-                                  <div className="inline-flex items-center gap-1 bg-amber-400/20 text-amber-300 border border-amber-400/30 text-[10px] font-extrabold uppercase px-3 py-1 rounded-full mb-2">
-                                    <span>⭐⭐⭐⭐⭐</span>
-                                    <span>4.9 / 5 Rating (1,400+ Verified)</span>
+                                <div className="bg-black/85 backdrop-blur-md rounded-2xl border border-emerald-400/30 p-5 text-center shadow-2xl">
+                                  <div className="inline-flex items-center gap-1.5 bg-emerald-400/20 text-emerald-300 border border-emerald-400/30 text-[10px] font-extrabold uppercase px-3 py-1 rounded-full mb-2">
+                                    <ShieldCheck className="w-3.5 h-3.5" />
+                                    <span>{claimSubstantiation || "Official 30-Day Money-Back Guarantee"}</span>
                                   </div>
                                   <h3 className="text-xl font-black text-white mb-1 drop-shadow-md">
                                     {generatedResult.brandName || brandName}
@@ -4524,7 +4549,7 @@ export default function StudioVideoGenerator() {
                                     {generatedResult.brandOffer || brandOffer}
                                   </p>
                                   <div className="px-5 py-2.5 rounded-xl text-xs font-black text-white bg-gradient-to-r from-[#FF6700] to-[#7F48ED] shadow-xl flex items-center justify-center gap-1.5 ring-2 ring-white/20 cursor-pointer">
-                                    <span>Shop Top Rated</span>
+                                    <span>Claim Verified Offer</span>
                                     <ChevronRight className="w-4 h-4" />
                                   </div>
                                 </div>
@@ -4573,7 +4598,7 @@ export default function StudioVideoGenerator() {
                                 <div className="text-center bg-black/85 backdrop-blur-md rounded-2xl border border-white/20 p-6 shadow-2xl">
                                   {selectedTrustBadgeId && (
                                     <div className="inline-flex items-center gap-1 bg-amber-400/20 text-amber-300 border border-amber-400/30 text-[9px] font-extrabold uppercase px-2.5 py-0.5 rounded-full mb-2">
-                                      <span>{TRUST_BADGE_PRESETS.find((b) => b.id === selectedTrustBadgeId)?.label || "⭐ 4.9/5 Rating"}</span>
+                                      <span>{TRUST_BADGE_PRESETS.find((b) => b.id === selectedTrustBadgeId)?.label || "🛡️ 30-Day Money-Back Guarantee"}</span>
                                     </div>
                                   )}
                                   <div>

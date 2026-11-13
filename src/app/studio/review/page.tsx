@@ -84,6 +84,17 @@ interface VariantItem {
   captionStyle?: string;
   musicTrack?: string;
   isRealFootageDominant?: boolean;
+  hasSyntheticScenes?: boolean;
+  adKitDraft?: {
+    primaryText1?: string;
+    primaryText2?: string;
+    primaryText3?: string;
+    headline1?: string;
+    headline2?: string;
+    headline3?: string;
+    description?: string;
+    callToAction?: string;
+  };
   creatorHookClip?: string;
   voiceoverUrl?: string;
   wordTimestamps?: Array<{ word: string; start: number; end: number }>;
@@ -134,8 +145,29 @@ export default function StudioReviewPortal() {
     });
   };
 
-  const numPassed = Object.values(checks).filter(Boolean).length;
+  // Selective AI Disclosure: Only ads with synthetic gap-fill scenes require disclosure label
+  const isAiDisclosureRequired = Boolean(selectedVariant?.hasSyntheticScenes);
+  const effectiveDisclosureState = isAiDisclosureRequired ? checks.disclosureState : true;
+  const numPassed = (checks.creatorVerification ? 1 : 0) +
+    (checks.scriptClaims ? 1 : 0) +
+    (checks.clientFootagePresent ? 1 : 0) +
+    (effectiveDisclosureState ? 1 : 0) +
+    (checks.creativeDirectorSignOff ? 1 : 0);
   const allChecksPassed = numPassed === 5;
+
+  // Ad-Kit Copy (Editable Draft) State
+  const [copyDraftExpanded, setCopyDraftExpanded] = useState(true);
+  const [isSavingDraft, setIsSavingDraft] = useState(false);
+  const [copyDraft, setCopyDraft] = useState({
+    primaryText1: "",
+    primaryText2: "",
+    primaryText3: "",
+    headline1: "",
+    headline2: "",
+    headline3: "",
+    description: "",
+    callToAction: "Shop Now",
+  });
 
   const [showRubric, setShowRubric] = useState(false);
   const [isClientMode, setIsClientMode] = useState(false);
@@ -156,7 +188,7 @@ export default function StudioReviewPortal() {
     }
   };
 
-  // Sync compliance checks when active variant changes
+  // Sync compliance checks & Ad-Kit copy draft when active variant changes
   useEffect(() => {
     if (selectedVariant) {
       if (selectedVariant.status === "approved") {
@@ -184,8 +216,54 @@ export default function StudioReviewPortal() {
           creativeDirectorSignOff: false,
         });
       }
+
+      // Initialize or load Ad-Kit copy draft
+      const draft = selectedVariant.adKitDraft || {};
+      const hook = selectedVariant.hookText || "";
+      const body = selectedVariant.scriptBody || "";
+      const brand = selectedVariant.clientName || "Brand";
+      setCopyDraft({
+        primaryText1: draft.primaryText1 || (hook && body ? `${hook} — ${body}` : `${brand} performance commercial drop. Tap to learn more.`),
+        primaryText2: draft.primaryText2 || `Stop struggling with generic low-converting ads. See why performance DTC teams scale with ${brand}.`,
+        primaryText3: draft.primaryText3 || `Verified commercial clearance · Lab-tested formula · 30-day money-back guarantee. Experience ${brand} today.`,
+        headline1: draft.headline1 || (hook.length > 40 ? hook.slice(0, 40) + "..." : hook) || `Shop ${brand}`,
+        headline2: draft.headline2 || `Official ${brand} Promotion`,
+        headline3: draft.headline3 || `Direct Response Creative Drop`,
+        description: draft.description || `Official ${brand} Campaign Master`,
+        callToAction: draft.callToAction || selectedVariant.ctaText || "Shop Now",
+      });
     }
   }, [selectedVariant?.id, selectedVariant?.status]);
+
+  const handleSaveCopyDraft = async () => {
+    if (!selectedVariant) return;
+    setIsSavingDraft(true);
+    try {
+      const res = await fetch("/api/studio/review", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          action: "save_ad_kit_draft",
+          variantId: selectedVariant.id,
+          adKitDraft: copyDraft,
+          reviewerName: operatorName || "Robert Clark (Creative Director)",
+        }),
+      });
+      const data = await res.json();
+      if (res.ok) {
+        showToast("✓ Ad-Kit copy draft saved for Meta/TikTok export!");
+        if (selectedVariant) {
+          selectedVariant.adKitDraft = data.adKitDraft;
+        }
+      } else {
+        showToast(data.error || "Failed to save copy draft");
+      }
+    } catch {
+      showToast("Error saving copy draft");
+    } finally {
+      setIsSavingDraft(false);
+    }
+  };
 
   // Revision Modal State
   const [recutModalOpen, setRecutModalOpen] = useState(false);
@@ -1058,6 +1136,114 @@ export default function StudioReviewPortal() {
               </div>
             )}
           </div>
+        </div>
+
+        {/* Ad-Kit Copy (Editable Draft) Card */}
+        <div className="bg-white rounded-2xl border border-zinc-200 overflow-hidden shadow-sm shrink-0">
+          <div
+            onClick={() => setCopyDraftExpanded(!copyDraftExpanded)}
+            className="p-4 flex items-center justify-between cursor-pointer border-b border-zinc-100"
+          >
+            <div className="flex items-center gap-2">
+              <Sparkles className="w-4 h-4 text-[#FF6700]" />
+              <div>
+                <h3 className="font-bold text-xs uppercase tracking-wider text-zinc-900">
+                  Ad-Kit Copy (Editable Draft)
+                </h3>
+                <p className="text-[10px] text-zinc-500">Refine primary text &amp; headlines before export</p>
+              </div>
+            </div>
+            <button
+              type="button"
+              className="text-zinc-500 hover:text-zinc-900 p-1"
+              aria-label="Toggle copy drafts"
+            >
+              {copyDraftExpanded ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
+            </button>
+          </div>
+
+          {copyDraftExpanded && (
+            <div className="p-4 space-y-3 text-xs">
+              <div>
+                <label className="text-[10px] font-bold uppercase tracking-wider text-zinc-600 block mb-1">
+                  Primary Text 1 (Direct Hook Angle)
+                </label>
+                <textarea
+                  rows={2}
+                  value={copyDraft.primaryText1}
+                  onChange={(e) => setCopyDraft({ ...copyDraft, primaryText1: e.target.value })}
+                  placeholder="Primary text variation 1..."
+                  className="w-full bg-zinc-50 border border-zinc-200 rounded-xl p-2.5 text-xs text-zinc-900 focus:outline-none focus:border-[#7F48ED]"
+                />
+              </div>
+
+              <div>
+                <label className="text-[10px] font-bold uppercase tracking-wider text-zinc-600 block mb-1">
+                  Primary Text 2 (Problem / Curiosity Angle)
+                </label>
+                <textarea
+                  rows={2}
+                  value={copyDraft.primaryText2}
+                  onChange={(e) => setCopyDraft({ ...copyDraft, primaryText2: e.target.value })}
+                  placeholder="Primary text variation 2..."
+                  className="w-full bg-zinc-50 border border-zinc-200 rounded-xl p-2.5 text-xs text-zinc-900 focus:outline-none focus:border-[#7F48ED]"
+                />
+              </div>
+
+              <div>
+                <label className="text-[10px] font-bold uppercase tracking-wider text-zinc-600 block mb-1">
+                  Primary Text 3 (Substantiated Proof Angle)
+                </label>
+                <textarea
+                  rows={2}
+                  value={copyDraft.primaryText3}
+                  onChange={(e) => setCopyDraft({ ...copyDraft, primaryText3: e.target.value })}
+                  placeholder="Primary text variation 3..."
+                  className="w-full bg-zinc-50 border border-zinc-200 rounded-xl p-2.5 text-xs text-zinc-900 focus:outline-none focus:border-[#7F48ED]"
+                />
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                <div>
+                  <label className="text-[10px] font-bold uppercase tracking-wider text-zinc-600 block mb-1">
+                    Headline 1
+                  </label>
+                  <input
+                    type="text"
+                    value={copyDraft.headline1}
+                    onChange={(e) => setCopyDraft({ ...copyDraft, headline1: e.target.value })}
+                    className="w-full bg-zinc-50 border border-zinc-200 rounded-lg p-2 text-xs text-zinc-900 focus:outline-none focus:border-[#7F48ED]"
+                  />
+                </div>
+                <div>
+                  <label className="text-[10px] font-bold uppercase tracking-wider text-zinc-600 block mb-1">
+                    Headline 2
+                  </label>
+                  <input
+                    type="text"
+                    value={copyDraft.headline2}
+                    onChange={(e) => setCopyDraft({ ...copyDraft, headline2: e.target.value })}
+                    className="w-full bg-zinc-50 border border-zinc-200 rounded-lg p-2 text-xs text-zinc-900 focus:outline-none focus:border-[#7F48ED]"
+                  />
+                </div>
+              </div>
+
+              <div className="flex items-center justify-between pt-1">
+                <span className="text-[10px] text-zinc-500 italic">
+                  Drafts will be included in Meta CSV &amp; TikTok kit.
+                </span>
+                <button
+                  type="button"
+                  onClick={handleSaveCopyDraft}
+                  disabled={isSavingDraft}
+                  className="px-3 py-1.5 bg-[#7F48ED] hover:bg-[#6C34DE] disabled:opacity-50 text-white rounded-lg text-[11px] font-bold transition flex items-center gap-1 cursor-pointer shadow-xs"
+                >
+                  <Check className="w-3.5 h-3.5" />
+                  <span>{isSavingDraft ? "Saving..." : "Save Draft"}</span>
+                </button>
+              </div>
+            </div>
+          )}
         </div>
       </>
     );
@@ -2194,24 +2380,32 @@ export default function StudioReviewPortal() {
                   </span>
                 </button>
 
-                {/* Check 4: AI Watermark */}
+                {/* Check 4: AI Watermark (Selective Disclosure) */}
                 <button
                   type="button"
-                  disabled={selectedVariant?.status === "approved"}
+                  disabled={selectedVariant?.status === "approved" || !isAiDisclosureRequired}
                   onClick={() => toggleCheck("disclosureState")}
-                  className={`flex items-center justify-between p-2 sm:p-2.5 rounded-xl border transition-all cursor-pointer ${
-                    checks.disclosureState
+                  className={`flex items-center justify-between p-2 sm:p-2.5 rounded-xl border transition-all ${
+                    selectedVariant?.status === "approved" || !isAiDisclosureRequired ? "cursor-default" : "cursor-pointer"
+                  } ${
+                    !isAiDisclosureRequired
+                      ? "bg-emerald-50/70 border-emerald-200 text-emerald-800"
+                      : checks.disclosureState
                       ? "bg-emerald-50 border-emerald-300 text-emerald-800 shadow-xs"
                       : "bg-orange-50/60 border-orange-200 text-orange-800 hover:bg-orange-100/60"
                   }`}
-                  title="Disclosure State: AI-Generated Media watermark confirmed visible on AI gap-fill"
+                  title={
+                    !isAiDisclosureRequired
+                      ? "Selective Disclosure: 100% Real Footage dominant. AI disclosure label not required."
+                      : "Disclosure State: AI-Generated Media watermark confirmed visible on synthetic gap-fill"
+                  }
                 >
                   <div className="flex items-center gap-1.5 truncate">
-                    <span className={`w-2 h-2 rounded-full shrink-0 ${checks.disclosureState ? "bg-emerald-500" : "bg-[#FF6700]"}`} />
+                    <span className={`w-2 h-2 rounded-full shrink-0 ${!isAiDisclosureRequired || checks.disclosureState ? "bg-emerald-500" : "bg-[#FF6700]"}`} />
                     <span className="font-semibold truncate">4. AI Label</span>
                   </div>
-                  <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded ${checks.disclosureState ? "bg-emerald-100 text-emerald-800" : "bg-orange-100 text-orange-800"}`}>
-                    {checks.disclosureState ? "PASS" : "CHECK"}
+                  <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded ${!isAiDisclosureRequired ? "bg-emerald-100 text-emerald-800 font-mono" : checks.disclosureState ? "bg-emerald-100 text-emerald-800" : "bg-orange-100 text-orange-800"}`}>
+                    {!isAiDisclosureRequired ? "NOT REQ" : checks.disclosureState ? "PASS" : "CHECK"}
                   </span>
                 </button>
 

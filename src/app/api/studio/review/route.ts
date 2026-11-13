@@ -67,6 +67,9 @@ export async function GET(request: Request) {
     auditId: `AUDIT-${job.id.toUpperCase()}`,
     complianceChecks: job.complianceChecks,
     delivery: job.delivery,
+    adKitDraft: job.adKitDraft,
+    isRealFootageDominant: job.isRealFootageDominant ?? true,
+    hasSyntheticScenes: job.hasSyntheticScenes ?? false,
   }));
 
   const needsReviewCount = allVariants.filter((v) => v.status === "needs_review").length;
@@ -120,11 +123,50 @@ export async function POST(request: Request) {
 
   try {
     const body = await request.json();
-    const { variantId, decision, reviewerName, notes, complianceChecks } = body;
+    const { variantId, decision, reviewerName, notes, complianceChecks, adKitDraft, action } = body;
 
-    if (!variantId || !decision) {
+    if (!variantId) {
       return NextResponse.json(
-        { error: "variantId and decision are required" },
+        { error: "variantId is required" },
+        { status: 400 }
+      );
+    }
+
+    const job = getAdJobById(variantId);
+    if (!job) {
+      return NextResponse.json({ error: `Ad Job ${variantId} not found` }, { status: 404 });
+    }
+
+    const safeReviewerName = reviewerName ? String(reviewerName).trim().slice(0, 100) : "Robert Clark (Creative Director)";
+    const safeNotes = notes ? String(notes).trim().slice(0, 1000) : "";
+
+    // Action: Save Ad-Kit Copy Drafts without changing decision
+    if (action === "save_ad_kit_draft" || (adKitDraft && !decision)) {
+      if (adKitDraft) {
+        job.adKitDraft = {
+          primaryText1: String(adKitDraft.primaryText1 || "").slice(0, 1000),
+          primaryText2: String(adKitDraft.primaryText2 || "").slice(0, 1000),
+          primaryText3: String(adKitDraft.primaryText3 || "").slice(0, 1000),
+          headline1: String(adKitDraft.headline1 || "").slice(0, 255),
+          headline2: String(adKitDraft.headline2 || "").slice(0, 255),
+          headline3: String(adKitDraft.headline3 || "").slice(0, 255),
+          description: String(adKitDraft.description || "").slice(0, 500),
+          callToAction: String(adKitDraft.callToAction || "").slice(0, 100),
+          refinedBy: safeReviewerName,
+          updatedAt: new Date().toISOString(),
+        };
+        saveAdJob(job);
+      }
+      return NextResponse.json({
+        ok: true,
+        message: "Ad-kit copy draft saved successfully.",
+        adKitDraft: job.adKitDraft,
+      });
+    }
+
+    if (!decision) {
+      return NextResponse.json(
+        { error: "decision is required" },
         { status: 400 }
       );
     }
@@ -135,12 +177,20 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "Invalid decision value" }, { status: 400 });
     }
 
-    const safeReviewerName = reviewerName ? String(reviewerName).trim().slice(0, 100) : "Lead QA Operator";
-    const safeNotes = notes ? String(notes).trim().slice(0, 1000) : "";
-
-    const job = getAdJobById(variantId);
-    if (!job) {
-      return NextResponse.json({ error: `Ad Job ${variantId} not found` }, { status: 404 });
+    // If adKitDraft was passed alongside a decision, persist it
+    if (adKitDraft) {
+      job.adKitDraft = {
+        primaryText1: String(adKitDraft.primaryText1 || "").slice(0, 1000),
+        primaryText2: String(adKitDraft.primaryText2 || "").slice(0, 1000),
+        primaryText3: String(adKitDraft.primaryText3 || "").slice(0, 1000),
+        headline1: String(adKitDraft.headline1 || "").slice(0, 255),
+        headline2: String(adKitDraft.headline2 || "").slice(0, 255),
+        headline3: String(adKitDraft.headline3 || "").slice(0, 255),
+        description: String(adKitDraft.description || "").slice(0, 500),
+        callToAction: String(adKitDraft.callToAction || "").slice(0, 100),
+        refinedBy: safeReviewerName,
+        updatedAt: new Date().toISOString(),
+      };
     }
 
     // Update compliance checklist if provided
@@ -153,14 +203,20 @@ export async function POST(request: Request) {
       };
     }
 
-    // Strict Gate: For approval, all 4 compliance checks must be true
+    // Selective AI Disclosure & Quality Gate:
+    // Only ads with photorealistic synthetic scenes require disclosure to pass
     if (safeDecision === "approve") {
       const { creatorVerification, scriptClaims, clientFootagePresent, disclosureState } = job.complianceChecks;
-      if (!creatorVerification || !scriptClaims || !clientFootagePresent || !disclosureState) {
+      const requiresDisclosure = Boolean(job.hasSyntheticScenes || (job as any).aiGapFillMode);
+      const disclosurePass = requiresDisclosure ? Boolean(disclosureState) : true;
+
+      if (!creatorVerification || !scriptClaims || !clientFootagePresent || !disclosurePass) {
         return NextResponse.json(
           {
-            error: "Approval blocked: All 4 quality compliance checks (Creator, Claims, Footage, Disclosure) must pass before approving this ad.",
-            checks: job.complianceChecks,
+            error: requiresDisclosure
+              ? "Approval blocked: All compliance checks including required AI Synthetic Media Disclosure must pass before approving this ad."
+              : "Approval blocked: Core quality compliance checks (Creator Hook, Claims Substantiation, Client Real Footage) must pass before approving this ad.",
+            checks: { ...job.complianceChecks, disclosureRequired: requiresDisclosure, disclosurePass },
           },
           { status: 422 }
         );
@@ -187,6 +243,7 @@ export async function POST(request: Request) {
             ctaText: job.script?.ctaText || "",
             creativeAngle: job.creativeAngle,
             hookType: job.hookType,
+            adKitDraft: job.adKitDraft,
           },
         });
 

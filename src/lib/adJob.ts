@@ -16,6 +16,19 @@ export type AdJobStatus =
   | 'delivered'
   | 'deleted';
 
+export interface AdKitCopyDraft {
+  primaryText1?: string;
+  primaryText2?: string;
+  primaryText3?: string;
+  headline1?: string;
+  headline2?: string;
+  headline3?: string;
+  description?: string;
+  callToAction?: string;
+  refinedBy?: string;
+  updatedAt?: string;
+}
+
 export interface AdJobComplianceChecks {
   creatorVerification: boolean;    // Real UGC / creator hook verified
   scriptClaims: boolean;           // No misleading or unsubstantiated claims
@@ -80,6 +93,9 @@ export interface AdJob {
     deliveredAt?: string;
     status: 'pending' | 'delivered' | 'failed';
   };
+  adKitDraft?: AdKitCopyDraft;
+  isRealFootageDominant?: boolean;
+  hasSyntheticScenes?: boolean;
   deletedAt?: string;
   createdAt: string;
   updatedAt: string;

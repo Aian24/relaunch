@@ -17,6 +17,15 @@ export async function GET(
   }
 
   const job = getAdJobById(jobId);
+  if (job && job.status !== "approved") {
+    return NextResponse.json(
+      {
+        error: "CD Gate Enforced: Campaign Kit ZIP cannot be downloaded until approved by Creative Director.",
+        jobStatus: job.status,
+      },
+      { status: 403 }
+    );
+  }
   const deliveryDir = path.join(process.cwd(), "public", "deliveries", jobId);
 
   const filesToZip: ZipFileInput[] = [];

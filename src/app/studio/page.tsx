@@ -211,7 +211,7 @@ export default function StudioPage() {
                     <span className="px-3 py-1 rounded-full bg-[#7F48ED] text-white text-[10px] font-mono font-bold uppercase">
                       ReLaunch Studio
                     </span>
-                    <span className="text-xs font-mono text-[#7F48ED] font-bold">Up to 85% Lower Cost</span>
+                    <span className="text-xs font-mono text-[#7F48ED] font-bold">Performance Craft · Studio Standard</span>
                   </div>
                   <h3 className="font-heading font-black text-xl text-[#090D16] mb-4">
                     {studioData.comparison.relaunchStudio.cost}

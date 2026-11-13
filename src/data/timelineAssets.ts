@@ -40,6 +40,7 @@ export interface TrustBadgeOption {
   id: string;
   label: string;
   subtext?: string;
+  substantiationRequired?: boolean;
 }
 
 export const BRAND_COLOR_PRESETS = [
@@ -52,11 +53,12 @@ export const BRAND_COLOR_PRESETS = [
 ];
 
 export const TRUST_BADGE_PRESETS: TrustBadgeOption[] = [
-  { id: "rating-star", label: "⭐ 4.9/5 Rating (1,200+ Reviews)", subtext: "Verified High Rating" },
-  { id: "verified-client", label: "✓ Verified Results Guaranteed", subtext: "Proven Performance" },
-  { id: "limited-offer", label: "⚡ Limited Spots Remaining", subtext: "Urgent Call to Action" },
-  { id: "free-audit", label: "🛡️ 100% Free Audit · No Card Needed", subtext: "Zero Friction" },
-  { id: "free-shipping", label: "📦 Free Express Delivery", subtext: "Fast Fulfillment" },
+  { id: "30-day-guarantee", label: "🛡️ 30-Day Money-Back Guarantee", subtext: "Verified Client Policy", substantiationRequired: false },
+  { id: "free-shipping", label: "📦 Free Express Delivery on All Orders", subtext: "Fulfillment Policy", substantiationRequired: false },
+  { id: "licensed-partner", label: "✓ Official Licensed Brand Partner", subtext: "Substantiated Partnership", substantiationRequired: false },
+  { id: "dermatologist-tested", label: "🌿 Cruelty-Free & Lab Tested", subtext: "Certified Product Quality", substantiationRequired: false },
+  { id: "free-consultation", label: "⚡ 100% Free Consultation · No Card", subtext: "Zero Friction Offer", substantiationRequired: false },
+  { id: "client-substantiated", label: "⭐ Custom Substantiated Review / Claim", subtext: "Requires Verified Client Proof", substantiationRequired: true },
 ];
 
 export const LICENSED_MUSIC_LIBRARY: MusicTrack[] = [
@@ -122,9 +124,9 @@ export const BRANDED_CTA_TEMPLATES: CtaTemplate[] = [
   },
   {
     id: "social-proof",
-    name: "Social Proof Pill",
-    badge: "⭐ 4.9/5 Rating",
-    description: "Customer review rating & 1,400+ satisfied clients",
+    name: "Substantiated Policy Pill",
+    badge: "Verified Policy",
+    description: "Client-substantiated policy guarantee or verified lab trial badge",
     styleVariant: "social-proof",
   },
   {

@@ -18,6 +18,18 @@ export async function POST(
     return NextResponse.json({ error: "Deliverable job not found" }, { status: 404 });
   }
 
+  // Strict Creative Director Gate: Prevent sync if not approved
+  if (job.status !== "approved") {
+    return NextResponse.json(
+      {
+        error: "CD Gate Enforced: Deliverable cannot be synced to Google Drive until approved by Creative Director.",
+        jobStatus: job.status,
+        requiredSignOff: "Creative Director Approval",
+      },
+      { status: 403 }
+    );
+  }
+
   try {
     const result = await syncDeliverablesToGoogleDrive({
       jobId: job.id,

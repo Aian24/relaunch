@@ -394,13 +394,16 @@ export function generateMetaCampaignCsv(
     metadata.websiteUrl ||
     `https://relaunch.us/${safeBrand.toLowerCase().replace(/[^a-z0-9]/g, "-")}`;
 
-  const primary1 = `${hook} — ${body} Tap to learn more: ${cta}`;
-  const primary2 = `Are you making this common mistake? Most businesses lose customers every day without realizing it. ${safeBrand} fixes this immediately.`;
-  const primary3 = `✓ Proven results · Fast onboarding · 100% satisfaction guarantee. See why everyone is choosing ${safeBrand}.`;
+  const draft = metadata.adKitDraft || {};
+  const primary1 = draft.primaryText1 || `${hook} — ${body} Tap to learn more: ${cta}`;
+  const primary2 = draft.primaryText2 || `Are you making this common mistake? Most businesses lose customers every day without realizing it. ${safeBrand} fixes this immediately.`;
+  const primary3 = draft.primaryText3 || `✓ Proven results · Fast onboarding · 100% satisfaction guarantee. See why everyone is choosing ${safeBrand}.`;
 
-  const headline1 = hook.slice(0, 50);
-  const headline2 = `Get Started with ${safeBrand}`;
-  const headline3 = `Limited Time Offer — Claim Now`;
+  const headline1 = draft.headline1 || hook.slice(0, 50);
+  const headline2 = draft.headline2 || `Get Started with ${safeBrand}`;
+  const headline3 = draft.headline3 || `Limited Time Offer — Claim Now`;
+  const adDescription = draft.description || `Official ${safeBrand} Promotion`;
+  const ctaAction = (draft.callToAction || "LEARN_MORE").toUpperCase().replace(/\s+/g, "_");
 
   const escapeCsv = (str: string) =>
     `"${str.replace(/"/g, '""').replace(/\r?\n/g, " ")}"`;
@@ -444,8 +447,8 @@ export function generateMetaCampaignCsv(
     escapeCsv(headline1),
     escapeCsv(headline2),
     escapeCsv(headline3),
-    escapeCsv(`Official ${safeBrand} Promotion`),
-    escapeCsv("LEARN_MORE"),
+    escapeCsv(adDescription),
+    escapeCsv(ctaAction),
     escapeCsv(landingUrl),
   ];
 
@@ -462,9 +465,14 @@ export function generateTikTokAdKitText(
 ): string {
   const hook = metadata.hookText || "";
   const body = metadata.scriptBody || "";
-  const cta = metadata.ctaText || "Claim Offer";
   const safeBrand = brandName.trim();
   const hashtagBase = safeBrand.toLowerCase().replace(/[^a-z0-9]/g, "");
+
+  const draft = metadata.adKitDraft || {};
+  const caption1 = draft.primaryText1 || `"${hook} Link in bio to claim your exclusive offer 🔥 #${hashtagBase} #smallbusiness #growth #relaunch"`;
+  const caption2 = draft.primaryText2 || `"If you're not doing this in 2026, you're falling behind. Here's what changed everything for us 👇 #${hashtagBase} #businesstips #success"`;
+  const caption3 = draft.primaryText3 || `"${body ? body.slice(0, 100) : safeBrand} — Check our official bio link to unlock today's drop 🔥 #${hashtagBase}"`;
+  const cta = draft.callToAction || metadata.ctaText || "Claim Offer";
 
   return [
     `=================================================================`,
@@ -472,6 +480,7 @@ export function generateTikTokAdKitText(
     `Brand: ${brandName}`,
     `Job ID: ${jobId}`,
     `Generated At: ${new Date().toUTCString()}`,
+    `Refined by Creative Director: ${draft.refinedBy || "Robert Clark"}`,
     `=================================================================`,
     ``,
     `1. CAMPAIGN SETUP RECOMMENDATIONS:`,
@@ -480,16 +489,19 @@ export function generateTikTokAdKitText(
     `- Recommended Age: 25–54+`,
     `- Bidding Strategy: Lowest Cost (Broad Targeting with Pixel Optimization)`,
     ``,
-    `2. RECOMMENDED TIKTOK CAPTIONS:`,
+    `2. RECOMMENDED TIKTOK CAPTIONS (CD-REFINED):`,
     `Option A (Direct Hook):`,
-    `"${hook} Link in bio to claim your exclusive offer 🔥 #${hashtagBase} #smallbusiness #growth #relaunch"`,
+    `${caption1}`,
     ``,
     `Option B (Problem / Curiosity):`,
-    `"If you're not doing this in 2026, you're falling behind. Here's what changed everything for us 👇 #${hashtagBase} #businesstips #success"`,
+    `${caption2}`,
+    ``,
+    `Option C (Substantiated Proof):`,
+    `${caption3}`,
     ``,
     `3. CALL TO ACTION (INTERACTIVE ADD-ON):`,
     `- Primary Button: "${cta}"`,
-    `- Dynamic Countdown Sticker: Recommended (48h urgency boost)`,
+    `- Dynamic Countdown Sticker: Recommended (Weekly Drop Urgency)`,
     ``,
     `4. AUDIO & SOUND DESIGN SETTINGS:`,
     `- Voiceover LUFS: Normalized to -14 LUFS`,
