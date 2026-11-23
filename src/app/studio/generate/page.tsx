@@ -69,6 +69,17 @@ interface AngleContent {
   body: string;
 }
 
+export interface BrandAdCreative {
+  id: string;
+  name: string;
+  angleKey: string;
+  badge: string;
+  image: string;
+  hook: string;
+  body: string;
+  motionPrompt: string;
+}
+
 interface BrandPreset {
   id: string;
   name: string;
@@ -80,6 +91,7 @@ interface BrandPreset {
   productVideo?: string;
   brollVideo?: string;
   musicTrackId?: string;
+  adCreatives?: BrandAdCreative[];
 }
 
 const BRAND_PRESETS: BrandPreset[] = [
@@ -90,10 +102,50 @@ const BRAND_PRESETS: BrandPreset[] = [
     brandName: "AI Recommendations",
     brandOffer: "Free AI Visibility Audit",
     angleKey: "problem",
-    visualPrompt: "Confident local business owner in a modern bright creative studio smiling as customer bookings arrive on smartphone, 4K commercial cinematography, natural sunlight, cinematic depth of field, 60fps",
-    productVideo: "/videos/work-hero-reel.mp4",
-    brollVideo: "/videos/outdoor/trailline-mountain-ridge.mp4",
+    visualPrompt: "High-converting commercial advertising video for AI Recommendations. Dynamic 3D camera push-in and subtle parallax tilt of the digital UI in the reference image, soft realistic studio lighting reflections across the glass, depth of field, sharp 4K 60fps cinematography, keep all text, letters, logos, badges, and layout 100% stable, sharp, and unchanged without morphing or distortion",
     musicTrackId: "tech-driving-beat",
+    adCreatives: [
+      {
+        id: "lockscreen-notification",
+        name: "Lockscreen Alert",
+        angleKey: "problem",
+        badge: "High CTR",
+        image: "/images/ai-recommendations/ad-1-lockscreen-notification.png",
+        hook: "Your next customer just asked AI who to call.",
+        body: "Your next customer just asked AI who to call. If AI doesn't have a clear picture of your business, someone else gets the call. ReLaunch fixes what AI reads about you so you get recommended first. Claim your free audit today at relaunch.us/ai-recommendations.",
+        motionPrompt: "Dynamic 3D cinematic push-in toward the smartphone lockscreen notification alert, subtle tilt of the glass screen, glowing notification banner with plumbers list and red alert badge, authentic soft studio lighting reflections across the phone glass, keep all UI text, letters, badges 100% sharp and stable without morphing, 4K 60fps photorealistic commercial cinematography",
+      },
+      {
+        id: "search-10-vs-ai-3",
+        name: "Search 10 vs AI 3",
+        angleKey: "comparison",
+        badge: "Conversions",
+        image: "/images/ai-recommendations/ad-2-search-vs-ai-choice.png",
+        hook: "Search gave them 10 choices. AI gives them 3.",
+        body: "Traditional search gave customers 10 choices. AI gives them only 3. If AI has mixed-up or missing info on your business, it recommends your competitor. ReLaunch ensures you win the top 3 spots. Go to relaunch.us/ai-recommendations.",
+        motionPrompt: "Cinematic 3D camera pan and parallax depth drift across the comparison ad graphics, the 10 search results dim gently while the 3 AI recommendation cards illuminate with soft neon highlights, camera pushes smoothly toward the #3 recommendation spot, keep all typography and layout razor sharp and stable, 4K 60fps advertising motion",
+      },
+      {
+        id: "roofer-decision",
+        name: "AI Silent Decision",
+        angleKey: "hack",
+        badge: "Curiosity",
+        image: "/images/ai-recommendations/ad-3-roofer-decision.png",
+        hook: "AI is quietly deciding who gets the customer.",
+        body: "AI assistants like ChatGPT and Siri are quietly deciding who gets the customer every single day. If you don't have verified AI visibility, you lose calls you never even see. Visit relaunch.us/ai-recommendations today.",
+        motionPrompt: "Cinematic commercial camera push-in on the AI search prompt bar 'Who is the best roofer in Phoenix?', soft glowing search pill, subtle glass reflection drift across the dark mode UI, glowing rating stars and verified badge, camera holds steady on the high-intent warning, razor-sharp typography without deformation, 4K 60fps commercial advertising motion",
+      },
+      {
+        id: "ai-audit-checklist",
+        name: "AI Visibility Audit",
+        angleKey: "ugc",
+        badge: "Trust",
+        image: "/images/ai-recommendations/ad-4-ai-audit-checklist.png",
+        hook: "AI is reading about your business right now.",
+        body: "AI is reading your Google listing, Yelp profile, hours, and reviews right now. Missing or inconsistent info causes it to recommend someone else. We fix what AI reads about you at relaunch.us/ai-recommendations.",
+        motionPrompt: "Dynamic scanning motion across the AI audit checklist rows, subtle glowing laser scan line illuminates the directory audit items, green checkmarks and red cross indicators pop into crisp focus with subtle 3D lighting, camera drifts in with cinematic depth of field, keep all checklist text and badges 100% sharp and stable, 4K 60fps",
+      },
+    ],
   },
   {
     id: "chicago-dog-42",
@@ -813,6 +865,7 @@ export default function StudioVideoGenerator() {
   const [selectedPresetId, setSelectedPresetId] = useState<string>("chicago-dog-42");
   const [brandName, setBrandName] = useState("Chicago Dog 42");
   const [brandOffer, setBrandOffer] = useState("$5 Off First Jumbo Combo");
+  const [selectedAdCreativeIds, setSelectedAdCreativeIds] = useState<string[]>(["lockscreen-notification", "search-vs-ai", "roofer-decision", "ai-audit-checklist"]);
   const [presetDropdownOpen, setPresetDropdownOpen] = useState(false);
   const presetDropdownRef = useRef<HTMLDivElement>(null);
   const [elapsedSeconds, setElapsedSeconds] = useState(0);
@@ -1007,7 +1060,7 @@ export default function StudioVideoGenerator() {
     src: string;
     name: string;
     size: string;
-    base64: string;
+    base64?: string;
   }
 
   const [uploadedImages, setUploadedImages] = useState<UploadedImageItem[]>([]);
@@ -1125,21 +1178,39 @@ export default function StudioVideoGenerator() {
   const currentClientJobIdRef = useRef<string | null>(null);
   const progressIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
-  // Estimated total generation seconds based on model & uploaded images
+  // Estimated total generation seconds based on Kling AI model & uploaded images
   const estimatedTotalSeconds = useMemo(() => {
-    let base = 120; // default for Kling text-to-video
-    if (uploadedImages.length > 0) base = 75; // image-to-video
-    if (videoModel === "seedance") base = 30;
+    // Realistic calibration based on live fal.ai queue + ElevenLabs TTS + FFmpeg assembly:
+    let base = 150; // ~2.5 mins for Kling Image-to-Video parallel batch
+    if (uploadedImages.length === 0) base = 135; // ~2.2 mins for single-clip text-to-video
+    if (videoModel === "seedance") base = 35;
     if (videoModel === "grok") base = 45;
-    if (generationMode === "batch") base = Math.round(base * 1.35);
+    if (generationMode === "batch") base = Math.round(base * 1.3);
     return base;
   }, [uploadedImages.length, videoModel, generationMode]);
 
-  const etaSecondsRemaining = Math.max(5, estimatedTotalSeconds - elapsedSeconds);
-  const etaFormatted =
-    etaSecondsRemaining >= 60
-      ? `~${Math.floor(etaSecondsRemaining / 60)}m ${etaSecondsRemaining % 60}s remaining`
-      : `~${etaSecondsRemaining}s remaining`;
+  const etaSecondsRemaining = Math.max(0, estimatedTotalSeconds - elapsedSeconds);
+  const etaFormatted = useMemo(() => {
+    if (elapsedSeconds >= estimatedTotalSeconds) {
+      const overtime = elapsedSeconds - estimatedTotalSeconds;
+      if (overtime < 25) {
+        return "Finalizing 4K cloud master... (~15s)";
+      } else if (overtime < 75) {
+        return `Kling GPU cloud render (${Math.floor(elapsedSeconds / 60)}m ${elapsedSeconds % 60}s elapsed)`;
+      } else {
+        return `Processing master render (${Math.floor(elapsedSeconds / 60)}m ${elapsedSeconds % 60}s elapsed)`;
+      }
+    }
+    const mins = Math.floor(etaSecondsRemaining / 60);
+    const secs = etaSecondsRemaining % 60;
+    if (mins > 0) {
+      return `~${mins}m ${secs.toString().padStart(2, "0")}s remaining`;
+    }
+    if (secs > 10) {
+      return `~${secs}s remaining`;
+    }
+    return "Finalizing 4K master... (~10s)";
+  }, [elapsedSeconds, estimatedTotalSeconds, etaSecondsRemaining]);
 
   // Interactive Loader Micro-Interactions (Sparks)
   const [sparkCount, setSparkCount] = useState(0);
@@ -1384,6 +1455,92 @@ export default function StudioVideoGenerator() {
     }
   }, [selectedAngle, currentAngleData]);
 
+  // Handle Selection / Toggling of Official Facebook Ad Creative (Multi-Select Support)
+  const handleToggleAdCreative = (creative: BrandAdCreative) => {
+    const isCurrentlySelected = selectedAdCreativeIds.includes(creative.id);
+    let nextIds: string[];
+
+    if (isCurrentlySelected) {
+      nextIds = selectedAdCreativeIds.filter((id) => id !== creative.id);
+    } else {
+      nextIds = [...selectedAdCreativeIds, creative.id];
+      // Switch active angle, hook, and script to the newly checked creative
+      setSelectedAngle(creative.angleKey);
+      setSelectedHook(creative.hook);
+      setScriptBody(creative.body);
+      setVisualPrompt(creative.motionPrompt);
+      setIsEditingHook(false);
+    }
+
+    setSelectedAdCreativeIds(nextIds);
+
+    const currentPreset = BRAND_PRESETS.find((p) => p.id === selectedPresetId);
+    const checkedCreatives = currentPreset?.adCreatives?.filter((c) => nextIds.includes(c.id)) || [];
+
+    if (checkedCreatives.length > 0) {
+      const newImages: UploadedImageItem[] = checkedCreatives.map((c) => ({
+        id: `ad-${c.id}`,
+        name: `${c.name} (Official Facebook Ad)`,
+        src: c.image,
+        size: "1620x2025",
+        base64: "",
+      }));
+      setUploadedImages(newImages);
+      setUploadedMediaType("image");
+      setUploadedMediaSrc(checkedCreatives[0].image);
+      setUploadedMediaName(
+        checkedCreatives.length > 1
+          ? `${checkedCreatives.length} Facebook Ad Creatives`
+          : `${checkedCreatives[0].name} (Official Facebook Ad)`
+      );
+      setUploadedMediaBase64(null);
+
+      if (isCurrentlySelected && nextIds.length > 0) {
+        const primary = checkedCreatives[0];
+        setSelectedAngle(primary.angleKey);
+        setSelectedHook(primary.hook);
+        setScriptBody(primary.body);
+        setVisualPrompt(primary.motionPrompt);
+      }
+    } else {
+      setUploadedImages([]);
+      setUploadedMediaType(null);
+      setUploadedMediaSrc(null);
+      setUploadedMediaName(null);
+      setUploadedMediaBase64(null);
+    }
+  };
+
+  const handleSelectAllAdCreatives = () => {
+    const currentPreset = BRAND_PRESETS.find((p) => p.id === selectedPresetId);
+    if (!currentPreset?.adCreatives) return;
+
+    const allIds = currentPreset.adCreatives.map((c) => c.id);
+    setSelectedAdCreativeIds(allIds);
+
+    const newImages: UploadedImageItem[] = currentPreset.adCreatives.map((c) => ({
+      id: `ad-${c.id}`,
+      name: `${c.name} (Official Facebook Ad)`,
+      src: c.image,
+      size: "1620x2025",
+      base64: "",
+    }));
+    setUploadedImages(newImages);
+    setUploadedMediaType("image");
+    setUploadedMediaSrc(currentPreset.adCreatives[0].image);
+    setUploadedMediaName(`${currentPreset.adCreatives.length} Facebook Ad Creatives`);
+    setUploadedMediaBase64(null);
+  };
+
+  const handleClearAdCreatives = () => {
+    setSelectedAdCreativeIds([]);
+    setUploadedImages([]);
+    setUploadedMediaType(null);
+    setUploadedMediaSrc(null);
+    setUploadedMediaName(null);
+    setUploadedMediaBase64(null);
+  };
+
   // Handle Preset Switching
   const handleSelectPreset = (preset: BrandPreset) => {
     setSelectedPresetId(preset.id);
@@ -1411,14 +1568,37 @@ export default function StudioVideoGenerator() {
     // Set visual prompt from preset
     setVisualPrompt(preset.visualPrompt || "");
 
-    // Quality-First Architecture: Populate Real Product & B-Roll Assets from Preset
-    if (preset.productVideo) {
+    // Populate Official Ad Creatives or Real Product & B-Roll Assets
+    if (preset.adCreatives && preset.adCreatives.length > 0) {
+      const allCreatives = preset.adCreatives;
+      setSelectedAdCreativeIds(allCreatives.map((c) => c.id));
+      setSelectedAngle(allCreatives[0].angleKey);
+      setSelectedHook(allCreatives[0].hook);
+      setScriptBody(allCreatives[0].body);
+      setVisualPrompt(allCreatives[0].motionPrompt);
+      setIsEditingHook(false);
+      setUploadedImages(
+        allCreatives.map((c) => ({
+          id: `ad-${c.id}`,
+          name: `${c.name} (Official Facebook Ad)`,
+          src: c.image,
+          size: "1620x2025",
+          base64: "",
+        }))
+      );
+      setUploadedMediaType("image");
+      setUploadedMediaSrc(allCreatives[0].image);
+      setUploadedMediaName(`${allCreatives.length} Facebook Ad Creatives`);
+      setUploadedMediaBase64(null);
+    } else if (preset.productVideo) {
+      setSelectedAdCreativeIds([]);
       setUploadedMediaSrc(preset.productVideo);
       setUploadedMediaName(`${preset.name} Commercial Master`);
       setUploadedMediaType("video");
       setUploadedMediaBase64(null);
       setUploadedImages([]);
     } else {
+      setSelectedAdCreativeIds([]);
       setUploadedImages([]);
       setUploadedMediaSrc(null);
       setUploadedMediaName(null);
@@ -1578,6 +1758,12 @@ export default function StudioVideoGenerator() {
       }
       return updated;
     });
+
+    // Uncheck creative if removing an ad creative reference image
+    const creativeId = idToRemove.startsWith("ad-") ? idToRemove.replace("ad-", "") : null;
+    if (creativeId) {
+      setSelectedAdCreativeIds((prev) => prev.filter((cid) => cid !== creativeId));
+    }
     setGeneratedResult(null);
   };
 
@@ -1596,6 +1782,7 @@ export default function StudioVideoGenerator() {
 
   const handleClearAllMedia = () => {
     setUploadedImages([]);
+    setSelectedAdCreativeIds([]);
     setUploadedMediaSrc(null);
     setUploadedMediaName(null);
     setUploadedMediaSize(null);
@@ -1609,25 +1796,73 @@ export default function StudioVideoGenerator() {
   const handleAutoGenerateVisualPrompt = () => {
     const bName = brandName.trim() || "My Brand";
     const bLower = bName.toLowerCase();
+
+    // Multiple prompt variants per category so each click generates a fresh prompt
+    const pick = (arr: string[]) => arr[Math.floor(Math.random() * arr.length)];
+
     let baseAction = "";
 
     if (bLower.includes("dog") || bLower.includes("food") || bLower.includes("burger") || bLower.includes("restaurant") || bLower.includes("cafe")) {
-      baseAction = `Mouth-watering commercial macro slow-motion showcase of appetizing gourmet food from ${bName}, fresh sizzling ingredients, vibrant restaurant ambiance, warm studio lighting, appetizing presentation`;
+      baseAction = pick([
+        `Mouth-watering commercial macro slow-motion showcase of appetizing gourmet food from ${bName}, fresh sizzling ingredients, vibrant restaurant ambiance, warm studio lighting, appetizing presentation`,
+        `Cinematic overhead dolly shot of a sizzling grill at ${bName}, golden melted cheese, crispy textures, steam rising, dynamic close-up food hero reveal, vibrant warm commercial lighting, 4K 60fps`,
+        `Slow-motion close-up of a hand grabbing a fresh ${bName} signature dish off the counter, dripping sauce, crunchy textures, lively restaurant energy in the background, appetizing commercial cinematography`,
+        `Fast-paced montage of ${bName} kitchen action: chopping, grilling, plating, served to a smiling customer, warm golden lighting, authentic food commercial energy, 4K`,
+      ]);
     } else if (bLower.includes("hotel") || bLower.includes("travel") || bLower.includes("resort") || bLower.includes("vacation")) {
-      baseAction = `Luxury boutique travel commercial for ${bName}, sun-drenched private suite balcony overlooking tranquil ocean sunset, elegant golden hour lighting, 4K travel commercial cinematography`;
+      baseAction = pick([
+        `Luxury boutique travel commercial for ${bName}, sun-drenched private suite balcony overlooking tranquil ocean sunset, elegant golden hour lighting, 4K travel commercial cinematography`,
+        `Aerial drone reveal of ${bName} resort coastline at golden hour, turquoise water, infinity pool, couple walking hand-in-hand on private beach, cinematic luxury travel vibes`,
+        `Smooth tracking shot through the elegant lobby of ${bName}, fresh flowers, marble floors, concierge welcoming a guest, warm ambient glow, premium hospitality commercial`,
+        `Morning sunrise timelapse from the balcony suite at ${bName}, soft curtains blowing in ocean breeze, room service breakfast tray, serene luxury escape atmosphere`,
+      ]);
     } else if (bLower.includes("turf") || bLower.includes("golf") || bLower.includes("sport") || bLower.includes("apparel") || bLower.includes("fitness")) {
-      baseAction = `Dynamic athletic performance showcase of ${bName} performance sportswear, athlete in fluid slow-motion motion outdoors on championship course, crisp morning light, 4K 60fps sports commercial`;
+      baseAction = pick([
+        `Dynamic athletic performance showcase of ${bName} performance sportswear, athlete in fluid slow-motion motion outdoors on championship course, crisp morning light, 4K 60fps sports commercial`,
+        `Slow-motion golf drive explosion at sunrise with ${bName} apparel, grass particles floating, athlete follow-through, championship fairway panorama, cinematic sports advertising`,
+        `High-energy montage of ${bName} athletes training, stretching, running on coastal trails, quick cuts synced to music, vibrant activewear hero shots, 4K sports commercial`,
+        `Close-up of premium ${bName} fabric texture catching morning light, zoom out to reveal athlete mid-swing on pristine green, ocean backdrop, 60fps sports lifestyle commercial`,
+      ]);
     } else if (bLower.includes("skin") || bLower.includes("beauty") || bLower.includes("glow") || bLower.includes("cream") || bLower.includes("lotion") || bLower.includes("dew")) {
-      baseAction = `Modern clean beauty commercial for ${bName}, model applying nourishing product with healthy glowing skin in bright aesthetic bathroom, slow-motion water droplets, elegant macro bottle reveal`;
+      baseAction = pick([
+        `Modern clean beauty commercial for ${bName}, model applying nourishing product with healthy glowing skin in bright aesthetic bathroom, slow-motion water droplets, elegant macro bottle reveal`,
+        `Ultra close-up macro of ${bName} serum drop hitting pristine skin surface, ripple effect, dewy radiant glow, soft diffused studio lighting, clean beauty commercial, 4K 60fps`,
+        `Model with flawless skin smiling into camera, applying ${bName} cream in soft natural daylight, fresh botanical ingredients floating in background, premium skincare commercial`,
+        `Slow-motion product bottle hero reveal of ${bName} against a clean white backdrop, light refractions through glass, water mist, minimalist luxury beauty advertising, 4K`,
+      ]);
     } else if (bLower.includes("ai") || bLower.includes("search") || bLower.includes("software") || bLower.includes("app") || bLower.includes("tech") || bLower.includes("relaunch")) {
-      baseAction = `Modern bright creative office studio, professional entrepreneur reviewing local business search growth on smartphone, screen showing clean abstract glowing data visualizations and connectivity network nodes with strictly NO text and NO words, crisp daylight, shallow depth of field, 4K commercial cinematography, 60fps`;
+      baseAction = pick([
+        `Modern bright creative office studio, professional entrepreneur reviewing local business search growth on smartphone, screen showing clean abstract glowing data visualizations and connectivity network nodes with strictly NO text and NO words, crisp daylight, shallow depth of field, 4K commercial cinematography, 60fps`,
+        `Confident business owner in a modern office smiling as booking notifications arrive on their phone, abstract glowing network nodes float around them, warm natural light, tech-forward atmosphere, 4K commercial, NO on-screen text`,
+        `Split-screen reveal: left side shows a frustrated business owner with zero calls, right side shows the same owner thriving with ${bName}, glowing phone screen, clean modern office, NO readable text, 4K 60fps commercial`,
+        `Cinematic push-in on a sleek smartphone showing abstract AI data flowing and connecting local business nodes, holographic glow, dark premium studio backdrop, shallow depth of field, NO text or words, 4K tech commercial`,
+      ]);
     } else {
-      baseAction = `High-converting commercial advertising showcase for "${bName}", dynamic customer interaction with product, fluid camera orbit, vibrant studio lighting, 4K 60fps physical realism`;
+      baseAction = pick([
+        `High-converting commercial advertising showcase for "${bName}", dynamic customer interaction with product, fluid camera orbit, vibrant studio lighting, 4K 60fps physical realism`,
+        `Cinematic hero product reveal for "${bName}", smooth 360-degree camera orbit, dramatic backlighting, premium studio environment, authentic commercial atmosphere, 4K 60fps`,
+        `Dynamic lifestyle commercial for "${bName}", happy customer unboxing and discovering the product, natural reactions, bright modern setting, engaging advertising energy, 4K`,
+        `Bold advertising reveal for "${bName}", product spotlight with cinematic lens flare, slow dolly push-in, premium dark studio canvas, vibrant brand colors, 4K commercial cinematography`,
+      ]);
     }
 
-    const generated = uploadedMediaType === "image"
-      ? `${baseAction}, featuring the product and visual identity shown in the reference image, seamless real-world interaction, cinematic camera motion, strictly no frozen frame, 4K commercial cinematography`
-      : `${baseAction}, cinematic camera tracking shot, authentic commercial atmosphere, 4K 60fps`;
+    const suffixes = [
+      "cinematic camera tracking shot, authentic commercial atmosphere, 4K 60fps",
+      "smooth dolly motion, premium studio lighting, broadcast-grade commercial quality, 4K",
+      "dynamic parallax camera drift, vivid color grading, high-converting advertising style, 60fps",
+      "fluid gimbal movement, natural depth of field, authentic commercial energy, 4K 60fps",
+    ];
+
+    const imgSuffixes = [
+      "featuring the product and visual identity shown in the reference image, seamless real-world interaction, cinematic camera motion, strictly no frozen frame, 4K commercial cinematography",
+      "incorporating the reference image as a hero asset with smooth Ken Burns 3D camera push-in, dark luxury studio reflections, razor-sharp typography, 4K advertising motion",
+      "showcasing the uploaded creative as a dynamic ad scene with gentle parallax drift, studio backlighting, clean commercial motion, 4K 60fps",
+      "integrating the reference image with cinematic zoom and subtle rotation, premium dark canvas, marketing badge overlays, broadcast-quality 4K rendering",
+    ];
+
+    const generated = uploadedMediaType === "image" || uploadedImages.length > 0
+      ? `${baseAction}, ${pick(imgSuffixes)}`
+      : `${baseAction}, ${pick(suffixes)}`;
 
     setVisualPrompt(generated);
   };
@@ -1704,32 +1939,47 @@ export default function StudioVideoGenerator() {
     const controller = new AbortController();
     abortControllerRef.current = controller;
 
-    // Smooth, realistic progress simulation matching real fal.ai & ElevenLabs execution (~70-85s)
+    // Smooth, dynamic progress tracking tied to elapsed time vs estimated target
     const progressInterval = setInterval(() => {
+      const nowElapsed = Math.floor((Date.now() - startSecTime) / 1000);
       setGenProgress((prev) => {
-        if (prev < 25) {
-          setGenStepText("Generating authentic creator voiceover via ElevenLabs...");
-          return prev + 2;
-        } else if (prev < 55) {
-          setGenStepText("fal.ai Kling neural engine generating 1080p commercial motion frames...");
-          return prev + 1.2;
-        } else if (prev < 85) {
-          setGenStepText("AI diffusion rendering dynamic product commercial reel in cloud...");
-          return prev + 0.8;
-        } else if (prev < 95) {
+        const targetSeconds = Math.max(20, estimatedTotalSeconds);
+        let targetProgress: number;
+
+        if (nowElapsed <= targetSeconds) {
+          const progressRatio = nowElapsed / targetSeconds;
+          targetProgress = Math.round(10 + progressRatio * 82); // scales 10% -> 92% smoothly over target duration
+        } else {
+          // Beyond expected time: smoothly creep 1% every 20s up to 99%, never freezing
+          const overtime = nowElapsed - targetSeconds;
+          targetProgress = Math.min(99, 92 + Math.floor(overtime / 20));
+        }
+
+        const nextVal = Math.max(prev, targetProgress);
+
+        if (nextVal < 20) {
+          setGenStepText("Synthesizing branded voiceover with ElevenLabs & analyzing creative brief...");
+        } else if (nextVal < 60) {
+          setGenStepText(
+            uploadedImages.length > 0
+              ? "fal.ai Kling Image-to-Video generating interactive 3D motion frames in cloud GPU..."
+              : "Studio Engine generating commercial advertising video frames..."
+          );
+        } else if (nextVal < 80) {
+          setGenStepText("Rendering 3D camera parallax & studio reflections on reference frames...");
+        } else if (nextVal < 92) {
           setGenStepText(
             asBatch
               ? "Deriving 5 creative angles & compiling 15 aspect ratio deliverables..."
-              : "Downloading generated 4K MP4 variant and assembling composite..."
+              : "Downloading generated Kling 1080p MP4 master clips..."
           );
-          return prev + 0.4;
-        } else if (prev < 98) {
-          setGenStepText("Synchronizing audio waveforms and saving to QA Review queue...");
-          return Math.min(prev + 0.1, 98);
+        } else {
+          setGenStepText("FFmpeg compiling 4-scene commercial master, kinetic captions & ducked BGM...");
         }
-        return prev;
+
+        return nextVal;
       });
-    }, 1200);
+    }, 1000);
     progressIntervalRef.current = progressInterval;
 
     try {
@@ -2146,7 +2396,7 @@ export default function StudioVideoGenerator() {
       </div>
 
       {/* 2. MAIN WORKSPACE (2-Column Studio: Left Controls, Right Live Stage) */}
-      <main className="w-full flex-1 flex flex-col lg:flex-row lg:h-[calc(100vh-57px)] lg:overflow-hidden min-h-0 bg-[#F8F9FC]">
+      <main className="w-full flex-1 flex flex-col lg:flex-row lg:h-[calc(100vh-57px)] overflow-y-auto lg:overflow-hidden min-h-0 bg-[#F8F9FC]">
         {/* ============================================================== */}
         {/* LEFT PANEL: SIMPLE 3-STEP CREATION CONTROLS                    */}
         {/* ============================================================== */}
@@ -2344,6 +2594,94 @@ export default function StudioVideoGenerator() {
                     />
                   </div>
                 </div>
+
+                {/* Official Facebook Ad Creatives Shelf (Multi-Select Enabled) */}
+                {BRAND_PRESETS.find((p) => p.id === selectedPresetId)?.adCreatives && (
+                  <div className="p-3 bg-purple-50/60 border border-purple-200/90 rounded-2xl space-y-2">
+                    <div className="flex items-center justify-between flex-wrap gap-1.5">
+                      <div className="flex items-center gap-1.5">
+                        <Sparkles className="w-3.5 h-3.5 text-[#7F48ED]" />
+                        <span className="text-[11px] font-bold text-zinc-900">
+                          Facebook Ad Creatives
+                        </span>
+                        <span className="text-[9px] bg-[#7F48ED] text-white font-bold px-1.5 py-0.2 rounded-full uppercase">
+                          Kling i2v Motion
+                        </span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <button
+                          type="button"
+                          onClick={
+                            selectedAdCreativeIds.length ===
+                            (BRAND_PRESETS.find((p) => p.id === selectedPresetId)?.adCreatives?.length || 0)
+                              ? handleClearAdCreatives
+                              : handleSelectAllAdCreatives
+                          }
+                          className="text-[10px] text-[#7F48ED] hover:text-[#6938c9] font-bold transition cursor-pointer"
+                        >
+                          {selectedAdCreativeIds.length ===
+                          (BRAND_PRESETS.find((p) => p.id === selectedPresetId)?.adCreatives?.length || 0)
+                            ? "Deselect All"
+                            : "Select All (4 Ads)"}
+                        </button>
+                      </div>
+                    </div>
+
+                    <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+                      {BRAND_PRESETS.find((p) => p.id === selectedPresetId)?.adCreatives?.map((creative) => {
+                        const isSelected = selectedAdCreativeIds.includes(creative.id);
+                        const selectedOrder = selectedAdCreativeIds.indexOf(creative.id);
+                        return (
+                          <div
+                            key={creative.id}
+                            onClick={() => handleToggleAdCreative(creative)}
+                            className={`group relative rounded-xl border p-1.5 flex flex-col justify-between transition cursor-pointer select-none ${
+                              isSelected
+                                ? "bg-white border-[#7F48ED] shadow-sm ring-2 ring-[#7F48ED]/30"
+                                : "bg-white/80 border-zinc-200 hover:border-purple-300 hover:bg-white"
+                            }`}
+                          >
+                            <div className="relative aspect-[4/5] w-full rounded-lg overflow-hidden bg-zinc-950 mb-1">
+                              <img
+                                src={creative.image}
+                                alt={creative.name}
+                                className="w-full h-full object-cover group-hover:scale-105 transition duration-200"
+                              />
+                              <span className="absolute top-1 left-1 bg-black/80 text-white text-[8px] font-bold px-1.5 py-0.2 rounded">
+                                {creative.badge}
+                              </span>
+
+                              {/* Multi-Select Checkbox Badge */}
+                              <div className="absolute top-1 right-1">
+                                {isSelected ? (
+                                  <div className="w-5 h-5 rounded-md bg-[#7F48ED] text-white flex items-center justify-center shadow-md ring-1 ring-white/50">
+                                    <Check className="w-3.5 h-3.5 stroke-[3]" />
+                                  </div>
+                                ) : (
+                                  <div className="w-5 h-5 rounded-md bg-black/40 border border-white/60 group-hover:border-white transition flex items-center justify-center">
+                                    <span className="w-1.5 h-1.5 rounded-full bg-white/40 group-hover:bg-white/80 transition" />
+                                  </div>
+                                )}
+                              </div>
+
+                              {isSelected && (
+                                <div className="absolute bottom-1 left-1 bg-[#7F48ED]/90 text-white text-[8px] font-mono font-bold px-1.5 py-0.2 rounded backdrop-blur-xs">
+                                  {selectedOrder === 0 ? "Scene 2 (Hero)" : selectedOrder === 1 ? "Scene 3 (Action)" : `#${selectedOrder + 1}`}
+                                </div>
+                              )}
+                            </div>
+                            <div className="text-[10px] font-bold text-zinc-900 truncate" title={creative.name}>
+                              {creative.name}
+                            </div>
+                            <div className="text-[9px] text-[#7F48ED] font-semibold truncate capitalize mt-0.5">
+                              {creative.angleKey} angle
+                            </div>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </div>
+                )}
 
                 <div>
                   <input
@@ -3258,14 +3596,14 @@ export default function StudioVideoGenerator() {
                 <span className="text-xs font-black uppercase tracking-wider text-zinc-900">Timeline &amp; Master Tracks</span>
                 {!step4Open && (
                   <span className="text-[11px] text-zinc-500 truncate ml-1 font-medium">
-                    · 22s Master ({aiGapFillMode ? "AI Gap-Fill" : "100% Real Footage"})
+                    · {uploadedImages.length > 0 ? "22s Master (Pure Kling i2v Motion)" : "22s Master (UGC Hook + Kling AI Motion)"}
                   </span>
                 )}
               </div>
               <div className="flex items-center gap-2 shrink-0">
-                <span className="px-1.5 py-0.5 rounded-full bg-emerald-100 text-emerald-800 text-[8px] font-bold uppercase tracking-wider hidden sm:inline-flex items-center gap-0.5">
-                  <Check className="w-2.5 h-2.5" />
-                  <span>Real Lead</span>
+                <span className="px-1.5 py-0.5 rounded-full bg-purple-100 text-[#7F48ED] text-[8px] font-bold uppercase tracking-wider hidden sm:inline-flex items-center gap-0.5">
+                  <Sparkles className="w-2.5 h-2.5" />
+                  <span>{uploadedImages.length > 0 ? "Pure Kling i2v" : "Kling Hybrid"}</span>
                 </span>
                 <ChevronDown className={`w-4 h-4 text-zinc-400 transition-transform shrink-0 ${step4Open ? "rotate-180" : ""}`} />
               </div>
@@ -3273,29 +3611,22 @@ export default function StudioVideoGenerator() {
 
             {step4Open && (
               <div className="p-3.5 pt-0 space-y-3 border-t border-zinc-100/60">
-                {/* AI Gap-Filler Mode Switch */}
-                <div className="pt-2 flex items-center justify-between gap-2 bg-zinc-50 p-2.5 rounded-xl border border-zinc-200/80">
+                {/* Production Pipeline Indicator */}
+                <div className="pt-2 flex items-center justify-between gap-2 bg-purple-50/50 p-2.5 rounded-xl border border-purple-200/60">
                   <div className="min-w-0">
                     <div className="text-[11px] font-bold text-zinc-900 flex items-center gap-1.5">
-                      <Layers className="w-3.5 h-3.5 text-[#7F48ED]" />
-                      <span>Real-Footage-First Rule</span>
+                      <Sparkles className="w-3.5 h-3.5 text-[#7F48ED]" />
+                      <span>Production Workflow</span>
                     </div>
                     <div className="text-[10px] text-zinc-500 leading-tight">
-                      {aiGapFillMode ? "Missing scenes filled via AI diffusion" : "100% genuine creator & client product footage"}
+                      {uploadedImages.length > 0
+                        ? "100% Pure Kling AI Motion from Reference Images & 4K Master Export"
+                        : "UGC Creator Hook Take + Kling AI Scene Motion & 4K Master Export"}
                     </div>
                   </div>
-                  <button
-                    type="button"
-                    onClick={() => setAiGapFillMode(!aiGapFillMode)}
-                    className={`px-2.5 py-1 rounded-lg text-[10px] font-mono transition font-bold cursor-pointer shrink-0 ${
-                      aiGapFillMode
-                        ? "bg-[#7F48ED] text-white shadow-xs"
-                        : "bg-emerald-600 text-white shadow-xs"
-                    }`}
-                    title="Toggle AI Gap-Fill mode"
-                  >
-                    {aiGapFillMode ? "AI Gap: ON" : "100% Real"}
-                  </button>
+                  <span className="px-2 py-0.5 rounded-md bg-[#7F48ED] text-white text-[9px] font-mono font-bold shrink-0">
+                    Kling Active
+                  </span>
                 </div>
 
                 {/* Master Production Tracks: Music, Captions, CTA Template */}
@@ -3567,10 +3898,15 @@ export default function StudioVideoGenerator() {
 
                       const isSlotActive = (generatedResult && isCurrentTimeInSlot) || activeScrubScene === sceneId;
 
-                      let label = "Hook";
-                      if (sceneId === 2) label = scene2AiGapFill ? "AI Gap" : "Product";
-                      else if (sceneId === 3) label = scene3AiGapFill ? "AI Gap" : "B-Roll";
-                      else if (sceneId === 4) label = "CTA";
+                      const isPureAiMode = uploadedImages.length > 0;
+                      let label = "UGC Hook";
+                      if (isPureAiMode) {
+                        label = visualIdx === 0 ? "Kling Hook i2v" : visualIdx === 1 ? "Kling Offer i2v" : visualIdx === 2 ? "Kling Proof i2v" : "Kling CTA i2v";
+                      } else {
+                        if (sceneId === 2) label = "Kling Product";
+                        else if (sceneId === 3) label = "Kling B-Roll";
+                        else if (sceneId === 4) label = "Branded CTA";
+                      }
 
                       return (
                         <button
@@ -3611,37 +3947,51 @@ export default function StudioVideoGenerator() {
                       const isDragOver = dragOverSceneIdx === visualIdx;
 
                       // Scene specific data
+                      const isPureAiMode = uploadedImages.length > 0;
                       let sceneName = "Scene 1: Hook";
                       let badgeText = "Real Take";
                       let badgeStyle = "bg-emerald-100 text-emerald-800";
                       let subtitle = selectedHook || "Creator fronted hook take";
-                      let hasAiGapToggle = false;
-                      let isAiGap = false;
 
-                      if (sceneId === 1) {
-                        sceneName = "Scene 1: Hook";
-                        badgeText = "Real Take";
-                        badgeStyle = "bg-emerald-100 text-emerald-800";
-                        subtitle = selectedHook || "Creator fronted hook take";
-                      } else if (sceneId === 2) {
-                        sceneName = "Scene 2: Product";
-                        hasAiGapToggle = true;
-                        isAiGap = scene2AiGapFill;
-                        badgeText = scene2AiGapFill ? "AI Gap" : "Real Product";
-                        badgeStyle = scene2AiGapFill ? "bg-purple-100 text-[#7F48ED]" : "bg-blue-100 text-blue-800";
-                        subtitle = uploadedMediaName || `${brandName} Commercial Master`;
-                      } else if (sceneId === 3) {
-                        sceneName = "Scene 3: B-Roll";
-                        hasAiGapToggle = true;
-                        isAiGap = scene3AiGapFill;
-                        badgeText = scene3AiGapFill ? "AI Gap" : "Real B-Roll";
-                        badgeStyle = scene3AiGapFill ? "bg-purple-100 text-[#7F48ED]" : "bg-emerald-100 text-emerald-800";
-                        subtitle = "Dynamic lifestyle & feature action";
-                      } else if (sceneId === 4) {
-                        sceneName = "Scene 4: CTA";
-                        badgeText = "Branded CTA";
-                        badgeStyle = "bg-orange-100 text-[#FF6700]";
-                        subtitle = brandOffer || "Exclusive Offer End Card";
+                      if (isPureAiMode) {
+                        const targetImg = uploadedImages[visualIdx] || uploadedImages[sceneId - 1];
+                        badgeText = "Kling i2v";
+                        badgeStyle = "bg-purple-100 text-[#7F48ED]";
+                        if (visualIdx === 0) {
+                          sceneName = `Scene 1: ${targetImg?.name || "Hook Motion"}`;
+                          subtitle = selectedHook || "Attention-grabbing 3D camera push-in";
+                        } else if (visualIdx === 1) {
+                          sceneName = `Scene 2: ${targetImg?.name || "Offer Motion"}`;
+                          subtitle = "Core offer comparison scene with smooth 3D camera pan";
+                        } else if (visualIdx === 2) {
+                          sceneName = `Scene 3: ${targetImg?.name || "Proof Motion"}`;
+                          subtitle = "Client decision proof scene with macro reflection tilt";
+                        } else {
+                          sceneName = `Scene 4: ${targetImg?.name || "CTA Motion"}`;
+                          subtitle = brandOffer || "Call-to-action audit checklist with animated reveal";
+                        }
+                      } else {
+                        if (sceneId === 1) {
+                          sceneName = "Scene 1: Hook";
+                          badgeText = "Real Take";
+                          badgeStyle = "bg-emerald-100 text-emerald-800";
+                          subtitle = selectedHook || "Creator fronted hook take";
+                        } else if (sceneId === 2) {
+                          sceneName = "Scene 2: Product";
+                          badgeText = "Kling AI";
+                          badgeStyle = "bg-purple-100 text-[#7F48ED]";
+                          subtitle = uploadedMediaName || `${brandName} Commercial Master`;
+                        } else if (sceneId === 3) {
+                          sceneName = "Scene 3: B-Roll";
+                          badgeText = "Kling AI";
+                          badgeStyle = "bg-purple-100 text-[#7F48ED]";
+                          subtitle = "Dynamic lifestyle & feature action";
+                        } else if (sceneId === 4) {
+                          sceneName = "Scene 4: CTA";
+                          badgeText = "Branded CTA";
+                          badgeStyle = "bg-orange-100 text-[#FF6700]";
+                          subtitle = brandOffer || "Exclusive Offer End Card";
+                        }
                       }
 
                       return (
@@ -3705,25 +4055,6 @@ export default function StudioVideoGenerator() {
                                 >
                                   <Scissors className="w-2.5 h-2.5" />
                                   <span>{activeEditingScene === sceneId ? "Close" : "Trim"}</span>
-                                </button>
-                              )}
-
-                              {hasAiGapToggle && (
-                                <button
-                                  type="button"
-                                  onClick={(e) => {
-                                    e.stopPropagation();
-                                    if (sceneId === 2) setScene2AiGapFill(!scene2AiGapFill);
-                                    if (sceneId === 3) setScene3AiGapFill(!scene3AiGapFill);
-                                  }}
-                                  className={`text-[9px] font-bold px-2 py-0.5 rounded border transition cursor-pointer shadow-2xs whitespace-nowrap ${
-                                    isAiGap
-                                      ? "bg-purple-100 text-[#7F48ED] border-purple-300 hover:bg-purple-200"
-                                      : "bg-zinc-50 text-zinc-600 border-zinc-200 hover:bg-zinc-100"
-                                  }`}
-                                  title="Toggle between real physical footage and AI gap generation"
-                                >
-                                  {isAiGap ? "AI Gap" : "+ AI Gap"}
                                 </button>
                               )}
                               <button
@@ -4001,7 +4332,7 @@ export default function StudioVideoGenerator() {
                   </p>
                 </div>
               </div>
-              <div className="flex items-center gap-2 shrink-0">
+              <div className="flex items-center gap-2 shrink-0 flex-wrap">
                 {generationError.balanceExhausted && (
                   <a
                     href={generationError.billingUrl || "https://fal.ai/dashboard/billing"}
@@ -4009,7 +4340,7 @@ export default function StudioVideoGenerator() {
                     rel="noopener noreferrer"
                     className="px-3.5 py-1.5 bg-[#FF6700] hover:bg-[#e55c00] text-white rounded-xl text-xs font-bold transition shadow-sm cursor-pointer"
                   >
-                    Top Up Balance
+                    Top Up fal.ai Balance
                   </a>
                 )}
                 <button
@@ -4033,15 +4364,28 @@ export default function StudioVideoGenerator() {
                   </div>
                   <div>
                     <div className="text-xs font-bold text-zinc-900 flex flex-wrap items-center gap-2">
-                      <span>{batchJobsCreated ? "Batch Campaign Ready:" : "Generated AI Ad Ready:"} <span className="font-mono text-[#7F48ED]">{generatedResult.jobId}</span></span>
-                      <span className="text-[10px] bg-emerald-100 text-emerald-800 px-2 py-0.5 rounded-full font-bold">
-                        {batchJobsCreated ? "5-ANGLE BATCH GENERATED" : "GENUINE AI RENDER"}
+                      <span>
+                        {batchJobsCreated
+                          ? "Batch Campaign Ready:"
+                          : "Generated Kling AI Ad Ready:"}{" "}
+                        <span className="font-mono text-[#7F48ED]">{generatedResult.jobId}</span>
+                      </span>
+                      <span
+                        className={`text-[10px] px-2 py-0.5 rounded-full font-bold ${
+                          batchJobsCreated
+                            ? "bg-purple-100 text-[#7F48ED]"
+                            : "bg-purple-100 text-[#7F48ED]"
+                        }`}
+                      >
+                        {batchJobsCreated
+                          ? "5-ANGLE BATCH GENERATED"
+                          : "KLING AI MOTION MASTER"}
                       </span>
                     </div>
                     <p className="text-[11px] text-zinc-600">
                       {batchJobsCreated
                         ? "5 Creative Angles Generated (15 Deliverables: 9:16, 1:1, 4:5) ready for Quality Bar Sign-off"
-                        : "Voiceover synced & all 3 ratios derived"}
+                        : "Kling i2v motion, voiceover synced & all 3 ratios derived in 9:16, 1:1, 4:5 & 4K"}
                     </p>
                   </div>
                 </div>

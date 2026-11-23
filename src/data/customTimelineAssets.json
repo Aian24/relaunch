@@ -1,6 +1,17 @@
 {
   "musicTracks": [
     {
+      "id": "custom-track-1794375930589",
+      "title": "hit",
+      "genre": "Trendy Upbeat UGC",
+      "bpm": 120,
+      "vibe": "High Engagement / TikTok",
+      "src": "/audio/music/custom-1794375930588-hit.mp3",
+      "provider": "Custom Upload",
+      "licenseNote": "Custom Client License · Uploaded in Studio",
+      "isCustom": true
+    },
+    {
       "id": "custom-track-1794365043983",
       "title": "Midnight Synthwave Groove",
       "genre": "Retro Synthwave",
