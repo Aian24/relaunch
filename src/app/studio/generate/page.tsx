@@ -102,50 +102,9 @@ const BRAND_PRESETS: BrandPreset[] = [
     brandName: "AI Recommendations",
     brandOffer: "Free AI Visibility Audit",
     angleKey: "problem",
-    visualPrompt: "High-converting commercial advertising video for AI Recommendations. Dynamic 3D camera push-in and subtle parallax tilt of the digital UI in the reference image, soft realistic studio lighting reflections across the glass, depth of field, sharp 4K 60fps cinematography, keep all text, letters, logos, badges, and layout 100% stable, sharp, and unchanged without morphing or distortion",
+    visualPrompt: "Visual Direction & Motion Prompt (9:16 Vertical Ad — ReLaunch AI Recommendations):\nCreate a clean, modern vertical motion-design ad on a flat deep navy background (#0B1628) with crisp white typography, warm amber-gold accents (#F5A623), emerald green checkmarks (#22C55E), and coral-red warning indicators (#EF4444). Strictly use flat solid surfaces with zero gradients, zero drop-shadow glow effects, and no generic star or sparkle icons.\n\nScene 3 (0:06–0:09 — Quiet Decision): Top two-line headline animates in: \"AI is quietly deciding who gets the customer.\" (who gets the customer. in amber-gold). Inside a clean white chat card, an amber speech bubble pops in: \"Who's the best roofer in Phoenix?\". Below it, \"Here are my top picks:\" reveals three ranked placeholder bars (1., 2., 3.) with ratings (4.9, 4.8, 4.8), while a dashed red warning row at the bottom reads ⊗ Your business — NOT MENTIONED. Caption below: \"If AI doesn't have a clear picture of your business, someone else gets the call.\"",
+    productVideo: "/videos/ai-recommendations.mp4",
     musicTrackId: "tech-driving-beat",
-    adCreatives: [
-      {
-        id: "lockscreen-notification",
-        name: "Lockscreen Alert",
-        angleKey: "problem",
-        badge: "High CTR",
-        image: "/images/ai-recommendations/ad-1-lockscreen-notification.png",
-        hook: "Your next customer just asked AI who to call.",
-        body: "Your next customer just asked AI who to call. If AI doesn't have a clear picture of your business, someone else gets the call. ReLaunch fixes what AI reads about you so you get recommended first. Claim your free audit today at relaunch.us/ai-recommendations.",
-        motionPrompt: "Dynamic 3D cinematic push-in toward the smartphone lockscreen notification alert, subtle tilt of the glass screen, glowing notification banner with plumbers list and red alert badge, authentic soft studio lighting reflections across the phone glass, keep all UI text, letters, badges 100% sharp and stable without morphing, 4K 60fps photorealistic commercial cinematography",
-      },
-      {
-        id: "search-10-vs-ai-3",
-        name: "Search 10 vs AI 3",
-        angleKey: "comparison",
-        badge: "Conversions",
-        image: "/images/ai-recommendations/ad-2-search-vs-ai-choice.png",
-        hook: "Search gave them 10 choices. AI gives them 3.",
-        body: "Traditional search gave customers 10 choices. AI gives them only 3. If AI has mixed-up or missing info on your business, it recommends your competitor. ReLaunch ensures you win the top 3 spots. Go to relaunch.us/ai-recommendations.",
-        motionPrompt: "Cinematic 3D camera pan and parallax depth drift across the comparison ad graphics, the 10 search results dim gently while the 3 AI recommendation cards illuminate with soft neon highlights, camera pushes smoothly toward the #3 recommendation spot, keep all typography and layout razor sharp and stable, 4K 60fps advertising motion",
-      },
-      {
-        id: "roofer-decision",
-        name: "AI Silent Decision",
-        angleKey: "hack",
-        badge: "Curiosity",
-        image: "/images/ai-recommendations/ad-3-roofer-decision.png",
-        hook: "AI is quietly deciding who gets the customer.",
-        body: "AI assistants like ChatGPT and Siri are quietly deciding who gets the customer every single day. If you don't have verified AI visibility, you lose calls you never even see. Visit relaunch.us/ai-recommendations today.",
-        motionPrompt: "Cinematic commercial camera push-in on the AI search prompt bar 'Who is the best roofer in Phoenix?', soft glowing search pill, subtle glass reflection drift across the dark mode UI, glowing rating stars and verified badge, camera holds steady on the high-intent warning, razor-sharp typography without deformation, 4K 60fps commercial advertising motion",
-      },
-      {
-        id: "ai-audit-checklist",
-        name: "AI Visibility Audit",
-        angleKey: "ugc",
-        badge: "Trust",
-        image: "/images/ai-recommendations/ad-4-ai-audit-checklist.png",
-        hook: "AI is reading about your business right now.",
-        body: "AI is reading your Google listing, Yelp profile, hours, and reviews right now. Missing or inconsistent info causes it to recommend someone else. We fix what AI reads about you at relaunch.us/ai-recommendations.",
-        motionPrompt: "Dynamic scanning motion across the AI audit checklist rows, subtle glowing laser scan line illuminates the directory audit items, green checkmarks and red cross indicators pop into crisp focus with subtle 3D lighting, camera drifts in with cinematic depth of field, keep all checklist text and badges 100% sharp and stable, 4K 60fps",
-      },
-    ],
   },
   {
     id: "chicago-dog-42",
@@ -865,7 +824,7 @@ export default function StudioVideoGenerator() {
   const [selectedPresetId, setSelectedPresetId] = useState<string>("chicago-dog-42");
   const [brandName, setBrandName] = useState("Chicago Dog 42");
   const [brandOffer, setBrandOffer] = useState("$5 Off First Jumbo Combo");
-  const [selectedAdCreativeIds, setSelectedAdCreativeIds] = useState<string[]>(["lockscreen-notification", "search-vs-ai", "roofer-decision", "ai-audit-checklist"]);
+  const [selectedAdCreativeIds, setSelectedAdCreativeIds] = useState<string[]>([]);
   const [presetDropdownOpen, setPresetDropdownOpen] = useState(false);
   const presetDropdownRef = useRef<HTMLDivElement>(null);
   const [elapsedSeconds, setElapsedSeconds] = useState(0);
@@ -917,7 +876,7 @@ export default function StudioVideoGenerator() {
   const [step2Open, setStep2Open] = useState(true);
   const [step3Open, setStep3Open] = useState(true);
   const [step4Open, setStep4Open] = useState(false);
-  const [showVisualPrompt, setShowVisualPrompt] = useState(false);
+  const [showVisualPrompt, setShowVisualPrompt] = useState(true);
   const [showTrimmer, setShowTrimmer] = useState(false);
   const [timelineExpanded, setTimelineExpanded] = useState(false); // Collapsed by default into compact strip to save vertical space
   const [activeScrubScene, setActiveScrubScene] = useState<number | null>(null);
@@ -2944,41 +2903,44 @@ export default function StudioVideoGenerator() {
                   />
                 </div>
 
-                {/* AI Visual Direction: Space-saver dropdown toggle (Closed by default to save 90px) */}
-                <div className="pt-1.5 border-t border-zinc-100">
-                  <button
-                    type="button"
-                    onClick={() => setShowVisualPrompt(!showVisualPrompt)}
-                    className="w-full py-1.5 px-2 bg-zinc-50 hover:bg-zinc-100 rounded-lg text-xs font-bold text-zinc-600 hover:text-[#7F48ED] flex items-center justify-between cursor-pointer transition"
-                  >
-                    <span className="flex items-center gap-1.5">
-                      <Sparkles className="w-3 h-3 text-[#FF6700]" />
-                      <span>AI Visual Direction (Optional)</span>
-                    </span>
-                    <span className="text-[10px] text-[#7F48ED] font-mono font-bold">
-                      {showVisualPrompt ? "Hide ▲" : "Expand ▼"}
-                    </span>
-                  </button>
+                {/* AI Visual Direction & Motion Spec */}
+                <div className="pt-2 border-t border-zinc-100 space-y-2">
+                  <div className="flex items-center justify-between gap-2">
+                    <div className="flex items-center gap-1.5 min-w-0 shrink-0">
+                      <Sparkles className="w-3.5 h-3.5 text-[#FF6700] shrink-0" />
+                      <span className="text-xs font-bold text-zinc-900 whitespace-nowrap">AI Visual Direction &amp; Motion Prompt</span>
+                    </div>
+                    <div className="flex items-center gap-2 shrink-0">
+                      <button
+                        type="button"
+                        onClick={handleAutoGenerateVisualPrompt}
+                        className="text-[10px] text-[#7F48ED] hover:text-[#6a32d6] font-bold flex items-center gap-1 cursor-pointer transition bg-purple-50 hover:bg-purple-100 px-2 py-0.5 rounded-md whitespace-nowrap shrink-0"
+                        title="Generate visual prompt automatically from script"
+                      >
+                        <Sparkles className="w-2.5 h-2.5 text-[#7F48ED] shrink-0" />
+                        <span className="whitespace-nowrap">Auto-Generate</span>
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setShowVisualPrompt(!showVisualPrompt)}
+                        className="text-[10px] text-zinc-400 hover:text-zinc-600 font-mono font-bold whitespace-nowrap shrink-0 cursor-pointer"
+                      >
+                        {showVisualPrompt ? "Hide ▲" : "Show ▼"}
+                      </button>
+                    </div>
+                  </div>
 
                   {showVisualPrompt && (
-                    <div className="mt-2 space-y-1.5 animate-in fade-in duration-150">
-                      <div className="flex justify-end">
-                        <button
-                          type="button"
-                          onClick={handleAutoGenerateVisualPrompt}
-                          className="text-[10px] text-[#7F48ED] hover:text-[#6a32d6] font-bold flex items-center gap-1 cursor-pointer transition bg-purple-50 hover:bg-purple-100 px-2 py-0.5 rounded-md"
-                          title="Generate visual prompt automatically from script"
-                        >
-                          <Sparkles className="w-2.5 h-2.5 text-[#7F48ED]" />
-                          <span>Auto-Generate Prompt</span>
-                        </button>
-                      </div>
+                    <div className="space-y-1.5 animate-in fade-in duration-150">
+                      <p className="text-[11px] text-zinc-500 leading-tight">
+                        Controls visual styling, scene transitions, and motion design cues.
+                      </p>
                       <textarea
                         value={visualPrompt}
                         onChange={(e) => setVisualPrompt(e.target.value)}
-                        rows={2}
-                        className="w-full bg-white border border-zinc-200 focus:border-[#7F48ED] focus:ring-2 focus:ring-[#7F48ED]/15 rounded-xl p-2 text-xs text-zinc-800 focus:outline-none resize-none leading-relaxed transition font-medium"
-                        placeholder="Describe what should happen in the video based on your script (e.g. Delicious hot dog macro slow-motion reveal with mustard, relish, and sizzling grill steam)..."
+                        rows={5}
+                        className="w-full bg-white border border-zinc-200 focus:border-[#7F48ED] focus:ring-2 focus:ring-[#7F48ED]/15 rounded-xl p-2.5 text-xs text-zinc-800 focus:outline-none resize-y leading-relaxed transition font-medium min-h-[110px]"
+                        placeholder="Enter motion design & visual direction (e.g. Modern motion design on navy background, smartphone notification alert sliding down, chat bubbles popping with plumber recommendations, 60fps)..."
                       />
                     </div>
                   )}

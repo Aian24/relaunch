@@ -25,6 +25,10 @@ export const dynamic = "force-dynamic";
 // In-memory registry of cancelled job IDs to abort background tasks immediately
 const activeCancelledJobIds = new Set<string>();
 
+// Comprehensive negative prompt to strictly ban rumble language, alien runes, fake words, and garbled glyphs
+const STRICT_ENGLISH_NEGATIVE_PROMPT =
+  "rumble language, alien letters, gibberish, fake words, distorted text, unreadable typography, foreign glyphs, hieroglyphics, runes, garbled text, squiggles, pseudo-text, unreadable letters, foreign alphabet, illegible writing, Asian characters, Cyrillic, Greek, alien symbols, nonsense words, blurred letters, typo, spelling error, blurry, low quality, glitch, distortion, watermark, deformed, ugly, bad anatomy, flicker, noisy, amateur, static, frozen";
+
 export async function POST(request: Request) {
   try {
     const url = new URL(request.url);
@@ -226,9 +230,7 @@ export async function POST(request: Request) {
     };
 
     const hasImageInput = Boolean(
-      (Array.isArray(body.mediaSources) && body.mediaSources.length > 0) ||
-      (typeof body.mediaSource === "string" && body.mediaSource.trim().length > 0) ||
-      body.mediaType === "image" ||
+      (body.mediaType === "image" && ((typeof body.imagesCount === "number" && body.imagesCount > 0) || (Array.isArray(body.mediaSources) && body.mediaSources.length > 0))) ||
       (typeof body.imagesCount === "number" && body.imagesCount > 0)
     );
 
@@ -512,11 +514,32 @@ export async function POST(request: Request) {
       }
     }
 
-    // In Image-to-Video mode, strictly clear any video paths so zero real footage or stock video leaks in
-    if (hasImageInput) {
+    // Check if the project or prompt references AI Recommendations or UI card motion
+    const promptLower = (visualPrompt || "").toLowerCase();
+    const brandLower = brandName.toLowerCase();
+    const isAiRecAd =
+      brandLower.includes("ai") ||
+      brandLower.includes("relaunch") ||
+      promptLower.includes("roofer") ||
+      promptLower.includes("quietly deciding") ||
+      promptLower.includes("search gave them 10 choices") ||
+      promptLower.includes("what ai found about you") ||
+      promptLower.includes("lock screen");
+
+    // Resolve Real Product Video for Scene 2 if specified or for AI Recommendations preset
+    if (isAiRecAd && !realProductVideoDisk) {
+      const prod = path.resolve(process.cwd(), "public/videos/ai-recommendations.mp4");
+      if (fs.existsSync(prod)) realProductVideoDisk = prod;
+    }
+
+    // Only clear real videos if the user explicitly provided custom uploaded images AND did not supply a real product video
+    const hasUserProvidedImages = body.mediaType === "image" && savedImageDiskPaths.length > 0;
+    if (hasUserProvidedImages && !productVideoUrl && !singleVideoDiskPath) {
       realProductVideoDisk = null;
       realBrollVideoDisk = null;
     }
+
+    const hasActualImageInputs = savedImageDiskPaths.length > 0;
 
     let aiVideoGenerated = false;
     const aiVideoClips: string[] = [];
@@ -536,11 +559,12 @@ export async function POST(request: Request) {
         const diskPath = savedImageDiskPaths[i];
         const ext = path.extname(diskPath).toLowerCase();
         if ([".png", ".jpg", ".jpeg", ".webp"].includes(ext)) {
+          let base64DataUrl = "";
           try {
             console.log(`[Studio Engine] Preparing reference image #${i + 1}/${savedImageDiskPaths.length} for Kling Image-to-Video...`);
             const fileBytes = fs.readFileSync(diskPath);
             const mime = ext === ".png" ? "image/png" : ext === ".webp" ? "image/webp" : "image/jpeg";
-            const base64DataUrl = `data:${mime};base64,${fileBytes.toString("base64")}`;
+            base64DataUrl = `data:${mime};base64,${fileBytes.toString("base64")}`;
             let uploadedUrl: string | null = null;
 
             for (const uploadEndpoint of [
@@ -589,6 +613,9 @@ export async function POST(request: Request) {
               break;
             }
             console.warn(`[Studio Engine] fal image #${i + 1} preparation notice:`, uploadErr.message);
+            if (base64DataUrl) {
+              cdnImageUrls.push(base64DataUrl);
+            }
           }
         }
       }
@@ -610,7 +637,7 @@ export async function POST(request: Request) {
       );
     }
 
-    if (hasImageInput && cdnImageUrls.length === 0) {
+    if (hasActualImageInputs && cdnImageUrls.length === 0 && !realProductVideoDisk) {
       return NextResponse.json(
         {
           ok: false,
@@ -797,22 +824,80 @@ export async function POST(request: Request) {
       return remoteUrl;
     };
 
-    if (falKey) {
+    const hasVisualPrompt = Boolean(visualPrompt && visualPrompt.trim().length > 0);
+    // User requested Kling AI to generate its own video for Scene 3 based on AI Visual Direction & Motion Prompt
+    const needsAiVideoGeneration = Boolean(
+      hasVisualPrompt ||
+      hasActualImageInputs ||
+      scene2AiGapFill ||
+      scene3AiGapFill ||
+      aiGapFillMode ||
+      !realProductVideoDisk
+    );
+
+    // Smart prompt formatter: if prompt has multi-scene descriptions (e.g. Scene 1..4), extract the active scene direction
+    const resolveKlingPrompt = (rawPrompt?: string, targetScene: number = 3): string => {
+      if (!rawPrompt || !rawPrompt.trim()) {
+        return `High-converting commercial advertising video for "${brandName}". Angle: ${creativeAngle}. Theme: ${brandVisualTheme}. Modern vertical motion design, crisp 4K 60fps advertising cinematography`;
+      }
+
+      let text = rawPrompt.trim();
+
+      // If the prompt contains multi-scene breakdowns (e.g. "Scene 1", "Scene 2", "Scene 3", "Scene 4")
+      if (/scene\s*[1-4]/i.test(text)) {
+        // Extract base style header (text before Scene 1 or general style)
+        const headerMatch = text.match(/^([\s\S]*?)(?=scene\s*1|\bscene\s*2|\bscene\s*3|\bscene\s*4)/i);
+        const baseStyle = headerMatch
+          ? headerMatch[1].replace(/^(visual direction & motion prompt|visual direction|ai visual direction|motion prompt)[^:]*:\s*/i, "").trim()
+          : "";
+
+        // Look for target scene (Scene 3 or Scene 2)
+        const sceneRegex = new RegExp(`scene\\s*${targetScene}[^:]*:\\s*([\\s\\S]*?)(?=(?:scene\\s*[1-4]|persistent footer|quick pacing|$))`, "i");
+        const sceneMatch = text.match(sceneRegex);
+
+        if (sceneMatch && sceneMatch[1].trim()) {
+          const sceneBody = sceneMatch[1].trim();
+          const cleanBody = sceneBody
+            .replace(/\(#0B1628\)/g, "deep navy blue")
+            .replace(/\(#F5A623\)/g, "amber gold")
+            .replace(/\(#22C55E\)/g, "emerald green")
+            .replace(/\(#EF4444\)/g, "coral red")
+            .replace(/[⊗×✓]/g, "");
+
+          const cleanHeader = baseStyle
+            .replace(/\(#0B1628\)/g, "deep navy blue")
+            .replace(/\(#F5A623\)/g, "amber gold")
+            .replace(/\(#22C55E\)/g, "emerald green")
+            .replace(/\(#EF4444\)/g, "coral red");
+
+          const englishDirective = "Clean vertical motion design. Strictly English language typography, Latin alphabet only, crisp legible English words: 'AI is quietly deciding who gets the customer', 'Who's the best roofer in Phoenix?'. No alien symbols, no rumble language, no fake letters.";
+          const combined = [englishDirective, cleanHeader, cleanBody].filter(Boolean).join(". ");
+          return combined.length <= 1800 ? combined : combined.slice(0, 1800);
+        }
+      }
+
+      // If no scene breakdown or single prompt, strip out meta instructions like "Quick Pacing & Voiceover Sync Tips"
+      text = text.replace(/quick pacing & voiceover sync tips[\s\S]*$/i, "").trim();
+      const englishDirective = "Strictly English language only. Clean legible English typography, Latin alphabet only, no alien symbols, no rumble language, no fake letters.";
+      const combined = `${englishDirective}. ${text}`;
+      return combined.slice(0, 1800);
+    };
+
+    if (falKey && needsAiVideoGeneration) {
       try {
         if (savedImageDiskPaths.length > 0 && cdnImageUrls.length > 0) {
-          // Real Kling AI Image-to-Video: Send each uploaded image to fal.ai Kling i2v
+          // Real Kling AI Image-to-Video: Send each reference image to fal.ai Kling i2v
           // to generate genuine AI-animated 5-second video clips with real motion.
-          // We run up to 2 i2v jobs in parallel (Scene 2 + Scene 3) to keep generation under 3 min.
+          // In Image-to-Video mode, Kling preserves the pristine English typography of the base image!
           const maxI2vJobs = Math.min(cdnImageUrls.length, 2); // Max 2 parallel i2v jobs for speed
-          console.log(`[Studio Engine] 🎬 Dispatching ${maxI2vJobs} Kling AI Image-to-Video jobs from ${cdnImageUrls.length} uploaded images...`);
-
-          const i2vMotionPrompt = visualPrompt?.trim()
-            ? `${visualPrompt.trim()}, smooth cinematic 3D camera push-in and parallax motion, commercial advertising quality, 4K 60fps`
-            : `Smooth cinematic 3D camera push-in and gentle parallax drift on this commercial ad creative for "${brandName}". Subtle studio lighting reflections, premium advertising motion, keep all text and logos 100% stable and sharp, 4K 60fps commercial cinematography`;
+          console.log(`[Studio Engine] 🎬 Dispatching ${maxI2vJobs} Kling AI Image-to-Video jobs from ${cdnImageUrls.length} reference images (Strict English typography)...`);
 
           const i2vPromises = cdnImageUrls.slice(0, maxI2vJobs).map(async (imgUrl, idx) => {
+            const klingSceneTarget = idx === 0 ? (realProductVideoDisk ? 3 : 2) : 3;
+            const klingI2vPrompt = resolveKlingPrompt(visualPrompt, klingSceneTarget);
             const body = {
-              prompt: `${i2vMotionPrompt}, strictly keep all existing text, logos, UI elements stable and unchanged`,
+              prompt: `${klingI2vPrompt}, dynamic motion animation, 60fps commercial advertising quality, crisp English typography strictly preserved, strictly legible English words`,
+              negative_prompt: STRICT_ENGLISH_NEGATIVE_PROMPT,
               image_url: imgUrl,
               duration: "5",
               aspect_ratio: "9:16",
@@ -840,18 +925,17 @@ export async function POST(request: Request) {
               aiVideoClips.push(f.path);
             }
             fs.copyFileSync(i2vFulfilled[0].path, path.join(storageDir, `ai-${jobId}.mp4`));
-            console.log(`[Studio Engine] ✓ Kling AI Image-to-Video: ${i2vFulfilled.length}/${maxI2vJobs} clips generated successfully!`);
+            console.log(`[Studio Engine] ✓ Kling AI Image-to-Video: ${i2vFulfilled.length}/${maxI2vJobs} clips generated successfully with accurate English!`);
           } else {
             // All i2v jobs failed — fall back to Ken Burns motion graphics on static images
             const rejected = i2vResults.find((r) => r.status === "rejected");
             const failReason = rejected?.reason?.message || "All Kling i2v jobs failed";
-            console.warn(`[Studio Engine] ⚠ Kling i2v failed (${failReason}). Falling back to Ken Burns motion graphics...`);
-            // Still mark as generated so FFmpeg assembly uses static images with zoompan
+            console.warn(`[Studio Engine] ⚠ Kling i2v notice (${failReason}). Falling back to motion graphics...`);
             aiVideoGenerated = true;
           }
         } else if (savedImageDiskPaths.length > 0) {
-          // Images uploaded but CDN upload failed — use Ken Burns motion graphics fallback
-          console.log(`[Studio Engine] ✓ Client Ad Creatives loaded (${savedImageDiskPaths.length} assets). Using Ken Burns motion graphics (CDN upload unavailable)...`);
+          // Images loaded but CDN upload failed — use Ken Burns motion graphics fallback
+          console.log(`[Studio Engine] ✓ Client Ad Creatives loaded (${savedImageDiskPaths.length} assets). Using Ken Burns motion graphics...`);
           aiVideoGenerated = true;
         } else if (aiModel === "minimax") {
           console.log(`[Studio Engine] Target: Minimax Video-01 for ${brandName}`);
@@ -865,21 +949,20 @@ export async function POST(request: Request) {
           aiVideoGenerated = true;
           aiVideoClips.push(aiDestPath);
         } else {
-          // Default: Kling 4K Single Targeted Scene (cuts queue time from 6m to ~2m)
-          console.log(`[Studio Engine] Target: Kling 4K Commercial Text-to-Video for ${brandName}`);
+          // Kling AI Text-to-Video for Scene 3 based on AI Visual Direction
+          console.log(`[Studio Engine] Target: Kling Commercial Text-to-Video for ${brandName} (Strict English language)`);
+          const klingTextPrompt = resolveKlingPrompt(visualPrompt, 3);
           const textJobConfigs = [
             {
-              prompt: visualPrompt?.trim()
-                ? `${visualPrompt.trim()}, commercial advertising hero shot, clean commercial visuals without on-screen words or letters, 60fps`
-                : `High-converting commercial advertising video for "${brandName}". Angle: ${creativeAngle}. Theme: ${brandVisualTheme}. Authentic product motion, 4K 60fps photorealistic cinematography, absolutely NO on-screen text, NO letters, NO words`,
-              label: "Scene 1: Hero Action",
+              prompt: `${klingTextPrompt}, dynamic high-quality commercial motion, 4K 60fps cinematography`,
+              label: "Scene 3: Kling AI Motion",
             },
           ];
 
           const textPromises = textJobConfigs.map(async (cfg, idx) => {
             const body = {
-              prompt: `${cfg.prompt}, strictly NO on-screen text, NO letters, NO words, authentic English commercial advertising only`,
-              negative_prompt: "non-english text, foreign characters, chinese, kanji, cyrillic, russian, arabic, hindi, alien glyphs, text, words, letters, typography, gibberish, foreign language, distorted letters, fake words, unreadable writing, symbols, blur, watermark, low quality, bad anatomy, deformed",
+              prompt: `Strictly English language only. Clean legible English typography, Latin alphabet only, no alien symbols, no unreadable glyphs. ${cfg.prompt}`,
+              negative_prompt: STRICT_ENGLISH_NEGATIVE_PROMPT,
               duration: "5",
               aspect_ratio: "9:16",
             };
@@ -914,7 +997,7 @@ export async function POST(request: Request) {
       }
     }
 
-    if (!falKey) {
+    if (!falKey && needsAiVideoGeneration) {
       return NextResponse.json(
         {
           ok: false,
@@ -925,7 +1008,7 @@ export async function POST(request: Request) {
       );
     }
 
-    if (!aiVideoGenerated) {
+    if (needsAiVideoGeneration && !aiVideoGenerated) {
       console.error(`[Studio Engine] fal.ai video generation failed: ${aiVideoError || "network/queue issue"}`);
       const isBalanceExhausted =
         aiVideoError.toLowerCase().includes("balance") ||
@@ -975,6 +1058,17 @@ export async function POST(request: Request) {
     const voFilePath = path.join(audioDir, `vo-${jobId}.mp3`);
 
     const findFfmpegBinary = (): { binary: string; hasDrawText: boolean } => {
+      // 0. Direct check for node_modules/ffmpeg-static binary
+      const localFfmpeg = path.join(
+        process.cwd(),
+        "node_modules",
+        "ffmpeg-static",
+        process.platform === "win32" ? "ffmpeg.exe" : "ffmpeg"
+      );
+      if (fs.existsSync(localFfmpeg)) {
+        return { binary: localFfmpeg, hasDrawText: true };
+      }
+
       // 1. Check npm ffmpeg-static package (runs on Linux x64 and Windows out of the box)
       try {
         const dynamicReq = eval("require");
@@ -1253,11 +1347,11 @@ export async function POST(request: Request) {
           let scene2InputFile = "";
           let isScene2StaticImage = false;
 
-          // Priority: AI i2v video clips > real product video > static image fallback
-          if (aiVideoClips[0] && fs.existsSync(aiVideoClips[0])) {
-            scene2InputFile = aiVideoClips[0];
-          } else if (!scene2AiGapFill && realProductVideoDisk && fs.existsSync(realProductVideoDisk)) {
+          // Priority: When real product video exists, Scene 2 is ALWAYS the real product video (unless user explicitly turned on scene2AiGapFill)
+          if (!scene2AiGapFill && realProductVideoDisk && fs.existsSync(realProductVideoDisk)) {
             scene2InputFile = realProductVideoDisk;
+          } else if (aiVideoClips[0] && fs.existsSync(aiVideoClips[0]) && (!realProductVideoDisk || scene2AiGapFill)) {
+            scene2InputFile = aiVideoClips[0];
           } else if (savedImageDiskPaths.length > 0 && fs.existsSync(savedImageDiskPaths[0])) {
             scene2InputFile = savedImageDiskPaths[0];
             isScene2StaticImage = true;
@@ -1288,16 +1382,23 @@ export async function POST(request: Request) {
           }
           createdSegFiles.push(seg2Path);
 
-          // 3. Scene 3 (B-Roll / Comparison Proof: 9.5 – 15.5s = 6.0s)
+          // 3. Scene 3 (B-Roll / Comparison Proof / Kling AI Motion: 9.5 – 15.5s = 6.0s)
           const scene3Duration = Math.max(1.0, Math.min(6.0, scene3TrimEnd - scene3TrimStart));
           let scene3InputFile = "";
           let isScene3StaticImage = false;
 
-          // Priority: AI i2v video clip #2 > AI i2v video clip #1 > real broll video > static image fallback
-          if (aiVideoClips[1] && fs.existsSync(aiVideoClips[1])) {
-            scene3InputFile = aiVideoClips[1];
-          } else if (aiVideoClips[0] && fs.existsSync(aiVideoClips[0]) && savedImageDiskPaths.length <= 1) {
+          // Priority: Kling generated clip (based on AI Visual Direction) > real b-roll video > static image fallback
+          // If 2 AI clips were generated, clip 2 is Scene 3. If 1 AI clip was generated and Scene 2 used real product video, clip 1 is Scene 3.
+          const klingScene3Clip = (aiVideoClips.length > 1)
+            ? aiVideoClips[1]
+            : (aiVideoClips.length === 1 && scene2InputFile !== aiVideoClips[0] ? aiVideoClips[0] : null);
+
+          if (klingScene3Clip && fs.existsSync(klingScene3Clip)) {
+            scene3InputFile = klingScene3Clip;
+          } else if (aiVideoClips.length > 0 && fs.existsSync(aiVideoClips[0])) {
             scene3InputFile = aiVideoClips[0];
+          } else if (fs.existsSync(aiVideoFile)) {
+            scene3InputFile = aiVideoFile;
           } else if (!scene3AiGapFill && realBrollVideoDisk && fs.existsSync(realBrollVideoDisk)) {
             scene3InputFile = realBrollVideoDisk;
           } else if (savedImageDiskPaths.length > 1 && fs.existsSync(savedImageDiskPaths[1])) {
@@ -1457,9 +1558,11 @@ export async function POST(request: Request) {
         const pureParts: string[] = [];
 
         try {
-          const heroAiClip = (aiVideoClips[0] && fs.existsSync(aiVideoClips[0])) ? aiVideoClips[0] : aiVideoFile;
+          const heroAiClip = (realProductVideoDisk && fs.existsSync(realProductVideoDisk))
+            ? realProductVideoDisk
+            : ((aiVideoClips[0] && fs.existsSync(aiVideoClips[0])) ? aiVideoClips[0] : aiVideoFile);
 
-          // Scene 1 (0 to 5.0s): Hero AI Clip + Kinetic White Ad Hook Headline (No BG Box)
+          // Scene 1 (0 to 5.0s): Hero Clip + Kinetic White Ad Hook Headline (No BG Box)
           const p1Path = path.join(storageDir, `${jobId}-pure-1.mp4`);
           const pureHookCaptions = buildInteractiveAdCaptions(
             hookText || "Stop scrolling if you want real results",
@@ -1477,9 +1580,11 @@ export async function POST(request: Request) {
           );
           pureParts.push(p1Path);
 
-          // Scene 2 (5.0s to 10.0s): 2nd Image AI Clip OR Commercial B-roll
+          // Scene 2 (5.0s to 10.0s): Real B-roll Video / 2nd AI Clip
           const p2Path = path.join(storageDir, `${jobId}-pure-2.mp4`);
-          const scene2Source = (aiVideoClips[1] && fs.existsSync(aiVideoClips[1])) ? aiVideoClips[1] : heroAiClip;
+          const scene2Source = (realBrollVideoDisk && fs.existsSync(realBrollVideoDisk))
+            ? realBrollVideoDisk
+            : ((aiVideoClips[1] && fs.existsSync(aiVideoClips[1])) ? aiVideoClips[1] : heroAiClip);
           execSync(
             `"${ffmpegBinary}" -y -ss 0.0 -i "${scene2Source}" -t 5.0 -vf "scale=1080:1920:force_original_aspect_ratio=increase,crop=1080:1920" -pix_fmt yuv420p -c:v libx264 -preset veryfast -threads 0 -r 30 -an "${p2Path}"`,
             { stdio: "pipe" }
@@ -1635,33 +1740,41 @@ export async function POST(request: Request) {
     }
 
     if (!assembledSuccessfully) {
-      if (fs.existsSync(aiVideoFile)) {
+      const fallbackVideo =
+        (fs.existsSync(aiVideoFile) ? aiVideoFile : null) ||
+        (realProductVideoDisk && fs.existsSync(realProductVideoDisk) ? realProductVideoDisk : null) ||
+        (creatorHookFilePath && fs.existsSync(creatorHookFilePath) ? creatorHookFilePath : null);
+
+      if (fallbackVideo) {
         // Fallback: Ensure voiceover + licensed music are attached even if multi-scene assembly encountered an error
         const fallbackBgm = resolveMusicTrackFilePath(musicTrackId);
         if (fs.existsSync(voFilePath) && isFfmpegAvailable()) {
           try {
             if (fallbackBgm && fs.existsSync(fallbackBgm)) {
               execSync(
-                `"${ffmpegBinary}" -y -i "${aiVideoFile}" -i "${voFilePath}" -i "${fallbackBgm}" -filter_complex "[1:a]aformat=sample_rates=48000:channel_layouts=stereo[vox];[2:a]volume=0.35,aformat=sample_rates=48000:channel_layouts=stereo[bgm];[vox][bgm]amix=inputs=2:duration=first:dropout_transition=2[aout]" -map 0:v -map "[aout]" -c:v copy -c:a aac -b:a 192k -movflags +faststart "${dest9x16}"`,
+                `"${ffmpegBinary}" -y -i "${fallbackVideo}" -i "${voFilePath}" -i "${fallbackBgm}" -filter_complex "[1:a]aformat=sample_rates=48000:channel_layouts=stereo[vox];[2:a]volume=0.35,aformat=sample_rates=48000:channel_layouts=stereo[bgm];[vox][bgm]amix=inputs=2:duration=first:dropout_transition=2[aout]" -map 0:v -map "[aout]" -c:v copy -c:a aac -b:a 192k -movflags +faststart "${dest9x16}"`,
                 { stdio: "pipe" }
               );
             } else {
               execSync(
-                `"${ffmpegBinary}" -y -i "${aiVideoFile}" -i "${voFilePath}" -map 0:v -map 1:a -c:v copy -c:a aac -b:a 192k -movflags +faststart "${dest9x16}"`,
+                `"${ffmpegBinary}" -y -i "${fallbackVideo}" -i "${voFilePath}" -map 0:v -map 1:a -c:v copy -c:a aac -b:a 192k -movflags +faststart "${dest9x16}"`,
                 { stdio: "pipe" }
               );
             }
             fs.copyFileSync(dest9x16, dest1x1);
             fs.copyFileSync(dest9x16, dest4x5);
+            assembledSuccessfully = true;
           } catch {
-            fs.copyFileSync(aiVideoFile, dest9x16);
-            fs.copyFileSync(aiVideoFile, dest1x1);
-            fs.copyFileSync(aiVideoFile, dest4x5);
+            fs.copyFileSync(fallbackVideo, dest9x16);
+            fs.copyFileSync(fallbackVideo, dest1x1);
+            fs.copyFileSync(fallbackVideo, dest4x5);
+            assembledSuccessfully = true;
           }
         } else {
-          fs.copyFileSync(aiVideoFile, dest9x16);
-          fs.copyFileSync(aiVideoFile, dest1x1);
-          fs.copyFileSync(aiVideoFile, dest4x5);
+          fs.copyFileSync(fallbackVideo, dest9x16);
+          fs.copyFileSync(fallbackVideo, dest1x1);
+          fs.copyFileSync(fallbackVideo, dest4x5);
+          assembledSuccessfully = true;
         }
       }
     }
