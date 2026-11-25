@@ -4,6 +4,7 @@ import path from "path";
 import { getAllAdJobs, getAdJobById, saveAdJob, clearAllAdJobs, deleteAdJobs, deleteAdJob, type AdJob } from "@/lib/adJob";
 import { checkRateLimit, getClientIp } from "@/lib/rateLimit";
 import { syncDeliverablesToGoogleDrive, GOOGLE_DRIVE_FOLDER_ID, getGoogleDriveFolderUrl } from "@/lib/googleDrive";
+import { requireStudioAdmin, verifyClientShareToken } from "@/lib/studioAuth";
 
 export const dynamic = "force-dynamic";
 
@@ -16,6 +17,20 @@ export const dynamic = "force-dynamic";
  */
 
 export async function GET(request: Request) {
+  const url = new URL(request.url);
+  const auth = await requireStudioAdmin(request);
+
+  let sharedVariantOnly: string | null = null;
+  if (!auth.ok) {
+    const reqVariantId = url.searchParams.get("variantId") || request.headers.get("x-studio-variant-id");
+    const shareToken = url.searchParams.get("shareToken") || request.headers.get("x-studio-share-token");
+    const validShare = await verifyClientShareToken(reqVariantId, shareToken);
+    if (!validShare || !reqVariantId) {
+      return auth.response;
+    }
+    sharedVariantOnly = reqVariantId;
+  }
+
   const clientIp = getClientIp(request);
   const rateCheck = checkRateLimit(`studio_review_get_${clientIp}`, 60, 60 * 1000);
   if (!rateCheck.success) {
@@ -77,8 +92,23 @@ export async function GET(request: Request) {
   const approvedCount = allVariants.filter((v) => v.status === "approved").length;
   const rejectedCount = allVariants.filter((v) => v.status === "rejected").length;
 
-  const url = new URL(request.url);
-  const statusFilter = url.searchParams.get("status");
+  const urlParams = new URL(request.url).searchParams;
+  const statusFilter = urlParams.get("status");
+
+  if (sharedVariantOnly) {
+    const sharedMatches = allVariants.filter((v) => v.id === sharedVariantOnly);
+    return NextResponse.json({
+      ok: true,
+      count: sharedMatches.length,
+      totalCount: sharedMatches.length,
+      needsReviewCount: 0,
+      recutCount: 0,
+      approvedCount: sharedMatches.filter((v) => v.status === "approved").length,
+      rejectedCount: 0,
+      pendingCount: 0,
+      variants: sharedMatches,
+    });
+  }
 
   let filtered = allVariants;
   if (statusFilter === "pending") {
@@ -105,6 +135,9 @@ export async function GET(request: Request) {
 }
 
 export async function POST(request: Request) {
+  const auth = await requireStudioAdmin(request);
+  if (!auth.ok) return auth.response;
+
   const clientIp = getClientIp(request);
   const rateCheck = checkRateLimit(`studio_review_post_${clientIp}`, 20, 60 * 1000);
   if (!rateCheck.success) {
@@ -310,6 +343,9 @@ export async function POST(request: Request) {
 }
 
 export async function DELETE(request: Request) {
+  const auth = await requireStudioAdmin(request);
+  if (!auth.ok) return auth.response;
+
   const clientIp = getClientIp(request);
   const rateCheck = checkRateLimit(`studio_review_del_${clientIp}`, 30, 60 * 1000);
   if (!rateCheck.success) {

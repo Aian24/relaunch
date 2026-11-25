@@ -3,6 +3,7 @@ import fs from "fs";
 import path from "path";
 import { CREATOR_ROSTER, CreatorProfile } from "@/data/creatorRoster";
 import { CREATOR_ASSETS, CreatorClipAsset } from "@/data/creatorAssets";
+import { requireStudioAdmin } from "@/lib/studioAuth";
 
 export const dynamic = "force-dynamic";
 
@@ -76,7 +77,10 @@ function scanCreatorPhysicalTakes(slug: string): { hookCount: number; brollCount
   };
 }
 
-export async function GET() {
+export async function GET(request: Request) {
+  const auth = await requireStudioAdmin(request);
+  if (!auth.ok) return auth.response;
+
   const customCreators = getCustomCreators();
   const customAssets = getCustomAssets();
 
@@ -123,6 +127,9 @@ export async function GET() {
 }
 
 export async function POST(request: Request) {
+  const auth = await requireStudioAdmin(request);
+  if (!auth.ok) return auth.response;
+
   try {
     const contentType = request.headers.get("content-type") || "";
 
@@ -405,6 +412,9 @@ export async function POST(request: Request) {
 }
 
 export async function DELETE(request: Request) {
+  const auth = await requireStudioAdmin(request);
+  if (!auth.ok) return auth.response;
+
   try {
     const { searchParams } = new URL(request.url);
     const id = searchParams.get("id");

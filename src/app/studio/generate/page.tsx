@@ -2239,21 +2239,10 @@ export default function StudioVideoGenerator() {
 
   return (
     <div className="w-full min-h-screen bg-white text-[#090D16] font-sans flex flex-col selection:bg-[#7F48ED] selection:text-white">
-      {/* 1. TOP STUDIO BAR (Clean White Header, Single-Line Responsive) */}
-      <header className="w-full sticky top-0 shrink-0 bg-white border-b border-zinc-200/90 px-3 sm:px-6 py-2.5 sm:py-3 flex items-center justify-between z-40 shadow-sm">
+      {/* 1. TOP STUDIO SUB-BAR */}
+      <header className="w-full sticky top-14 shrink-0 bg-white border-b border-zinc-200/90 px-3 sm:px-6 py-2.5 flex items-center justify-between z-30 shadow-sm">
         {/* Left: Studio Branding */}
-        <div className="flex items-center gap-2 sm:gap-4 min-w-0">
-          <Link
-            href="/studio"
-            className="flex items-center gap-1.5 text-xs font-semibold text-zinc-600 hover:text-[#7F48ED] transition shrink-0"
-            title="Exit Studio"
-          >
-            <ArrowLeft className="w-4 h-4" />
-            <span className="hidden sm:inline">Exit Studio</span>
-          </Link>
-
-          <div className="h-4 w-px bg-zinc-200 shrink-0" />
-
+        <div className="flex items-center gap-2 sm:gap-3 min-w-0">
           <div className="flex items-center gap-1.5 min-w-0">
             <span className="text-xs sm:text-sm font-black tracking-tight text-[#090D16] uppercase whitespace-nowrap truncate">
               <span className="hidden xs:inline">Relaunch Studio </span>
@@ -2275,55 +2264,6 @@ export default function StudioVideoGenerator() {
               </button>
             </div>
           )}
-        </div>
-
-        {/* Right: Creators, Approved Vault & Review Room Actions */}
-        <div className="flex items-center gap-1.5 sm:gap-2.5 shrink-0">
-          <Link
-            href="/studio/creators"
-            className="hidden sm:inline-flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 rounded-xl text-xs font-bold text-zinc-700 hover:text-zinc-950 bg-zinc-100 hover:bg-zinc-200 border border-zinc-200 transition cursor-pointer shrink-0"
-            title="Open Creator Footage Intake & Visual Trimmer"
-          >
-            <Users className="w-3.5 h-3.5 text-[#7F48ED]" />
-            <span>Creators</span>
-          </Link>
-
-          <Link
-            href="/studio/assets"
-            className="hidden sm:inline-flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 rounded-xl text-xs font-bold text-zinc-700 hover:text-zinc-950 bg-zinc-100 hover:bg-zinc-200 border border-zinc-200 transition cursor-pointer shrink-0"
-            title="Open Client Product Media Library & Brand Footage Intake"
-          >
-            <Video className="w-3.5 h-3.5 text-[#FF6700]" />
-            <span>Brand Footage</span>
-          </Link>
-
-          <Link
-            href="/studio/approved"
-            className="hidden sm:inline-flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 rounded-xl text-xs font-bold text-zinc-700 hover:text-zinc-950 bg-zinc-100 hover:bg-zinc-200 border border-zinc-200 transition cursor-pointer shrink-0"
-            title="Open Approved Vault"
-          >
-            <FolderOpen className="w-3.5 h-3.5 text-emerald-600" />
-            <span>Vault</span>
-          </Link>
-
-          <Link
-            href="/studio/tracks"
-            className="hidden sm:inline-flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 rounded-xl text-xs font-bold text-zinc-700 hover:text-zinc-950 bg-zinc-100 hover:bg-zinc-200 border border-zinc-200 transition cursor-pointer shrink-0"
-            title="Open Timeline & Master Tracks Workstation"
-          >
-            <Music className="w-3.5 h-3.5 text-[#7F48ED]" />
-            <span>Master Tracks</span>
-          </Link>
-
-          <Link
-            href="/studio/review"
-            className="inline-flex items-center gap-1.5 px-2.5 sm:px-3.5 py-1.5 rounded-xl text-xs font-bold text-white bg-[#7F48ED] hover:bg-[#6b35d6] transition shadow-md shadow-[#7F48ED]/20 cursor-pointer shrink-0"
-            title="Open Review Room"
-          >
-            <Eye className="w-3.5 h-3.5" />
-            <span className="hidden xs:inline">Review Room</span>
-            <span className="xs:hidden">Review</span>
-          </Link>
         </div>
       </header>
 
@@ -2355,7 +2295,7 @@ export default function StudioVideoGenerator() {
       </div>
 
       {/* 2. MAIN WORKSPACE (2-Column Studio: Left Controls, Right Live Stage) */}
-      <main className="w-full flex-1 flex flex-col lg:flex-row lg:h-[calc(100vh-57px)] overflow-y-auto lg:overflow-hidden min-h-0 bg-[#F8F9FC]">
+      <main className="w-full flex-1 flex flex-col lg:flex-row lg:h-[calc(100vh-108px)] overflow-y-auto lg:overflow-hidden min-h-0 bg-[#F8F9FC]">
         {/* ============================================================== */}
         {/* LEFT PANEL: SIMPLE 3-STEP CREATION CONTROLS                    */}
         {/* ============================================================== */}

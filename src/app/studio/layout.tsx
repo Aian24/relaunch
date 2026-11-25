@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import StudioAdminShell from "@/components/studio/StudioAdminShell";
 
 export const metadata: Metadata = {
   title: "ReLaunch Studio · Fresh Video Ads Every Week",
@@ -11,5 +12,5 @@ export default function StudioLayout({
 }: {
   children: React.ReactNode;
 }) {
-  return <>{children}</>;
+  return <StudioAdminShell>{children}</StudioAdminShell>;
 }

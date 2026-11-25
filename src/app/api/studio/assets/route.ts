@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import fs from "fs";
 import path from "path";
+import { requireStudioAdmin } from "@/lib/studioAuth";
 
 export const dynamic = "force-dynamic";
 
@@ -152,6 +153,9 @@ const BASELINE_BRAND_ASSETS: BrandMediaAsset[] = [
 ];
 
 export async function GET(request: Request) {
+  const auth = await requireStudioAdmin(request);
+  if (!auth.ok) return auth.response;
+
   const { searchParams } = new URL(request.url);
   const brandSlug = searchParams.get("brandSlug");
   const view = searchParams.get("view"); // "active" | "trash" | "all"
@@ -199,6 +203,9 @@ export async function GET(request: Request) {
 }
 
 export async function POST(request: Request) {
+  const auth = await requireStudioAdmin(request);
+  if (!auth.ok) return auth.response;
+
   try {
     const contentType = request.headers.get("content-type") || "";
 
@@ -362,6 +369,9 @@ export async function POST(request: Request) {
 }
 
 export async function DELETE(request: Request) {
+  const auth = await requireStudioAdmin(request);
+  if (!auth.ok) return auth.response;
+
   try {
     const { searchParams } = new URL(request.url);
     const id = searchParams.get("id");

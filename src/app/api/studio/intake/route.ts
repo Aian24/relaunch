@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { requireStudioAdmin } from "@/lib/studioAuth";
 
 export const dynamic = "force-dynamic";
 
@@ -30,6 +31,9 @@ function escapeHtml(value: string): string {
 }
 
 export async function POST(request: Request) {
+  const auth = await requireStudioAdmin(request);
+  if (!auth.ok) return auth.response;
+
   let body: Record<string, unknown>;
   try {
     body = await request.json();

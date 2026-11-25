@@ -1,10 +1,14 @@
 import { NextResponse } from "next/server";
 import { generateTimelineXml, TimelineProjectOptions } from "@/lib/timelineXmlGenerator";
 import { getAdJobById } from "@/lib/adJob";
+import { requireStudioAdmin } from "@/lib/studioAuth";
 
 export const dynamic = "force-dynamic";
 
 export async function POST(request: Request) {
+  const auth = await requireStudioAdmin(request);
+  if (!auth.ok) return auth.response;
+
   try {
     const body = await request.json();
     const {
@@ -112,6 +116,9 @@ export async function POST(request: Request) {
 }
 
 export async function GET(request: Request) {
+  const auth = await requireStudioAdmin(request);
+  if (!auth.ok) return auth.response;
+
   const { searchParams } = new URL(request.url);
   const jobId = searchParams.get("jobId") || `export-${Date.now()}`;
   const brand = searchParams.get("brand") || "ReLaunch Studio";

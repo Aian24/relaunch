@@ -265,20 +265,9 @@ export default function DeletedAdsRecoveryPage() {
 
   return (
     <div className="min-h-screen bg-[#F8F9FC] text-[#090D16] flex flex-col font-sans selection:bg-[#7F48ED]/20 selection:text-[#7F48ED]">
-      {/* 1. Header Bar — Crisp Responsive Header with Portal Tabs (Matching Vault) */}
-      <header className="h-14 sm:h-16 border-b border-zinc-200 bg-white px-3 sm:px-6 flex items-center justify-between sticky top-0 z-40 shrink-0 shadow-xs">
-        <div className="flex items-center gap-2 sm:gap-4 min-w-0">
-          <Link
-            href="/studio/review"
-            className="flex items-center gap-1.5 text-xs font-semibold text-zinc-600 hover:text-[#7F48ED] transition-colors shrink-0"
-            title="Back to Review Room"
-          >
-            <ArrowLeft className="w-4 h-4" />
-            <span className="hidden md:inline">Back to Review</span>
-          </Link>
-
-          <div className="h-4 w-px bg-zinc-200 shrink-0" />
-
+      {/* 1. Header Bar — Crisp Responsive Header */}
+      <header className="h-14 border-b border-zinc-200 bg-white px-3 sm:px-6 flex items-center justify-between sticky top-14 z-30 shrink-0 shadow-xs">
+        <div className="flex items-center gap-2 sm:gap-3 min-w-0">
           <div className="flex items-center gap-1.5 min-w-0">
             <span className="text-xs sm:text-sm font-black tracking-tight text-[#090D16] uppercase whitespace-nowrap truncate">
               <span className="hidden xs:inline">Studio </span>
@@ -286,43 +275,11 @@ export default function DeletedAdsRecoveryPage() {
               <span className="text-zinc-900 hidden sm:inline"> Trash</span>
             </span>
           </div>
-        </div>
 
-        {/* Navigation Tabs */}
-        <div className="flex items-center gap-1 sm:gap-2.5 shrink-0">
-          <Link
-            href="/studio/review"
-            className="flex items-center gap-1 sm:gap-1.5 px-2 sm:px-3 py-1.5 bg-zinc-100 hover:bg-zinc-200 text-zinc-700 hover:text-zinc-950 rounded-xl text-xs font-bold transition-all border border-zinc-200 cursor-pointer shrink-0"
-            title="Open Review Queue"
-          >
-            <Eye className="w-3.5 h-3.5 text-[#FF6700]" />
-            <span className="hidden sm:inline">Review Queue</span>
-            <span className="sm:hidden">Queue</span>
-          </Link>
-
-          <Link
-            href="/studio/approved"
-            className="flex items-center gap-1 sm:gap-1.5 px-2 sm:px-3 py-1.5 bg-zinc-100 hover:bg-emerald-50 text-zinc-700 hover:text-emerald-800 rounded-xl text-xs font-bold transition-all border border-zinc-200 hover:border-emerald-200 cursor-pointer shrink-0"
-            title="Open Approved Vault"
-          >
-            <FolderOpen className="w-3.5 h-3.5 text-emerald-600" />
-            <span className="hidden sm:inline">Vault</span>
-          </Link>
-
-          <div className="flex items-center gap-1 sm:gap-1.5 px-2 sm:px-3.5 py-1.5 bg-red-50 text-red-700 rounded-xl text-xs font-bold border border-red-200 shrink-0 shadow-xs">
+          <div className="flex items-center gap-1.5 px-2.5 py-1 bg-red-50 text-red-700 rounded-xl text-xs font-bold border border-red-200 shrink-0 shadow-xs">
             <Trash2 className="w-3.5 h-3.5 text-red-600" />
-            <span>Trash ({deletedAds.length})</span>
+            <span>{deletedAds.length} Trashed</span>
           </div>
-
-          <Link
-            href="/studio/generate"
-            className="flex items-center gap-1 sm:gap-1.5 px-2 sm:px-3.5 py-1.5 bg-[#FF6700] hover:bg-[#E55C00] text-white rounded-xl text-xs font-bold transition-all shadow-sm cursor-pointer shrink-0"
-            title="Create New Ad"
-          >
-            <Sparkles className="w-3.5 h-3.5" />
-            <span className="hidden sm:inline">Create Ad</span>
-            <span className="sm:hidden">Ad</span>
-          </Link>
         </div>
       </header>
 

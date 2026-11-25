@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import fs from "fs";
 import path from "path";
+import { requireStudioAdmin } from "@/lib/studioAuth";
 import {
   LICENSED_MUSIC_LIBRARY,
   BRANDED_CTA_TEMPLATES,
@@ -42,6 +43,9 @@ function saveCustomAssets(data: CustomAssetsStorage): void {
 }
 
 export async function GET(req: NextRequest) {
+  const auth = await requireStudioAdmin(req);
+  if (!auth.ok) return auth.response;
+
   const { searchParams } = new URL(req.url);
   const view = searchParams.get("view"); // "all" | "active" | "trash"
   const custom = getStoredCustomAssets();
@@ -98,6 +102,9 @@ export async function GET(req: NextRequest) {
 }
 
 export async function POST(req: NextRequest) {
+  const auth = await requireStudioAdmin(req);
+  if (!auth.ok) return auth.response;
+
   try {
     const contentType = req.headers.get("content-type") || "";
 
@@ -262,6 +269,9 @@ export async function POST(req: NextRequest) {
 }
 
 export async function DELETE(req: NextRequest) {
+  const auth = await requireStudioAdmin(req);
+  if (!auth.ok) return auth.response;
+
   try {
     const { searchParams } = new URL(req.url);
     const id = searchParams.get("id");

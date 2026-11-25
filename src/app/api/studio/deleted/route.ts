@@ -7,6 +7,7 @@ import {
   clearAllDeletedAdJobs,
 } from "@/lib/adJob";
 import { checkRateLimit, getClientIp } from "@/lib/rateLimit";
+import { requireStudioAdmin } from "@/lib/studioAuth";
 
 export const dynamic = "force-dynamic";
 
@@ -20,6 +21,9 @@ export const dynamic = "force-dynamic";
  */
 
 export async function GET(request: Request) {
+  const auth = await requireStudioAdmin(request);
+  if (!auth.ok) return auth.response;
+
   const clientIp = getClientIp(request);
   const rateCheck = checkRateLimit(`studio_deleted_get_${clientIp}`, 60, 60 * 1000);
   if (!rateCheck.success) {
@@ -65,6 +69,9 @@ export async function GET(request: Request) {
 }
 
 export async function POST(request: Request) {
+  const auth = await requireStudioAdmin(request);
+  if (!auth.ok) return auth.response;
+
   const clientIp = getClientIp(request);
   const rateCheck = checkRateLimit(`studio_deleted_post_${clientIp}`, 30, 60 * 1000);
   if (!rateCheck.success) {
@@ -100,6 +107,9 @@ export async function POST(request: Request) {
 }
 
 export async function DELETE(request: Request) {
+  const auth = await requireStudioAdmin(request);
+  if (!auth.ok) return auth.response;
+
   const clientIp = getClientIp(request);
   const rateCheck = checkRateLimit(`studio_deleted_del_${clientIp}`, 30, 60 * 1000);
   if (!rateCheck.success) {

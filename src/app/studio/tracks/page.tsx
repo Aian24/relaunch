@@ -428,16 +428,9 @@ export default function MasterTracksPage() {
   return (
     <div className="min-h-screen bg-[#0E121B] text-white flex flex-col font-sans selection:bg-[#7F48ED]/30 selection:text-[#7F48ED]">
       {/* 1. Top Header Bar — Full Width Workstation */}
-      <header className="border-b border-zinc-800 bg-[#121824]/90 backdrop-blur-md sticky top-0 z-40 px-3 sm:px-6 py-3 shrink-0 shadow-xs">
+      <header className="border-b border-zinc-800 bg-[#121824]/95 backdrop-blur-md sticky top-14 z-30 px-3 sm:px-6 py-3 shrink-0 shadow-xs">
         <div className="w-full flex items-center justify-between gap-4">
           <div className="flex items-center gap-3 min-w-0">
-            <Link
-              href="/studio/generate"
-              className="w-8 h-8 rounded-lg bg-zinc-800 hover:bg-zinc-700 text-zinc-300 flex items-center justify-center transition cursor-pointer shrink-0"
-              title="Return to Studio Generator"
-            >
-              <ArrowLeft className="w-4 h-4" />
-            </Link>
             <div className="min-w-0">
               <div className="flex items-center gap-2 flex-wrap">
                 <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-[#7F48ED] bg-[#7F48ED]/10 px-2 py-0.5 rounded border border-[#7F48ED]/30">
@@ -451,7 +444,7 @@ export default function MasterTracksPage() {
             </div>
           </div>
 
-          {/* Header Action Buttons — Single Icons, No Duplicate + Signs */}
+          {/* Header Action Buttons */}
           <div className="flex items-center gap-1.5 sm:gap-2.5 shrink-0">
             <button
               type="button"
@@ -472,54 +465,6 @@ export default function MasterTracksPage() {
               <span className="hidden sm:inline">Design CTA Card</span>
               <span className="sm:hidden">New CTA</span>
             </button>
-
-            {/* Hub Navigation Links */}
-            <div className="h-4 w-px bg-zinc-800 hidden md:block mx-0.5" />
-
-            <Link
-              href="/studio/generate"
-              className="hidden md:inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl bg-zinc-800 hover:bg-zinc-700 text-zinc-200 text-xs font-bold transition cursor-pointer"
-              title="Open Generator"
-            >
-              <Sparkles className="w-3.5 h-3.5 text-[#FF6700]" />
-              <span>Generator</span>
-            </Link>
-
-            <Link
-              href="/studio/assets"
-              className="hidden lg:inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl bg-zinc-800 hover:bg-zinc-700 text-zinc-200 text-xs font-bold transition cursor-pointer"
-              title="Open Brand Media"
-            >
-              <Video className="w-3.5 h-3.5 text-[#FF6700]" />
-              <span>Brand Media</span>
-            </Link>
-
-            <Link
-              href="/studio/creators"
-              className="hidden lg:inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl bg-zinc-800 hover:bg-zinc-700 text-zinc-200 text-xs font-bold transition cursor-pointer"
-              title="Open Creators"
-            >
-              <Users className="w-3.5 h-3.5 text-[#7F48ED]" />
-              <span>Creators</span>
-            </Link>
-
-            <Link
-              href="/studio/approved"
-              className="hidden md:inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl bg-zinc-800 hover:bg-zinc-700 text-zinc-200 text-xs font-bold transition cursor-pointer"
-              title="Open Vault"
-            >
-              <FolderOpen className="w-3.5 h-3.5 text-emerald-400" />
-              <span>Vault</span>
-            </Link>
-
-            <Link
-              href="/studio/review"
-              className="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl bg-zinc-800 hover:bg-zinc-700 text-zinc-200 text-xs font-bold transition cursor-pointer"
-              title="Open Review"
-            >
-              <Eye className="w-3.5 h-3.5 text-[#7F48ED]" />
-              <span className="hidden sm:inline">Review</span>
-            </Link>
           </div>
         </div>
       </header>
@@ -541,11 +486,10 @@ export default function MasterTracksPage() {
             <button
               type="button"
               onClick={() => setActiveTab("music")}
-              className={`px-3 py-1.5 rounded-lg text-xs font-bold transition flex items-center gap-1.5 cursor-pointer ${
-                activeTab === "music"
-                  ? "bg-[#7F48ED] text-white shadow-md shadow-[#7F48ED]/20"
-                  : "text-zinc-400 hover:text-white hover:bg-zinc-800"
-              }`}
+              className={`px-3 py-1.5 rounded-lg text-xs font-bold transition flex items-center gap-1.5 cursor-pointer ${activeTab === "music"
+                ? "bg-[#7F48ED] text-white shadow-md shadow-[#7F48ED]/20"
+                : "text-zinc-400 hover:text-white hover:bg-zinc-800"
+                }`}
             >
               <Music className="w-3.5 h-3.5" />
               <span>Music Library ({musicTracks.length})</span>
@@ -554,11 +498,10 @@ export default function MasterTracksPage() {
             <button
               type="button"
               onClick={() => setActiveTab("cta")}
-              className={`px-3 py-1.5 rounded-lg text-xs font-bold transition flex items-center gap-1.5 cursor-pointer ${
-                activeTab === "cta"
-                  ? "bg-[#FF6700] text-white shadow-md shadow-[#FF6700]/20"
-                  : "text-zinc-400 hover:text-white hover:bg-zinc-800"
-              }`}
+              className={`px-3 py-1.5 rounded-lg text-xs font-bold transition flex items-center gap-1.5 cursor-pointer ${activeTab === "cta"
+                ? "bg-[#FF6700] text-white shadow-md shadow-[#FF6700]/20"
+                : "text-zinc-400 hover:text-white hover:bg-zinc-800"
+                }`}
             >
               <Sparkles className="w-3.5 h-3.5" />
               <span>Motion CTA Templates ({ctaTemplates.length})</span>
@@ -567,11 +510,10 @@ export default function MasterTracksPage() {
             <button
               type="button"
               onClick={() => setActiveTab("specs")}
-              className={`px-3 py-1.5 rounded-lg text-xs font-bold transition flex items-center gap-1.5 cursor-pointer ${
-                activeTab === "specs"
-                  ? "bg-zinc-800 text-white border border-zinc-700"
-                  : "text-zinc-400 hover:text-white hover:bg-zinc-800"
-              }`}
+              className={`px-3 py-1.5 rounded-lg text-xs font-bold transition flex items-center gap-1.5 cursor-pointer ${activeTab === "specs"
+                ? "bg-zinc-800 text-white border border-zinc-700"
+                : "text-zinc-400 hover:text-white hover:bg-zinc-800"
+                }`}
             >
               <Sliders className="w-3.5 h-3.5 text-zinc-300" />
               <span>Audio Specs &amp; XML</span>
@@ -580,11 +522,10 @@ export default function MasterTracksPage() {
             <button
               type="button"
               onClick={() => setActiveTab("trash")}
-              className={`px-3 py-1.5 rounded-lg text-xs font-bold transition flex items-center gap-1.5 cursor-pointer ${
-                activeTab === "trash"
-                  ? "bg-red-950 text-red-200 border border-red-800/80"
-                  : "text-zinc-400 hover:text-red-400 hover:bg-zinc-800"
-              }`}
+              className={`px-3 py-1.5 rounded-lg text-xs font-bold transition flex items-center gap-1.5 cursor-pointer ${activeTab === "trash"
+                ? "bg-red-950 text-red-200 border border-red-800/80"
+                : "text-zinc-400 hover:text-red-400 hover:bg-zinc-800"
+                }`}
             >
               <Trash2 className="w-3.5 h-3.5" />
               <span>Trash ({totalTrashCount})</span>
@@ -674,9 +615,8 @@ export default function MasterTracksPage() {
               <button
                 type="button"
                 onClick={toggleLoop}
-                className={`p-1.5 rounded-lg text-xs transition cursor-pointer ${
-                  isLooping ? "text-[#7F48ED] bg-[#7F48ED]/10" : "text-zinc-500 hover:text-zinc-300"
-                }`}
+                className={`p-1.5 rounded-lg text-xs transition cursor-pointer ${isLooping ? "text-[#7F48ED] bg-[#7F48ED]/10" : "text-zinc-500 hover:text-zinc-300"
+                  }`}
                 title={isLooping ? "Loop enabled" : "Loop disabled"}
               >
                 <Repeat className="w-4 h-4" />
@@ -726,11 +666,10 @@ export default function MasterTracksPage() {
                   key={g}
                   type="button"
                   onClick={() => setSelectedGenre(g)}
-                  className={`px-3 py-1 rounded-xl text-xs font-bold whitespace-nowrap transition cursor-pointer ${
-                    selectedGenre === g
-                      ? "bg-[#7F48ED] text-white shadow-sm"
-                      : "bg-zinc-900 hover:bg-zinc-800 text-zinc-400 hover:text-white border border-zinc-800"
-                  }`}
+                  className={`px-3 py-1 rounded-xl text-xs font-bold whitespace-nowrap transition cursor-pointer ${selectedGenre === g
+                    ? "bg-[#7F48ED] text-white shadow-sm"
+                    : "bg-zinc-900 hover:bg-zinc-800 text-zinc-400 hover:text-white border border-zinc-800"
+                    }`}
                 >
                   {g === "all" ? "All Genres" : g}
                 </button>
@@ -762,22 +701,20 @@ export default function MasterTracksPage() {
                   return (
                     <div
                       key={track.id}
-                      className={`p-4 rounded-2xl border transition relative flex flex-col justify-between gap-3 ${
-                        isPlaying
-                          ? "bg-[#181D2E] border-[#7F48ED] shadow-lg shadow-[#7F48ED]/10"
-                          : "bg-[#141B2B] border-zinc-800/80 hover:border-zinc-700 hover:bg-[#161E30]"
-                      }`}
+                      className={`p-4 rounded-2xl border transition relative flex flex-col justify-between gap-3 ${isPlaying
+                        ? "bg-[#181D2E] border-[#7F48ED] shadow-lg shadow-[#7F48ED]/10"
+                        : "bg-[#141B2B] border-zinc-800/80 hover:border-zinc-700 hover:bg-[#161E30]"
+                        }`}
                     >
                       {/* Top Row: Play button + Title */}
                       <div className="flex items-start gap-3">
                         <button
                           type="button"
                           onClick={() => togglePlayTrack(track)}
-                          className={`w-11 h-11 rounded-xl flex items-center justify-center shrink-0 transition cursor-pointer shadow-md ${
-                            isPlaying
-                              ? "bg-[#7F48ED] text-white animate-pulse"
-                              : "bg-zinc-800 hover:bg-[#7F48ED] text-zinc-300 hover:text-white"
-                          }`}
+                          className={`w-11 h-11 rounded-xl flex items-center justify-center shrink-0 transition cursor-pointer shadow-md ${isPlaying
+                            ? "bg-[#7F48ED] text-white animate-pulse"
+                            : "bg-zinc-800 hover:bg-[#7F48ED] text-zinc-300 hover:text-white"
+                            }`}
                           title={isPlaying ? "Pause track" : "Play preview"}
                         >
                           {isPlaying ? (
@@ -809,9 +746,8 @@ export default function MasterTracksPage() {
                             <div
                               key={idx}
                               style={{ height: `${isPlaying ? Math.max(15, Math.round(h * Math.random())) : h * 0.4}%` }}
-                              className={`flex-1 rounded-full transition-all duration-150 ${
-                                isPlaying ? "bg-[#7F48ED]" : "bg-zinc-700"
-                              }`}
+                              className={`flex-1 rounded-full transition-all duration-150 ${isPlaying ? "bg-[#7F48ED]" : "bg-zinc-700"
+                                }`}
                             />
                           )
                         )}
@@ -890,11 +826,10 @@ export default function MasterTracksPage() {
                   key={st.id}
                   type="button"
                   onClick={() => setSelectedCtaStyle(st.id)}
-                  className={`px-3 py-1 rounded-xl text-xs font-bold whitespace-nowrap transition cursor-pointer ${
-                    selectedCtaStyle === st.id
-                      ? "bg-[#FF6700] text-white shadow-sm"
-                      : "bg-zinc-900 hover:bg-zinc-800 text-zinc-400 hover:text-white border border-zinc-800"
-                  }`}
+                  className={`px-3 py-1 rounded-xl text-xs font-bold whitespace-nowrap transition cursor-pointer ${selectedCtaStyle === st.id
+                    ? "bg-[#FF6700] text-white shadow-sm"
+                    : "bg-zinc-900 hover:bg-zinc-800 text-zinc-400 hover:text-white border border-zinc-800"
+                    }`}
                 >
                   {st.label}
                 </button>

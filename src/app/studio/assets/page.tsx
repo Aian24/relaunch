@@ -60,7 +60,7 @@ function VideoCard({
           console.warn("[VideoCard] Play failed, retrying muted:", err);
           if (videoRef.current) {
             videoRef.current.muted = true;
-            videoRef.current.play().catch(() => {});
+            videoRef.current.play().catch(() => { });
           }
         });
       }
@@ -87,9 +87,8 @@ function VideoCard({
         {/* Top Badges */}
         <div className="absolute top-2.5 left-2.5 right-2.5 flex items-center justify-between pointer-events-none z-10">
           <span
-            className={`text-[9px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full shadow ${
-              asset.targetScene === 2 ? "bg-blue-600 text-white" : "bg-purple-600 text-white"
-            }`}
+            className={`text-[9px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full shadow ${asset.targetScene === 2 ? "bg-blue-600 text-white" : "bg-purple-600 text-white"
+              }`}
           >
             {asset.targetScene === 2 ? "Scene 2: Product" : "Scene 3: B-Roll"}
           </span>
@@ -377,17 +376,10 @@ export default function BrandAssetsPage() {
 
   return (
     <div className="min-h-screen bg-[#0E121B] text-white flex flex-col font-sans">
-      {/* Top Banner Navigation — Full Width */}
-      <header className="border-b border-zinc-800 bg-[#121824]/90 backdrop-blur-md sticky top-0 z-30 px-3 sm:px-6 py-3 shrink-0 shadow-xs">
+      {/* Top Banner — Full Width */}
+      <header className="border-b border-zinc-800 bg-[#121824]/95 backdrop-blur-md sticky top-14 z-30 px-3 sm:px-6 py-3 shrink-0 shadow-xs">
         <div className="w-full flex items-center justify-between gap-4">
           <div className="flex items-center gap-3">
-            <Link
-              href="/studio/generate"
-              className="w-8 h-8 rounded-lg bg-zinc-800 hover:bg-zinc-700 text-zinc-300 flex items-center justify-center transition cursor-pointer"
-              title="Return to Studio Generator"
-            >
-              <ArrowLeft className="w-4 h-4" />
-            </Link>
             <div>
               <div className="flex items-center gap-2">
                 <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-[#FF6700] bg-[#FF6700]/10 px-2 py-0.5 rounded border border-[#FF6700]/30">
@@ -401,7 +393,7 @@ export default function BrandAssetsPage() {
             </div>
           </div>
 
-          <div className="flex items-center gap-1.5 sm:gap-2">
+          <div className="flex items-center gap-2">
             <button
               type="button"
               onClick={() => setShowUploadModal(true)}
@@ -410,35 +402,6 @@ export default function BrandAssetsPage() {
               <Upload className="w-3.5 h-3.5" />
               <span>Upload Product Footage</span>
             </button>
-
-            <div className="h-4 w-px bg-zinc-800 hidden md:block mx-0.5" />
-
-            <Link
-              href="/studio/tracks"
-              className="hidden lg:inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl bg-zinc-800 hover:bg-zinc-700 text-zinc-200 text-xs font-bold transition cursor-pointer"
-              title="Open Master Tracks"
-            >
-              <Music className="w-3.5 h-3.5 text-[#7F48ED]" />
-              <span>Master Tracks</span>
-            </Link>
-
-            <Link
-              href="/studio/creators"
-              className="hidden lg:inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl bg-zinc-800 hover:bg-zinc-700 text-zinc-200 text-xs font-bold transition cursor-pointer"
-              title="Open Creators"
-            >
-              <Users className="w-3.5 h-3.5 text-[#7F48ED]" />
-              <span>Creators</span>
-            </Link>
-
-            <Link
-              href="/studio/generate"
-              className="px-3 sm:px-3.5 py-1.5 rounded-xl bg-zinc-800 hover:bg-zinc-700 text-zinc-200 text-xs font-bold transition flex items-center gap-1.5 cursor-pointer"
-            >
-              <Sparkles className="w-3.5 h-3.5 text-[#7F48ED]" />
-              <span className="hidden sm:inline">Use in Generator</span>
-              <span className="sm:hidden">Generator</span>
-            </Link>
           </div>
         </div>
       </header>
@@ -454,9 +417,8 @@ export default function BrandAssetsPage() {
                 <button
                   type="button"
                   onClick={() => setCurrentTab("active")}
-                  className={`px-3 py-1 rounded-lg text-xs font-bold transition flex items-center gap-1.5 cursor-pointer ${
-                    currentTab === "active" ? "bg-[#7F48ED] text-white shadow" : "text-zinc-400 hover:text-white"
-                  }`}
+                  className={`px-3 py-1 rounded-lg text-xs font-bold transition flex items-center gap-1.5 cursor-pointer ${currentTab === "active" ? "bg-[#7F48ED] text-white shadow" : "text-zinc-400 hover:text-white"
+                    }`}
                 >
                   <Layers className="w-3.5 h-3.5" />
                   <span>Active Media ({activeAssets.length})</span>
@@ -464,9 +426,8 @@ export default function BrandAssetsPage() {
                 <button
                   type="button"
                   onClick={() => setCurrentTab("trash")}
-                  className={`px-3 py-1 rounded-lg text-xs font-bold transition flex items-center gap-1.5 cursor-pointer ${
-                    currentTab === "trash" ? "bg-red-900/80 text-red-200 border border-red-700/50 shadow" : "text-zinc-400 hover:text-red-400"
-                  }`}
+                  className={`px-3 py-1 rounded-lg text-xs font-bold transition flex items-center gap-1.5 cursor-pointer ${currentTab === "trash" ? "bg-red-900/80 text-red-200 border border-red-700/50 shadow" : "text-zinc-400 hover:text-red-400"
+                    }`}
                 >
                   <Trash2 className="w-3.5 h-3.5" />
                   <span>Trash ({trashedAssets.length})</span>
@@ -495,11 +456,10 @@ export default function BrandAssetsPage() {
             <button
               type="button"
               onClick={() => setSelectedBrandFilter("all")}
-              className={`px-3 py-1 rounded-lg text-xs font-bold transition cursor-pointer whitespace-nowrap ${
-                selectedBrandFilter === "all"
-                  ? "bg-[#FF6700] text-white"
-                  : "bg-zinc-800/80 text-zinc-400 hover:text-white"
-              }`}
+              className={`px-3 py-1 rounded-lg text-xs font-bold transition cursor-pointer whitespace-nowrap ${selectedBrandFilter === "all"
+                ? "bg-[#FF6700] text-white"
+                : "bg-zinc-800/80 text-zinc-400 hover:text-white"
+                }`}
             >
               All Brands ({displayedList.length})
             </button>
@@ -508,11 +468,10 @@ export default function BrandAssetsPage() {
                 key={brand}
                 type="button"
                 onClick={() => setSelectedBrandFilter(brand)}
-                className={`px-3 py-1 rounded-lg text-xs font-bold transition cursor-pointer whitespace-nowrap ${
-                  selectedBrandFilter === brand
-                    ? "bg-[#FF6700] text-white"
-                    : "bg-zinc-800/80 text-zinc-400 hover:text-white"
-                }`}
+                className={`px-3 py-1 rounded-lg text-xs font-bold transition cursor-pointer whitespace-nowrap ${selectedBrandFilter === brand
+                  ? "bg-[#FF6700] text-white"
+                  : "bg-zinc-800/80 text-zinc-400 hover:text-white"
+                  }`}
               >
                 {brand}
               </button>

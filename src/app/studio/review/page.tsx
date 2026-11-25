@@ -171,15 +171,23 @@ export default function StudioReviewPortal() {
 
   const [showRubric, setShowRubric] = useState(false);
   const [isClientMode, setIsClientMode] = useState(false);
+  const [clientShareToken, setClientShareToken] = useState<string | null>(null);
 
-  const copyClientReviewLink = () => {
-    if (!selectedVariant) return;
-    const url = typeof window !== "undefined"
-      ? `${window.location.origin}/studio/review?variantId=${selectedVariant.id}&clientView=true`
-      : "";
+  const copyClientReviewLink = async () => {
+    if (!selectedVariant || typeof window === "undefined") return;
+    let tokenQuery = "";
+    try {
+      const res = await fetch(`/api/studio/auth/share-token?variantId=${encodeURIComponent(selectedVariant.id)}`);
+      const data = await res.json().catch(() => ({}));
+      if (data?.shareToken) {
+        tokenQuery = `&shareToken=${encodeURIComponent(data.shareToken)}`;
+      }
+    } catch {}
+
+    const url = `${window.location.origin}/studio/review?variantId=${selectedVariant.id}&clientView=true${tokenQuery}`;
     if (navigator?.clipboard) {
       navigator.clipboard.writeText(url).then(() => {
-        showToast("Client Sign-Off link copied to clipboard!");
+        showToast("Signed Client Sign-Off link copied to clipboard!");
       }).catch(() => {
         showToast("Link: " + url);
       });
@@ -358,7 +366,16 @@ export default function StudioReviewPortal() {
 
   // Fetch variants from API (the single ground truth for rendered ad jobs)
   const loadVariants = () => {
-    fetch("/api/studio/review")
+    const searchParams = typeof window !== "undefined" ? new URLSearchParams(window.location.search) : null;
+    const targetId = searchParams?.get("variantId") || null;
+    const shareToken = searchParams?.get("shareToken") || null;
+    if (shareToken) setClientShareToken(shareToken);
+
+    const apiUrl = targetId && shareToken
+      ? `/api/studio/review?variantId=${encodeURIComponent(targetId)}&shareToken=${encodeURIComponent(shareToken)}`
+      : "/api/studio/review";
+
+    fetch(apiUrl)
       .then((res) => res.json())
       .then((data) => {
         const apiVariants: VariantItem[] = (data.variants || []).map((item: any) => ({
@@ -370,13 +387,11 @@ export default function StudioReviewPortal() {
 
         if (apiVariants.length > 0) {
           setVariants(apiVariants);
-          // Check for URL query variantId parameter
-          const targetId = typeof window !== "undefined" ? new URLSearchParams(window.location.search).get("variantId") : null;
           const match = targetId ? apiVariants.find((v: any) => v.id === targetId) : null;
           const firstPending = apiVariants.find((v: any) => v.status === "needs_review");
           setSelectedVariant(match || firstPending || apiVariants[0]);
-          if (typeof window !== "undefined") {
-            setIsClientMode(new URLSearchParams(window.location.search).get("clientView") === "true");
+          if (searchParams) {
+            setIsClientMode(searchParams.get("clientView") === "true");
           }
         } else {
           setVariants([]);
@@ -1314,13 +1329,15 @@ export default function StudioReviewPortal() {
                 <span>Ready for Client Sign-Off</span>
               </span>
             )}
-            <button
-              onClick={() => setIsClientMode(false)}
-              className="px-3 py-1.5 rounded-xl bg-zinc-100 hover:bg-zinc-200 text-zinc-600 text-xs font-semibold transition cursor-pointer"
-              title="Switch to internal operator mode"
-            >
-              Operator View
-            </button>
+            {!clientShareToken && (
+              <button
+                onClick={() => setIsClientMode(false)}
+                className="px-3 py-1.5 rounded-xl bg-zinc-100 hover:bg-zinc-200 text-zinc-600 text-xs font-semibold transition cursor-pointer"
+                title="Switch to internal operator mode"
+              >
+                Operator View
+              </button>
+            )}
           </div>
         </div>
 
@@ -1445,7 +1462,11 @@ export default function StudioReviewPortal() {
 
                   {/* 1-Click ZIP Download */}
                   <a
-                    href={`/api/studio/deliveries/${selectedVariant.id}/zip`}
+                    href={
+                      clientShareToken
+                        ? `/api/studio/deliveries/${selectedVariant.id}/zip?shareToken=${encodeURIComponent(clientShareToken)}`
+                        : `/api/studio/deliveries/${selectedVariant.id}/zip`
+                    }
                     download={`${selectedVariant.clientName.toLowerCase().replace(/\s+/g, "-")}-${selectedVariant.id}-campaign-kit.zip`}
                     className="w-full flex items-center justify-center gap-2 py-3 px-4 rounded-xl bg-gradient-to-r from-[#7F48ED] to-indigo-600 hover:from-[#713be2] hover:to-indigo-700 text-white text-xs font-bold transition shadow-sm cursor-pointer"
                   >
@@ -1627,19 +1648,8 @@ export default function StudioReviewPortal() {
   return (
     <div className="min-h-screen bg-[#F8F9FC] text-[#090D16] flex flex-col font-sans selection:bg-[#7F48ED]/20 selection:text-[#7F48ED]">
       {/* 1. Top Header Bar — Clean White with Orange & Purple Accents */}
-      <header className="h-14 sm:h-16 border-b border-zinc-200 bg-white px-3 sm:px-6 flex items-center justify-between sticky top-0 z-40 shrink-0 shadow-xs">
-        <div className="flex items-center gap-2 sm:gap-4 min-w-0">
-          <Link
-            href="/studio"
-            className="flex items-center gap-1.5 text-xs font-semibold text-zinc-600 hover:text-[#7F48ED] transition-colors shrink-0"
-            title="Back to Studio"
-          >
-            <ArrowLeft className="w-4 h-4" />
-            <span className="hidden md:inline">Back to Studio</span>
-          </Link>
-
-          <div className="h-4 w-px bg-zinc-200 shrink-0" />
-
+      <header className={`h-14 border-b border-zinc-200 bg-white px-3 sm:px-6 flex items-center justify-between sticky shrink-0 shadow-xs ${clientShareToken ? "top-0 z-40" : "top-14 z-30"}`}>
+        <div className="flex items-center gap-2 sm:gap-3 min-w-0">
           <div className="flex items-center gap-1.5 min-w-0">
             <span className="text-xs sm:text-sm font-black tracking-tight text-[#090D16] uppercase whitespace-nowrap truncate">
               <span className="hidden xs:inline">Relaunch Studio </span>
@@ -1647,122 +1657,56 @@ export default function StudioReviewPortal() {
               <span className="text-[#FF6700] hidden sm:inline"> Portal</span>
             </span>
           </div>
-        </div>
 
-        {/* Portal Navigation Tabs */}
-        <div className="flex items-center gap-1.5 sm:gap-2.5 shrink-0">
-          {/* Active Review Queue Tab */}
-          <div className="flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 bg-[#FF6700]/10 text-[#FF6700] rounded-xl text-xs font-bold border border-[#FF6700]/20 shrink-0 shadow-xs">
+          <div className="flex items-center gap-1.5 px-2.5 py-1 bg-[#FF6700]/10 text-[#FF6700] rounded-xl text-xs font-bold border border-[#FF6700]/20 shrink-0 shadow-xs">
             <span
               className={`w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full shrink-0 ${
                 pendingCount > 0 ? "bg-[#FF6700] animate-pulse" : "bg-emerald-500"
               }`}
             />
             <span className="hidden sm:inline">Review Queue</span>
-            <span className="sm:hidden">Queue</span>
             <span className="bg-[#FF6700] text-white text-[10px] font-bold px-1.5 py-0.2 rounded-full">
               {pendingCount}
             </span>
           </div>
-
-          {/* Approved Vault Tab */}
-          <Link
-            href="/studio/approved"
-            className="flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 bg-zinc-100 hover:bg-zinc-200 text-zinc-700 hover:text-zinc-950 rounded-xl text-xs font-bold transition-all border border-zinc-200 cursor-pointer shrink-0"
-            title="Open Approved Deliverables Vault"
-          >
-            <Folder className="w-3.5 h-3.5 text-emerald-600" />
-            <span className="hidden sm:inline">Approved Vault</span>
-            <span className="sm:hidden">Vault</span>
-            <span className="bg-emerald-100 text-emerald-800 text-[10px] font-bold px-1.5 py-0.2 rounded-full">
-              {approvedCount}
-            </span>
-          </Link>
-
-          {/* Creators Tab */}
-          <Link
-            href="/studio/creators"
-            className="hidden sm:inline-flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 bg-zinc-100 hover:bg-zinc-200 text-zinc-700 hover:text-zinc-950 rounded-xl text-xs font-bold transition-all border border-zinc-200 cursor-pointer shrink-0"
-            title="Open Creator Intake & Visual Trimmer"
-          >
-            <Users className="w-3.5 h-3.5 text-[#7F48ED]" />
-            <span>Creators</span>
-          </Link>
-
-          {/* Brand Media Tab */}
-          <Link
-            href="/studio/assets"
-            className="hidden sm:inline-flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 bg-zinc-100 hover:bg-zinc-200 text-zinc-700 hover:text-zinc-950 rounded-xl text-xs font-bold transition-all border border-zinc-200 cursor-pointer shrink-0"
-            title="Open Brand Media & Product Footage Intake"
-          >
-            <Video className="w-3.5 h-3.5 text-[#FF6700]" />
-            <span>Brand Footage</span>
-          </Link>
-
-          {/* Master Tracks Tab */}
-          <Link
-            href="/studio/tracks"
-            className="hidden md:inline-flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 bg-zinc-100 hover:bg-zinc-200 text-zinc-700 hover:text-zinc-950 rounded-xl text-xs font-bold transition-all border border-zinc-200 cursor-pointer shrink-0"
-            title="Open Timeline & Master Tracks Workstation"
-          >
-            <Music className="w-3.5 h-3.5 text-[#7F48ED]" />
-            <span>Master Tracks</span>
-          </Link>
-
-          {/* Deleted Trash Queue Tab */}
-          <Link
-            href="/studio/deleted"
-            className="flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 bg-zinc-100 hover:bg-red-50 text-zinc-700 hover:text-red-700 rounded-xl text-xs font-bold transition-all border border-zinc-200 hover:border-red-200 cursor-pointer shrink-0"
-            title="Open Deleted Ads Trash & Recovery"
-          >
-            <Trash2 className="w-3.5 h-3.5 text-red-500" />
-            <span className="hidden sm:inline">Trash</span>
-          </Link>
-
-          {/* Share Client Link Pill */}
-          <button
-            type="button"
-            onClick={copyClientReviewLink}
-            className="hidden sm:inline-flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 bg-purple-50 hover:bg-purple-100 text-[#7F48ED] rounded-xl text-xs font-bold transition-all border border-purple-200 cursor-pointer shrink-0"
-            title="Copy shareable client sign-off link"
-          >
-            <Share2 className="w-3.5 h-3.5 text-[#7F48ED]" />
-            <span>Share Client Link</span>
-          </button>
-
-          {/* Client Mode Toggle */}
-          <button
-            type="button"
-            onClick={() => setIsClientMode(!isClientMode)}
-            className={`inline-flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 rounded-xl text-xs font-bold transition-all border cursor-pointer shrink-0 ${
-              isClientMode
-                ? "bg-[#7F48ED] text-white border-[#7F48ED]"
-                : "bg-zinc-100 hover:bg-zinc-200 text-zinc-700 border-zinc-200"
-            }`}
-            title="Toggle between Client Review and Operator QA mode"
-          >
-            <Eye className="w-3.5 h-3.5" />
-            <span className="hidden sm:inline">{isClientMode ? "Operator Mode" : "Client View"}</span>
-            <span className="sm:hidden">{isClientMode ? "Operator" : "Client"}</span>
-          </button>
-
-          {/* Create Ad Button */}
-          <Link
-            href="/studio/generate"
-            className="flex items-center gap-1.5 px-2.5 sm:px-3.5 py-1.5 bg-[#FF6700] hover:bg-[#E55C00] active:bg-[#CC5200] text-white rounded-xl text-xs font-bold transition-all shadow-sm cursor-pointer shrink-0"
-            title="Create Ad"
-          >
-            <Sparkles className="w-3.5 h-3.5" />
-            <span className="hidden sm:inline">Create Ad</span>
-          </Link>
         </div>
+
+        {/* Contextual Review Actions */}
+        {!clientShareToken && (
+          <div className="flex items-center gap-1.5 sm:gap-2.5 shrink-0">
+            <button
+              type="button"
+              onClick={copyClientReviewLink}
+              className="hidden sm:inline-flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 bg-purple-50 hover:bg-purple-100 text-[#7F48ED] rounded-xl text-xs font-bold transition-all border border-purple-200 cursor-pointer shrink-0"
+              title="Copy signed shareable client sign-off link"
+            >
+              <Share2 className="w-3.5 h-3.5 text-[#7F48ED]" />
+              <span>Share Client Link</span>
+            </button>
+
+            <button
+              type="button"
+              onClick={() => setIsClientMode(!isClientMode)}
+              className={`inline-flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 rounded-xl text-xs font-bold transition-all border cursor-pointer shrink-0 ${
+                isClientMode
+                  ? "bg-[#7F48ED] text-white border-[#7F48ED]"
+                  : "bg-zinc-100 hover:bg-zinc-200 text-zinc-700 border-zinc-200"
+              }`}
+              title="Toggle between Client Review and Operator QA mode"
+            >
+              <Eye className="w-3.5 h-3.5" />
+              <span className="hidden sm:inline">{isClientMode ? "Operator Mode" : "Client View"}</span>
+              <span className="sm:hidden">{isClientMode ? "Operator" : "Client"}</span>
+            </button>
+          </div>
+        )}
       </header>
 
       {/* 2. Main Studio Workstation — Spacious Light Workspace */}
       {isClientMode ? (
         renderClientReviewPortal()
       ) : (
-        <div className="flex-1 w-full p-3 sm:p-4 lg:p-5 flex flex-col lg:flex-row gap-4 lg:gap-5 lg:h-[calc(100vh-4rem)] lg:overflow-hidden">
+        <div className={`flex-1 w-full p-3 sm:p-4 lg:p-5 flex flex-col lg:flex-row gap-4 lg:gap-5 lg:overflow-hidden ${clientShareToken ? "lg:h-[calc(100vh-3.5rem)]" : "lg:h-[calc(100vh-7rem)]"}`}>
         {/* Left Panel: Ad Queue (Clean White Cards) */}
         <aside className="hidden lg:flex lg:w-[320px] xl:w-[360px] 2xl:w-[400px] shrink-0 bg-white rounded-2xl border border-zinc-200 p-4 flex-col h-full overflow-hidden shadow-sm">
           <div className="flex flex-col gap-2.5 pb-2.5 border-b border-zinc-200 shrink-0">

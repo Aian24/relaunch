@@ -224,13 +224,21 @@ export default function ApprovedDeliverablesVaultPage() {
     }
   };
 
-  const copyClientLink = (id: string) => {
-    const url = typeof window !== "undefined"
-      ? `${window.location.origin}/studio/review?variantId=${id}&clientView=true`
-      : "";
+  const copyClientLink = async (id: string) => {
+    if (typeof window === "undefined") return;
+    let tokenQuery = "";
+    try {
+      const res = await fetch(`/api/studio/auth/share-token?variantId=${encodeURIComponent(id)}`);
+      const data = await res.json().catch(() => ({}));
+      if (data?.shareToken) {
+        tokenQuery = `&shareToken=${encodeURIComponent(data.shareToken)}`;
+      }
+    } catch {}
+
+    const url = `${window.location.origin}/studio/review?variantId=${id}&clientView=true${tokenQuery}`;
     if (navigator?.clipboard) {
       navigator.clipboard.writeText(url).then(() => {
-        showToast("Client delivery sign-off link copied!");
+        showToast("Signed client delivery sign-off link copied!");
       }).catch(() => {
         showToast("Link: " + url);
       });
@@ -266,19 +274,8 @@ export default function ApprovedDeliverablesVaultPage() {
   return (
     <div className="min-h-screen bg-[#F8F9FC] text-[#090D16] flex flex-col font-sans selection:bg-[#7F48ED]/20 selection:text-[#7F48ED]">
       {/* 1. Header Bar — Crisp Responsive Header with Portal Tabs */}
-      <header className="h-14 sm:h-16 border-b border-zinc-200 bg-white px-3 sm:px-6 flex items-center justify-between sticky top-0 z-40 shrink-0 shadow-xs">
-        <div className="flex items-center gap-2 sm:gap-4 min-w-0">
-          <Link
-            href="/studio"
-            className="flex items-center gap-1.5 text-xs font-semibold text-zinc-600 hover:text-[#7F48ED] transition-colors shrink-0"
-            title="Back to Studio"
-          >
-            <ArrowLeft className="w-4 h-4" />
-            <span className="hidden md:inline">Back to Studio</span>
-          </Link>
-
-          <div className="h-4 w-px bg-zinc-200 shrink-0" />
-
+      <header className="h-14 border-b border-zinc-200 bg-white px-3 sm:px-6 flex items-center justify-between sticky top-14 z-30 shrink-0 shadow-xs">
+        <div className="flex items-center gap-2 sm:gap-3 min-w-0">
           <div className="flex items-center gap-1.5 min-w-0">
             <span className="text-xs sm:text-sm font-black tracking-tight text-[#090D16] uppercase whitespace-nowrap truncate">
               <span className="hidden xs:inline">Studio </span>
@@ -286,78 +283,11 @@ export default function ApprovedDeliverablesVaultPage() {
               <span className="text-zinc-900 hidden sm:inline"> Vault</span>
             </span>
           </div>
-        </div>
 
-        {/* Navigation Tabs */}
-        <div className="flex items-center gap-1 sm:gap-2.5 shrink-0">
-          <Link
-            href="/studio/review"
-            className="flex items-center gap-1 sm:gap-1.5 px-2 sm:px-3 py-1.5 bg-zinc-100 hover:bg-zinc-200 text-zinc-700 hover:text-zinc-950 rounded-xl text-xs font-bold transition-all border border-zinc-200 cursor-pointer shrink-0"
-            title="Open Review Queue"
-          >
-            <Eye className="w-3.5 h-3.5 text-[#FF6700]" />
-            <span className="hidden sm:inline">Review Queue</span>
-            <span className="sm:hidden">Queue</span>
-            {pendingCount > 0 && (
-              <span className="bg-[#FF6700] text-white text-[10px] font-bold px-1.5 py-0.2 rounded-full">
-                {pendingCount}
-              </span>
-            )}
-          </Link>
-
-          <div className="flex items-center gap-1 sm:gap-1.5 px-2 sm:px-3.5 py-1.5 bg-emerald-50 text-emerald-800 rounded-xl text-xs font-bold border border-emerald-200 shrink-0 shadow-xs">
+          <div className="flex items-center gap-1.5 px-2.5 py-1 bg-emerald-50 text-emerald-800 rounded-xl text-xs font-bold border border-emerald-200 shrink-0 shadow-xs">
             <FolderCheck className="w-3.5 h-3.5 text-emerald-600" />
-            <span>Vault ({deliverables.length})</span>
+            <span>{deliverables.length} Approved</span>
           </div>
-
-          {/* Creators Link */}
-          <Link
-            href="/studio/creators"
-            className="hidden sm:inline-flex items-center gap-1 sm:gap-1.5 px-2 sm:px-3 py-1.5 bg-zinc-100 hover:bg-zinc-200 text-zinc-700 hover:text-zinc-950 rounded-xl text-xs font-bold transition-all border border-zinc-200 cursor-pointer shrink-0"
-            title="Open Creator Intake & Visual Trimmer"
-          >
-            <Users className="w-3.5 h-3.5 text-[#7F48ED]" />
-            <span>Creators</span>
-          </Link>
-
-          {/* Brand Media Link */}
-          <Link
-            href="/studio/assets"
-            className="hidden md:inline-flex items-center gap-1 sm:gap-1.5 px-2 sm:px-3 py-1.5 bg-zinc-100 hover:bg-zinc-200 text-zinc-700 hover:text-zinc-950 rounded-xl text-xs font-bold transition-all border border-zinc-200 cursor-pointer shrink-0"
-            title="Open Brand Media & Product Footage Intake"
-          >
-            <Video className="w-3.5 h-3.5 text-[#FF6700]" />
-            <span>Brand Footage</span>
-          </Link>
-
-          {/* Master Tracks Link */}
-          <Link
-            href="/studio/tracks"
-            className="hidden md:inline-flex items-center gap-1 sm:gap-1.5 px-2 sm:px-3 py-1.5 bg-zinc-100 hover:bg-zinc-200 text-zinc-700 hover:text-zinc-950 rounded-xl text-xs font-bold transition-all border border-zinc-200 cursor-pointer shrink-0"
-            title="Open Timeline & Master Tracks Workstation"
-          >
-            <Music className="w-3.5 h-3.5 text-[#7F48ED]" />
-            <span>Master Tracks</span>
-          </Link>
-
-          <Link
-            href="/studio/deleted"
-            className="flex items-center gap-1 sm:gap-1.5 px-2 sm:px-3 py-1.5 bg-zinc-100 hover:bg-red-50 text-zinc-700 hover:text-red-700 rounded-xl text-xs font-bold transition-all border border-zinc-200 hover:border-red-200 cursor-pointer shrink-0"
-            title="Open Deleted Ads Recovery Queue"
-          >
-            <Trash2 className="w-3.5 h-3.5 text-red-500" />
-            <span className="hidden sm:inline">Trash</span>
-          </Link>
-
-          <Link
-            href="/studio/generate"
-            className="flex items-center gap-1 sm:gap-1.5 px-2 sm:px-3.5 py-1.5 bg-[#FF6700] hover:bg-[#E55C00] text-white rounded-xl text-xs font-bold transition-all shadow-sm cursor-pointer shrink-0"
-            title="Create New Ad"
-          >
-            <Sparkles className="w-3.5 h-3.5" />
-            <span className="hidden sm:inline">Create Ad</span>
-            <span className="sm:hidden">Ad</span>
-          </Link>
         </div>
       </header>
 
@@ -834,14 +764,23 @@ export default function ApprovedDeliverablesVaultPage() {
                         <span>{syncSuccessMap[item.id] || (syncingMap[item.id] ? "Syncing..." : "Sync Drive")}</span>
                       </button>
 
-                      <Link
-                        href={`/studio/review?variantId=${item.id}&clientView=true`}
+                      <button
+                        type="button"
+                        onClick={async () => {
+                          let tokenQuery = "";
+                          try {
+                            const res = await fetch(`/api/studio/auth/share-token?variantId=${encodeURIComponent(item.id)}`);
+                            const data = await res.json().catch(() => ({}));
+                            if (data?.shareToken) tokenQuery = `&shareToken=${encodeURIComponent(data.shareToken)}`;
+                          } catch {}
+                          window.open(`/studio/review?variantId=${item.id}&clientView=true${tokenQuery}`, "_blank");
+                        }}
                         className="w-full sm:w-auto flex items-center justify-center gap-1.5 py-2.5 px-4 rounded-xl bg-purple-50 hover:bg-purple-100 active:bg-purple-200 border border-purple-200 text-[#7F48ED] text-xs font-bold transition cursor-pointer min-h-[40px]"
-                        title="Open Client Sign-Off Room"
+                        title="Open Signed Client Sign-Off Room"
                       >
                         <Eye className="w-4 h-4 shrink-0" />
                         <span>Sign-Off Room</span>
-                      </Link>
+                      </button>
                     </div>
 
                     {/* Expandable Script & Voiceover Drawer */}

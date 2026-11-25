@@ -3,6 +3,7 @@ import fs from "fs";
 import path from "path";
 import { saveAdJob, type AdJob } from "@/lib/adJob";
 import { checkRateLimit, getClientIp } from "@/lib/rateLimit";
+import { requireStudioAdmin } from "@/lib/studioAuth";
 import { safeJsonRequest, safeDownloadFile } from "@/lib/safeHttp";
 import { execSync } from "child_process";
 import { getCreatorClipById, getCreatorClips, CREATOR_ASSETS } from "@/data/creatorAssets";
@@ -31,6 +32,9 @@ const STRICT_ENGLISH_NEGATIVE_PROMPT =
 
 export async function POST(request: Request) {
   try {
+    const auth = await requireStudioAdmin(request);
+    if (!auth.ok) return auth.response;
+
     const url = new URL(request.url);
 
     // Fast-path: Explicit cancellation ping from client
@@ -45,7 +49,7 @@ export async function POST(request: Request) {
       return NextResponse.json({ success: true, cancelled: cancelId });
     }
 
-    // 0. Security Shield: Rate Limiting by IP (Max 5 generations per 10 min)
+    // 0. Security Shield: Per-IP Rate Limit (5 / 10 min) + Daily Server Credit Cap
     const clientIp = getClientIp(request);
     const rateCheck = checkRateLimit(`studio_generate_${clientIp}`, 5, 10 * 60 * 1000);
     if (!rateCheck.success) {
@@ -62,6 +66,19 @@ export async function POST(request: Request) {
             "X-RateLimit-Remaining": String(rateCheck.remaining),
           },
         }
+      );
+    }
+
+    const dailyCap = Math.max(1, parseInt(process.env.STUDIO_DAILY_GENERATE_CAP || "25", 10) || 25);
+    const todayKey = new Date().toISOString().slice(0, 10);
+    const dailyCheck = checkRateLimit(`studio_daily_cap_${todayKey}`, dailyCap, 24 * 60 * 60 * 1000);
+    if (!dailyCheck.success) {
+      return NextResponse.json(
+        {
+          error: `Daily credit safety cap reached (${dailyCap} generations/day). Adjust STUDIO_DAILY_GENERATE_CAP in .env.local to raise the limit.`,
+          retryAfter: dailyCheck.retryAfterSeconds,
+        },
+        { status: 429 }
       );
     }
 

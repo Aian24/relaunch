@@ -4,10 +4,14 @@ import path from "path";
 import { getAdJobById } from "@/lib/adJob";
 import { buildZipArchive, ZipFileInput } from "@/lib/zipBuilder";
 import { generateTimelineXml } from "@/lib/timelineXmlGenerator";
+import { requireStudioAdmin } from "@/lib/studioAuth";
 
 export const dynamic = "force-dynamic";
 
 export async function GET(request: Request) {
+  const auth = await requireStudioAdmin(request);
+  if (!auth.ok) return auth.response;
+
   const { searchParams } = new URL(request.url);
   const jobId = searchParams.get("jobId");
 

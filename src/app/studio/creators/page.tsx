@@ -273,19 +273,8 @@ export default function CreatorIntakeAndTrimmerPage() {
   return (
     <div className="min-h-screen bg-[#F8F9FC] text-[#090D16] flex flex-col font-sans selection:bg-[#7F48ED]/20 selection:text-[#7F48ED]">
       {/* 1. Top Header Bar */}
-      <header className="h-14 sm:h-16 border-b border-zinc-200 bg-white px-3 sm:px-6 flex items-center justify-between sticky top-0 z-40 shrink-0 shadow-xs">
-        <div className="flex items-center gap-2 sm:gap-4 min-w-0">
-          <Link
-            href="/studio"
-            className="flex items-center gap-1.5 text-xs font-semibold text-zinc-600 hover:text-[#7F48ED] transition-colors shrink-0"
-            title="Back to Studio"
-          >
-            <ArrowLeft className="w-4 h-4" />
-            <span className="hidden md:inline">Back to Studio</span>
-          </Link>
-
-          <div className="h-4 w-px bg-zinc-200 shrink-0" />
-
+      <header className="h-14 border-b border-zinc-200 bg-white px-3 sm:px-6 flex items-center justify-between sticky top-14 z-30 shrink-0 shadow-xs">
+        <div className="flex items-center gap-2 sm:gap-3 min-w-0">
           <div className="flex items-center gap-1.5 min-w-0">
             <span className="text-xs sm:text-sm font-black tracking-tight text-[#090D16] uppercase whitespace-nowrap truncate">
               <span className="hidden xs:inline">ReLaunch Studio </span>
@@ -295,51 +284,15 @@ export default function CreatorIntakeAndTrimmerPage() {
           </div>
         </div>
 
-        {/* Header Actions */}
+        {/* Contextual Header Actions */}
         <div className="flex items-center gap-1.5 sm:gap-2.5 shrink-0">
           <Link
-            href="/studio/generate"
-            className="flex items-center gap-1 sm:gap-1.5 px-2.5 sm:px-3 py-1.5 bg-zinc-100 hover:bg-zinc-200 text-zinc-700 hover:text-zinc-950 rounded-xl text-xs font-bold transition border border-zinc-200 cursor-pointer shrink-0"
-            title="Open Studio Generator"
+            href="/studio/creators/new"
+            className="flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 bg-[#7F48ED] hover:bg-[#6b35d6] text-white rounded-xl text-xs font-bold transition shadow-sm cursor-pointer shrink-0"
           >
-            <Sparkles className="w-3.5 h-3.5 text-[#FF6700]" />
-            <span className="hidden sm:inline">Generator</span>
-          </Link>
-
-          <Link
-            href="/studio/review"
-            className="flex items-center gap-1 sm:gap-1.5 px-2.5 sm:px-3 py-1.5 bg-zinc-100 hover:bg-zinc-200 text-zinc-700 hover:text-zinc-950 rounded-xl text-xs font-bold transition border border-zinc-200 cursor-pointer shrink-0"
-            title="Open Review Room"
-          >
-            <Eye className="w-3.5 h-3.5 text-[#7F48ED]" />
-            <span className="hidden sm:inline">Review</span>
-          </Link>
-
-          <Link
-            href="/studio/assets"
-            className="flex items-center gap-1 sm:gap-1.5 px-2.5 sm:px-3 py-1.5 bg-zinc-100 hover:bg-zinc-200 text-zinc-700 hover:text-zinc-950 rounded-xl text-xs font-bold transition border border-zinc-200 cursor-pointer shrink-0"
-            title="Open Brand Media & Product Footage Intake"
-          >
-            <Video className="w-3.5 h-3.5 text-[#FF6700]" />
-            <span className="hidden sm:inline">Brand Media</span>
-          </Link>
-
-          <Link
-            href="/studio/tracks"
-            className="hidden md:inline-flex items-center gap-1 sm:gap-1.5 px-2.5 sm:px-3 py-1.5 bg-zinc-100 hover:bg-zinc-200 text-zinc-700 hover:text-zinc-950 rounded-xl text-xs font-bold transition border border-zinc-200 cursor-pointer shrink-0"
-            title="Open Timeline & Master Tracks Workstation"
-          >
-            <Music className="w-3.5 h-3.5 text-[#7F48ED]" />
-            <span>Master Tracks</span>
-          </Link>
-
-          <Link
-            href="/studio/approved"
-            className="flex items-center gap-1 sm:gap-1.5 px-2.5 sm:px-3 py-1.5 bg-zinc-100 hover:bg-zinc-200 text-zinc-700 hover:text-zinc-950 rounded-xl text-xs font-bold transition border border-zinc-200 cursor-pointer shrink-0"
-            title="Open Approved Vault"
-          >
-            <FolderOpen className="w-3.5 h-3.5 text-emerald-600" />
-            <span className="hidden sm:inline">Vault</span>
+            <Plus className="w-3.5 h-3.5" />
+            <span className="hidden sm:inline">Onboard Creator</span>
+            <span className="sm:hidden">New</span>
           </Link>
 
           <button

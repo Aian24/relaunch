@@ -145,7 +145,7 @@ export default function NewCreatorOnboardingPage() {
   return (
     <div className="min-h-screen bg-[#F8F9FC] text-[#090D16] flex flex-col font-sans selection:bg-[#FF6700]/20 selection:text-[#FF6700]">
       {/* 1. Top Header Bar */}
-      <header className="h-14 sm:h-16 border-b border-zinc-200 bg-white px-3 sm:px-6 flex items-center justify-between sticky top-0 z-40 shrink-0 shadow-xs">
+      <header className="h-14 border-b border-zinc-200 bg-white px-3 sm:px-6 flex items-center justify-between sticky top-14 z-30 shrink-0 shadow-xs">
         <div className="flex items-center gap-2 sm:gap-4 min-w-0">
           <Link
             href="/studio/creators"
@@ -165,36 +165,6 @@ export default function NewCreatorOnboardingPage() {
               <span className="text-[#090D16] hidden sm:inline"> UGC Creator</span>
             </span>
           </div>
-        </div>
-
-        {/* Header Actions */}
-        <div className="flex items-center gap-1.5 sm:gap-2.5 shrink-0">
-          <Link
-            href="/studio/generate"
-            className="flex items-center gap-1 sm:gap-1.5 px-2.5 sm:px-3 py-1.5 bg-zinc-100 hover:bg-zinc-200 text-zinc-700 hover:text-zinc-950 rounded-xl text-xs font-bold transition border border-zinc-200 cursor-pointer shrink-0"
-            title="Open Studio Generator"
-          >
-            <Sparkles className="w-3.5 h-3.5 text-[#FF6700]" />
-            <span className="hidden sm:inline">Generator</span>
-          </Link>
-
-          <Link
-            href="/studio/review"
-            className="flex items-center gap-1 sm:gap-1.5 px-2.5 sm:px-3 py-1.5 bg-zinc-100 hover:bg-zinc-200 text-zinc-700 hover:text-zinc-950 rounded-xl text-xs font-bold transition border border-zinc-200 cursor-pointer shrink-0"
-            title="Open Review Room"
-          >
-            <Eye className="w-3.5 h-3.5 text-[#7F48ED]" />
-            <span className="hidden sm:inline">Review</span>
-          </Link>
-
-          <Link
-            href="/studio/approved"
-            className="flex items-center gap-1 sm:gap-1.5 px-2.5 sm:px-3 py-1.5 bg-zinc-100 hover:bg-zinc-200 text-zinc-700 hover:text-zinc-950 rounded-xl text-xs font-bold transition border border-zinc-200 cursor-pointer shrink-0"
-            title="Open Approved Vault"
-          >
-            <FolderOpen className="w-3.5 h-3.5 text-emerald-600" />
-            <span className="hidden sm:inline">Vault</span>
-          </Link>
         </div>
       </header>
 

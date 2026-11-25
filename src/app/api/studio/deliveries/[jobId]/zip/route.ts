@@ -4,6 +4,7 @@ import path from "path";
 import { getAdJobById } from "@/lib/adJob";
 import { buildZipArchive, ZipFileInput } from "@/lib/zipBuilder";
 import { generateMetaCampaignCsv, generateTikTokAdKitText } from "@/lib/googleDrive";
+import { requireStudioAdmin, verifyClientShareToken } from "@/lib/studioAuth";
 
 export const dynamic = "force-dynamic";
 
@@ -12,6 +13,15 @@ export async function GET(
   { params }: { params: { jobId: string } }
 ) {
   const { jobId } = params;
+  const auth = await requireStudioAdmin(request);
+  if (!auth.ok) {
+    const shareToken =
+      new URL(request.url).searchParams.get("shareToken") ||
+      request.headers.get("x-studio-share-token");
+    const validShare = await verifyClientShareToken(jobId, shareToken);
+    if (!validShare) return auth.response;
+  }
+
   if (!jobId) {
     return NextResponse.json({ error: "Job ID required" }, { status: 400 });
   }

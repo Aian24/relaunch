@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { checkRateLimit, getClientIp } from "@/lib/rateLimit";
+import { requireStudioAdmin } from "@/lib/studioAuth";
 
 export const dynamic = "force-dynamic";
 
@@ -113,6 +114,9 @@ const CACHE_TTL_MS = 5 * 60 * 1000; // 5 minutes
  * Cloned creator voices appear at the top automatically.
  */
 export async function GET(request: Request) {
+  const auth = await requireStudioAdmin(request);
+  if (!auth.ok) return auth.response;
+
   const clientIp = getClientIp(request);
   const rateCheck = checkRateLimit(`studio_voices_${clientIp}`, 25, 60 * 1000);
 

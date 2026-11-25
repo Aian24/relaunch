@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { getAdJobById, saveAdJob } from "@/lib/adJob";
 import { syncDeliverablesToGoogleDrive, getGoogleDriveFolderUrl } from "@/lib/googleDrive";
+import { requireStudioAdmin } from "@/lib/studioAuth";
 
 export const dynamic = "force-dynamic";
 
@@ -8,6 +9,9 @@ export async function POST(
   request: Request,
   { params }: { params: { jobId: string } }
 ) {
+  const auth = await requireStudioAdmin(request);
+  if (!auth.ok) return auth.response;
+
   const { jobId } = params;
   if (!jobId) {
     return NextResponse.json({ error: "Job ID required" }, { status: 400 });
