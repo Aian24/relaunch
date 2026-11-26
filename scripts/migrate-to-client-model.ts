@@ -8,7 +8,7 @@
 import fs from "fs";
 import path from "path";
 import { SEED_CLIENTS, SEED_MEDIA_ASSETS } from "../src/lib/seedBrands";
-import { isPostgresAvailable, pgQuery, getStudioPgPool } from "../src/lib/studioDb";
+import { getLastPostgresError, isPostgresAvailable, pgQuery, getStudioPgPool } from "../src/lib/studioDb";
 import {
   createClientRecord,
   getClientById,
@@ -73,10 +73,63 @@ async function syncAdJobToPostgres(job: AdJob): Promise<void> {
   );
 }
 
+function loadDatabaseUrl(): { source: string; target: string } {
+  const cliArg = process.argv.slice(2).find((arg) => arg.startsWith("--db=") || /^postgres(ql)?:\/\//i.test(arg));
+  if (cliArg) {
+    const val = cliArg.startsWith("--db=") ? cliArg.slice(5).trim() : cliArg.trim();
+    if (val) {
+      process.env.DATABASE_URL = val;
+      return { source: "CLI argument", target: maskDatabaseUrl(val) };
+    }
+  }
+
+  if (process.env.DATABASE_URL?.trim()) {
+    return { source: "process.env", target: maskDatabaseUrl(process.env.DATABASE_URL.trim()) };
+  }
+
+  for (const envFile of [".env.local", ".env"]) {
+    const fullPath = path.resolve(process.cwd(), envFile);
+    if (!fs.existsSync(fullPath)) continue;
+    const lines = fs.readFileSync(fullPath, "utf8").split(/\r?\n/);
+    for (const line of lines) {
+      const trimmed = line.trim();
+      if (!trimmed || trimmed.startsWith("#")) continue;
+      const eqIdx = trimmed.indexOf("=");
+      if (eqIdx === -1) continue;
+      const key = trimmed.slice(0, eqIdx).trim();
+      let val = trimmed.slice(eqIdx + 1).trim();
+      if ((val.startsWith('"') && val.endsWith('"')) || (val.startsWith("'") && val.endsWith("'"))) {
+        val = val.slice(1, -1);
+      }
+      if (key === "DATABASE_URL" && val) {
+        process.env.DATABASE_URL = val;
+        return { source: envFile, target: maskDatabaseUrl(val) };
+      }
+    }
+  }
+
+  return { source: "none", target: "NOT SET" };
+}
+
+function maskDatabaseUrl(raw: string): string {
+  try {
+    const u = new URL(raw);
+    return `${u.protocol}//${u.username ? `${u.username}:***@` : ""}${u.hostname}${u.port ? `:${u.port}` : ""}${u.pathname}`;
+  } catch {
+    return "configured (custom format)";
+  }
+}
+
 async function run() {
   console.log("=== ReLaunch Studio Client Model Migration ===");
+  const dbCfg = loadDatabaseUrl();
+  console.log(`DATABASE_URL (${dbCfg.source}): ${dbCfg.target}`);
   const pgUp = await isPostgresAvailable();
   console.log(`Target store: ${pgUp ? "PostgreSQL 16 (+ local JSON mirror)" : "Local JSON Fallback (PostgreSQL not reachable)"}`);
+  if (!pgUp) {
+    const pgErr = getLastPostgresError();
+    if (pgErr) console.log(`PostgreSQL detail: ${pgErr}`);
+  }
 
   if (pgUp) {
     const pool = getStudioPgPool();
