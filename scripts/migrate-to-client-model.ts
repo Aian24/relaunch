@@ -246,12 +246,13 @@ async function run() {
   }
 
   // 3. Backfill ad-jobs.json with clientId & isSample (and sync to Postgres if running)
+  const validClientIds = new Set(allClients.map((c) => c.id));
   const jobs = getAllAdJobs(true);
   let backfilledJobs = 0;
   let orphanJobs = 0;
 
   for (const job of jobs) {
-    if (!job.clientId) {
+    if (!job.clientId || !validClientIds.has(job.clientId)) {
       let owner = matchClientForJob(allClients, job);
       if (!owner && job.brandName) {
         owner = await createClientRecord({
@@ -261,6 +262,7 @@ async function run() {
           isSample: false,
         });
         allClients.push(owner);
+        validClientIds.add(owner.id);
       }
       if (owner) {
         job.clientId = owner.id;
@@ -268,6 +270,7 @@ async function run() {
         saveAdJob(job);
         backfilledJobs++;
       } else {
+        job.clientId = undefined;
         orphanJobs++;
       }
     }
