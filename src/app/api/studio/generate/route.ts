@@ -7,6 +7,13 @@ import { requireStudioAdmin } from "@/lib/studioAuth";
 import { safeJsonRequest, safeDownloadFile } from "@/lib/safeHttp";
 import { execSync } from "child_process";
 import { getCreatorClipById, getCreatorClips, CREATOR_ASSETS } from "@/data/creatorAssets";
+import {
+  getClientById,
+  getClientClipById,
+  recordClientCreatorUsage,
+  touchClientActivity,
+} from "@/lib/clientStore";
+import { resolveStorageToLocalFile } from "@/lib/r2Storage";
 
 export const dynamic = "force-dynamic";
 
@@ -97,8 +104,24 @@ export async function POST(request: Request) {
       return NextResponse.json({ success: false, cancelled: true }, { status: 499 });
     }
 
-    const rawBrandName = String(body.brandName || "My Brand").trim().slice(0, 80);
-    const brandName = rawBrandName || "My Brand";
+    const rawClientId = String(body.clientId || "").trim();
+    if (!rawClientId) {
+      return NextResponse.json(
+        { error: "clientId is required. Every ad job must belong to a Client." },
+        { status: 400 }
+      );
+    }
+
+    const clientRecord = await getClientById(rawClientId);
+    if (!clientRecord) {
+      return NextResponse.json(
+        { error: `Client not found for clientId: ${rawClientId}` },
+        { status: 404 }
+      );
+    }
+
+    const rawBrandName = String(body.brandName || clientRecord.name || "My Brand").trim().slice(0, 80);
+    const brandName = rawBrandName || clientRecord.name;
     const creativeAngle = String(body.creativeAngle || "Problem & Solution").trim().slice(0, 80);
     const hookType = String(body.hookType || "problem").trim().slice(0, 40);
     const hookText = String(body.hookText || "Stop scrolling if you want real results.").trim().slice(0, 200);
@@ -141,6 +164,8 @@ export async function POST(request: Request) {
     const scene3AiGapFill = Boolean(body.scene3AiGapFill);
     const productVideoUrl = typeof body.productVideoUrl === "string" ? body.productVideoUrl.trim() : "";
     const brollVideoUrl = typeof body.brollVideoUrl === "string" ? body.brollVideoUrl.trim() : "";
+    const scene2ClipId = typeof body.scene2ClipId === "string" ? body.scene2ClipId.trim() : "";
+    const scene3ClipId = typeof body.scene3ClipId === "string" ? body.scene3ClipId.trim() : "";
     const sceneOrder: number[] = Array.isArray(body.sceneOrder) ? body.sceneOrder : [1, 2, 3, 4];
 
     const effectiveMediaSource = mediaSources[0] || "";
@@ -511,22 +536,53 @@ export async function POST(request: Request) {
     const resolvedMediaUrl = resolvedMediaUrls[0] || "";
     const localMediaDiskPath = savedImageDiskPaths[0] || singleVideoDiskPath || null;
 
-    // Resolve Real Product & B-Roll Footage (Quality-First Real-Footage Architecture)
+    // Resolve Real Product & B-Roll Footage (Client Clip Library First -> Pre-Cut Assets -> AI Gap-Fill Fallback)
     let realProductVideoDisk: string | null = null;
     let realBrollVideoDisk: string | null = null;
 
-    if (singleVideoDiskPath && fs.existsSync(singleVideoDiskPath)) {
+    const scene2ClipRecord = scene2ClipId ? await getClientClipById(scene2ClipId) : null;
+    const scene3ClipRecord = scene3ClipId ? await getClientClipById(scene3ClipId) : null;
+
+    if (scene2ClipRecord && scene2ClipRecord.clientId === clientRecord.id) {
+      const masterSrc = scene2ClipRecord.sourcePlayableUrl || scene2ClipRecord.sourceStorageUrl || "";
+      const resolved = await resolveStorageToLocalFile(
+        masterSrc,
+        path.join(storageDir, `${jobId}-raw-s2.mp4`)
+      );
+      if (resolved && fs.existsSync(resolved)) {
+        realProductVideoDisk = resolved;
+      }
+    }
+
+    if (scene3ClipRecord && scene3ClipRecord.clientId === clientRecord.id) {
+      const masterSrc = scene3ClipRecord.sourcePlayableUrl || scene3ClipRecord.sourceStorageUrl || "";
+      const resolved = await resolveStorageToLocalFile(
+        masterSrc,
+        path.join(storageDir, `${jobId}-raw-s3.mp4`)
+      );
+      if (resolved && fs.existsSync(resolved)) {
+        realBrollVideoDisk = resolved;
+      }
+    }
+
+    if (!realProductVideoDisk && singleVideoDiskPath && fs.existsSync(singleVideoDiskPath)) {
       realProductVideoDisk = singleVideoDiskPath;
-    } else if (productVideoUrl) {
-      const candidate = path.resolve(process.cwd(), "public", productVideoUrl.replace(/^\//, ""));
-      if (fs.existsSync(candidate) && fs.statSync(candidate).isFile()) {
+    } else if (!realProductVideoDisk && productVideoUrl) {
+      const candidate = await resolveStorageToLocalFile(
+        productVideoUrl,
+        path.join(storageDir, `${jobId}-prod.mp4`)
+      );
+      if (candidate && fs.existsSync(candidate) && fs.statSync(candidate).isFile()) {
         realProductVideoDisk = candidate;
       }
     }
 
-    if (brollVideoUrl) {
-      const candidate = path.resolve(process.cwd(), "public", brollVideoUrl.replace(/^\//, ""));
-      if (fs.existsSync(candidate) && fs.statSync(candidate).isFile()) {
+    if (!realBrollVideoDisk && brollVideoUrl) {
+      const candidate = await resolveStorageToLocalFile(
+        brollVideoUrl,
+        path.join(storageDir, `${jobId}-broll.mp4`)
+      );
+      if (candidate && fs.existsSync(candidate) && fs.statSync(candidate).isFile()) {
         realBrollVideoDisk = candidate;
       }
     }
@@ -1399,14 +1455,17 @@ export async function POST(request: Request) {
       const subRevealTime = Math.min(1.0, duration * 0.25).toFixed(2);
       const fontOpt = fontPath ? `fontfile='${fontPath}':` : "";
 
-      // 1. Luxury Dark Card Scrim with Orange Accent Line to completely shield underlying graphics
-      const ctaCard = `drawbox=x=40:y=1380:w=1000:h=480:color=black@0.95:t=fill,drawbox=x=40:y=1380:w=1000:h=8:color=orange:t=fill`;
+      const safeHex = /^#[0-9a-fA-F]{6}$/.test(ctaBrandColor) ? ctaBrandColor : "#FF6700";
+      const ffColor = `0x${safeHex.slice(1).toUpperCase()}`;
+
+      // 1. Luxury Dark Card Scrim with Client Brand Accent Line to completely shield underlying graphics
+      const ctaCard = `drawbox=x=40:y=1380:w=1000:h=480:color=black@0.95:t=fill,drawbox=x=40:y=1380:w=1000:h=8:color=${ffColor}:t=fill`;
       // 2. Brand Eyebrow Tag
-      const brandLine = `drawtext=${fontOpt}text='${cleanBrand}':fontcolor=0xFF6700:fontsize=${brandFSize}:x=(w-text_w)/2:y=1420`;
+      const brandLine = `drawtext=${fontOpt}text='${cleanBrand}':fontcolor=${ffColor}:fontsize=${brandFSize}:x=(w-text_w)/2:y=1420`;
       // 3. Main Offer Headline
       const headline = `drawtext=${fontOpt}text='${cleanCta}':fontcolor=white:fontsize=${ctaFSize}:bordercolor=black:borderw=4:x=(w-text_w)/2:y=1480`;
       // 4. Urgency Action Button Box + Text
-      const buttonBox = `drawbox=x=160:y=1580:w=760:h=90:color=#7F48ED:t=fill`;
+      const buttonBox = `drawbox=x=160:y=1580:w=760:h=90:color=${ffColor}:t=fill`;
       const sub = `drawtext=${fontOpt}text='${cleanSub}':fontcolor=white:fontsize=${subFSize}:x=(w-text_w)/2:y=1612:enable='gte(t\\,${subRevealTime})'`;
 
       return `${ctaCard},${brandLine},${headline},${buttonBox},${sub}`;
@@ -1507,20 +1566,19 @@ export async function POST(request: Request) {
           let scene3InputFile = "";
           let isScene3StaticImage = false;
 
-          // Priority: Kling generated clip (based on AI Visual Direction) > real b-roll video > static image fallback
-          // If 2 AI clips were generated, clip 2 is Scene 3. If 1 AI clip was generated and Scene 2 used real product video, clip 1 is Scene 3.
+          // Priority: Client Clip Library / Real B-Roll FIRST -> AI Gap-Fill (Kling/Grok) only when no client clip exists or gap-fill toggled
           const klingScene3Clip = (aiVideoClips.length > 1)
             ? aiVideoClips[1]
             : (aiVideoClips.length === 1 && scene2InputFile !== aiVideoClips[0] ? aiVideoClips[0] : null);
 
-          if (klingScene3Clip && fs.existsSync(klingScene3Clip)) {
+          if (!scene3AiGapFill && realBrollVideoDisk && fs.existsSync(realBrollVideoDisk)) {
+            scene3InputFile = realBrollVideoDisk;
+          } else if (klingScene3Clip && fs.existsSync(klingScene3Clip)) {
             scene3InputFile = klingScene3Clip;
           } else if (aiVideoClips.length > 0 && fs.existsSync(aiVideoClips[0])) {
             scene3InputFile = aiVideoClips[0];
           } else if (fs.existsSync(aiVideoFile)) {
             scene3InputFile = aiVideoFile;
-          } else if (!scene3AiGapFill && realBrollVideoDisk && fs.existsSync(realBrollVideoDisk)) {
-            scene3InputFile = realBrollVideoDisk;
           } else if (savedImageDiskPaths.length > 1 && fs.existsSync(savedImageDiskPaths[1])) {
             scene3InputFile = savedImageDiskPaths[1];
             isScene3StaticImage = true;
@@ -1926,9 +1984,16 @@ export async function POST(request: Request) {
       chloe: "Chloe Bennett (@chloestyleguide)",
     };
 
+    const combinedCopyLower = `${hookText} ${scriptBody}`.toLowerCase();
+    const doNotSayViolations = (clientRecord.brandProfile?.doNotSay || []).filter(
+      (phrase) => phrase && combinedCopyLower.includes(phrase.toLowerCase())
+    );
+
     const newAdJob: AdJob = {
       id: jobId,
-      brandId: brandName.toLowerCase().replace(/[^a-z0-9]/g, "-"),
+      clientId: clientRecord.id,
+      isSample: clientRecord.isSample,
+      brandId: clientRecord.slug,
       brandName,
       creativeAngle,
       hookType: hookType as any,
@@ -1940,6 +2005,26 @@ export async function POST(request: Request) {
         hookClipUrl: creatorHookClip,
       },
       clientFootageUrl: resolvedMediaUrl || "",
+      sceneClips: {
+        scene2: scene2ClipRecord
+          ? {
+            clipId: scene2ClipRecord.id,
+            sourceRawId: scene2ClipRecord.sourceRawId,
+            inPoint: scene2TrimStart,
+            outPoint: scene2TrimEnd,
+            label: scene2ClipRecord.label,
+          }
+          : undefined,
+        scene3: scene3ClipRecord
+          ? {
+            clipId: scene3ClipRecord.id,
+            sourceRawId: scene3ClipRecord.sourceRawId,
+            inPoint: scene3TrimStart,
+            outPoint: scene3TrimEnd,
+            label: scene3ClipRecord.label,
+          }
+          : undefined,
+      },
       aiScene: {
         prompt: finalPrompt,
         model: aiModel,
@@ -1965,7 +2050,7 @@ export async function POST(request: Request) {
       },
       complianceChecks: {
         creatorVerification: true,
-        scriptClaims: true,
+        scriptClaims: doNotSayViolations.length === 0,
         clientFootagePresent: true,
         disclosureState: true,
         creativeDirectorSignOff: false,
@@ -1976,6 +2061,10 @@ export async function POST(request: Request) {
     };
 
     saveAdJob(newAdJob);
+    await Promise.all([
+      recordClientCreatorUsage(clientRecord.id, actor),
+      touchClientActivity(clientRecord.id),
+    ]);
 
     // If batch generation requested, spawn 5 distinct angle variants to power high volume
     const isBatch = Boolean(body.isBatch);
@@ -2048,6 +2137,9 @@ export async function POST(request: Request) {
     return NextResponse.json({
       ok: true,
       jobId,
+      clientId: clientRecord.id,
+      isSample: clientRecord.isSample,
+      doNotSayViolations,
       isBatch,
       batchJobsCount: batchJobs.length,
       batchJobs,

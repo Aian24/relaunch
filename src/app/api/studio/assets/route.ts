@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import fs from "fs";
 import path from "path";
 import { requireStudioAdmin } from "@/lib/studioAuth";
+import { getClientById, listClients, upsertClientMediaAsset } from "@/lib/clientStore";
 
 export const dynamic = "force-dynamic";
 
@@ -311,8 +312,15 @@ export async function POST(request: Request) {
 
     // 2. Multipart Form Upload (New Product Media File)
     const formData = await request.formData();
-    const brandName = (formData.get("brandName") as string) || "Client Brand";
-    const brandSlug = (formData.get("brandSlug") as string) ||
+    const clientIdParam = ((formData.get("clientId") as string) || "").trim();
+    const resolvedClient = clientIdParam
+      ? await getClientById(clientIdParam)
+      : (await listClients({ includeSamples: true })).find(
+          (c) => c.name.toLowerCase() === ((formData.get("brandName") as string) || "").toLowerCase()
+        ) || null;
+
+    const brandName = resolvedClient?.name || (formData.get("brandName") as string) || "Client Brand";
+    const brandSlug = resolvedClient?.slug || (formData.get("brandSlug") as string) ||
       brandName.toLowerCase().replace(/[^a-z0-9]/g, "-").replace(/-+/g, "-");
     const title = (formData.get("title") as string) || "Product Demo Footage";
     const category = ((formData.get("category") as string) || "product-demo") as BrandMediaAsset["category"];
@@ -353,6 +361,22 @@ export async function POST(request: Request) {
 
     const currentAssets = getStoredBrandAssets();
     saveStoredBrandAssets([newAsset, ...currentAssets]);
+
+    if (resolvedClient) {
+      await upsertClientMediaAsset({
+        id: newAsset.id,
+        clientId: resolvedClient.id,
+        brandSlug: resolvedClient.slug,
+        brandName: resolvedClient.name,
+        title: newAsset.title,
+        category: newAsset.category,
+        targetScene: newAsset.targetScene,
+        src: newAsset.src,
+        fileSizeMb: newAsset.fileSizeMb,
+        status: "active",
+        uploadedAt: newAsset.uploadedAt,
+      });
+    }
 
     return NextResponse.json({
       success: true,

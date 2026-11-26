@@ -45,6 +45,8 @@ import {
 
 interface VariantItem {
   id: string;
+  clientId?: string;
+  isSample?: boolean;
   clientName: string;
   batchName: string;
   angle: string;
@@ -114,6 +116,7 @@ export default function StudioReviewPortal() {
   const [isPlaying, setIsPlaying] = useState(true);
   const [isMuted, setIsMuted] = useState(true);
   const [filterClient, setFilterClient] = useState("all");
+  const [groupByClient, setGroupByClient] = useState(true);
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [detailsExpanded, setDetailsExpanded] = useState(false);
   const [approvedCount, setApprovedCount] = useState(0);
@@ -369,7 +372,9 @@ export default function StudioReviewPortal() {
     const searchParams = typeof window !== "undefined" ? new URLSearchParams(window.location.search) : null;
     const targetId = searchParams?.get("variantId") || null;
     const shareToken = searchParams?.get("shareToken") || null;
+    const qClientId = searchParams?.get("clientId") || null;
     if (shareToken) setClientShareToken(shareToken);
+    if (qClientId) setFilterClient(qClientId);
 
     const apiUrl = targetId && shareToken
       ? `/api/studio/review?variantId=${encodeURIComponent(targetId)}&shareToken=${encodeURIComponent(shareToken)}`
@@ -652,9 +657,23 @@ export default function StudioReviewPortal() {
       return false;
     }
     if (filterClient === "all") return true;
+    if (v.clientId && v.clientId === filterClient) return true;
     const name = v.clientName || (v as any).brandName || "";
     return name.toLowerCase().includes(filterClient.toLowerCase());
   });
+
+  const sortedFilteredVariants = groupByClient
+    ? [...filteredVariants].sort((a, b) => a.clientName.localeCompare(b.clientName))
+    : filteredVariants;
+
+  const uniqueReviewClients = Array.from(
+    new Map(
+      variants.map((v) => [
+        v.clientId || v.clientName,
+        { key: v.clientId || v.clientName, name: v.clientName, isSample: Boolean(v.isSample) },
+      ])
+    ).values()
+  );
 
   const pendingCount = variants.filter((v) => v.status === "needs_review").length;
   const currentIndex = selectedVariant
@@ -1745,6 +1764,33 @@ export default function StudioReviewPortal() {
                     <span>Trash</span>
                   </Link>
                 </div>
+                {/* Client Filter + Grouping Controls */}
+                <div className="flex items-center gap-1.5 mt-2">
+                  <select
+                    value={filterClient}
+                    onChange={(e) => setFilterClient(e.target.value)}
+                    className="flex-1 bg-zinc-50 border border-zinc-200 rounded-lg px-2 py-1 text-[11px] font-semibold text-zinc-800 focus:outline-none focus:border-[#7F48ED]"
+                  >
+                    <option value="all">All Clients ({variants.length})</option>
+                    {uniqueReviewClients.map((c) => (
+                      <option key={c.key} value={c.key}>
+                        {c.name}{c.isSample ? " (Sample)" : ""}
+                      </option>
+                    ))}
+                  </select>
+                  <button
+                    type="button"
+                    onClick={() => setGroupByClient(!groupByClient)}
+                    className={`px-2 py-1 rounded-lg text-[10px] font-bold border cursor-pointer shrink-0 ${
+                      groupByClient
+                        ? "bg-purple-50 text-[#7F48ED] border-purple-200"
+                        : "bg-zinc-50 text-zinc-600 border-zinc-200"
+                    }`}
+                    title="Group queue by client"
+                  >
+                    Group
+                  </button>
+                </div>
               </div>
               <div>
                 {selectedIds.length > 0 ? (
@@ -1814,7 +1860,7 @@ export default function StudioReviewPortal() {
                 </Link>
               </div>
             ) : null}
-            {filteredVariants.map((item, index) => {
+            {sortedFilteredVariants.map((item, index) => {
               const isSelected = selectedVariant?.id === item.id;
               const isChecked = selectedIds.includes(item.id);
               const isApproved = item.status === "approved";

@@ -23,7 +23,7 @@ export default function StudioPortalLoginPage() {
   const [rememberMe, setRememberMe] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
-  const [callbackUrl, setCallbackUrl] = useState("/studio/generate");
+  const [callbackUrl, setCallbackUrl] = useState("/studio/clients");
 
   useEffect(() => {
     if (typeof window !== "undefined") {

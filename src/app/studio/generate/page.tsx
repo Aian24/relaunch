@@ -44,7 +44,16 @@ import {
   FolderDown,
   Music,
   ShoppingBag,
+  Building2,
+  FlaskConical,
 } from "lucide-react";
+import type {
+  ClientApprovedCreator,
+  ClientClip,
+  ClientMediaAsset,
+  ClientRecord,
+  ClientSummary,
+} from "@/types/client";
 import { CREATOR_ROSTER, CreatorProfile } from "@/data/creatorRoster";
 import { CREATOR_ASSETS, CreatorClipAsset, getCreatorClips, getCreatorClipById } from "@/data/creatorAssets";
 import HookTrimmer from "@/components/studio/HookTrimmer";
@@ -820,10 +829,24 @@ function getActiveCaption(
 
 
 export default function StudioVideoGenerator() {
+  // Client-First Project State (Replaces flat brand presets)
+  const [clientsList, setClientsList] = useState<ClientSummary[]>([]);
+  const [selectedClientId, setSelectedClientId] = useState<string>("");
+  const [activeClient, setActiveClient] = useState<ClientRecord | null>(null);
+  const [clientApprovedCreatorSlugs, setClientApprovedCreatorSlugs] = useState<string[]>([]);
+  const [clientClipsList, setClientClipsList] = useState<ClientClip[]>([]);
+  const [clientMediaAssetsList, setClientMediaAssetsList] = useState<ClientMediaAsset[]>([]);
+  const [selectedScene2ClipId, setSelectedScene2ClipId] = useState<string>("");
+  const [selectedScene3ClipId, setSelectedScene3ClipId] = useState<string>("");
+  const [showQuickClientModal, setShowQuickClientModal] = useState(false);
+  const [quickClientName, setQuickClientName] = useState("");
+  const [quickClientOffer, setQuickClientOffer] = useState("");
+  const [isCreatingQuickClient, setIsCreatingQuickClient] = useState(false);
+
   // Brand & Campaign Setup State
-  const [selectedPresetId, setSelectedPresetId] = useState<string>("chicago-dog-42");
-  const [brandName, setBrandName] = useState("Chicago Dog 42");
-  const [brandOffer, setBrandOffer] = useState("$5 Off First Jumbo Combo");
+  const [selectedPresetId, setSelectedPresetId] = useState<string>("ai-recommendations");
+  const [brandName, setBrandName] = useState("AI Recommendations");
+  const [brandOffer, setBrandOffer] = useState("Free AI Visibility Audit");
   const [selectedAdCreativeIds, setSelectedAdCreativeIds] = useState<string[]>([]);
   const [presetDropdownOpen, setPresetDropdownOpen] = useState(false);
   const presetDropdownRef = useRef<HTMLDivElement>(null);
@@ -1173,6 +1196,147 @@ export default function StudioVideoGenerator() {
 
   // Interactive Loader Micro-Interactions (Sparks)
   const [sparkCount, setSparkCount] = useState(0);
+
+  // Client-First Hydration: load clients and pre-select ?clientId= or first active real client
+  const loadAndSelectClient = useCallback(async (clientIdOrSlug: string, applyBrandCopy = true) => {
+    if (!clientIdOrSlug) return;
+    try {
+      const res = await fetch(`/api/studio/clients/${encodeURIComponent(clientIdOrSlug)}`);
+      const data = await res.json();
+      if (!res.ok || !data?.ok || !data.client) return;
+
+      const c: ClientRecord = data.client;
+      setSelectedClientId(c.id);
+      setActiveClient(c);
+      setSelectedPresetId(c.slug);
+
+      const approvedSlugs: string[] = (data.approvedCreators || [])
+        .filter((ac: ClientApprovedCreator) => ac.isApproved)
+        .map((ac: ClientApprovedCreator) => ac.creatorSlug);
+      setClientApprovedCreatorSlugs(approvedSlugs);
+
+      const clips: ClientClip[] = data.clips || [];
+      setClientClipsList(clips);
+      const media: ClientMediaAsset[] = data.mediaAssets || [];
+      setClientMediaAssetsList(media);
+
+      if (applyBrandCopy) {
+        setBrandName(c.name);
+        if (c.brandProfile?.offerPromo) setBrandOffer(c.brandProfile.offerPromo);
+        if (c.brandProfile?.brandColor) setCtaBrandColor(c.brandProfile.brandColor);
+        if (c.brandProfile?.defaultMusicTrackId) setSelectedMusicTrackId(c.brandProfile.defaultMusicTrackId);
+        if (c.brandProfile?.defaultVisualPrompt) setVisualPrompt(c.brandProfile.defaultVisualPrompt);
+        if (c.brandProfile?.trustBadges?.[0]?.id) {
+          setSelectedTrustBadgeId(c.brandProfile.trustBadges[0].id);
+          setClaimSubstantiation(c.brandProfile.trustBadges[0].subtext || "Verified Client Policy");
+        }
+        if (approvedSlugs.length > 0 && !approvedSlugs.includes(selectedActor)) {
+          const suggested = dynamicRoster.find((cr) => approvedSlugs.includes(cr.actorPresetId));
+          if (suggested) setSelectedActor(suggested.actorPresetId);
+        }
+      }
+
+      // Default Scene 2 & Scene 3 clips from client's clip library (Scenes 2-3 pull from client clips first)
+      const s2Match =
+        clips.find((cl) => cl.sceneRole === "product") ||
+        clips.find((cl) => cl.sceneRole === "detail") ||
+        clips[0];
+      const s3Match =
+        clips.find((cl) => cl.sceneRole === "broll" && cl.id !== s2Match?.id) ||
+        clips.find((cl) => (cl.sceneRole === "detail" || cl.sceneRole === "hook_alt") && cl.id !== s2Match?.id) ||
+        clips.find((cl) => cl.id !== s2Match?.id) ||
+        s2Match;
+
+      if (s2Match) {
+        setSelectedScene2ClipId(s2Match.id);
+        setScene2TrimStart(s2Match.inPoint);
+        setScene2TrimEnd(s2Match.outPoint);
+        setScene2AiGapFill(false);
+      } else {
+        setSelectedScene2ClipId("");
+        const legacyS2 = media.find((m) => m.targetScene === 2) || media[0];
+        if (legacyS2 && applyBrandCopy) {
+          setUploadedMediaSrc(legacyS2.src);
+          setUploadedMediaName(legacyS2.title);
+          setUploadedMediaType("video");
+        }
+      }
+
+      if (s3Match) {
+        setSelectedScene3ClipId(s3Match.id);
+        setScene3TrimStart(s3Match.inPoint);
+        setScene3TrimEnd(s3Match.outPoint);
+        setScene3AiGapFill(false);
+      } else {
+        setSelectedScene3ClipId("");
+      }
+    } catch (err) {
+      console.warn("Could not load client workspace in generator:", err);
+    }
+  }, [dynamicRoster, selectedActor]);
+
+  useEffect(() => {
+    let cancelled = false;
+    async function initClients() {
+      try {
+        const res = await fetch("/api/studio/clients?space=all");
+        const data = await res.json();
+        if (cancelled || !data?.ok) return;
+        const list: ClientSummary[] = data.clients || [];
+        setClientsList(list);
+
+        const params = typeof window !== "undefined" ? new URLSearchParams(window.location.search) : null;
+        const qClientId = params?.get("clientId") || "";
+        const qBrand = params?.get("brand") || "";
+
+        if (qClientId) {
+          await loadAndSelectClient(qClientId, true);
+        } else if (qBrand) {
+          const byBrand = list.find(
+            (c) => c.name.toLowerCase() === qBrand.toLowerCase() || c.slug === qBrand.toLowerCase()
+          );
+          if (byBrand) await loadAndSelectClient(byBrand.id, true);
+        } else if (!selectedClientId && list.length > 0) {
+          const firstReal = list.find((c) => !c.isSample) || list[0];
+          await loadAndSelectClient(firstReal.id, true);
+        }
+      } catch (err) {
+        console.warn("Failed loading clients list:", err);
+      }
+    }
+    initClients();
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  const handleQuickCreateClient = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!quickClientName.trim()) return;
+    setIsCreatingQuickClient(true);
+    try {
+      const res = await fetch("/api/studio/clients", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          name: quickClientName.trim(),
+          status: "active",
+          brandProfile: { offerPromo: quickClientOffer.trim() },
+        }),
+      });
+      const data = await res.json();
+      if (res.ok && data.ok && data.client) {
+        setClientsList((prev) => [data.client, ...prev]);
+        setShowQuickClientModal(false);
+        setQuickClientName("");
+        setQuickClientOffer("");
+        setPresetDropdownOpen(false);
+        await loadAndSelectClient(data.client.id, true);
+      }
+    } finally {
+      setIsCreatingQuickClient(false);
+    }
+  };
 
   // Restore draft from localStorage on initial client mount
   useEffect(() => {
@@ -1947,8 +2111,9 @@ export default function StudioVideoGenerator() {
         headers: { "Content-Type": "application/json" },
         signal: controller.signal,
         body: JSON.stringify({
+          clientId: selectedClientId,
           clientJobId: newClientJobId,
-          brandName: brandName.trim() || "My Brand",
+          brandName: brandName.trim() || activeClient?.name || "My Brand",
           creativeAngle: currentAngleData.title,
           hookType: selectedAngle,
           hookText: selectedHook,
@@ -1982,8 +2147,19 @@ export default function StudioVideoGenerator() {
           scene2TrimEnd: scene2TrimEnd,
           scene3TrimStart: scene3TrimStart,
           scene3TrimEnd: scene3TrimEnd,
-          productVideoUrl: (BRAND_PRESETS.find((p) => p.id === selectedPresetId)?.productVideo || (uploadedMediaType === "video" ? uploadedMediaSrc : undefined)),
-          brollVideoUrl: BRAND_PRESETS.find((p) => p.id === selectedPresetId)?.brollVideo,
+          productVideoUrl:
+            clientClipsList.find((c) => c.id === selectedScene2ClipId)?.sourcePlayableUrl ||
+            clientClipsList.find((c) => c.id === selectedScene2ClipId)?.sourceStorageUrl ||
+            clientMediaAssetsList.find((m) => m.targetScene === 2)?.src ||
+            (uploadedMediaType === "video" ? uploadedMediaSrc : undefined) ||
+            BRAND_PRESETS.find((p) => p.id === selectedPresetId)?.productVideo,
+          brollVideoUrl:
+            clientClipsList.find((c) => c.id === selectedScene3ClipId)?.sourcePlayableUrl ||
+            clientClipsList.find((c) => c.id === selectedScene3ClipId)?.sourceStorageUrl ||
+            clientMediaAssetsList.find((m) => m.targetScene === 3)?.src ||
+            BRAND_PRESETS.find((p) => p.id === selectedPresetId)?.brollVideo,
+          scene2ClipId: selectedScene2ClipId || undefined,
+          scene3ClipId: selectedScene3ClipId || undefined,
           sceneOrder: sceneOrder,
         }),
       });
@@ -2355,46 +2531,63 @@ export default function StudioVideoGenerator() {
 
             {step1Open && (
               <div className="p-3.5 pt-0 space-y-2.5 border-t border-zinc-100/60">
-                {/* Quick Brand Preset Dropdown */}
+                {/* Client Selector (Replaces Flat Brand Preset Selector) */}
                 <div className="relative pt-2" ref={presetDropdownRef}>
                   <div className="flex items-center justify-between mb-1">
                     <label className="text-[10px] font-bold uppercase tracking-wider text-zinc-500 flex items-center gap-1">
-                      <Sparkles className="w-3 h-3 text-[#7F48ED]" />
-                      <span>Preset</span>
+                      <Building2 className="w-3 h-3 text-[#7F48ED]" />
+                      <span>Client</span>
                     </label>
                     <div className="flex items-center gap-2">
-                      {selectedPresetId ? (
-                        <button
-                          type="button"
-                          onClick={handleClearPreset}
-                          className="text-[9px] text-zinc-400 hover:text-red-500 font-bold cursor-pointer transition flex items-center gap-0.5"
-                          title="Clear preset and use custom brand"
+                      {activeClient && (
+                        <Link
+                          href={`/studio/clients/${activeClient.id}`}
+                          className="text-[9px] text-zinc-500 hover:text-[#7F48ED] font-bold transition flex items-center gap-0.5"
                         >
-                          <X className="w-2.5 h-2.5" />
-                          <span>Clear Preset</span>
-                        </button>
-                      ) : (
-                        <span className="text-[9px] text-[#7F48ED] font-bold">1-Click Auto-Fill</span>
+                          <span>Open Workspace</span>
+                          <ExternalLink className="w-2.5 h-2.5" />
+                        </Link>
                       )}
+                      <button
+                        type="button"
+                        onClick={() => setShowQuickClientModal(true)}
+                        className="text-[9px] text-[#FF6700] hover:text-[#e55c00] font-bold cursor-pointer transition flex items-center gap-0.5"
+                      >
+                        <Plus className="w-2.5 h-2.5" />
+                        <span>New Client</span>
+                      </button>
                     </div>
                   </div>
                   <button
                     type="button"
                     onClick={() => setPresetDropdownOpen(!presetDropdownOpen)}
                     className={`w-full text-left rounded-xl px-3 py-2 text-xs flex items-center justify-between cursor-pointer focus:outline-none font-semibold transition shadow-2xs border ${
-                      selectedPresetId
+                      selectedClientId
                         ? "bg-purple-50/60 hover:bg-purple-100/70 border-purple-200 hover:border-purple-300 text-zinc-900"
                         : "bg-zinc-50 hover:bg-zinc-100 border-zinc-200 text-zinc-700"
                     }`}
                   >
                     <div className="flex items-center gap-2 truncate min-w-0">
-                      <span className={`w-2 h-2 rounded-full shrink-0 ${selectedPresetId ? "bg-[#7F48ED]" : "bg-zinc-400"}`} />
+                      <span
+                        className={`w-2 h-2 rounded-full shrink-0 ${
+                          activeClient?.isSample
+                            ? "bg-purple-500"
+                            : selectedClientId
+                            ? "bg-emerald-500"
+                            : "bg-zinc-400"
+                        }`}
+                      />
                       <span className="truncate font-bold text-zinc-900">
-                        {BRAND_PRESETS.find((p) => p.id === selectedPresetId)?.name || "Custom Brand (No Preset)"}
+                        {activeClient?.name || "Select a Client"}
                       </span>
-                      {selectedPresetId && (
+                      {activeClient?.isSample && (
+                        <span className="text-[9px] px-1.5 py-0.2 rounded bg-purple-100 text-[#7F48ED] font-bold uppercase shrink-0">
+                          Sample
+                        </span>
+                      )}
+                      {activeClient?.brandProfile?.category && (
                         <span className="text-[10px] text-zinc-500 font-normal truncate hidden sm:inline">
-                          ({BRAND_PRESETS.find((p) => p.id === selectedPresetId)?.category})
+                          ({activeClient.brandProfile.category})
                         </span>
                       )}
                     </div>
@@ -2408,59 +2601,100 @@ export default function StudioVideoGenerator() {
                       style={{ scrollbarWidth: "thin" }}
                     >
                       <div className="px-2.5 py-1 text-[10px] font-bold text-zinc-400 uppercase tracking-wider border-b border-zinc-100 mb-1 flex items-center justify-between">
-                        <span>Brand Presets</span>
-                        <span className="text-[9px] text-[#7F48ED] font-bold">6 Ready</span>
+                        <span>Active Clients</span>
+                        <span className="text-[9px] text-emerald-600 font-bold">
+                          {clientsList.filter((c) => !c.isSample).length} Clients
+                        </span>
                       </div>
 
-                      {/* Manual / No Preset Option */}
-                      <div
-                        onClick={handleClearPreset}
-                        className={`px-3 py-2 rounded-xl text-xs cursor-pointer transition flex items-start justify-between gap-2 border-b border-zinc-100 ${
-                          !selectedPresetId ? "bg-purple-50 text-[#7F48ED] font-bold" : "text-zinc-700 hover:bg-zinc-50"
-                        }`}
-                      >
-                        <div className="min-w-0 flex-1">
-                          <div className="flex items-center gap-1.5">
-                            <span className="font-bold text-zinc-900">Custom / No Preset</span>
-                            <span className="text-[9px] px-1.5 py-0.2 rounded font-bold uppercase bg-zinc-100 text-zinc-600">
-                              Manual
-                            </span>
-                          </div>
-                          <div className="text-[10px] text-zinc-500 truncate mt-0.5">
-                            Type your own custom brand name and offer
-                          </div>
-                        </div>
-                        {!selectedPresetId && <Check className="w-4 h-4 shrink-0 mt-0.5 text-[#7F48ED]" />}
-                      </div>
-                      {BRAND_PRESETS.map((preset) => {
-                        const isSelected = selectedPresetId === preset.id;
-                        return (
-                          <div
-                            key={preset.id}
-                            onClick={() => handleSelectPreset(preset)}
-                            className={`px-3 py-2 rounded-xl text-xs cursor-pointer transition flex items-start justify-between gap-2 ${isSelected
-                                ? "bg-[#7F48ED] text-white font-medium shadow-xs"
-                                : "text-zinc-700 hover:bg-zinc-100"
+                      {clientsList
+                        .filter((c) => !c.isSample)
+                        .map((c) => {
+                          const isSelected = selectedClientId === c.id;
+                          return (
+                            <div
+                              key={c.id}
+                              onClick={() => {
+                                setPresetDropdownOpen(false);
+                                loadAndSelectClient(c.id, true);
+                              }}
+                              className={`px-3 py-2 rounded-xl text-xs cursor-pointer transition flex items-start justify-between gap-2 ${
+                                isSelected
+                                  ? "bg-[#7F48ED] text-white font-medium shadow-xs"
+                                  : "text-zinc-700 hover:bg-zinc-100"
                               }`}
-                          >
-                            <div className="min-w-0 flex-1">
-                              <div className="flex items-center gap-1.5">
-                                <span className={`font-bold ${isSelected ? "text-white" : "text-zinc-900"}`}>
-                                  {preset.name}
-                                </span>
-                                <span className={`text-[9px] px-1.5 py-0.2 rounded font-bold uppercase ${isSelected ? "bg-white/20 text-white" : "bg-purple-100 text-[#7F48ED]"
-                                  }`}>
-                                  {preset.category}
-                                </span>
+                            >
+                              <div className="min-w-0 flex-1">
+                                <div className="flex items-center gap-1.5">
+                                  <span className={`font-bold ${isSelected ? "text-white" : "text-zinc-900"}`}>
+                                    {c.name}
+                                  </span>
+                                  <span
+                                    className={`text-[9px] px-1.5 py-0.2 rounded font-bold uppercase ${
+                                      isSelected ? "bg-white/20 text-white" : "bg-purple-100 text-[#7F48ED]"
+                                    }`}
+                                  >
+                                    {c.brandProfile?.category || c.status}
+                                  </span>
+                                </div>
+                                <div className={`text-[10px] truncate mt-0.5 ${isSelected ? "text-purple-100" : "text-zinc-500"}`}>
+                                  {c.brandProfile?.offerPromo ? `Offer: ${c.brandProfile.offerPromo}` : `${c.clipCount} clips`}
+                                </div>
                               </div>
-                              <div className={`text-[10px] truncate mt-0.5 ${isSelected ? "text-purple-100" : "text-zinc-500"}`}>
-                                Offer: {preset.brandOffer}
-                              </div>
+                              {isSelected && <Check className="w-4 h-4 shrink-0 mt-0.5 text-white" />}
                             </div>
-                            {isSelected && <Check className="w-4 h-4 shrink-0 mt-0.5 text-white" />}
+                          );
+                        })}
+
+                      {clientsList.some((c) => c.isSample) && (
+                        <>
+                          <div className="px-2.5 pt-2 pb-1 text-[10px] font-bold text-zinc-400 uppercase tracking-wider border-t border-zinc-100 mt-1 flex items-center justify-between">
+                            <span className="flex items-center gap-1">
+                              <FlaskConical className="w-3 h-3 text-[#7F48ED]" />
+                              Samples / Concept Space
+                            </span>
+                            <span className="text-[9px] text-zinc-400">Non-Deliverable</span>
                           </div>
-                        );
-                      })}
+                          {clientsList
+                            .filter((c) => c.isSample)
+                            .map((c) => {
+                              const isSelected = selectedClientId === c.id;
+                              return (
+                                <div
+                                  key={c.id}
+                                  onClick={() => {
+                                    setPresetDropdownOpen(false);
+                                    loadAndSelectClient(c.id, true);
+                                  }}
+                                  className={`px-3 py-2 rounded-xl text-xs cursor-pointer transition flex items-start justify-between gap-2 ${
+                                    isSelected
+                                      ? "bg-[#7F48ED] text-white font-medium shadow-xs"
+                                      : "text-zinc-700 hover:bg-zinc-100"
+                                  }`}
+                                >
+                                  <div className="min-w-0 flex-1">
+                                    <div className="flex items-center gap-1.5">
+                                      <span className={`font-bold ${isSelected ? "text-white" : "text-zinc-900"}`}>
+                                        {c.name}
+                                      </span>
+                                      <span
+                                        className={`text-[9px] px-1.5 py-0.2 rounded font-bold uppercase ${
+                                          isSelected ? "bg-white/20 text-white" : "bg-zinc-100 text-zinc-600"
+                                        }`}
+                                      >
+                                        Sample
+                                      </span>
+                                    </div>
+                                    <div className={`text-[10px] truncate mt-0.5 ${isSelected ? "text-purple-100" : "text-zinc-500"}`}>
+                                      {c.brandProfile?.offerPromo || c.brandProfile?.category}
+                                    </div>
+                                  </div>
+                                  {isSelected && <Check className="w-4 h-4 shrink-0 mt-0.5 text-white" />}
+                                </div>
+                              );
+                            })}
+                        </>
+                      )}
                     </div>
                   )}
                 </div>
@@ -2841,6 +3075,21 @@ export default function StudioVideoGenerator() {
                     className="w-full bg-white border border-zinc-200 focus:border-[#7F48ED] focus:ring-2 focus:ring-[#7F48ED]/15 rounded-xl p-2.5 text-xs text-zinc-800 focus:outline-none resize-none leading-relaxed transition font-medium"
                     placeholder="Enter 20s voiceover script..."
                   />
+                  {(() => {
+                    const banned = activeClient?.brandProfile?.doNotSay || [];
+                    const copyLower = `${selectedHook} ${scriptBody}`.toLowerCase();
+                    const hits = banned.filter((b) => b && copyLower.includes(b.toLowerCase()));
+                    if (hits.length === 0) return null;
+                    return (
+                      <div className="mt-1.5 p-2 rounded-xl bg-red-50 border border-red-200 text-[11px] text-red-700 flex items-start gap-1.5">
+                        <AlertTriangle className="w-3.5 h-3.5 shrink-0 mt-0.5 text-red-600" />
+                        <span>
+                          <strong>Do-Not-Say Alert ({activeClient?.name}):</strong> Contains banned phrase(s):{" "}
+                          {hits.map((h) => `"${h}"`).join(", ")}
+                        </span>
+                      </div>
+                    );
+                  })()}
                 </div>
 
                 {/* AI Visual Direction & Motion Spec */}
@@ -2959,8 +3208,15 @@ export default function StudioVideoGenerator() {
                   className="absolute top-full left-0 right-0 mt-1 bg-white border border-zinc-200 rounded-xl p-1 shadow-xl z-50 space-y-0.5 max-h-64 overflow-y-auto overscroll-contain"
                   style={{ scrollbarWidth: "thin" }}
                 >
-                  {dynamicRoster.map((cr) => {
+                  {[...dynamicRoster]
+                    .sort((a, b) => {
+                      const aApp = clientApprovedCreatorSlugs.includes(a.actorPresetId) ? 1 : 0;
+                      const bApp = clientApprovedCreatorSlugs.includes(b.actorPresetId) ? 1 : 0;
+                      return bApp - aApp;
+                    })
+                    .map((cr) => {
                     const isSelected = selectedActor === cr.actorPresetId;
+                    const isClientApproved = clientApprovedCreatorSlugs.includes(cr.actorPresetId);
                     return (
                       <div
                         key={cr.id}
@@ -2997,6 +3253,15 @@ export default function StudioVideoGenerator() {
                           <div className="truncate">
                             <div className="flex items-center gap-1.5">
                               <span className="font-bold">{cr.name}</span>
+                              {isClientApproved && (
+                                <span
+                                  className={`text-[9px] font-bold px-1.5 py-0.2 rounded ${
+                                    isSelected ? "bg-amber-400/30 text-white" : "bg-amber-100 text-amber-800"
+                                  }`}
+                                >
+                                  Suggested for Client
+                                </span>
+                              )}
                               {cr.hasVideoTakes ? (
                                 <span className={`text-[9px] font-bold px-1.5 py-0.2 rounded ${isSelected ? "bg-emerald-500/30 text-white" : "bg-emerald-100 text-emerald-800"}`}>
                                   UGC Video Ready
@@ -3801,12 +4066,17 @@ export default function StudioVideoGenerator() {
                       const isSlotActive = (generatedResult && isCurrentTimeInSlot) || activeScrubScene === sceneId;
 
                       const isPureAiMode = uploadedImages.length > 0;
+                      const s2ClientClip = clientClipsList.find((c) => c.id === selectedScene2ClipId);
+                      const s3ClientClip = clientClipsList.find((c) => c.id === selectedScene3ClipId);
+                      const hasS2ClientSource = Boolean(s2ClientClip || clientMediaAssetsList.some((m) => m.targetScene === 2) || (uploadedMediaType === "video" && uploadedMediaSrc));
+                      const hasS3ClientSource = Boolean(s3ClientClip || clientMediaAssetsList.some((m) => m.targetScene === 3));
+
                       let label = "UGC Hook";
                       if (isPureAiMode) {
                         label = visualIdx === 0 ? "Kling Hook i2v" : visualIdx === 1 ? "Kling Offer i2v" : visualIdx === 2 ? "Kling Proof i2v" : "Kling CTA i2v";
                       } else {
-                        if (sceneId === 2) label = "Kling Product";
-                        else if (sceneId === 3) label = "Kling B-Roll";
+                        if (sceneId === 2) label = !scene2AiGapFill && hasS2ClientSource ? "Client Clip" : "AI Gap-Fill";
+                        else if (sceneId === 3) label = !scene3AiGapFill && hasS3ClientSource ? "Client B-Roll" : "AI Gap-Fill";
                         else if (sceneId === 4) label = "Branded CTA";
                       }
 
@@ -3879,15 +4149,23 @@ export default function StudioVideoGenerator() {
                           badgeStyle = "bg-emerald-100 text-emerald-800";
                           subtitle = selectedHook || "Creator fronted hook take";
                         } else if (sceneId === 2) {
+                          const s2Clip = clientClipsList.find((c) => c.id === selectedScene2ClipId);
+                          const hasS2Client = Boolean(s2Clip || clientMediaAssetsList.some((m) => m.targetScene === 2) || (uploadedMediaType === "video" && uploadedMediaSrc));
                           sceneName = "Scene 2: Product";
-                          badgeText = "Kling AI";
-                          badgeStyle = "bg-purple-100 text-[#7F48ED]";
-                          subtitle = uploadedMediaName || `${brandName} Commercial Master`;
+                          badgeText = !scene2AiGapFill && hasS2Client ? "Client Clip" : "AI Gap-Fill";
+                          badgeStyle = !scene2AiGapFill && hasS2Client ? "bg-blue-100 text-blue-800" : "bg-purple-100 text-[#7F48ED]";
+                          subtitle = s2Clip
+                            ? `${s2Clip.label} (${s2Clip.inPoint.toFixed(1)}s–${s2Clip.outPoint.toFixed(1)}s)`
+                            : uploadedMediaName || `${brandName} Product Demo`;
                         } else if (sceneId === 3) {
+                          const s3Clip = clientClipsList.find((c) => c.id === selectedScene3ClipId);
+                          const hasS3Client = Boolean(s3Clip || clientMediaAssetsList.some((m) => m.targetScene === 3));
                           sceneName = "Scene 3: B-Roll";
-                          badgeText = "Kling AI";
-                          badgeStyle = "bg-purple-100 text-[#7F48ED]";
-                          subtitle = "Dynamic lifestyle & feature action";
+                          badgeText = !scene3AiGapFill && hasS3Client ? "Client Clip" : "AI Gap-Fill";
+                          badgeStyle = !scene3AiGapFill && hasS3Client ? "bg-blue-100 text-blue-800" : "bg-purple-100 text-[#7F48ED]";
+                          subtitle = s3Clip
+                            ? `${s3Clip.label} (${s3Clip.inPoint.toFixed(1)}s–${s3Clip.outPoint.toFixed(1)}s)`
+                            : "AI gap-fill or client b-roll";
                         } else if (sceneId === 4) {
                           sceneName = "Scene 4: CTA";
                           badgeText = "Branded CTA";
@@ -4002,40 +4280,150 @@ export default function StudioVideoGenerator() {
                                 />
                               )}
                               {sceneId === 2 && (
-                                <ClipTrimmer
-                                  title="Scene 2: Product Feature Demonstration"
-                                  badgeLabel="Feature Cut"
-                                  videoUrl={uploadedMediaType === "video" && uploadedMediaSrc ? uploadedMediaSrc : (BRAND_PRESETS.find((p) => p.id === selectedPresetId)?.productVideo || BRAND_PRESETS.find((p) => p.id === selectedPresetId)?.brollVideo || "/videos/outdoor/trailline-mountain-ridge.mp4")}
-                                  trimStart={scene2TrimStart}
-                                  trimEnd={scene2TrimEnd}
-                                  minDuration={1.0}
-                                  maxDuration={6.5}
-                                  accentColor="#2563EB"
-                                  noteText="Precise in/out bounds for product demonstration clip."
-                                  onTrimChange={(start, end) => {
-                                    setScene2TrimStart(start);
-                                    setScene2TrimEnd(end);
-                                  }}
-                                  onClose={() => setActiveEditingScene(null)}
-                                />
+                                <div className="space-y-2">
+                                  <div className="bg-blue-50/60 border border-blue-200 rounded-xl p-2.5 flex flex-col gap-2 text-[11px]">
+                                    <div className="flex items-center justify-between gap-2">
+                                      <span className="font-bold text-blue-950">Client Clip Library (Scene 2 Source)</span>
+                                      <label className="inline-flex items-center gap-1.5 text-[10px] font-bold text-zinc-700 cursor-pointer">
+                                        <input
+                                          type="checkbox"
+                                          checked={scene2AiGapFill}
+                                          onChange={(e) => setScene2AiGapFill(e.target.checked)}
+                                          className="accent-[#7F48ED]"
+                                        />
+                                        <span>AI Gap-Fill Fallback</span>
+                                      </label>
+                                    </div>
+                                    {clientClipsList.length > 0 ? (
+                                      <select
+                                        value={selectedScene2ClipId}
+                                        onChange={(e) => {
+                                          const id = e.target.value;
+                                          setSelectedScene2ClipId(id);
+                                          const chosen = clientClipsList.find((c) => c.id === id);
+                                          if (chosen) {
+                                            setScene2TrimStart(chosen.inPoint);
+                                            setScene2TrimEnd(chosen.outPoint);
+                                            setScene2AiGapFill(false);
+                                          }
+                                        }}
+                                        className="w-full bg-white border border-blue-200 rounded-lg px-2.5 py-1.5 text-xs font-semibold text-zinc-900"
+                                      >
+                                        <option value="">Use Brand Default / Uploaded Media</option>
+                                        {clientClipsList.map((clip) => (
+                                          <option key={clip.id} value={clip.id}>
+                                            [{clip.sceneRole.toUpperCase()}] {clip.label} ({clip.inPoint.toFixed(1)}s–{clip.outPoint.toFixed(1)}s)
+                                          </option>
+                                        ))}
+                                      </select>
+                                    ) : (
+                                      <div className="text-[10px] text-blue-800 flex items-center justify-between gap-2">
+                                        <span>No trimmed client clips yet — AI gap-fill or pre-cut media will be used.</span>
+                                        {activeClient && (
+                                          <Link href={`/studio/clients/${activeClient.id}?tab=footage`} className="font-bold underline shrink-0">
+                                            Trim Footage
+                                          </Link>
+                                        )}
+                                      </div>
+                                    )}
+                                  </div>
+                                  <ClipTrimmer
+                                    title="Scene 2: Product Feature Demonstration"
+                                    badgeLabel="Feature Cut"
+                                    videoUrl={
+                                      clientClipsList.find((c) => c.id === selectedScene2ClipId)?.sourcePlayableUrl ||
+                                      clientClipsList.find((c) => c.id === selectedScene2ClipId)?.sourceStorageUrl ||
+                                      (uploadedMediaType === "video" && uploadedMediaSrc
+                                        ? uploadedMediaSrc
+                                        : clientMediaAssetsList.find((m) => m.targetScene === 2)?.src ||
+                                          BRAND_PRESETS.find((p) => p.id === selectedPresetId)?.productVideo ||
+                                          "/videos/outdoor/trailline-mountain-ridge.mp4")
+                                    }
+                                    trimStart={scene2TrimStart}
+                                    trimEnd={scene2TrimEnd}
+                                    minDuration={1.0}
+                                    maxDuration={10.0}
+                                    accentColor="#2563EB"
+                                    noteText="Virtual clip bounds applied losslessly by FFmpeg at render time."
+                                    onTrimChange={(start, end) => {
+                                      setScene2TrimStart(start);
+                                      setScene2TrimEnd(end);
+                                    }}
+                                    onClose={() => setActiveEditingScene(null)}
+                                  />
+                                </div>
                               )}
                               {sceneId === 3 && (
-                                <ClipTrimmer
-                                  title="Scene 3: Dynamic B-Roll Action"
-                                  badgeLabel="B-Roll Cut"
-                                  videoUrl={BRAND_PRESETS.find((p) => p.id === selectedPresetId)?.brollVideo || "/videos/chicago-dog-social-1.mp4"}
-                                  trimStart={scene3TrimStart}
-                                  trimEnd={scene3TrimEnd}
-                                  minDuration={1.0}
-                                  maxDuration={6.5}
-                                  accentColor="#7F48ED"
-                                  noteText="Frame-accurate lifestyle and motion b-roll selection."
-                                  onTrimChange={(start, end) => {
-                                    setScene3TrimStart(start);
-                                    setScene3TrimEnd(end);
-                                  }}
-                                  onClose={() => setActiveEditingScene(null)}
-                                />
+                                <div className="space-y-2">
+                                  <div className="bg-purple-50/60 border border-purple-200 rounded-xl p-2.5 flex flex-col gap-2 text-[11px]">
+                                    <div className="flex items-center justify-between gap-2">
+                                      <span className="font-bold text-purple-950">Client Clip Library (Scene 3 Source)</span>
+                                      <label className="inline-flex items-center gap-1.5 text-[10px] font-bold text-zinc-700 cursor-pointer">
+                                        <input
+                                          type="checkbox"
+                                          checked={scene3AiGapFill}
+                                          onChange={(e) => setScene3AiGapFill(e.target.checked)}
+                                          className="accent-[#7F48ED]"
+                                        />
+                                        <span>AI Gap-Fill Fallback</span>
+                                      </label>
+                                    </div>
+                                    {clientClipsList.length > 0 ? (
+                                      <select
+                                        value={selectedScene3ClipId}
+                                        onChange={(e) => {
+                                          const id = e.target.value;
+                                          setSelectedScene3ClipId(id);
+                                          const chosen = clientClipsList.find((c) => c.id === id);
+                                          if (chosen) {
+                                            setScene3TrimStart(chosen.inPoint);
+                                            setScene3TrimEnd(chosen.outPoint);
+                                            setScene3AiGapFill(false);
+                                          }
+                                        }}
+                                        className="w-full bg-white border border-purple-200 rounded-lg px-2.5 py-1.5 text-xs font-semibold text-zinc-900"
+                                      >
+                                        <option value="">Use Brand Default / AI Gap-Fill</option>
+                                        {clientClipsList.map((clip) => (
+                                          <option key={clip.id} value={clip.id}>
+                                            [{clip.sceneRole.toUpperCase()}] {clip.label} ({clip.inPoint.toFixed(1)}s–{clip.outPoint.toFixed(1)}s)
+                                          </option>
+                                        ))}
+                                      </select>
+                                    ) : (
+                                      <div className="text-[10px] text-purple-800 flex items-center justify-between gap-2">
+                                        <span>No trimmed client clips yet — AI gap-fill or pre-cut b-roll will be used.</span>
+                                        {activeClient && (
+                                          <Link href={`/studio/clients/${activeClient.id}?tab=footage`} className="font-bold underline shrink-0">
+                                            Trim Footage
+                                          </Link>
+                                        )}
+                                      </div>
+                                    )}
+                                  </div>
+                                  <ClipTrimmer
+                                    title="Scene 3: Dynamic B-Roll Action"
+                                    badgeLabel="B-Roll Cut"
+                                    videoUrl={
+                                      clientClipsList.find((c) => c.id === selectedScene3ClipId)?.sourcePlayableUrl ||
+                                      clientClipsList.find((c) => c.id === selectedScene3ClipId)?.sourceStorageUrl ||
+                                      clientMediaAssetsList.find((m) => m.targetScene === 3)?.src ||
+                                      BRAND_PRESETS.find((p) => p.id === selectedPresetId)?.brollVideo ||
+                                      "/videos/chicago-dog-social-1.mp4"
+                                    }
+                                    trimStart={scene3TrimStart}
+                                    trimEnd={scene3TrimEnd}
+                                    minDuration={1.0}
+                                    maxDuration={10.0}
+                                    accentColor="#7F48ED"
+                                    noteText="Client clip library prioritized; AI gap-fill triggers only if missing or enabled."
+                                    onTrimChange={(start, end) => {
+                                      setScene3TrimStart(start);
+                                      setScene3TrimEnd(end);
+                                    }}
+                                    onClose={() => setActiveEditingScene(null)}
+                                  />
+                                </div>
                               )}
                             </div>
                           )}
@@ -5272,6 +5660,67 @@ export default function StudioVideoGenerator() {
           )}
         </div>
       </main>
+      {/* Quick-Create Client Modal */}
+      {showQuickClientModal && (
+        <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4">
+          <div className="bg-white rounded-2xl border border-zinc-200 max-w-md w-full p-5 shadow-2xl space-y-4 text-xs">
+            <div className="flex items-center justify-between">
+              <h3 className="text-sm font-black text-zinc-900">Quick-Create Client</h3>
+              <button
+                type="button"
+                onClick={() => setShowQuickClientModal(false)}
+                className="p-1 text-zinc-400 hover:text-zinc-700 cursor-pointer"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+            <form onSubmit={handleQuickCreateClient} className="space-y-3">
+              <div>
+                <label className="text-[10px] font-bold uppercase text-zinc-500 block mb-1">
+                  Client / Brand Name *
+                </label>
+                <input
+                  type="text"
+                  required
+                  value={quickClientName}
+                  onChange={(e) => setQuickClientName(e.target.value)}
+                  placeholder="e.g. Summit Dental"
+                  className="w-full border border-zinc-200 rounded-xl px-3 py-2"
+                />
+              </div>
+              <div>
+                <label className="text-[10px] font-bold uppercase text-zinc-500 block mb-1">
+                  Offer / Promo
+                </label>
+                <input
+                  type="text"
+                  value={quickClientOffer}
+                  onChange={(e) => setQuickClientOffer(e.target.value)}
+                  placeholder="e.g. Free Whitening Consult"
+                  className="w-full border border-zinc-200 rounded-xl px-3 py-2"
+                />
+              </div>
+              <div className="flex justify-end gap-2 pt-2">
+                <button
+                  type="button"
+                  onClick={() => setShowQuickClientModal(false)}
+                  className="px-3 py-2 rounded-xl border border-zinc-200 font-bold cursor-pointer"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  disabled={isCreatingQuickClient}
+                  className="px-4 py-2 rounded-xl bg-[#FF6700] text-white font-bold cursor-pointer disabled:opacity-60"
+                >
+                  {isCreatingQuickClient ? "Creating..." : "Create & Select"}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
       {/* Dynamic Master Assets Manager Modal (Licensed Music & Branded CTAs) */}
       <MasterAssetsModal
         isOpen={showMasterAssetsModal}

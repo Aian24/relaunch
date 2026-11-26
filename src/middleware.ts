@@ -22,14 +22,14 @@ export async function middleware(request: NextRequest) {
   const sessionToken = request.cookies.get(STUDIO_SESSION_COOKIE)?.value;
   const session = await verifyStudioSession(sessionToken);
 
-  // 2. If user visits /studio/login while already authenticated, send them into the Generator
+  // 2. If user visits /studio/login while already authenticated, send them into the Clients Dashboard
   if (pathname === "/studio/login") {
     if (session) {
       const target = searchParams.get("callbackUrl");
       const safeTarget =
         target && target.startsWith("/studio/") && target !== "/studio/login"
           ? target
-          : "/studio/generate";
+          : "/studio/clients";
       return NextResponse.redirect(new URL(safeTarget, request.url));
     }
     const res = NextResponse.next();

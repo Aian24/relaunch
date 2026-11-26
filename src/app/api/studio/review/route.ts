@@ -5,6 +5,11 @@ import { getAllAdJobs, getAdJobById, saveAdJob, clearAllAdJobs, deleteAdJobs, de
 import { checkRateLimit, getClientIp } from "@/lib/rateLimit";
 import { syncDeliverablesToGoogleDrive, GOOGLE_DRIVE_FOLDER_ID, getGoogleDriveFolderUrl } from "@/lib/googleDrive";
 import { requireStudioAdmin, verifyClientShareToken } from "@/lib/studioAuth";
+import {
+  getClientById,
+  isShareTokenRevoked,
+  upsertApprovedDeliverable,
+} from "@/lib/clientStore";
 
 export const dynamic = "force-dynamic";
 
@@ -25,7 +30,8 @@ export async function GET(request: Request) {
     const reqVariantId = url.searchParams.get("variantId") || request.headers.get("x-studio-variant-id");
     const shareToken = url.searchParams.get("shareToken") || request.headers.get("x-studio-share-token");
     const validShare = await verifyClientShareToken(reqVariantId, shareToken);
-    if (!validShare || !reqVariantId) {
+    const revoked = reqVariantId && shareToken ? await isShareTokenRevoked(reqVariantId, shareToken) : false;
+    if (!validShare || !reqVariantId || revoked) {
       return auth.response;
     }
     sharedVariantOnly = reqVariantId;
@@ -52,6 +58,8 @@ export async function GET(request: Request) {
   // Transform ad jobs into the view model expected by the review portal
   const allVariants = jobs.map((job) => ({
     id: job.id,
+    clientId: job.clientId,
+    isSample: Boolean(job.isSample),
     clientName: job.brandName,
     batchName: "Pilot Batch #1",
     angle: job.creativeAngle,
@@ -94,6 +102,8 @@ export async function GET(request: Request) {
 
   const urlParams = new URL(request.url).searchParams;
   const statusFilter = urlParams.get("status");
+  const clientIdFilter = urlParams.get("clientId");
+  const excludeSamples = urlParams.get("excludeSamples") === "true";
 
   if (sharedVariantOnly) {
     const sharedMatches = allVariants.filter((v) => v.id === sharedVariantOnly);
@@ -111,14 +121,20 @@ export async function GET(request: Request) {
   }
 
   let filtered = allVariants;
+  if (excludeSamples) {
+    filtered = filtered.filter((v) => !v.isSample);
+  }
+  if (clientIdFilter && clientIdFilter !== "all") {
+    filtered = filtered.filter((v) => v.clientId === clientIdFilter);
+  }
   if (statusFilter === "pending") {
-    filtered = allVariants.filter((v) => v.status === "needs_review" || v.status === "recut");
+    filtered = filtered.filter((v) => v.status === "needs_review" || v.status === "recut");
   } else if (statusFilter === "recut") {
-    filtered = allVariants.filter((v) => v.status === "recut");
+    filtered = filtered.filter((v) => v.status === "recut");
   } else if (statusFilter === "approved") {
-    filtered = allVariants.filter((v) => v.status === "approved");
+    filtered = filtered.filter((v) => v.status === "approved");
   } else if (statusFilter === "rejected") {
-    filtered = allVariants.filter((v) => v.status === "rejected");
+    filtered = filtered.filter((v) => v.status === "rejected");
   }
 
   return NextResponse.json({
@@ -263,46 +279,64 @@ export async function POST(request: Request) {
         approvedAt: new Date().toISOString(),
       };
 
-      // Auto-trigger Google Drive delivery layer & archive files in public/deliveries
-      try {
-        const syncResult = await syncDeliverablesToGoogleDrive({
-          jobId: job.id,
-          brandName: job.brandName,
-          reviewerName: safeReviewerName,
-          variants: job.variants,
-          metadata: {
-            hookText: job.hookText,
-            scriptBody: job.script?.body || "",
-            ctaText: job.script?.ctaText || "",
-            creativeAngle: job.creativeAngle,
-            hookType: job.hookType,
-            adKitDraft: job.adKitDraft,
-          },
-        });
+      // Auto-trigger Google Drive delivery layer & archive files ONLY for real clients (never fictional Samples)
+      const clientRec = job.clientId ? await getClientById(job.clientId) : null;
+      const isSampleAd = Boolean(job.isSample || clientRec?.isSample);
+      if (!isSampleAd) {
+        try {
+          const syncResult = await syncDeliverablesToGoogleDrive({
+            jobId: job.id,
+            brandName: job.brandName,
+            reviewerName: safeReviewerName,
+            variants: job.variants,
+            metadata: {
+              hookText: job.hookText,
+              scriptBody: job.script?.body || "",
+              ctaText: job.script?.ctaText || "",
+              creativeAngle: job.creativeAngle,
+              hookType: job.hookType,
+              adKitDraft: job.adKitDraft,
+            },
+          });
 
-        job.delivery = {
-          googleDriveFolderId: syncResult.folderId,
-          deliveredAt: syncResult.syncedAt,
-          status: syncResult.status,
-          googleDriveFileIds: {
-            v9x16: syncResult.files.v9x16 || `drive-${job.id}-9x16.mp4`,
-            v1x1: syncResult.files.v1x1 || `drive-${job.id}-1x1.mp4`,
-            v4x5: syncResult.files.v4x5 || `drive-${job.id}-4x5.mp4`,
-          },
-        };
-        console.log(`[QA Gate] ✓ Job ${job.id} APPROVED by ${safeReviewerName}. Files synced for Google Drive [${syncResult.folderId}].`);
-      } catch (syncErr) {
-        console.warn("[Delivery Archive Warning]", syncErr);
-        job.delivery = {
-          googleDriveFolderId: GOOGLE_DRIVE_FOLDER_ID,
-          deliveredAt: new Date().toISOString(),
-          status: "delivered",
-          googleDriveFileIds: {
-            v9x16: `drive-${job.id}-9x16.mp4`,
-            v1x1: `drive-${job.id}-1x1.mp4`,
-            v4x5: `drive-${job.id}-4x5.mp4`,
-          },
-        };
+          job.delivery = {
+            googleDriveFolderId: syncResult.folderId,
+            deliveredAt: syncResult.syncedAt,
+            status: syncResult.status,
+            googleDriveFileIds: {
+              v9x16: syncResult.files.v9x16 || `drive-${job.id}-9x16.mp4`,
+              v1x1: syncResult.files.v1x1 || `drive-${job.id}-1x1.mp4`,
+              v4x5: syncResult.files.v4x5 || `drive-${job.id}-4x5.mp4`,
+            },
+          };
+          console.log(`[QA Gate] ✓ Job ${job.id} APPROVED by ${safeReviewerName}. Files synced for Google Drive [${syncResult.folderId}].`);
+        } catch (syncErr) {
+          console.warn("[Delivery Archive Warning]", syncErr);
+          job.delivery = {
+            googleDriveFolderId: GOOGLE_DRIVE_FOLDER_ID,
+            deliveredAt: new Date().toISOString(),
+            status: "delivered",
+            googleDriveFileIds: {
+              v9x16: `drive-${job.id}-9x16.mp4`,
+              v1x1: `drive-${job.id}-1x1.mp4`,
+              v4x5: `drive-${job.id}-4x5.mp4`,
+            },
+          };
+        }
+
+        if (job.clientId) {
+          await upsertApprovedDeliverable({
+            clientId: job.clientId,
+            adJobId: job.id,
+            isSample: false,
+            variants: job.variants || {},
+            driveFolderId: job.delivery?.googleDriveFolderId,
+            driveFileIds: job.delivery?.googleDriveFileIds,
+            approvedBy: safeReviewerName,
+            approvedAt: job.reviewLog.approvedAt,
+            deliveredAt: job.delivery?.deliveredAt,
+          });
+        }
       }
     } else if (safeDecision === "reject") {
       job.status = "rejected";

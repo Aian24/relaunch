@@ -165,7 +165,12 @@ export default function ApprovedDeliverablesVaultPage() {
 
   const loadApprovedDeliverables = () => {
     setLoading(true);
-    fetch("/api/studio/review?status=approved")
+    const params = typeof window !== "undefined" ? new URLSearchParams(window.location.search) : null;
+    const qClientId = params?.get("clientId") || "";
+    const qs = new URLSearchParams({ status: "approved", excludeSamples: "true" });
+    if (qClientId) qs.set("clientId", qClientId);
+
+    fetch(`/api/studio/review?${qs.toString()}`)
       .then((res) => res.json())
       .then((data) => {
         const list: ApprovedVariant[] = data.variants || [];

@@ -86,6 +86,10 @@ export default function StudioAdminShell({ children }: { children: React.ReactNo
 
   const navItems: NavItem[] = [
     {
+      label: "Clients",
+      href: "/studio/clients",
+    },
+    {
       label: "Generator",
       href: "/studio/generate",
     },
@@ -100,10 +104,6 @@ export default function StudioAdminShell({ children }: { children: React.ReactNo
       href: "/studio/approved",
       badge: approvedCount > 0 ? approvedCount : undefined,
       badgeClass: "bg-[#7F48ED] text-white",
-    },
-    {
-      label: "Brand Footage",
-      href: "/studio/assets",
     },
     {
       label: "Creators",
@@ -139,7 +139,7 @@ export default function StudioAdminShell({ children }: { children: React.ReactNo
             {mobileOpen ? <X className="w-4 h-4" /> : <Menu className="w-4 h-4" />}
           </button>
 
-          <Link href="/studio/generate" className="flex items-center shrink-0">
+          <Link href="/studio/clients" className="flex items-center shrink-0">
             <Image
               src="/logos/logo-compact-dark.png"
               alt="ReLaunch Logo"

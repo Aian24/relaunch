@@ -38,8 +38,18 @@ export interface AdJobComplianceChecks {
   cdSignOffNotes?: string;         // Creative Director editorial notes
 }
 
+export interface AdJobSceneClipRef {
+  clipId?: string;
+  sourceRawId?: string;
+  inPoint?: number;
+  outPoint?: number;
+  label?: string;
+}
+
 export interface AdJob {
   id: string;
+  clientId?: string;
+  isSample?: boolean;
   brandId: string;
   brandName: string;
   creativeAngle: string;
@@ -52,6 +62,10 @@ export interface AdJob {
     hookClipUrl: string;           // 0–3s UGC/sample creator hook
   };
   clientFootageUrl: string;        // 3–15s raw client footage
+  sceneClips?: {
+    scene2?: AdJobSceneClipRef;
+    scene3?: AdJobSceneClipRef;
+  };
   aiScene: {
     prompt: string;                // Grok Imagine prompt
     model: string;                 // 'grok-1.5' default
@@ -96,6 +110,7 @@ export interface AdJob {
   adKitDraft?: AdKitCopyDraft;
   isRealFootageDominant?: boolean;
   hasSyntheticScenes?: boolean;
+  deliveredAt?: string;
   deletedAt?: string;
   createdAt: string;
   updatedAt: string;
