@@ -23,6 +23,7 @@ import {
   Layers,
 } from "lucide-react";
 import type { ClientStatus, ClientSummary } from "@/types/client";
+import StudioPagination, { usePagination } from "@/components/studio/StudioPagination";
 
 const STATUS_BADGE: Record<ClientStatus, string> = {
   active: "bg-purple-50 text-[#7F48ED] border-[#7F48ED]/30",
@@ -189,6 +190,8 @@ export default function StudioClientsDashboardPage() {
     }
     return arr;
   }, [clients, sortBy, quickFilter]);
+
+  const clientsPagination = usePagination(sortedClients, 8, [8, 12, 24, 48]);
 
   const totals = useMemo(() => {
     return clients.reduce(
@@ -498,8 +501,9 @@ export default function StudioClientsDashboardPage() {
             </button>
           </div>
         ) : viewMode === "cards" ? (
+          <>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4 gap-4">
-            {sortedClients.map((client, idx) => {
+            {clientsPagination.pagedItems.map((client, idx) => {
               const avatarIsOrange = idx % 2 === 0;
               return (
                 <div
@@ -671,7 +675,21 @@ export default function StudioClientsDashboardPage() {
               );
             })}
           </div>
+          <StudioPagination
+            page={clientsPagination.page}
+            pageSize={clientsPagination.pageSize}
+            totalItems={clientsPagination.totalItems}
+            totalPages={clientsPagination.totalPages}
+            startIndex={clientsPagination.startIndex}
+            endIndex={clientsPagination.endIndex}
+            onPageChange={clientsPagination.setPage}
+            onPageSizeChange={clientsPagination.setPageSize}
+            pageSizeOptions={clientsPagination.pageSizeOptions}
+            itemLabel={space === "clients" ? "clients" : "samples"}
+          />
+          </>
         ) : (
+          <>
           <div className="bg-white rounded-2xl border border-zinc-200 overflow-hidden shadow-xs">
             <div className="overflow-x-auto">
               <table className="w-full text-left border-collapse text-xs">
@@ -686,7 +704,7 @@ export default function StudioClientsDashboardPage() {
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-zinc-100">
-                  {sortedClients.map((client) => (
+                  {clientsPagination.pagedItems.map((client) => (
                     <tr key={client.id} className="hover:bg-purple-50/30 transition">
                       <td className="py-3 px-4">
                         <Link
@@ -747,6 +765,19 @@ export default function StudioClientsDashboardPage() {
               </table>
             </div>
           </div>
+          <StudioPagination
+            page={clientsPagination.page}
+            pageSize={clientsPagination.pageSize}
+            totalItems={clientsPagination.totalItems}
+            totalPages={clientsPagination.totalPages}
+            startIndex={clientsPagination.startIndex}
+            endIndex={clientsPagination.endIndex}
+            onPageChange={clientsPagination.setPage}
+            onPageSizeChange={clientsPagination.setPageSize}
+            pageSizeOptions={clientsPagination.pageSizeOptions}
+            itemLabel={space === "clients" ? "clients" : "samples"}
+          />
+          </>
         )}
       </main>
 

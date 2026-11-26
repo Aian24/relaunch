@@ -32,6 +32,7 @@ import {
   Check,
 } from "lucide-react";
 import { MusicTrack, CtaTemplate, BRAND_COLOR_PRESETS, TRUST_BADGE_PRESETS } from "@/data/timelineAssets";
+import StudioPagination, { usePagination } from "@/components/studio/StudioPagination";
 
 const GENRES = [
   "all",
@@ -419,6 +420,18 @@ export default function MasterTracksPage() {
 
   const totalTrashCount = trashedMusic.length + trashedCtas.length;
 
+  const combinedTrash = React.useMemo(
+    () => [
+      ...trashedMusic.map((item) => ({ kind: "music" as const, item })),
+      ...trashedCtas.map((item) => ({ kind: "cta" as const, item })),
+    ],
+    [trashedMusic, trashedCtas]
+  );
+
+  const musicPagination = usePagination(filteredMusic, 10, [5, 10, 20, 50]);
+  const ctaPagination = usePagination(filteredCtas, 10, [5, 10, 20, 50]);
+  const trashPagination = usePagination(combinedTrash, 16, [8, 16, 32, 64]);
+
   const formatTime = (secs: number) => {
     const m = Math.floor(secs / 60);
     const s = Math.floor(secs % 60);
@@ -695,8 +708,9 @@ export default function MasterTracksPage() {
                 </button>
               </div>
             ) : (
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3.5">
-                {filteredMusic.map((track) => {
+              <>
+              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-5 gap-3">
+                {musicPagination.pagedItems.map((track) => {
                   const isPlaying = playingTrackId === track.id;
                   return (
                     <div
@@ -808,6 +822,20 @@ export default function MasterTracksPage() {
                   );
                 })}
               </div>
+              <StudioPagination
+                page={musicPagination.page}
+                pageSize={musicPagination.pageSize}
+                totalItems={musicPagination.totalItems}
+                totalPages={musicPagination.totalPages}
+                startIndex={musicPagination.startIndex}
+                endIndex={musicPagination.endIndex}
+                onPageChange={musicPagination.setPage}
+                onPageSizeChange={musicPagination.setPageSize}
+                pageSizeOptions={musicPagination.pageSizeOptions}
+                itemLabel="tracks"
+                variant="dark"
+              />
+              </>
             )}
           </div>
         )}
@@ -852,8 +880,9 @@ export default function MasterTracksPage() {
                 </button>
               </div>
             ) : (
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-                {filteredCtas.map((cta) => {
+              <>
+              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-5 gap-3">
+                {ctaPagination.pagedItems.map((cta) => {
                   return (
                     <div
                       key={cta.id}
@@ -931,6 +960,20 @@ export default function MasterTracksPage() {
                   );
                 })}
               </div>
+              <StudioPagination
+                page={ctaPagination.page}
+                pageSize={ctaPagination.pageSize}
+                totalItems={ctaPagination.totalItems}
+                totalPages={ctaPagination.totalPages}
+                startIndex={ctaPagination.startIndex}
+                endIndex={ctaPagination.endIndex}
+                onPageChange={ctaPagination.setPage}
+                onPageSizeChange={ctaPagination.setPageSize}
+                pageSizeOptions={ctaPagination.pageSizeOptions}
+                itemLabel="CTA templates"
+                variant="dark"
+              />
+              </>
             )}
           </div>
         )}
@@ -1036,95 +1079,113 @@ export default function MasterTracksPage() {
                 <p className="text-xs text-zinc-500">Deleted music tracks or CTA templates will appear here</p>
               </div>
             ) : (
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-3.5">
-                {/* Trashed Music Tracks */}
-                {trashedMusic.map((track) => (
-                  <div
-                    key={track.id}
-                    className="p-4 bg-[#141B2B] border border-red-900/40 rounded-2xl flex items-center justify-between gap-3"
-                  >
-                    <div className="min-w-0">
-                      <div className="flex items-center gap-2">
-                        <Music className="w-4 h-4 text-red-400 shrink-0" />
-                        <span className="font-bold text-sm text-white truncate">{track.title}</span>
-                      </div>
-                      <div className="text-[11px] text-zinc-400 mt-0.5 truncate">
-                        {track.genre} · {track.bpm} BPM · {track.provider || "Custom"}
-                      </div>
-                      {track.deletedAt && (
-                        <div className="text-[10px] text-zinc-500 mt-1">
-                          Deleted: {new Date(track.deletedAt).toLocaleDateString()}
+              <>
+              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 lg:grid-cols-6 xl:grid-cols-8 gap-2.5">
+                {trashPagination.pagedItems.map((entry) => {
+                  if (entry.kind === "music") {
+                    const track = entry.item;
+                    return (
+                      <div
+                        key={`music-${track.id}`}
+                        className="p-3 bg-[#141B2B] border border-red-900/40 rounded-xl flex flex-col justify-between gap-2.5"
+                      >
+                        <div className="min-w-0">
+                          <div className="flex items-center gap-1.5">
+                            <Music className="w-3.5 h-3.5 text-red-400 shrink-0" />
+                            <span className="font-bold text-xs text-white truncate">{track.title}</span>
+                          </div>
+                          <div className="text-[10px] text-zinc-400 mt-0.5 truncate">
+                            {track.genre} · {track.bpm} BPM
+                          </div>
+                          {track.deletedAt && (
+                            <div className="text-[9px] text-zinc-500 mt-1">
+                              {new Date(track.deletedAt).toLocaleDateString()}
+                            </div>
+                          )}
                         </div>
-                      )}
-                    </div>
 
-                    <div className="flex items-center gap-2 shrink-0">
-                      <button
-                        type="button"
-                        onClick={() => handleRestore(track, "music")}
-                        className="px-2.5 py-1.5 bg-emerald-950 hover:bg-emerald-900 text-emerald-200 border border-emerald-800 rounded-lg text-xs font-bold transition flex items-center gap-1 cursor-pointer"
-                        title="Restore to active library"
-                      >
-                        <RotateCcw className="w-3 h-3" />
-                        <span>Restore</span>
-                      </button>
+                        <div className="flex items-center gap-1.5 pt-2 border-t border-zinc-800/80">
+                          <button
+                            type="button"
+                            onClick={() => handleRestore(track, "music")}
+                            className="flex-1 px-2 py-1 bg-emerald-950 hover:bg-emerald-900 text-emerald-200 border border-emerald-800 rounded-lg text-[10px] font-bold transition flex items-center justify-center gap-1 cursor-pointer"
+                            title="Restore to active library"
+                          >
+                            <RotateCcw className="w-3 h-3" />
+                            <span>Restore</span>
+                          </button>
 
-                      <button
-                        type="button"
-                        onClick={() => handlePermanentDelete(track, "music")}
-                        className="p-1.5 bg-red-950 hover:bg-red-900 text-red-300 hover:text-white rounded-lg border border-red-800 transition cursor-pointer"
-                        title="Permanently erase file"
-                      >
-                        <Trash2 className="w-3.5 h-3.5" />
-                      </button>
-                    </div>
-                  </div>
-                ))}
-
-                {/* Trashed CTA Templates */}
-                {trashedCtas.map((cta) => (
-                  <div
-                    key={cta.id}
-                    className="p-4 bg-[#141B2B] border border-red-900/40 rounded-2xl flex items-center justify-between gap-3"
-                  >
-                    <div className="min-w-0">
-                      <div className="flex items-center gap-2">
-                        <Sparkles className="w-4 h-4 text-orange-400 shrink-0" />
-                        <span className="font-bold text-sm text-white truncate">{cta.name}</span>
-                      </div>
-                      <div className="text-[11px] text-zinc-400 mt-0.5 truncate">
-                        Badge: {cta.badge} · {cta.description}
-                      </div>
-                      {cta.deletedAt && (
-                        <div className="text-[10px] text-zinc-500 mt-1">
-                          Deleted: {new Date(cta.deletedAt).toLocaleDateString()}
+                          <button
+                            type="button"
+                            onClick={() => handlePermanentDelete(track, "music")}
+                            className="p-1 bg-red-950 hover:bg-red-900 text-red-300 hover:text-white rounded-lg border border-red-800 transition cursor-pointer"
+                            title="Permanently erase file"
+                          >
+                            <Trash2 className="w-3 h-3" />
+                          </button>
                         </div>
-                      )}
-                    </div>
+                      </div>
+                    );
+                  }
+                  const cta = entry.item;
+                  return (
+                    <div
+                      key={`cta-${cta.id}`}
+                      className="p-3 bg-[#141B2B] border border-red-900/40 rounded-xl flex flex-col justify-between gap-2.5"
+                    >
+                      <div className="min-w-0">
+                        <div className="flex items-center gap-1.5">
+                          <Sparkles className="w-3.5 h-3.5 text-orange-400 shrink-0" />
+                          <span className="font-bold text-xs text-white truncate">{cta.name}</span>
+                        </div>
+                        <div className="text-[10px] text-zinc-400 mt-0.5 truncate">
+                          {cta.badge}
+                        </div>
+                        {cta.deletedAt && (
+                          <div className="text-[9px] text-zinc-500 mt-1">
+                            {new Date(cta.deletedAt).toLocaleDateString()}
+                          </div>
+                        )}
+                      </div>
 
-                    <div className="flex items-center gap-2 shrink-0">
-                      <button
-                        type="button"
-                        onClick={() => handleRestore(cta, "cta")}
-                        className="px-2.5 py-1.5 bg-emerald-950 hover:bg-emerald-900 text-emerald-200 border border-emerald-800 rounded-lg text-xs font-bold transition flex items-center gap-1 cursor-pointer"
-                        title="Restore to active library"
-                      >
-                        <RotateCcw className="w-3 h-3" />
-                        <span>Restore</span>
-                      </button>
+                      <div className="flex items-center gap-1.5 pt-2 border-t border-zinc-800/80">
+                        <button
+                          type="button"
+                          onClick={() => handleRestore(cta, "cta")}
+                          className="flex-1 px-2 py-1 bg-emerald-950 hover:bg-emerald-900 text-emerald-200 border border-emerald-800 rounded-lg text-[10px] font-bold transition flex items-center justify-center gap-1 cursor-pointer"
+                          title="Restore to active library"
+                        >
+                          <RotateCcw className="w-3 h-3" />
+                          <span>Restore</span>
+                        </button>
 
-                      <button
-                        type="button"
-                        onClick={() => handlePermanentDelete(cta, "cta")}
-                        className="p-1.5 bg-red-950 hover:bg-red-900 text-red-300 hover:text-white rounded-lg border border-red-800 transition cursor-pointer"
-                        title="Permanently erase template"
-                      >
-                        <Trash2 className="w-3.5 h-3.5" />
-                      </button>
+                        <button
+                          type="button"
+                          onClick={() => handlePermanentDelete(cta, "cta")}
+                          className="p-1 bg-red-950 hover:bg-red-900 text-red-300 hover:text-white rounded-lg border border-red-800 transition cursor-pointer"
+                          title="Permanently erase template"
+                        >
+                          <Trash2 className="w-3 h-3" />
+                        </button>
+                      </div>
                     </div>
-                  </div>
-                ))}
+                  );
+                })}
               </div>
+              <StudioPagination
+                page={trashPagination.page}
+                pageSize={trashPagination.pageSize}
+                totalItems={trashPagination.totalItems}
+                totalPages={trashPagination.totalPages}
+                startIndex={trashPagination.startIndex}
+                endIndex={trashPagination.endIndex}
+                onPageChange={trashPagination.setPage}
+                onPageSizeChange={trashPagination.setPageSize}
+                pageSizeOptions={trashPagination.pageSizeOptions}
+                itemLabel="trashed items"
+                variant="dark"
+              />
+              </>
             )}
           </div>
         )}

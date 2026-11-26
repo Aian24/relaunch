@@ -61,7 +61,7 @@ export default function StudioAdminShell({ children }: { children: React.ReactNo
       .then((data) => {
         if (!cancelled && data?.ok) {
           setPendingCount(data.pendingCount ?? 0);
-          setApprovedCount(data.approvedCount ?? 0);
+          setApprovedCount(data.realApprovedCount ?? data.approvedCount ?? 0);
         }
       })
       .catch(() => { });

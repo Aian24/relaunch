@@ -40,6 +40,7 @@ import {
   Video,
   Music,
 } from "lucide-react";
+import StudioPagination, { usePagination } from "@/components/studio/StudioPagination";
 
 interface ApprovedVariant {
   id: string;
@@ -274,6 +275,8 @@ export default function ApprovedDeliverablesVaultPage() {
     return matchesBrand && matchesQuery;
   });
 
+  const approvedPagination = usePagination(filtered, 6, [6, 12, 24, 48]);
+
   const googleDriveFolderId = "1HWnNVUDgq3d0uI5Fcd54aS3Iim7U97Vx";
 
   return (
@@ -413,8 +416,9 @@ export default function ApprovedDeliverablesVaultPage() {
             </div>
           </div>
         ) : (
+          <>
           <div className="w-full grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4 sm:gap-5">
-            {filtered.map((item, index) => {
+            {approvedPagination.pagedItems.map((item, index) => {
               const currentRatio = ratios[item.id] || "9:16";
               const currentVideoSrc =
                 currentRatio === "9:16"
@@ -436,7 +440,7 @@ export default function ApprovedDeliverablesVaultPage() {
                   <div className="p-3.5 sm:p-4 border-b border-zinc-100 flex items-center justify-between gap-2 flex-wrap">
                     <div className="flex items-center gap-2 min-w-0">
                       <span className="w-6 h-6 rounded-lg bg-emerald-50 text-emerald-700 font-mono text-[11px] font-bold flex items-center justify-center shrink-0">
-                        #{index + 1}
+                        #{approvedPagination.startIndex + index + 1}
                       </span>
                       <div className="min-w-0">
                         <div className="flex items-center gap-1.5 flex-wrap">
@@ -833,6 +837,19 @@ export default function ApprovedDeliverablesVaultPage() {
               );
             })}
           </div>
+          <StudioPagination
+            page={approvedPagination.page}
+            pageSize={approvedPagination.pageSize}
+            totalItems={approvedPagination.totalItems}
+            totalPages={approvedPagination.totalPages}
+            startIndex={approvedPagination.startIndex}
+            endIndex={approvedPagination.endIndex}
+            onPageChange={approvedPagination.setPage}
+            onPageSizeChange={approvedPagination.setPageSize}
+            pageSizeOptions={approvedPagination.pageSizeOptions}
+            itemLabel="approved ads"
+          />
+          </>
         )}
       </main>
 

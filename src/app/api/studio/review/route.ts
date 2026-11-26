@@ -95,15 +95,17 @@ export async function GET(request: Request) {
     hasSyntheticScenes: job.hasSyntheticScenes ?? false,
   }));
 
-  const needsReviewCount = allVariants.filter((v) => v.status === "needs_review").length;
-  const recutCount = allVariants.filter((v) => v.status === "recut").length;
-  const approvedCount = allVariants.filter((v) => v.status === "approved").length;
-  const rejectedCount = allVariants.filter((v) => v.status === "rejected").length;
-
   const urlParams = new URL(request.url).searchParams;
   const statusFilter = urlParams.get("status");
   const clientIdFilter = urlParams.get("clientId");
   const excludeSamples = urlParams.get("excludeSamples") === "true";
+
+  const baseVariants = excludeSamples ? allVariants.filter((v) => !v.isSample) : allVariants;
+  const needsReviewCount = baseVariants.filter((v) => v.status === "needs_review").length;
+  const recutCount = baseVariants.filter((v) => v.status === "recut").length;
+  const approvedCount = baseVariants.filter((v) => v.status === "approved").length;
+  const realApprovedCount = allVariants.filter((v) => v.status === "approved" && !v.isSample).length;
+  const rejectedCount = baseVariants.filter((v) => v.status === "rejected").length;
 
   if (sharedVariantOnly) {
     const sharedMatches = allVariants.filter((v) => v.id === sharedVariantOnly);
@@ -114,16 +116,14 @@ export async function GET(request: Request) {
       needsReviewCount: 0,
       recutCount: 0,
       approvedCount: sharedMatches.filter((v) => v.status === "approved").length,
+      realApprovedCount: sharedMatches.filter((v) => v.status === "approved" && !v.isSample).length,
       rejectedCount: 0,
       pendingCount: 0,
       variants: sharedMatches,
     });
   }
 
-  let filtered = allVariants;
-  if (excludeSamples) {
-    filtered = filtered.filter((v) => !v.isSample);
-  }
+  let filtered = baseVariants;
   if (clientIdFilter && clientIdFilter !== "all") {
     filtered = filtered.filter((v) => v.clientId === clientIdFilter);
   }
@@ -140,10 +140,11 @@ export async function GET(request: Request) {
   return NextResponse.json({
     ok: true,
     count: filtered.length,
-    totalCount: allVariants.length,
+    totalCount: baseVariants.length,
     needsReviewCount,
     recutCount,
     approvedCount,
+    realApprovedCount,
     rejectedCount,
     pendingCount: needsReviewCount + recutCount,
     variants: filtered,

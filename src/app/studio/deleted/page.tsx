@@ -20,6 +20,7 @@ import {
   AlertTriangle,
   FolderOpen,
 } from "lucide-react";
+import StudioPagination, { usePagination } from "@/components/studio/StudioPagination";
 
 interface DeletedVariant {
   id: string;
@@ -103,6 +104,8 @@ export default function DeletedAdsRecoveryPage() {
       return matchBrand && matchSearch;
     });
   }, [deletedAds, selectedBrand, searchQuery]);
+
+  const deletedPagination = usePagination(filteredAds, 16, [8, 16, 32, 64]);
 
   const handleToggleSelect = (id: string) => {
     setSelectedIds((prev) =>
@@ -466,9 +469,10 @@ export default function DeletedAdsRecoveryPage() {
             </div>
           </div>
         ) : (
-          /* Deleted Ads Grid */
-          <div className="w-full grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4 sm:gap-5">
-            {filteredAds.map((ad) => {
+          /* Deleted Ads Compact 7-8 Column Grid */
+          <>
+          <div className="w-full grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 xl:grid-cols-7 2xl:grid-cols-8 gap-2.5">
+            {deletedPagination.pagedItems.map((ad) => {
               const isSelected = selectedIds.includes(ad.id);
               const ratio = ratios[ad.id] || "9:16";
               const isCurrentPlaying = playingId === ad.id;
@@ -478,45 +482,34 @@ export default function DeletedAdsRecoveryPage() {
               return (
                 <div
                   key={ad.id}
-                  className={`bg-white rounded-2xl border transition-all flex flex-col justify-between overflow-hidden shadow-xs hover:shadow-md ${
+                  className={`bg-white rounded-xl border transition-all flex flex-col justify-between overflow-hidden shadow-xs hover:shadow-md ${
                     isSelected
                       ? "border-[#7F48ED] ring-2 ring-[#7F48ED]/30"
                       : "border-zinc-200 hover:border-zinc-300"
                   }`}
                 >
-                  {/* Top Bar of Card */}
-                  <div className="p-3.5 border-b border-zinc-100 flex items-center justify-between gap-2 bg-gradient-to-r from-zinc-50/50 to-white">
-                    <div className="flex items-center gap-2 truncate">
+                  {/* Compact Card Header */}
+                  <div className="px-2.5 py-2 border-b border-zinc-100 flex items-center justify-between gap-1.5 bg-zinc-50/70">
+                    <div className="flex items-center gap-1.5 min-w-0">
                       <input
                         type="checkbox"
                         checked={isSelected}
                         onChange={() => handleToggleSelect(ad.id)}
-                        className="w-4 h-4 rounded border-zinc-300 text-[#7F48ED] focus:ring-[#7F48ED] cursor-pointer shrink-0"
+                        className="w-3.5 h-3.5 rounded border-zinc-300 text-[#7F48ED] focus:ring-[#7F48ED] cursor-pointer shrink-0"
                         title="Select ad"
                       />
-                      <div className="truncate">
-                        <div className="text-xs font-black text-zinc-900 truncate">{ad.clientName}</div>
-                        <div className="text-[10px] text-zinc-400 font-mono">
-                          Deleted: {formatDeletedDate(ad.deletedAt)}
+                      <div className="min-w-0">
+                        <div className="text-[11px] font-black text-zinc-900 truncate">{ad.clientName}</div>
+                        <div className="text-[9px] text-zinc-400 font-mono truncate">
+                          {formatDeletedDate(ad.deletedAt)}
                         </div>
                       </div>
                     </div>
-                    <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-red-50 text-red-700 border border-red-200 shrink-0">
-                      In Trash
-                    </span>
                   </div>
 
-                  {/* Video Stage Preview */}
-                  <div className="p-3.5 flex flex-col items-center">
-                    <div
-                      className={`relative bg-black rounded-xl overflow-hidden shadow-inner group transition-all ${
-                        ratio === "9:16"
-                          ? "w-44 aspect-[9/16]"
-                          : ratio === "1:1"
-                          ? "w-48 aspect-square"
-                          : "w-48 aspect-[4/5]"
-                      }`}
-                    >
+                  {/* Compact Video Stage Preview */}
+                  <div className="p-2 flex flex-col items-center gap-1.5">
+                    <div className="relative w-full h-36 bg-zinc-900 rounded-lg overflow-hidden shadow-inner group">
                       {videoSrc ? (
                         <video
                           ref={(el) => {
@@ -530,7 +523,7 @@ export default function DeletedAdsRecoveryPage() {
                           className="w-full h-full object-cover"
                         />
                       ) : (
-                        <div className="w-full h-full flex items-center justify-center text-zinc-600 text-xs">
+                        <div className="w-full h-full flex items-center justify-center text-zinc-500 text-[10px]">
                           No Preview
                         </div>
                       )}
@@ -542,8 +535,8 @@ export default function DeletedAdsRecoveryPage() {
                         className="absolute inset-0 flex items-center justify-center z-10 cursor-pointer focus:outline-none"
                       >
                         {!isCurrentPlaying && (
-                          <div className="w-10 h-10 rounded-full bg-black/60 backdrop-blur-xs border border-white/20 flex items-center justify-center text-white shadow-xl transition transform hover:scale-105">
-                            <Play className="w-4 h-4 fill-white ml-0.5" />
+                          <div className="w-8 h-8 rounded-full bg-[#7F48ED]/90 border border-white/30 flex items-center justify-center text-white shadow-lg transition transform hover:scale-105">
+                            <Play className="w-3.5 h-3.5 fill-white ml-0.5" />
                           </div>
                         )}
                       </button>
@@ -553,22 +546,22 @@ export default function DeletedAdsRecoveryPage() {
                         <button
                           type="button"
                           onClick={(e) => toggleMute(ad.id, e)}
-                          className="absolute bottom-2 right-2 p-1.5 rounded-full bg-black/70 hover:bg-black text-white transition z-20 cursor-pointer shadow"
+                          className="absolute bottom-1.5 right-1.5 p-1 rounded-full bg-white/90 hover:bg-white text-zinc-800 transition z-20 cursor-pointer shadow"
                           title={isMuted ? "Unmute" : "Mute"}
                         >
-                          {isMuted ? <VolumeX className="w-3 h-3 text-red-400" /> : <Volume2 className="w-3 h-3 text-emerald-400" />}
+                          {isMuted ? <VolumeX className="w-2.5 h-2.5 text-red-500" /> : <Volume2 className="w-2.5 h-2.5 text-emerald-600" />}
                         </button>
                       )}
                     </div>
 
                     {/* Ratio Toggles */}
-                    <div className="flex items-center gap-1 mt-2.5 bg-zinc-100 p-0.5 rounded-lg border border-zinc-200">
+                    <div className="flex items-center gap-0.5 bg-zinc-100 p-0.5 rounded-md border border-zinc-200">
                       {(["9:16", "1:1", "4:5"] as const).map((r) => (
                         <button
                           key={r}
                           type="button"
                           onClick={(e) => setAdRatio(ad.id, r, e)}
-                          className={`px-2 py-0.5 text-[10px] font-bold rounded transition cursor-pointer ${
+                          className={`px-1.5 py-0.5 text-[9px] font-bold rounded transition cursor-pointer ${
                             ratio === r ? "bg-[#7F48ED] text-white shadow-xs" : "text-zinc-600 hover:text-zinc-900"
                           }`}
                         >
@@ -579,26 +572,25 @@ export default function DeletedAdsRecoveryPage() {
                   </div>
 
                   {/* Hook & Script Info */}
-                  <div className="px-3.5 pb-2 text-left">
-                    <div className="text-[11px] font-bold text-zinc-800 line-clamp-2 leading-snug mb-1">
+                  <div className="px-2.5 pb-2 text-left space-y-0.5">
+                    <div className="text-[10px] font-bold text-zinc-800 line-clamp-2 leading-snug">
                       &ldquo;{ad.hookText}&rdquo;
                     </div>
-                    <div className="flex items-center justify-between text-[10px] text-zinc-500 pt-1.5 border-t border-zinc-100">
-                      <span className="truncate max-w-[150px] font-medium">{ad.angle}</span>
-                      <span className="text-zinc-400 font-mono truncate">{ad.creatorActor || "AI Engine"}</span>
+                    <div className="text-[9px] text-zinc-400 truncate font-medium">
+                      {ad.angle}
                     </div>
                   </div>
 
-                  {/* Bottom Action Controls */}
-                  <div className="p-3 bg-zinc-50/80 border-t border-zinc-100 grid grid-cols-2 gap-2">
+                  {/* Compact Bottom Action Controls */}
+                  <div className="p-2 bg-zinc-50 border-t border-zinc-100 grid grid-cols-2 gap-1.5">
                     <button
                       type="button"
                       onClick={() => handleRestore([ad.id])}
                       disabled={isProcessing}
-                      className="py-1.5 px-2.5 rounded-xl text-xs font-bold bg-[#7F48ED] hover:bg-[#6b35d6] text-white transition shadow-xs flex items-center justify-center gap-1.5 cursor-pointer disabled:opacity-50"
+                      className="py-1 px-1.5 rounded-lg text-[10px] font-bold bg-[#7F48ED] hover:bg-[#6b35d6] text-white transition shadow-xs flex items-center justify-center gap-1 cursor-pointer disabled:opacity-50"
                       title="Restore ad back to review queue"
                     >
-                      <RotateCcw className="w-3.5 h-3.5" />
+                      <RotateCcw className="w-3 h-3" />
                       <span>Restore</span>
                     </button>
 
@@ -606,10 +598,10 @@ export default function DeletedAdsRecoveryPage() {
                       type="button"
                       onClick={() => setShowDeleteConfirmId(ad.id)}
                       disabled={isProcessing}
-                      className="py-1.5 px-2.5 rounded-xl text-xs font-bold text-red-600 hover:bg-red-50 border border-red-200 transition flex items-center justify-center gap-1.5 cursor-pointer disabled:opacity-50"
+                      className="py-1 px-1.5 rounded-lg text-[10px] font-bold text-red-600 hover:bg-red-50 border border-red-200 transition flex items-center justify-center gap-1 cursor-pointer disabled:opacity-50"
                       title="Permanently erase ad"
                     >
-                      <Trash2 className="w-3.5 h-3.5" />
+                      <Trash2 className="w-3 h-3" />
                       <span>Purge</span>
                     </button>
                   </div>
@@ -617,6 +609,19 @@ export default function DeletedAdsRecoveryPage() {
               );
             })}
           </div>
+          <StudioPagination
+            page={deletedPagination.page}
+            pageSize={deletedPagination.pageSize}
+            totalItems={deletedPagination.totalItems}
+            totalPages={deletedPagination.totalPages}
+            startIndex={deletedPagination.startIndex}
+            endIndex={deletedPagination.endIndex}
+            onPageChange={deletedPagination.setPage}
+            onPageSizeChange={deletedPagination.setPageSize}
+            pageSizeOptions={deletedPagination.pageSizeOptions}
+            itemLabel="trashed ads"
+          />
+          </>
         )}
       </main>
 

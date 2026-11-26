@@ -29,6 +29,7 @@ import {
 } from "lucide-react";
 import { CREATOR_ROSTER, CreatorProfile } from "@/data/creatorRoster";
 import { CREATOR_ASSETS, CreatorClipAsset } from "@/data/creatorAssets";
+import StudioPagination, { usePagination } from "@/components/studio/StudioPagination";
 
 export default function CreatorIntakeAndTrimmerPage() {
   const [roster, setRoster] = useState<CreatorProfile[]>(CREATOR_ROSTER);
@@ -77,6 +78,10 @@ export default function CreatorIntakeAndTrimmerPage() {
   const activeCreator = roster.find((c) => c.actorPresetId === selectedCreatorId) || roster[0];
   const creatorClips = assets.filter((a) => a.creatorId === selectedCreatorId);
   const selectedClip = assets.find((a) => a.id === selectedAssetId) || creatorClips[0];
+
+  const rosterPagination = usePagination(roster, 7, [7, 14, 28, 56]);
+  const clipsPagination = usePagination(creatorClips, 5, [5, 10, 20, 40]);
+  const trashPagination = usePagination(trashedAssets, 16, [8, 16, 32, 64]);
 
   // Sync active clip into trimmer controls
   useEffect(() => {
@@ -435,57 +440,67 @@ export default function CreatorIntakeAndTrimmerPage() {
                 </button>
               </div>
             ) : (
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3.5">
-                {trashedAssets.map((clip) => (
+              <>
+              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 lg:grid-cols-6 xl:grid-cols-8 gap-2.5">
+                {trashPagination.pagedItems.map((clip) => (
                   <div
                     key={clip.id}
-                    className="bg-white rounded-2xl border border-red-200/80 p-4 shadow-sm flex flex-col justify-between gap-3 hover:border-red-300 transition"
+                    className="bg-white rounded-xl border border-red-200/80 p-3 shadow-xs flex flex-col justify-between gap-2.5 hover:border-red-300 transition"
                   >
-                    <div className="space-y-2">
-                      <div className="flex items-center justify-between">
-                        <span className="px-2 py-0.5 rounded-full bg-red-50 text-red-700 text-[10px] font-bold uppercase tracking-wider border border-red-200">
+                    <div className="space-y-1.5">
+                      <div className="flex items-center justify-between gap-1">
+                        <span className="px-1.5 py-0.5 rounded-full bg-red-50 text-red-700 text-[9px] font-bold uppercase tracking-wider border border-red-200 truncate">
                           {clip.creatorName || clip.creatorId} · {clip.type.toUpperCase()}
                         </span>
-                        <span className="text-[10px] font-mono text-zinc-400">
+                        <span className="text-[9px] font-mono text-zinc-400 shrink-0">
                           {clip.durationSeconds}s
                         </span>
                       </div>
 
                       <div>
-                        <h4 className="font-bold text-xs text-zinc-900 truncate">{clip.label}</h4>
-                        <p className="text-[11px] text-zinc-500 line-clamp-2 mt-0.5">
+                        <h4 className="font-bold text-[11px] text-zinc-900 truncate">{clip.label}</h4>
+                        <p className="text-[10px] text-zinc-500 line-clamp-2 mt-0.5 leading-snug">
                           &ldquo;{clip.spokenText}&rdquo;
                         </p>
                       </div>
-
-                      <div className="text-[10px] font-mono text-zinc-400 bg-zinc-50 p-2 rounded-lg border border-zinc-100">
-                        In: {clip.recommendedTrim?.start ?? 0}s · Out: {clip.recommendedTrim?.end ?? 3.8}s · {clip.resolution || "1080x1920"}
-                      </div>
                     </div>
 
-                    <div className="pt-2 border-t border-zinc-100 flex items-center justify-between gap-2">
+                    <div className="pt-2 border-t border-zinc-100 flex items-center justify-between gap-1.5">
                       <button
                         type="button"
                         onClick={() => handleRestoreClip(clip)}
-                        className="flex-1 py-1.5 px-3 bg-emerald-50 hover:bg-emerald-100 text-emerald-700 border border-emerald-200 rounded-xl text-xs font-bold transition flex items-center justify-center gap-1 cursor-pointer"
+                        className="flex-1 py-1 px-2 bg-emerald-50 hover:bg-emerald-100 text-emerald-700 border border-emerald-200 rounded-lg text-[10px] font-bold transition flex items-center justify-center gap-1 cursor-pointer"
                         title="Restore to active library"
                       >
-                        <RotateCcw className="w-3.5 h-3.5" />
-                        <span>Restore Take</span>
+                        <RotateCcw className="w-3 h-3" />
+                        <span>Restore</span>
                       </button>
 
                       <button
                         type="button"
                         onClick={() => handlePermanentDeleteClip(clip)}
-                        className="p-1.5 bg-red-50 hover:bg-red-100 text-red-700 border border-red-200 rounded-xl transition cursor-pointer"
+                        className="p-1 bg-red-50 hover:bg-red-100 text-red-700 border border-red-200 rounded-lg transition cursor-pointer"
                         title="Delete permanently from disk"
                       >
-                        <Trash2 className="w-3.5 h-3.5" />
+                        <Trash2 className="w-3 h-3" />
                       </button>
                     </div>
                   </div>
                 ))}
               </div>
+              <StudioPagination
+                page={trashPagination.page}
+                pageSize={trashPagination.pageSize}
+                totalItems={trashPagination.totalItems}
+                totalPages={trashPagination.totalPages}
+                startIndex={trashPagination.startIndex}
+                endIndex={trashPagination.endIndex}
+                onPageChange={trashPagination.setPage}
+                onPageSizeChange={trashPagination.setPageSize}
+                pageSizeOptions={trashPagination.pageSizeOptions}
+                itemLabel="deleted takes"
+              />
+              </>
             )}
           </div>
         ) : (
@@ -506,7 +521,7 @@ export default function CreatorIntakeAndTrimmerPage() {
             </Link>
           </div>
           <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 xl:grid-cols-8 gap-2.5 sm:gap-3">
-            {roster.map((creator) => {
+            {rosterPagination.pagedItems.map((creator) => {
               const isSelected = selectedCreatorId === creator.actorPresetId;
               const clipCount = assets.filter((a) => a.creatorId === creator.actorPresetId).length;
               return (
@@ -570,6 +585,20 @@ export default function CreatorIntakeAndTrimmerPage() {
               </span>
               <span className="text-[9px] text-zinc-400 font-medium">New Creator</span>
             </Link>
+          </div>
+          <div className="mt-3">
+            <StudioPagination
+              page={rosterPagination.page}
+              pageSize={rosterPagination.pageSize}
+              totalItems={rosterPagination.totalItems}
+              totalPages={rosterPagination.totalPages}
+              startIndex={rosterPagination.startIndex}
+              endIndex={rosterPagination.endIndex}
+              onPageChange={rosterPagination.setPage}
+              onPageSizeChange={rosterPagination.setPageSize}
+              pageSizeOptions={rosterPagination.pageSizeOptions}
+              itemLabel="creators"
+            />
           </div>
         </div>
 
@@ -753,8 +782,8 @@ export default function CreatorIntakeAndTrimmerPage() {
                 )}
               </div>
 
-              <div className="space-y-1.5 max-h-56 overflow-y-auto pr-1">
-                {creatorClips.map((clip) => {
+              <div className="space-y-1.5">
+                {clipsPagination.pagedItems.map((clip) => {
                   const isSelected = selectedAssetId === clip.id;
                   return (
                     <div
@@ -795,6 +824,19 @@ export default function CreatorIntakeAndTrimmerPage() {
                   );
                 })}
               </div>
+
+              <StudioPagination
+                page={clipsPagination.page}
+                pageSize={clipsPagination.pageSize}
+                totalItems={clipsPagination.totalItems}
+                totalPages={clipsPagination.totalPages}
+                startIndex={clipsPagination.startIndex}
+                endIndex={clipsPagination.endIndex}
+                onPageChange={clipsPagination.setPage}
+                onPageSizeChange={clipsPagination.setPageSize}
+                pageSizeOptions={clipsPagination.pageSizeOptions}
+                itemLabel="takes"
+              />
 
               {/* Or Custom Raw Take URL */}
               <div className="pt-2 border-t border-zinc-100 space-y-1">
